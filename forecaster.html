@@ -3867,7 +3867,6 @@
             return `${String(year).padStart(4,'0')}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
         };
         const formatCalendarMessage = (message,locale) => String(message || '').replace(/\b\d{4}-\d{2}-\d{2}(?:[T ]\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:\d{2})?)?\b/g,date=>formatForecastDate(date,locale));
-        const formatSourcePreviewCell = (value,index,source,locale) => source?.format==='vertical' && index===source.headers.indexOf(source.mapping.date) ? formatForecastDate(value,locale) : String(value ?? '');
         // Horizontal columns can represent whole months rather than individual dates.
         // Reuse the import parser's year rules, but format only the display label.
         const formatForecastHeader = (value, locale = 'en-US') => {
@@ -5813,6 +5812,36 @@
             return { valid, count, items, frequency };
         };
 
+        const verticalForecastPreviewRows = (source) => {
+            if (!source) return [];
+            const headers = source.headers || [];
+            const rows = source.rows || [];
+            const mapping = source.mapping || {};
+            const skuIndex = headers.indexOf(mapping.sku);
+            if (skuIndex < 0) return [];
+            if (source.format === 'vertical') {
+                const dateIndex = headers.indexOf(mapping.date);
+                const valueIndex = headers.indexOf(mapping.value);
+                if (dateIndex < 0 || valueIndex < 0 || new Set([skuIndex, dateIndex, valueIndex]).size !== 3) return [];
+                return rows.map(row => ({
+                    unique_id: String(row[skuIndex] ?? ''),
+                    ds: row[dateIndex],
+                    quantity: row[valueIndex],
+                }));
+            }
+            const startIndex = headers.indexOf(mapping.start);
+            const endIndex = headers.indexOf(mapping.end);
+            if (startIndex < 0 || endIndex < startIndex || (startIndex <= skuIndex && skuIndex <= endIndex)) return [];
+            return rows.flatMap(row => {
+                const uniqueId = String(row[skuIndex] ?? '');
+                return headers.slice(startIndex, endIndex + 1).map((date, offset) => ({
+                    unique_id: uniqueId,
+                    ds: date,
+                    quantity: row[startIndex + offset],
+                }));
+            });
+        };
+
         const PREPARATION_METHODS = {none:'Leave unresolved', forward:'Forward Fill', backward:'Backward Fill', interpolation:'Interpolation', seasonal:'Seasonal Imputation', zero:'Zero Imputation'};
         const preparationMapping = source => {
             const mapping = {data_format:source.format || 'horizontal', sku_col_idx:source.headers.indexOf(source.mapping.sku)};
@@ -6097,8 +6126,6 @@
         const previewSearchTerms = query => Array.from(query.matchAll(/"([^"]*)"|(\S+)/g), match=>normalizePreviewSearch(match[1] ?? match[2]).trim()).filter(Boolean);
         const indexPreviewRows = (rows, cells) => rows.map(row=>({row, values:cells(row).map(normalizePreviewSearch)}));
         const searchPreviewRows = (index, terms) => index.filter(({values})=>terms.every(term=>values.some(value=>value.includes(term)))).map(({row})=>row);
-        const rawPreviewItemIds = (rows, itemColumn) => itemColumn < 0 ? [] : [...new Set(rows.map(row=>String(row[itemColumn] ?? '')).filter(Boolean))];
-        const filterRawPreviewItems = (rows, itemColumn, itemId) => !itemId || itemColumn < 0 ? rows : rows.filter(row=>String(row[itemColumn] ?? '')===itemId);
         const MissingDataReview = ({review,update,locale='en-US',frequencyAuto,detectedFrequency,detectionFailed,handlingLocked,handlingStatus,recommendationsLocked,previewError}) => {
             const tr=value=>window.ForecastDialogI18n.translate(value,locale);
             const policy=review.policy, affected=review.items.filter(item=>item.missing || item.conflicts);
@@ -6349,16 +6376,16 @@
             const preparedPreview = gapPreview || !!review?.policy?.operating_calendar?.enabled;
             const searchTerms = useMemo(()=>previewSearchTerms(previewQuery),[previewQuery]);
             const preparedSearchIndex = useMemo(()=>indexPreviewRows(review?.records || [],row=>[...preparationPreviewCells(row),...preparationPreviewCells(row).slice(2).map(tr),formatForecastDate(row.ds,t.numberLocale)]),[review?.records,t.numberLocale]);
-            const rawSearchIndex = useMemo(()=>indexPreviewRows(source?.rows || [],row=>[...row.slice(0,60),...row.slice(0,60).map((value,index)=>formatSourcePreviewCell(value,index,source,t.numberLocale))]),[source?.rows,source?.mapping.date,t.numberLocale]);
+            const rawVerticalRecords = useMemo(()=>verticalForecastPreviewRows(source),[source]);
+            const rawSearchIndex = useMemo(()=>indexPreviewRows(rawVerticalRecords,row=>[row.unique_id,row.ds,formatForecastHeader(row.ds,t.numberLocale),row.quantity]),[rawVerticalRecords,t.numberLocale]);
             const searchedRecords = useMemo(()=>searchPreviewRows(preparedSearchIndex,searchTerms),[preparedSearchIndex,searchTerms]);
             const previewRecords = filterPreparationRecords({...review,records:searchedRecords}, itemFilter, false, false);
-            const itemColumn = source?.headers.indexOf(source?.mapping.sku) ?? -1;
             const previewItemIds = useMemo(()=>preparedPreview
                 ? [...new Set((review?.records || []).map(row=>String(row.unique_id)))]
-                : rawPreviewItemIds(source?.rows || [],itemColumn),[preparedPreview,review?.records,source?.rows,itemColumn]);
-            const rawPreviewRows = useMemo(()=>filterRawPreviewItems(searchPreviewRows(rawSearchIndex,searchTerms),itemColumn,itemFilter),[rawSearchIndex,searchTerms,itemColumn,itemFilter]);
+                : [...new Set(rawVerticalRecords.map(row=>row.unique_id).filter(Boolean))],[preparedPreview,review?.records,rawVerticalRecords]);
+            const rawPreviewRows = useMemo(()=>filterPreparationRecords({records:searchPreviewRows(rawSearchIndex,searchTerms)},itemFilter,false,false),[rawSearchIndex,searchTerms,itemFilter]);
             const previewRowCount = preparedPreview ? previewRecords.length : rawPreviewRows.length;
-            const unsearchedRowCount = preparedPreview ? filterPreparationRecords(review,itemFilter,false,false).length : filterRawPreviewItems(source?.rows || [],itemColumn,itemFilter).length;
+            const unsearchedRowCount = preparedPreview ? filterPreparationRecords(review,itemFilter,false,false).length : filterPreparationRecords({records:rawVerticalRecords},itemFilter,false,false).length;
             useEffect(()=>{setPage(current=>Math.min(current, Math.max(0, Math.ceil(previewRowCount/pageSize)-1)));},[previewRowCount]);
             const changePreviewQuery = value => {
                 setPreviewQuery(value);setPage(0);
@@ -6366,7 +6393,6 @@
                 if (table) table.scrollTop=0;
             };
             const visibleRows = rawPreviewRows.slice(page * pageSize, (page + 1) * pageSize);
-            const visibleHeaders = source?.headers.slice(0, 60) || [];
             const displayHeader = header => {
                 const label = source?.format === 'horizontal' ? formatForecastHeader(header, locale) : header;
                 return mode === 'template' ? tr(label) : label;
@@ -6435,11 +6461,11 @@
                                 <div className="fc-source-preview-footer"><span>{previewRecords.length ? page*pageSize+1 : 0}–{Math.min((page+1)*pageSize,previewRecords.length)} / {previewRecords.length} {tr("rows · Amber = prepared value")}{tr(' · Green = applied method or calendar')}{(review?.unresolved > 0 || review?.conflict_count > 0) && tr(' · Red = unresolved or conflict')}</span><div><button disabled={page===0} aria-label={tr("Previous rows")} onClick={()=>setPage(p=>p-1)}><ChevronLeftIcon/></button><button disabled={(page+1)*pageSize>=previewRecords.length} aria-label={tr("Next rows")} onClick={()=>setPage(p=>p+1)}><ChevronRightIcon/></button></div></div>
                             </> : <>
                             <div className="fc-source-table-wrap scroller" tabIndex={0} role="region" aria-label={tr(t('mapping.preview'))}>
-                                <table className="fc-source-table" data-format={source.format || "horizontal"}><thead><tr>{visibleHeaders.map((header, i) => <th key={i} scope="col" className={header === source.mapping.sku ? 'fc-source-id' : ''}>{displayHeader(header)}</th>)}</tr></thead>
-                                    <tbody>{!visibleRows.length && <tr><td colSpan={visibleHeaders.length || 1} className="fc-preview-empty">{tr("No rows match. Try another search.")}</td></tr>}{visibleRows.map((row, ri) => <tr key={page * pageSize + ri}>{visibleHeaders.map((header, ci) => <td key={ci} className={header === source.mapping.sku ? 'fc-source-id' : ''}>{formatSourcePreviewCell(row[ci],ci,source,t.numberLocale)}</td>)}</tr>)}</tbody>
+                                <table className="fc-source-table" data-format="vertical"><thead><tr><th scope="col" className="fc-source-id">{tr("Item ID")}</th><th scope="col">{tr("Date")}</th><th scope="col">{tr("Quantity")}</th></tr></thead>
+                                    <tbody>{!visibleRows.length && <tr><td colSpan={3} className="fc-preview-empty">{tr("No rows match. Try another search.")}</td></tr>}{visibleRows.map((row, ri) => <tr key={`${page * pageSize + ri}-${row.unique_id}-${row.ds}`}><td className="fc-source-id">{row.unique_id}</td><td>{formatForecastHeader(row.ds,t.numberLocale)}</td><td>{String(row.quantity ?? '')}</td></tr>)}</tbody>
                                 </table>
                             </div>
-                            <div className="fc-source-preview-footer"><span>{rawPreviewRows.length ? page * pageSize + 1 : 0}–{Math.min((page + 1) * pageSize, rawPreviewRows.length)} / {rawPreviewRows.length} {t('mapping.rows')}{source.headers.length > 60 ? ` · ${t('mapping.preview_columns')}` : ''}</span>
+                            <div className="fc-source-preview-footer"><span>{rawPreviewRows.length ? page * pageSize + 1 : 0}–{Math.min((page + 1) * pageSize, rawPreviewRows.length)} / {rawPreviewRows.length} {t('mapping.rows')}</span>
                                 {rawPreviewRows.length > pageSize && <div><button type="button" disabled={page === 0} onClick={() => setPage(p => p - 1)} aria-label={tr(t('mapping.previous'))}><ChevronLeftIcon /></button><button type="button" disabled={(page + 1) * pageSize >= rawPreviewRows.length} onClick={() => setPage(p => p + 1)} aria-label={tr(t('mapping.next'))}><ChevronRightIcon /></button></div>}
                             </div>
                             </>}

@@ -6,7 +6,7 @@ const XLSX = require('../vendor/xlsx-0.18.5.full.min.js');
 const source = fs.readFileSync(path.join(__dirname, '../forecaster.html'), 'utf8');
 const dates = source.slice(source.indexOf('const DEFAULT_FREQUENCY_PROFILES ='), source.indexOf('const parseForecastCapabilities ='));
 const mapping = source.slice(source.indexOf('const suggestForecastMapping ='), source.indexOf('const PREPARATION_METHODS ='));
-const {suggest, inspect, read, readVertical, pivot, append, upload, suggestVertical} = new Function('XLSX', dates + mapping + ';return {suggest:suggestForecastMapping, inspect:inspectForecastMapping, read:readForecastWorksheet, readVertical:readVerticalForecastTemplate, pivot:inspectVerticalForecastSource, append:appendForecastSourceForm, upload:readForecastUpload, suggestVertical:suggestVerticalForecastMapping};')(XLSX);
+const {suggest, inspect, read, readVertical, pivot, append, upload, suggestVertical, previewRows} = new Function('XLSX', dates + mapping + ';return {suggest:suggestForecastMapping, inspect:inspectForecastMapping, read:readForecastWorksheet, readVertical:readVerticalForecastTemplate, pivot:inspectVerticalForecastSource, append:appendForecastSourceForm, upload:readForecastUpload, suggestVertical:suggestVerticalForecastMapping, previewRows:verticalForecastPreviewRows};')(XLSX);
 
 test('the supplied template has a valid default mapping for every item and period', () => {
     const workbook = XLSX.read(fs.readFileSync(path.join(__dirname, '../assets/templates/Template-Horizontal-Format.xlsx')), {type:'buffer', cellNF:true});
@@ -46,6 +46,29 @@ test('vertical and horizontal templates both validate with the same item and per
         const data = upload(load(`Template-${format}-Format.xlsx`));
         assert.deepEqual(inspect(data), {valid:true,count:36,items:20,frequency:'monthly'});
     }
+});
+
+test('data preview always normalizes horizontal and vertical inputs to observation rows', () => {
+    const expected = [
+        {unique_id:'A',ds:'2026-01-01',quantity:1},
+        {unique_id:'A',ds:'2026-02-01',quantity:2},
+        {unique_id:'B',ds:'2026-01-01',quantity:3},
+        {unique_id:'B',ds:'2026-02-01',quantity:4},
+    ];
+    const horizontal = {
+        format:'horizontal',
+        headers:['SKU','2026-01-01','2026-02-01'],
+        rows:[['A',1,2],['B',3,4]],
+        mapping:{sku:'SKU',start:'2026-01-01',end:'2026-02-01'},
+    };
+    const vertical = {
+        format:'vertical',
+        headers:['Quantity','SKU','Date'],
+        rows:[[1,'A','2026-01-01'],[2,'A','2026-02-01'],[3,'B','2026-01-01'],[4,'B','2026-02-01']],
+        mapping:{sku:'SKU',date:'Date',value:'Quantity'},
+    };
+    assert.deepEqual(previewRows(horizontal),expected);
+    assert.deepEqual(previewRows(vertical),expected);
 });
 
 test('confirmation sends original vertical file bytes and explicit mappings without pivoting', async () => {
