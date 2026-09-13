@@ -1,0 +1,75 @@
+// Full dialog regression. Requires Playwright and the backend Python environment.
+// Optional: FORECAST_TEST_URL tests the HTML served by the running frontend.
+const fs=require('node:fs'), assert=require('node:assert/strict'),{spawnSync}=require('node:child_process');
+const {chromium}=require('playwright');
+const path=require('node:path');
+const root=path.resolve(__dirname,'..'), backend=process.env.FORECAST_BACKEND_DIR || path.resolve(root,'../backend');
+const previewScript="import json, sys\nimport pandas as pd\nfrom forecasting.preparation import prepare_observations\nframe=pd.read_excel('forecasting/templates/Template-Vertical-Format.xlsx')\nframe.columns=['unique_id','ds','y']\ntry:\n    _, review=prepare_observations(frame,json.load(sys.stdin))\n    print(json.dumps({'status':200,'body':review}))\nexcept ValueError as exc:\n    print(json.dumps({'status':400,'body':{'detail':str(exc)}}))\n";
+(async()=>{
+const html=process.env.FORECAST_TEST_URL ? await (await fetch(process.env.FORECAST_TEST_URL)).text() : fs.readFileSync(path.join(root,'forecaster.html'),'utf8');
+const browser=await chromium.launch({headless:true,executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH});
+const page=await browser.newPage({viewport:{width:1322,height:1165}});page.setDefaultTimeout(15000);const errors=[];page.on('pageerror',e=>errors.push(e.message));
+await page.setContent('<!DOCTYPE html><html><body><div id="root"></div></body></html>');
+await page.addStyleTag({path:root+'/operartis-tailwind-compat.css'});
+for(const match of html.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/g))await page.addStyleTag({content:match[1]});
+for(const name of ['react-17.0.2.production.min.js','react-dom-17.0.2.production.min.js','prop-types-15.8.1.min.js','recharts-1.8.5.min.js','babel-standalone-7.26.10.min.js','xlsx-0.18.5.full.min.js'])await page.addScriptTag({path:root+'/vendor/'+name});
+for(const name of ['operartis-format.js','forecast-dialog-i18n.js','operartis-security.js'])await page.addScriptTag({path:root+'/'+name});
+const policies=[];
+await page.exposeFunction('previewPolicy',policy=>{
+ policies.push(policy);const result=spawnSync(process.env.FORECAST_TEST_PYTHON || backend+'/.venv/bin/python',['-c',previewScript],{cwd:backend,env:{...process.env,PYTHONPATH:backend},input:JSON.stringify(policy),encoding:'utf8',maxBuffer:5e6});
+ if(result.status!==0)throw new Error(result.stderr);return JSON.parse(result.stdout);
+});
+await page.evaluate(()=>{const original=window.fetch;window.fetch=async(url,options)=>{if(String(url).endsWith('/data/preview')){const result=await window.previewPolicy(JSON.parse(options.body.get('preparation')));return new Response(JSON.stringify(result.body),{status:result.status,headers:{'Content-Type':'application/json'}});}return original(url,options);};});
+const workbook=fs.readFileSync(backend+'/forecasting/templates/Template-Vertical-Format.xlsx').toString('base64');
+const script=html.match(/<script type="text\/babel">([\s\S]*?)<\/script>/)[1].replace("ReactDOM.render(<App />, document.getElementById('root'));",`window.mountDialog=(preparation={})=>{const bytes=Uint8Array.from(atob('${workbook}'),c=>c.charCodeAt(0));const file=new File([bytes],'Template-Vertical-Format.xlsx');const data=readForecastUpload(XLSX.read(bytes,{type:'array',cellDates:false,cellNF:true,raw:true}),'vertical');const t=key=>key.split('.').reduce((v,k)=>v?.[k],TRANSLATIONS.en)||key;t.numberLocale='en-US';ReactDOM.unmountComponentAtNode(document.getElementById('root'));ReactDOM.render(<MappingModal initialSource={{...data,file,mode:'custom',preparation}} baseUrl="http://test" t={t} onClose={()=>{}} onConfirm={(...args)=>{window.confirmedSource=args[3];}}/>,document.getElementById('root'));};window.mountDialog();`);
+await page.evaluate(code=>eval(Babel.transform(code,{presets:['react']}).code),script);
+const confirm=page.getByRole('button',{name:'Confirm Mapping',exact:true});
+await page.waitForFunction(()=>Array.from(document.querySelectorAll('button')).some(el=>el.textContent==='Confirm Mapping'&&!el.disabled));
+const frequencyRow=page.locator('.fc-source-frequency');
+const frequencySelect=frequencyRow.locator('select');
+for(const target of [frequencyRow.locator('.fc-prep-frequency-title'),frequencyRow.locator('[role="status"]')]){
+ await confirm.focus();await target.click();
+ assert.equal(await frequencySelect.evaluate(el=>document.activeElement===el),false,'Static frequency text must not activate the dropdown');
+}
+await confirm.focus();
+await frequencyRow.click({position:{x:350,y:20}});
+assert.equal(await frequencySelect.evaluate(el=>document.activeElement===el),false,'Empty row space must not activate the dropdown');
+await page.locator('.fc-source-mapping select').last().focus();await page.keyboard.press('Tab');
+assert.equal(await frequencySelect.evaluate(el=>document.activeElement===el),true,'Keyboard navigation still reaches the dropdown');
+assert.equal(await page.getByText('Missing data',{exact:true}).count(),0);
+assert.equal(await page.getByLabel('Missing data frequency',{exact:true}).isVisible(),true);
+assert.equal(await page.locator('.fc-calendar').count(),0,'Monthly data hides the calendar');
+await confirm.click();
+assert.equal(await page.evaluate(()=>window.confirmedSource.preparation.frequency),null,'Confirmation preserves automatic frequency');
+await page.getByLabel('Missing data frequency',{exact:true}).selectOption('daily');
+await page.locator('.fc-calendar > summary').click();await page.locator('.fc-calendar-switch').click();
+await page.getByLabel('Calendar coverage start',{exact:true}).fill('2021-01-01');await page.getByLabel('Calendar coverage end',{exact:true}).fill('2024-12-31');
+await page.getByRole('button',{name:'Apply calendar',exact:true}).click();
+await page.getByRole('alert').filter({hasText:'history limit'}).waitFor();
+const frequency=page.getByLabel('Missing data frequency',{exact:true});assert.equal(await frequency.isVisible(),true);assert.equal(await frequency.inputValue(),'daily');assert.equal(await confirm.isDisabled(),true);
+await page.locator('.fc-calendar-switch').click();await page.getByRole('button',{name:'Apply calendar',exact:true}).click();
+await page.waitForFunction(()=>!document.querySelector('.fc-source-body > .fc-source-error'));
+assert.equal(await confirm.isEnabled(),true);assert.equal(policies.at(-1).frequency,null);assert.equal(policies.at(-1).operating_calendar.enabled,false);
+assert.equal(await frequency.isVisible(),true);assert.equal(await frequency.inputValue(),'');
+assert.equal(await page.locator('.fc-calendar').count(),0,'Returning to auto monthly hides the calendar');
+await page.evaluate(()=>window.mountDialog({frequency:'daily',operating_calendar:{enabled:false}}));
+await page.getByRole('alert').filter({hasText:'history limit'}).waitFor();assert.equal(await frequency.isVisible(),true);
+await frequency.selectOption('');await page.waitForFunction(()=>!document.querySelector('.fc-source-body > .fc-source-error'));
+assert.equal(await confirm.isEnabled(),true);
+await page.evaluate(()=>window.mountDialog({frequency:'monthly',operating_calendar:{enabled:true,start:'2021-01-01',end:'2024-12-31',weekdays:[0,1,2,3,4],exceptions:[],ids:[]}}));
+await page.waitForFunction(()=>Array.from(document.querySelectorAll('button')).some(el=>el.textContent==='Confirm Mapping'&&!el.disabled));
+assert.equal(policies.at(-1).operating_calendar.enabled,false,'Saved incompatible calendars are disabled');
+assert.equal(await page.locator('.fc-calendar').count(),0);
+await frequency.selectOption('business_daily');
+assert.equal(await page.locator('.fc-calendar').count(),1,'Business daily can use the calendar');
+await page.locator('.fc-calendar > summary').click();await page.locator('.fc-calendar-switch').click();
+await page.getByRole('button',{name:'Apply calendar',exact:true}).click();
+await page.getByRole('alert').filter({hasText:'history limit'}).waitFor();
+await frequency.selectOption('monthly');
+await page.waitForFunction(()=>!document.querySelector('.fc-source-body > .fc-source-error'));
+assert.equal(policies.at(-1).operating_calendar.enabled,false);
+assert.equal(await page.locator('.fc-calendar').count(),0);
+assert.equal(await confirm.isEnabled(),true);
+assert.deepEqual(errors,[]);
+console.log('PASS: calendar visibility follows daily/business-daily frequency; incompatible active calendars are disabled; auto detection and legacy frequency-error recovery restore valid monthly data.');await browser.close();
+})().catch(e=>{console.error(e);process.exit(1)});

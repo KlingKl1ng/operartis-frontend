@@ -58,3 +58,18 @@ test('translated preview states are searchable without changing canonical row da
  assert.equal(search(index([observed],r=>cells(r).slice(2).map(v=>tr(v,'vi-VN'))),terms('da ghi nhan'))[0],observed);
  assert.equal(JSON.stringify(row),before);
 });
+
+
+test('intermittent-history counts and warnings translate into Vietnamese and German',()=>{
+ for(const locale of ['vi-VN','de-DE']) {
+  for(const text of ['No method suggested','History pattern:','Why:','Warning:',
+   '21 of 32 recorded values are zero.',
+   'Intermittent activity: recorded zero sales alternate with occasional nonzero sales.',
+   'The surrounding values do not tell us whether a missing period had zero sales or unrecorded sales, so no filling method is recommended.',
+   'Interpolation or carrying values forward can invent sales; filling with zero can hide unrecorded sales.']) {
+   assert.notEqual(tr(text,locale),text);
+  }
+  const counts=tr('21 of 32 recorded values are zero.',locale);
+  assert.ok(counts.includes('21') && counts.includes('32'));
+ }
+});

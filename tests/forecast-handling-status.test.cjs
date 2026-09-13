@@ -17,11 +17,11 @@ test('filled values still require final confirmation',()=>{
     assert.equal(status({...base,policy:{...base.policy,frequency_confirmed:true}},true,'').tone,'success');
 });
 
-test('unresolved gaps and outstanding item reviews stay actionable',()=>{
+test('unresolved gaps stay actionable while legacy item-review flags do not block handling',()=>{
     const result=status({...base,unresolved:2,items:[{...base.items[0],unresolved:2},{...base.items[1],review_required:true}]},true,'');
     assert.equal(result.readyToConfirm,false);
-    assert.equal(result.summary,'2/4 gaps handled · 2 unresolved · 1 item needs review');
-    assert.equal(result.items,'2/2 items need attention');
+    assert.equal(result.summary,'2/4 gaps handled · 2 unresolved');
+    assert.equal(result.items,'1/2 items need attention');
 });
 
 test('pending requests and errors cannot display completion',()=>{
@@ -31,9 +31,9 @@ test('pending requests and errors cannot display completion',()=>{
     assert.equal(status(base,true,'Calendar mismatch').summary,'Resolve the scan error first');
 });
 
-test('review acknowledgment is required even when all quantities are filled',()=>{
+test('filled quantities are handled without per-item review acknowledgment',()=>{
     const review={...base,items:[{...base.items[0],review_required:true},base.items[1]]};
-    assert.equal(status(review,true,'').readyToConfirm,false);
+    assert.equal(status(review,true,'').readyToConfirm,true);
     assert.equal(status({...review,policy:{...base.policy,reviewed_items:['A']}},true,'').readyToConfirm,true);
 });
 
@@ -51,7 +51,7 @@ test('handling edits invalidate confirmation but explicit confirmation can resto
 });
 
 const filterRecords = new Function(code+';return filterPreparationRecords;')();
-test('unresolved preview includes conflicts and pending reviews while excluding resolved gaps and real zeros',()=>{
+test('unresolved preview includes conflicts and errors while excluding filled gaps and legacy review flags',()=>{
     const review={policy:{reviewed_items:[]},items:[{id:'A',review_required:true},{id:'B'}],records:[
         {unique_id:'B',ds:'empty',missing:true,prepared:null},
         {unique_id:'B',ds:'absent',missing:true,kind:'absent_period',prepared:null},
@@ -61,7 +61,7 @@ test('unresolved preview includes conflicts and pending reviews while excluding 
         {unique_id:'B',ds:'observed-zero',missing:false,prepared:0},
         {unique_id:'B',ds:'closure',missing:false,closed:true,prepared:0},
     ]};
-    assert.deepEqual(filterRecords(review,'',true,false).map(r=>r.ds),['empty','absent','conflict','pending-review']);
+    assert.deepEqual(filterRecords(review,'',true,false).map(r=>r.ds),['empty','absent','conflict']);
     assert.deepEqual(filterRecords(review,'B',true,true).map(r=>r.ds),['empty','absent','conflict']);
     review.policy.reviewed_items=['A'];
     assert.deepEqual(filterRecords(review,'A',true,false),[]);

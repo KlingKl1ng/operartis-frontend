@@ -815,7 +815,17 @@
         .dark .fc-replay-slider-ticks > span { background: #475569; }
         .fc-replay-slider-ticks > span.is-current { background: #f59e0b; }
 
+        .fc-detail-panel { --detail-scroll-gutter: 0.5rem; }
+        @media (min-width: 768px) {
+            .fc-detail-panel { --detail-scroll-gutter: 0.75rem; }
+        }
+        @media (min-width: 1024px) {
+            .fc-detail-panel { --detail-scroll-gutter: 1rem; }
+        }
         .fc-detail-scroll {
+            /* Include the panel's side padding in the native scroll hit area. */
+            margin-inline: calc(-1 * var(--detail-scroll-gutter, 0px));
+            padding-inline: var(--detail-scroll-gutter, 0px);
             overflow-x: hidden;
             overflow-y: auto;
             overscroll-behavior-y: contain;
@@ -1016,6 +1026,7 @@
                 font-size: 11px;
             }
             .fc-detail-panel {
+                --detail-scroll-gutter: 0.5rem;
                 padding: 0.5rem !important;
                 gap: 0.5rem;
             }
@@ -1138,7 +1149,7 @@
             .mobile-landscape-content {
                 padding: 0.35rem 0.5rem calc(0.35rem + env(safe-area-inset-bottom, 0px)) !important;
             }
-            .fc-detail-panel { padding: 0.35rem !important; gap: 0.4rem; }
+            .fc-detail-panel { --detail-scroll-gutter: 0.35rem; padding: 0.35rem !important; gap: 0.4rem; }
             .fc-detail-toolbar { padding-bottom: 0.25rem; }
             .fc-detail-metrics { padding-top: 0.15rem; padding-bottom: 0.15rem; }
             .fc-visualization-panel {
@@ -1197,6 +1208,30 @@
         .fc-evaluation-table thead th:nth-child(5),
         .fc-evaluation-table thead th:nth-child(6) { width: 10.67%; }
 
+        .fc-validation-table-scroll,
+        .fc-forecast-values-scroll {
+            --table-row-height: 1.75rem;
+            --table-header-height: 2.25rem;
+            max-height: calc(var(--table-header-height) + 10 * var(--table-row-height));
+            overflow: auto;
+            overscroll-behavior: contain;
+        }
+        .fc-forecast-values-scroll {
+            --table-row-height: 2.25rem;
+            --table-header-height: calc(2.25rem + 1px);
+        }
+        .fc-validation-table-scroll .fc-validation-table,
+        .fc-forecast-values-scroll .fc-forecast-values-table { line-height: 1.25rem; }
+        .fc-validation-table-scroll tbody tr,
+        .fc-forecast-values-scroll tbody tr { height: var(--table-row-height); }
+        .fc-validation-table-scroll thead,
+        .fc-forecast-values-scroll thead {
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            height: var(--table-header-height);
+        }
+
         .fc-validation-table thead th:nth-child(1) { width: 40%; }
         .fc-validation-table thead th:nth-child(2),
         .fc-validation-table thead th:nth-child(3),
@@ -1206,6 +1241,11 @@
             width: 100%;
             min-width: 100%;
             table-layout: auto;
+        }
+        .fc-forecast-calendar-status {
+            max-width: 24rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .fc-forecast-values-table th,
         .fc-forecast-values-table td {
@@ -1703,6 +1743,17 @@
         .fc-prep-controls, .fc-prep-save { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 10px 0; }
         .fc-prep-controls label { font-size: 12px; color: var(--source-muted); }
         .fc-prep-auto-frequency { display: inline-flex; align-items: center; padding: 3px 7px; border: 1px solid var(--source-line); border-radius: 5px; background: var(--source-bg); color: var(--source-text); font-size: 11px; white-space: nowrap; }
+        .fc-source-frequency { margin-bottom: 8px; padding: 9px 12px; border: 1px solid var(--source-line); border-radius: 8px; background: var(--source-soft); }
+        .fc-source-frequency > .fc-prep-frequency { display: flex; align-items: center; gap: 12px; min-width: 0; }
+        .fc-source-frequency .fc-prep-frequency-title { margin-right: auto; color: var(--source-text); font-size: 12px; font-weight: 600; }
+        .fc-source-dialog .fc-source-body.scroller .fc-source-frequency > .fc-prep-frequency > select { width: 200px; max-width: 100%; min-width: 0; height: 34px; min-height: 34px; padding: 6px 9px; border: 1px solid var(--source-line); border-radius: 6px; background: var(--source-bg); color: var(--source-text); font-size: 12px; line-height: 20px; }
+        .fc-source-frequency .fc-prep-auto-frequency, .fc-missing-frequency .fc-prep-auto-frequency { width: auto; max-width: 100%; min-width: 0; height: 34px; box-sizing: border-box; padding: 6px 9px; border: 1px solid var(--source-line); border-radius: 6px; background: var(--source-bg); color: var(--source-muted); font-size: 12px; line-height: 20px; }
+        @media (max-width: 640px) {
+            .fc-source-frequency { padding: 10px; }
+            .fc-source-frequency > .fc-prep-frequency { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 8px; }
+            .fc-source-frequency .fc-prep-auto-frequency { grid-column: 1 / -1; grid-row: 3; justify-self: start; width: auto; height: 36px; font-size: 14px; }
+            .fc-source-dialog .fc-source-body.scroller .fc-source-frequency > .fc-prep-frequency > select { grid-column: 1 / -1; grid-row: 2; width: 100%; height: 36px; min-height: 36px; font-size: 14px; }
+        }
         .fc-prep-dependent { min-width: 0; border: 0; margin: 0; padding: 0; }
         .fc-prep-primary-options { display: flex; flex-wrap: wrap; align-items: center; gap: inherit; }
         .fc-calendar-body { border-top: 1px solid var(--source-line); padding: 14px; display: grid; gap: 14px; }
@@ -1733,15 +1784,15 @@
         .fc-calendar-week button[aria-pressed="true"] span { color: #b45309; }
         .dark .fc-calendar-week button[aria-pressed="true"] span { color: #fcd34d; }
         .fc-calendar-fields { display: grid; align-items: end; gap: 10px; }
-        .fc-calendar-coverage { grid-template-columns: 1fr 1fr 1.5fr; }
+        .fc-calendar-coverage { grid-template-columns: 1fr 1fr 1.5fr; align-items: start; }
         .fc-calendar-fields label { display: block; min-width: 0; color: var(--source-muted); font-size: 11px; font-weight: 600; }
         .fc-calendar-fields label > span { font-weight: 400; }
         .fc-calendar-fields input, .fc-calendar-fields select { display: block; width: 100%; min-width: 0; padding: 8px 10px; margin-top: 5px; border: 1px solid var(--source-line); border-radius: 7px; background: var(--source-bg); color: var(--source-text); font-size: 12px; font-weight: 400; color-scheme: light; }
         .dark .fc-calendar-fields input, .dark .fc-calendar-fields select { color-scheme: dark; }
         .fc-calendar-note, .fc-calendar-import-help { color: var(--source-muted); font-size: 12px; line-height: 1.5; margin: 0; }
-        .fc-calendar-entry { grid-template-columns: 1fr 1fr .8fr 1.3fr; padding: 12px; border: 1px solid var(--source-line); background: var(--source-soft); border-radius: 9px; }
+        .fc-calendar-entry { align-items: start; grid-template-columns: 1fr 1fr .8fr 1.3fr; padding: 12px; border: 1px solid var(--source-line); background: var(--source-soft); border-radius: 9px; }
         .fc-calendar-entry-reason { grid-column: span 3; }
-        .fc-calendar-add { min-height: 34px; }
+        .fc-calendar-add { min-height: 34px; align-self: end; }
         .fc-calendar-exceptions { max-height: 190px; overflow: auto; }
         .fc-calendar-event { display: flex; align-items: center; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--source-line); }
         .fc-calendar-event:last-child { border-bottom: 0; }
@@ -1971,7 +2022,11 @@
         .fc-missing-setup label { font-size: 11px; color: var(--source-muted); display: block; }
         .fc-missing-setup select { display: block; width: 100%; min-width: 0; margin-top: 6px; border: 1px solid var(--source-line); border-radius: 7px; padding: 7px 9px; background: var(--source-bg); color: var(--source-text); font-size: 12px; }
         .fc-missing-setup p { font-size: 11px; color: var(--source-muted); margin: 6px 0 0; }
-        .fc-missing-frequency .fc-prep-auto-frequency { margin-top: 6px; }
+        .fc-missing-frequency > .fc-prep-frequency { display: grid; grid-template-columns: minmax(0, 180px) auto; align-items: center; justify-content: start; gap: 6px 8px; }
+        .fc-missing-frequency .fc-prep-frequency-title { grid-column: 1 / -1; font-size: 11px; color: var(--source-muted); }
+        .fc-missing-frequency select { margin-top: 0; height: 34px; border-radius: 6px; }
+        .fc-missing-frequency .fc-prep-auto-frequency { margin: 0; height: auto; align-self: stretch; }
+        @media (max-width: 640px) { .fc-missing-frequency .fc-prep-auto-frequency { font-size: 14px; } }
         .fc-missing-confirm { padding-top: 21px; }
         .fc-missing-confirm .fc-prep-check { display: flex; align-items: flex-start; font-size: 12px; color: var(--source-text); }
         .fc-missing-confirm input { margin-top: 2px; }
@@ -1980,6 +2035,19 @@
         .fc-source-foldout .fc-missing-help { font-size: 11px; color: var(--source-muted); margin: 8px 0 0; }
         .fc-missing-help p { margin-top: 6px; line-height: 1.5; }
         .fc-source-foldout .fc-missing-items { max-height: 360px; margin: 0; padding: 0 12px; }
+        .fc-missing-recommendation { margin: 8px 0; padding: 10px 12px; border-left: 3px solid #f59e0b; border-radius: 6px; background: var(--source-soft); font-size: 12px; }
+        .fc-missing-recommendation > strong { color: var(--source-text); }
+        .fc-missing-recommendation .fc-missing-recommendation-caution { color: #92400e; }
+        .dark .fc-missing-recommendation .fc-missing-recommendation-caution { color: #fcd34d; }
+        .fc-missing-recommendation button { margin-top: 6px; }
+        .fc-missing-recommendation .fc-missing-actions { margin-bottom: 0; }
+        .fc-missing-recommendation .fc-missing-actions > button { margin-top: 0; }
+        .fc-missing-recommendation-table { max-height: 230px; overflow: auto; border: 1px solid var(--source-line); border-radius: 6px; margin-top: 8px; }
+        .fc-missing-recommendation-table table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 12px; }
+        .fc-missing-recommendation-table th, .fc-missing-recommendation-table td { padding: 6px 8px; text-align: left; }
+        .fc-missing-value-method { width: 100%; max-width: 180px; min-width: 110px; height: 32px; padding: 4px 6px; border: 1px solid var(--source-line); border-radius: 6px; background: var(--source-bg); color: var(--source-text); font: inherit; }
+        .fc-missing-recommendation-table th { position: sticky; top: 0; background: var(--source-bg); }
+        .fc-missing-recommendation-table th:last-child, .fc-missing-recommendation-table td:last-child { text-align: right; }
         .fc-missing-item-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
         .fc-missing-item-heading > div { display: flex; align-items: baseline; flex-wrap: wrap; gap: 10px; }
         .fc-missing-item-heading strong { font-size: 12px; font-weight: 600; }
@@ -1987,7 +2055,8 @@
         .fc-missing-item-heading > div > span { color: var(--source-muted); }
         .fc-missing-items .fc-prep-item p, .fc-missing-items .fc-prep-check { font-size: 12px; }
         .fc-source-foldout .fc-missing-items .fc-prep-item:last-child { border: 0; }
-        .fc-source-foldout .fc-missing-preview-controls { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 8px; border-top: 1px solid var(--source-line); padding-top: 10px; }
+        .fc-source-foldout .fc-missing-preview-controls { display: flex; align-items: flex-start; justify-content: flex-end; flex-wrap: wrap; gap: 8px; border-top: 1px solid var(--source-line); padding-top: 10px; }
+        .fc-source-foldout .fc-missing-preview-controls .fc-missing-help { flex: 1; min-width: 0; margin: 0; }
         .fc-preview-search { display: flex; align-items: center; flex: 1 1 180px; min-width: 150px; border: 1px solid var(--source-line); border-radius: 8px; background: var(--source-soft); }
         .fc-preview-search:has(input:focus-visible) { outline: 2px solid #f59e0b; outline-offset: 3px; }
         .fc-source-dialog .fc-preview-search input:focus-visible { outline: none; box-shadow: none; }
@@ -2061,7 +2130,7 @@
             .fc-source-footer { padding: 14px 20px max(14px, env(safe-area-inset-bottom)); }
             .fc-source-preview-heading { gap: 12px; }
             .fc-source-foldout > summary { padding: 13px 12px; }
-            .fc-calendar-entry { grid-template-columns: repeat(2, minmax(0,1fr)); }
+            .fc-calendar-entry { align-items: start; grid-template-columns: repeat(2, minmax(0,1fr)); }
             .fc-calendar-entry-reason { grid-column: auto; }
             .fc-calendar-coverage { grid-template-columns: repeat(2, minmax(0,1fr)); }
             .fc-calendar-coverage > label:last-child { grid-column: span 2; }
@@ -2146,12 +2215,40 @@
         }
         .fc-local-date { display: block; margin-top: 5px; }
         .fc-local-date-control { display: block; position: relative; }
-        .fc-calendar-fields .fc-local-date-control > input { margin-top: 0; padding-right: 42px; }
+        .fc-calendar-fields .fc-local-date-control > input { margin-top: 0; padding-right: 42px; font-family: inherit; line-height: 16px; letter-spacing: normal; }
+        .fc-local-date-mask { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); pointer-events: none; white-space: pre; color: var(--source-muted); font-family: inherit; font-size: 12px; font-weight: 400; line-height: 16px; letter-spacing: normal; }
+        @media (max-width: 1100px), (pointer: coarse) {
+            .fc-local-date-mask { font-size: 16px; line-height: 20px; }
+            .fc-calendar-fields .fc-local-date-control > input { line-height: 20px; }
+        }
         .fc-local-date-picker { position: absolute; right: 0; top: 0; bottom: 0; width: 36px; display: grid; place-items: center; color: var(--source-muted); }
         .fc-calendar-fields .fc-local-date-picker input { position: absolute; inset: 0; width: 100%; height: 100%; min-height: 0; opacity: 0; cursor: pointer; margin: 0; padding: 0; }
         .fc-local-date-picker:focus-within { outline: 2px solid #f59e0b; border-radius: 6px; }
         .fc-local-date small { display: block; margin-top: 4px; color: #be123c; font-size: 11px; font-weight: 400; }
         .dark .fc-local-date small { color: #fda4af; }
+        .fc-local-date small.fc-local-date-error { display: grid; }
+        .fc-local-date-error > span { grid-area: 1 / 1; }
+        @media (max-width: 640px) {
+            .fc-calendar-entry { padding: 10px; gap: 8px; }
+            .fc-source-dialog .fc-source-body.scroller .fc-source-foldout :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="date"]):not([type="hidden"]), select) {
+                height: 36px;
+                min-height: 36px;
+                padding: 6px 9px;
+                font-size: 14px;
+                line-height: 20px;
+            }
+            .fc-source-dialog .fc-source-body.scroller .fc-source-foldout .fc-local-date-control > input { padding-right: 38px; }
+            .fc-source-foldout .fc-local-date-mask { left: 10px; font-size: 14px; line-height: 20px; }
+            .fc-source-dialog .fc-source-foldout :is(.fc-source-secondary, .fc-source-confirm, .fc-calendar-nav button, .fc-missing-nav button) { min-height: 36px; padding: 6px 9px; font-size: 12px; }
+            .fc-source-dialog .fc-source-foldout .fc-calendar-week button { min-height: 36px; padding: 6px 2px; gap: 2px; }
+            .fc-source-dialog .fc-source-foldout :is(.fc-prep-check, .fc-calendar-switch) { min-height: 36px; }
+            .fc-source-foldout .fc-calendar-fields { gap: 8px; }
+            .fc-source-foldout .fc-prep-save { gap: 8px; }
+            .fc-source-foldout .fc-missing-actions { flex-wrap: nowrap; gap: 8px; }
+            .fc-missing-actions > button { flex: 0 0 auto; white-space: nowrap; }
+            .fc-source-foldout .fc-missing-actions > .fc-missing-item-method { flex: 1; gap: 6px; white-space: nowrap; }
+            .fc-source-dialog .fc-source-body.scroller .fc-source-foldout .fc-missing-actions select { flex: 1; width: 0; min-width: 0; padding: 6px; font-size: 12px; }
+        }
     </style>
 
     <script src="./operartis-format.js"></script>
@@ -2342,6 +2439,9 @@
                     validation_chart: "Scores include every evaluation and lead time. The chart shows the latest forecast for each date; fitted values are retrospective, not validation predictions.",
                     validation_lead: "Periods ahead",
                     validation_final: "Final training periods",
+                    calendar_forecast_note: "Expected sales · {count} calendar days. Confirmed closures forecast zero. Calendar coverage ends {end}.",
+                    validation_open_day_scope: "Accuracy uses {open} observed open-day forecasts; {closed} closed-day forecasts are excluded.",
+                    validation_missing_scope: "{count} missing test observations excluded from scoring.",
                     validation_coverage: "{dates} of {periods} test dates scored. Overlapping evaluations are not independent samples.",
                     val_rolling_window: "Rolling Window (Slow)",
                     eval_metric: "Evaluation Metric",
@@ -2529,7 +2629,15 @@
                     final_fit: "Fit",
                     future_fc: "Forecast",
                     forecast_values: "Forecast values",
-                    period: "Period"
+                    period: "Period",
+                    calendar_status: "Calendar status",
+                    calendar_open: "Open",
+                    calendar_closed: "Closed",
+                    calendar_weekly_closed: "Closed · weekly schedule",
+                    calendar_exception_closed: "Closed · calendar exception",
+                    calendar_extra_open: "Open · extra opening day",
+                    calendar_exception_open: "Open · calendar exception",
+                    calendar_unavailable: "Not available"
                 }
             },
             vi: {
@@ -2662,6 +2770,9 @@
                     validation_chart: "Điểm số dùng mọi lần kiểm định và kỳ dự báo. Biểu đồ dùng dự báo mới nhất tại mỗi ngày; giá trị khớp là hồi cứu, không phải dự báo kiểm định.",
                     validation_lead: "Số kỳ phía trước",
                     validation_final: "Số kỳ huấn luyện cuối",
+                    calendar_forecast_note: "Doanh số kỳ vọng · {count} ngày theo lịch. Dự báo bằng 0 vào những ngày đóng cửa đã xác nhận. Phạm vi lịch kết thúc vào {end}.",
+                    validation_open_day_scope: "Độ chính xác được tính từ {open} dự báo có dữ liệu thực tế vào ngày mở cửa; loại trừ {closed} dự báo vào ngày đóng cửa.",
+                    validation_missing_scope: "Đã loại trừ {count} quan sát bị thiếu trong tập kiểm định khỏi việc tính điểm.",
                     validation_coverage: "Chấm điểm {dates}/{periods} ngày kiểm định. Các lần kiểm định chồng lấn không phải mẫu độc lập.",
                     val_rolling_window: "Cửa sổ trượt (Chậm)",
                     eval_metric: "Chỉ số đánh giá",
@@ -2849,7 +2960,15 @@
                     final_fit: "Khớp",
                     future_fc: "Dự báo",
                     forecast_values: "Giá trị dự báo",
-                    period: "Kỳ"
+                    period: "Kỳ",
+                    calendar_status: "Trạng thái lịch",
+                    calendar_open: "Mở cửa",
+                    calendar_closed: "Đóng cửa",
+                    calendar_weekly_closed: "Đóng cửa · lịch hằng tuần",
+                    calendar_exception_closed: "Đóng cửa · ngoại lệ lịch",
+                    calendar_extra_open: "Mở cửa · ngày mở cửa bổ sung",
+                    calendar_exception_open: "Mở cửa · ngoại lệ lịch",
+                    calendar_unavailable: "Chưa có thông tin"
                 }
             },
             de: {
@@ -2982,6 +3101,9 @@
                     validation_chart: "Die Kennzahlen berücksichtigen alle Auswertungen und Vorlaufzeiten. Das Diagramm zeigt die neueste Prognose je Datum; angepasste Werte sind rückblickend, keine Testprognosen.",
                     validation_lead: "Perioden voraus",
                     validation_final: "Perioden im finalen Training",
+                    calendar_forecast_note: "Erwarteter Absatz · {count} Kalendertage. Für bestätigte Schließtage beträgt die Prognose null. Die Kalenderabdeckung endet am {end}.",
+                    validation_open_day_scope: "Die Genauigkeit wird anhand von {open} Prognosen mit beobachteten Werten an Öffnungstagen berechnet; {closed} Prognosen für Schließtage werden ausgeschlossen.",
+                    validation_missing_scope: "{count} fehlende Beobachtungen im Testzeitraum werden von der Bewertung ausgeschlossen.",
                     validation_coverage: "{dates} von {periods} Testdaten bewertet. Überlappende Auswertungen sind keine unabhängigen Stichproben.",
                     val_rolling_window: "Rolling Window (Langsam)",
                     eval_metric: "Bewertungskennzahl",
@@ -3169,7 +3291,15 @@
                     final_fit: "Anpassung",
                     future_fc: "Prognose",
                     forecast_values: "Prognosewerte",
-                    period: "Zeitraum"
+                    period: "Zeitraum",
+                    calendar_status: "Kalenderstatus",
+                    calendar_open: "Geöffnet",
+                    calendar_closed: "Geschlossen",
+                    calendar_weekly_closed: "Geschlossen · Wochenplan",
+                    calendar_exception_closed: "Geschlossen · Kalenderausnahme",
+                    calendar_extra_open: "Geöffnet · zusätzlicher Öffnungstag",
+                    calendar_exception_open: "Geöffnet · Kalenderausnahme",
+                    calendar_unavailable: "Nicht verfügbar"
                 }
             }
         };
@@ -3704,10 +3834,29 @@
             return date + time.replace(/^T/, ' ');
         };
 
-        const calendarDatePattern = locale => locale === 'vi-VN' ? 'DD/MM/YYYY' : locale === 'de-DE' ? 'DD.MM.YYYY' : 'YYYY-MM-DD';
-        const parseCalendarDateInput = (value, locale = 'en-US') => {
+        const calendarDatePattern = locale => locale === 'vi-VN' ? 'NN/TT/NNNN' : locale === 'de-DE' ? 'TT.MM.JJJJ' : 'YYYY-MM-DD';
+        const partialCalendarDateInput = (value, locale) => {
             const text = String(value || '').trim();
+            if (!/^[\d./-]*$/.test(text)) return text;
+            const digits = text.replace(/\D/g, '');
+            if (digits.length > 8) return text;
+            const pattern = calendarDatePattern(locale);
+            let index = 0, result = '';
+            for (const character of pattern) {
+                if (index >= digits.length) break;
+                result += /[A-Z]/.test(character) ? digits[index++] : character;
+            }
+            return result;
+        };
+        const parseCalendarDateInput = (value, locale = 'en-US') => {
+            let text = String(value || '').trim();
             if (!text) return '';
+            if (/^\d{8}$/.test(text)) {
+                // Compact entry follows the displayed date order; requests remain ISO.
+                text = locale === 'vi-VN' || locale === 'de-DE'
+                    ? `${text.slice(4)}-${text.slice(2,4)}-${text.slice(0,2)}`
+                    : `${text.slice(0,4)}-${text.slice(4,6)}-${text.slice(6)}`;
+            }
             const iso = text.match(/^(\d{4})-(\d{2})-(\d{2})$/);
             const local = !iso && text.match(locale === 'vi-VN' ? /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/ : locale === 'de-DE' ? /^(\d{1,2})\.(\d{1,2})\.(\d{4})$/ : /$^/);
             if (!iso && !local) return null;
@@ -4166,8 +4315,8 @@
                         </div>)}
                     </div>
                 </div>
-                {summary.metrics_scope==='observed_open_days' && <p>Accuracy uses {summary.open_day_scored_pairs} observed open-day forecasts; {summary.closed_pairs} closed-day forecasts are excluded.</p>}
-                {summary.unscored_missing_pairs > 0 && <p className="text-amber-500">{summary.unscored_missing_pairs} missing test observations excluded from scoring.</p>}
+                {summary.metrics_scope==='observed_open_days' && <p>{t('sidebar.validation_open_day_scope').replace('{open}', fmtNumber(summary.open_day_scored_pairs, 0, 0, t.numberLocale)).replace('{closed}', fmtNumber(summary.closed_pairs, 0, 0, t.numberLocale))}</p>}
+                {summary.unscored_missing_pairs > 0 && <p className="text-amber-500">{t('sidebar.validation_missing_scope').replace('{count}', fmtNumber(summary.unscored_missing_pairs, 0, 0, t.numberLocale))}</p>}
                 <p className="font-semibold">{t('sidebar.validation_counts').replace('{count}', fmtNumber(summary.evaluations, 0, 0, t.numberLocale)).replace('{horizon}', fmtNumber(summary.forecast_horizon, 0, 0, t.numberLocale)).replace('{pairs}', fmtNumber(summary.scored_pairs, 0, 0, t.numberLocale))}</p>
                 <div className="mt-2 space-y-2">
                     {summary.scheme === 'fixed_horizon' && summary.evaluations < summary.max_evaluations && <p>{t('sidebar.validation_limited').replace('{max}', fmtNumber(summary.max_evaluations, 0, 0, t.numberLocale))}</p>}
@@ -4188,21 +4337,28 @@
                                     <td>{fmtNumber(fold.metrics.rmse, 1, 1, t.numberLocale)}</td><td>{fmtNumber(fold.metrics.mae, 1, 1, t.numberLocale)}</td><td>{formatEvaluationValue(fold.metrics.mape, 'mape', t.numberLocale)}</td>
                                 </tr>)}</tbody>
                             </table>
-                        </div> : <p className="py-3">{t('sidebar.validation_evaluation_unavailable')}</p>) : <table role="table" aria-label={t('sidebar.validation_by_distance')} className="fc-validation-table w-full border-separate border-spacing-0 text-right tabular-nums [&_td]:px-3 [&_td]:py-1">
+                        </div> : <p className="py-3">{t('sidebar.validation_evaluation_unavailable')}</p>) : <div className="fc-validation-table-scroll scroller rounded-md" role="region" aria-label={t('sidebar.validation_by_distance')} tabIndex={0}><table role="table" aria-label={t('sidebar.validation_by_distance')} className="fc-validation-table w-full border-separate border-spacing-0 text-right tabular-nums [&_td]:px-3 [&_td]:py-1">
                             <thead role="rowgroup" className="rounded-t-md bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 [&_th]:px-3 [&_th]:py-2 [&_th]:font-semibold">
                                 <tr role="row"><th role="columnheader" scope="col" className="text-left">{t('sidebar.validation_lead')}</th><th role="columnheader" scope="col">RMSE</th><th role="columnheader" scope="col">MAE</th><th role="columnheader" scope="col">MAPE</th></tr>
                             </thead>
                             <tbody role="rowgroup" className="rounded-b-md">{(summary.metrics_by_lead || []).map(metric => <tr role="row" key={metric.lead}><td role="cell" className="text-left">{metric.lead}</td><td role="cell">{fmtNumber(metric.rmse, 1, 1, t.numberLocale)}</td><td role="cell">{fmtNumber(metric.mae, 1, 1, t.numberLocale)}</td><td role="cell">{formatEvaluationValue(metric.mape, 'mape', t.numberLocale)}</td></tr>)}</tbody>
-                        </table>}
+                        </table></div>}
                     </div>
                 </div>
             </section>;
         };
 
+        const forecastResultFrequency = data => {
+            const frequency = data.preparation?.frequency;
+            if (Object.hasOwn(DEFAULT_FREQUENCY_PROFILES, frequency)) return frequency;
+            // Missing observations still occupy periods in the saved run's timeline.
+            const history = (data.forecast_data || []).filter(point => Object.hasOwn(point, 'actual_history'));
+            return inferFrequencyFromHeaders(history.map(point => point.date));
+        };
+
         const ForecastRunSummary = ({ data, t }) => {
             const summary = data.validation_summary || {};
-            const history = (data.forecast_data || []).filter(point => point.actual_history != null);
-            const frequency = inferFrequencyFromHeaders(history.map(point => point.date));
+            const frequency = forecastResultFrequency(data);
             const futureCount = (data.forecast_data || []).filter(point => point.future_forecast != null).length;
             const requestedModels = formatForecastModelList(data.requested_models, data.requested_model, t);
             const fields = [
@@ -4216,7 +4372,7 @@
             const defaultValueClassName = 'font-medium text-slate-700 dark:text-slate-200 break-words';
             return <section className="shrink-0 rounded-lg border border-slate-200 dark:border-slate-700 p-3 text-[13px] leading-5 text-slate-600 dark:text-slate-300" aria-label={t('sidebar.detail_process')}>
                 <h3 className="font-semibold text-slate-700 dark:text-slate-200 mb-2">{t('sidebar.detail_process')}</h3>
-                {data.preparation?.operating_calendar?.enabled && <p className="mb-2">Expected sales · {futureCount} calendar days. Confirmed closures forecast zero. Calendar coverage ends {formatForecastDate(data.preparation.operating_calendar.end,t.numberLocale)}.</p>}
+                {data.preparation?.operating_calendar?.enabled && <p className="mb-2">{t('sidebar.calendar_forecast_note').replace('{count}', fmtNumber(futureCount, 0, 0, t.numberLocale)).replace('{end}', formatForecastDate(data.preparation.operating_calendar.end, t.numberLocale))}</p>}
                 <dl className="grid grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-3">
                     {fields.map(({ label, value, valueClassName }) => <div className="min-w-0" key={label}>
                         <dt className="text-slate-500 dark:text-slate-400">{label}</dt>
@@ -4243,18 +4399,48 @@
             </section>;
         };
 
-        const ForecastValuesTable = memo(({ data, t }) => {
+        const forecastItemCalendar = (preparation, sku) => {
+            const calendar = preparation?.operating_calendar;
+            const item = String(preparation?.calendar_item_id ?? sku ?? '');
+            return calendar?.enabled && (!calendar.ids?.length || calendar.ids.includes(item)) ? calendar : null;
+        };
+
+        const forecastCalendarStatus = (point, preparation, sku, t) => {
+            const calendar = forecastItemCalendar(preparation, sku);
+            if (!calendar) return '';
+            const day = String(point.date || '').slice(0, 10);
+            const timestamp = /^\d{4}-\d{2}-\d{2}$/.test(day) ? Date.parse(day + 'T00:00:00Z') : NaN;
+            if (!Number.isFinite(timestamp) || new Date(timestamp).toISOString().slice(0, 10) !== day ||
+                !calendar.start || !calendar.end || day < calendar.start || day > calendar.end) return t('charts.calendar_unavailable');
+            const item = String(preparation?.calendar_item_id ?? sku ?? '');
+            const weeklyOpen = (calendar.weekdays || []).includes((new Date(timestamp).getUTCDay() + 6) % 7);
+            let exception;
+            for (const row of calendar.exceptions || []) {
+                if (day < row.start || day > row.end || (row.ids?.length && !row.ids.includes(item))) continue;
+                // Item-specific rules take precedence regardless of their list order.
+                if (!exception || row.ids?.length || !exception.ids?.length) exception = row;
+            }
+            if (!exception) return t(weeklyOpen ? 'charts.calendar_open' : 'charts.calendar_weekly_closed');
+            const open = exception.status === 'open';
+            const reason = String(exception.label || '').trim();
+            if (reason) return `${t(open ? 'charts.calendar_open' : 'charts.calendar_closed')} · ${reason}`;
+            return t(!open ? 'charts.calendar_exception_closed' : weeklyOpen ? 'charts.calendar_exception_open' : 'charts.calendar_extra_open');
+        };
+
+        const ForecastValuesTable = memo(({ data, preparation, sku, t }) => {
+            const showCalendar = !!forecastItemCalendar(preparation, sku);
             const forecasts = (data || []).filter(point => point.date && point.future_forecast != null);
 
             if (!forecasts.length) return null;
             return (
                 <section className="fc-forecast-values shrink-0 min-w-0 rounded-lg border border-slate-200 dark:border-slate-700 p-3 text-[13px] leading-5 text-slate-600 dark:text-slate-300" aria-label={t('charts.forecast_values')}>
                     <h3 className="mb-2 font-semibold">{t('charts.forecast_values')}</h3>
-                    <div className="min-w-0 scroller overflow-x-auto rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-500" tabIndex={0} role="region" aria-label={t('charts.forecast_values')}>
+                    <div className="fc-forecast-values-scroll min-w-0 scroller rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-500" tabIndex={0} role="region" aria-label={t('charts.forecast_values')}>
                         <table className="fc-forecast-values-table w-full border-separate border-spacing-0 text-right tabular-nums" aria-label={t('charts.forecast_values')}>
                             <thead>
                                 <tr>
                                     <th scope="col" className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-3 py-2 text-left font-semibold">{t('charts.period')}</th>
+                                    {showCalendar && <th scope="col" className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-3 py-2 text-left font-semibold">{t('charts.calendar_status')}</th>}
                                     <th scope="col" className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-3 py-2 font-semibold">{t('charts.future_fc')}</th>
                                 </tr>
                             </thead>
@@ -4262,6 +4448,7 @@
                                 {forecasts.map(point => (
                                     <tr key={point.date}>
                                         <th scope="row" className="px-3 py-2 text-left font-normal">{formatForecastDate(point.date, t.numberLocale)}</th>
+                                        {showCalendar && <td className="fc-forecast-calendar-status px-3 py-2 text-left" title={forecastCalendarStatus(point, preparation, sku, t)}>{forecastCalendarStatus(point, preparation, sku, t)}</td>}
                                         <td className="px-3 py-2">{fmtNumber(point.future_forecast, 0, 6, t.numberLocale)}</td>
                                     </tr>
                                 ))}
@@ -5644,7 +5831,7 @@
             const csv = data.map(row=>row.map((value,index)=>quote(index === 0 && /^[=+@-]/.test(String(value)) ? "'"+value : value)).join(',')).join('\r\n');
             window.OperartisSecurity.downloadBlob(new Blob(['\uFEFF',csv],{type:'text/csv'}),filename.replace(/\.[^.]+$/,'')+'-prepared.csv');
         };
-        const LocalizedDateInput = ({label,value,locale='en-US',onChange,onValidityChange}) => {
+        const LocalizedDateInput = ({label,value,minValue,locale='en-US',onChange,onValidityChange}) => {
             const tr=value=>window.ForecastDialogI18n.translate(value,locale);
             const [text,setText] = useState(()=>formatForecastDate(value,locale));
             const [touched,setTouched] = useState(false);
@@ -5654,15 +5841,34 @@
                 lastEmitted.current=value;previousLocale.current=locale;
             },[value,locale]);
             const invalid=parseCalendarDateInput(text,locale)===null;
+            const rangeInvalid = !invalid && !!value && !!minValue && value < minValue;
+            const showError = (invalid && touched) || rangeInvalid;
+            const rangeMessage = tr('End date cannot be before start date.');
             const message=locale==='de-DE'?`Gültiges Datum eingeben (${calendarDatePattern(locale)}).`:locale==='vi-VN'?`Nhập ngày hợp lệ (${calendarDatePattern(locale)}).`:`Enter a valid date (${calendarDatePattern(locale)}).`;
-            const edit = next => {
-                setText(next);const parsed=parseCalendarDateInput(next,locale);
+            const edit = (next, input) => {
+                const direct = parseCalendarDateInput(next,locale);
+                const display = direct ? formatForecastDate(direct,locale) : partialCalendarDateInput(next,locale);
+                const parsed = parseCalendarDateInput(display,locale);
+                if (input && display !== next) {
+                    const count = next.slice(0,input.selectionStart).replace(/\D/g,'').length;
+                    let caret = 0, seen = 0;
+                    while (caret < display.length && seen < count) {if (/\d/.test(display[caret])) seen++;caret++;}
+                    input.value = display;
+                    input.setSelectionRange(caret,caret);
+                }
+                setText(display);setTouched(false);
                 lastEmitted.current=parsed ?? '';onValidityChange?.(parsed===null);onChange(parsed ?? '');
             };
             return <span className="fc-local-date"><span className="fc-local-date-control">
-                <input type="text" aria-label={tr(label)} placeholder={tr(calendarDatePattern(locale))} autoComplete="off" spellCheck={false} value={text} aria-invalid={invalid || undefined} onChange={e=>edit(e.target.value)} onBlur={()=>{setTouched(true);if(!invalid)setText(formatForecastDate(value,locale));}}/>
+                <input type="text" aria-label={tr(label)} placeholder={tr(calendarDatePattern(locale))} autoComplete="off" spellCheck={false} value={text} aria-invalid={invalid || rangeInvalid || undefined} aria-description={showError ? (rangeInvalid ? rangeMessage : message) : undefined} onChange={e=>edit(e.target.value,e.target)} onKeyDown={e=>{
+                    const input=e.currentTarget, start=input.selectionStart, end=input.selectionEnd;
+                    if(start!==end || e.ctrlKey || e.metaKey || e.altKey) return;
+                    if(e.key==='Backspace' && start>0 && /[-./]/.test(text[start-1])) input.setSelectionRange(start-2,start);
+                    if(e.key==='Delete' && /[-./]/.test(text[start] || '')) input.setSelectionRange(start,start+2);
+                }} onFocus={()=>setTouched(false)} onBlur={()=>{setTouched(true);if(!invalid)setText(formatForecastDate(value,locale));}}/>
+                {text && text.length < 10 && partialCalendarDateInput(text,locale) === text && <span className="fc-local-date-mask" aria-hidden="true"><span style={{visibility:'hidden'}}>{text}</span>{calendarDatePattern(locale).slice(text.length)}</span>}
                 <span className="fc-local-date-picker"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18"/></svg><input type="date" aria-label={tr(`${label} calendar picker`)} lang={locale==='en-US'?'en-CA':locale} value={value || ''} onClick={e=>{try{e.currentTarget.showPicker?.();}catch{}}} onChange={e=>{edit(e.target.value);setText(formatForecastDate(e.target.value,locale));setTouched(false);}}/></span>
-                </span>{invalid && touched && <small role="alert">{message}</small>}
+                </span><small className="fc-local-date-error" aria-hidden={!showError} role={showError ? 'alert' : undefined}><span style={{visibility:invalid && touched ? 'visible' : 'hidden'}}>{message}</span>{minValue !== undefined && <span style={{visibility:rangeInvalid ? 'visible' : 'hidden'}}>{rangeMessage}</span>}</small>
             </span>;
         };
 
@@ -5777,7 +5983,7 @@
             }
             return conflicts;
         };
-        const OperatingCalendarEditor = ({calendar,review,baseUrl,update,onDirty,locale='en-US'}) => {
+        const OperatingCalendarEditor = ({calendar,review,baseUrl,update,onDirty,frequency=null,locale='en-US'}) => {
             const tr=value=>window.ForecastDialogI18n.translate(value,locale);
             const defaults = {enabled:false,start:'',end:'',weekdays:[0,1,2,3,4],ids:[],exceptions:[]};
             const [draft,setDraft] = useState(()=>({...defaults,...calendar}));
@@ -5796,14 +6002,19 @@
             const dateValidity=(key,invalid)=>setDateErrors(prev=>prev[key]===invalid?prev:{...prev,[key]:invalid});
             useEffect(()=>{if (!dirty) {setDraft({...defaults,...calendar});setScope((calendar?.ids||[]).join(', '));}},[JSON.stringify(calendar)]);
             const change = patch => {setDraft(prev=>({...prev,...patch}));setDirty(true);onDirty(true);setError('');setExceptionConflicts([]);};
-            const add = row => change({exceptions:[...draft.exceptions,row]});
+            const add = row => {
+                const label = String(row.label || '').trim();
+                if (!label) {setError('Give every calendar exception a reason.');return false;}
+                change({exceptions:[...draft.exceptions,{...row,label}]});return true;
+            };
             const apply = () => {
                 if(draft.enabled && (dateErrors.start || dateErrors.end)) {setError('Correct the calendar coverage dates.');return;}
+                if(draft.enabled && draft.exceptions.some(row=>!String(row.label || '').trim())) {setError('Give every calendar exception a reason.');setCalendarView('exceptions');return;}
                 const conflicts = draft.enabled ? findCalendarExceptionConflicts(draft.exceptions) : [];
                 if(conflicts.length) {setExceptionConflicts(conflicts);setCalendarView('exceptions');return;}
                 setExceptionConflicts([]);
                 if(draft.enabled && (!draft.start || !draft.end || draft.end<draft.start || !draft.weekdays.length)) {setError('Set calendar coverage and at least one opening weekday.');return;}
-                update({operating_calendar:{...draft,start:draft.start||null,end:draft.end||null,ids:scope.split(',').map(v=>v.trim()).filter(Boolean)},...(draft.enabled?{frequency:'daily'}:{})});setDirty(false);onDirty(false);setError('');
+                update({operating_calendar:{...draft,start:draft.start||null,end:draft.end||null,ids:scope.split(',').map(v=>v.trim()).filter(Boolean)},frequency:draft.enabled?frequency:null});setDirty(false);onDirty(false);setError('');
             };
             const importFile = async event => {
                 const file=event.target.files?.[0];event.target.value='';if(!file)return;setBusy(true);setError('');
@@ -5829,17 +6040,17 @@
                         <div className="fc-calendar-panel" hidden={calendarView!=='schedule'}>
                             <div className="fc-calendar-section-heading"><div><h4>{tr("Your regular week")}</h4><p>{tr("Select the days you are usually open.")}</p></div><span className="fc-calendar-muted">{draft.weekdays.length} {tr("open ·")} {7-draft.weekdays.length} {tr("closed")}</span></div>
                             <div className="fc-calendar-week" role="group" aria-label={tr("Opening weekdays")}>{weekdays.map((day,i)=><button type="button" key={day} aria-label={tr(`${day}: ${draft.weekdays.includes(i)?'open':'closed'}`)} aria-pressed={draft.weekdays.includes(i)} onClick={()=>change({weekdays:draft.weekdays.includes(i)?draft.weekdays.filter(d=>d!==i):[...draft.weekdays,i].sort()})}><strong>{day}</strong><span>{draft.weekdays.includes(i)?tr('Open'):tr('Closed')}</span></button>)}</div>
-                            <div className="fc-calendar-fields fc-calendar-coverage"><label>{tr("Coverage starts")}<LocalizedDateInput key={`start-${dateReset}`} label={tr("Calendar coverage start")} locale={locale} value={draft.start||''} onChange={next=>change({start:next})} onValidityChange={invalid=>dateValidity('start',invalid)}/></label><label>{tr("Coverage ends")}<LocalizedDateInput key={`end-${dateReset}`} label={tr("Calendar coverage end")} locale={locale} value={draft.end||''} onChange={next=>change({end:next})} onValidityChange={invalid=>dateValidity('end',invalid)}/></label><label>{tr("Applies to IDs")}<input aria-label={tr("Calendar item IDs")} placeholder={tr("All IDs, or comma-separated IDs")} value={scope} onChange={e=>{setScope(e.target.value);change({});}}/></label></div>
+                            <div className="fc-calendar-fields fc-calendar-coverage"><label>{tr("Coverage starts")}<LocalizedDateInput key={`start-${dateReset}`} label={tr("Calendar coverage start")} locale={locale} value={draft.start||''} onChange={next=>change({start:next})} onValidityChange={invalid=>dateValidity('start',invalid)}/></label><label>{tr("Coverage ends")}<LocalizedDateInput key={`end-${dateReset}`} label={tr("Calendar coverage end")} minValue={draft.start||''} locale={locale} value={draft.end||''} onChange={next=>change({end:next})} onValidityChange={invalid=>dateValidity('end',invalid)}/></label><label>{tr("Applies to IDs")}<input aria-label={tr("Calendar item IDs")} placeholder={tr("All IDs, or comma-separated IDs")} value={scope} onChange={e=>{setScope(e.target.value);change({});}}/></label></div>
                             <p className="fc-calendar-note">{tr("Include your historical data and forecast horizon. Closed days show zero expected sales. Available for statistical models; deselect MLP.")}</p>
                         </div>
                         <div className="fc-calendar-panel" hidden={calendarView!=='exceptions'}>
                             <div className="fc-calendar-section-heading"><div><h4>{tr("Closures & extra opening days")}</h4><p>{tr("Exceptions override your regular week.")}</p></div><button type="button" className="fc-source-secondary" disabled={busy} onClick={()=>fileRef.current?.click()}>{tr("Import calendar")}</button></div>
                             {!!exceptionConflicts.length && <div ref={conflictNoticeRef} tabIndex={-1} className="fc-source-error fc-calendar-exception-warning" role="alert"><strong>{tr("Calendar exceptions conflict")}</strong><p>{tr("Exceptions repeat or contradict each other for the same dates and IDs. Remove or correct one of the highlighted exceptions, then apply again.")}</p><ul>{exceptionConflicts.map((conflict,i)=><li key={i}>{tr("Exceptions")} {conflict.indices.map(index=>index+1).join(' & ')} · {formatForecastDate(conflict.start,locale)}{conflict.end!==conflict.start?` – ${formatForecastDate(conflict.end,locale)}`:''} · {conflict.ids.join(', ')||tr('All calendar IDs')}</li>)}</ul></div>}
                             <input ref={fileRef} type="file" accept=".xlsx,.csv" hidden onChange={importFile}/>
-                            <div className="fc-calendar-fields fc-calendar-entry"><label>{tr("From")}<LocalizedDateInput key={`entryStart-${dateReset}`} label={tr("Exception start")} locale={locale} value={entry.start} onChange={next=>setEntry({...entry,start:next})} onValidityChange={invalid=>dateValidity('entryStart',invalid)}/></label><label>{tr("Through")}<LocalizedDateInput key={`entryEnd-${dateReset}`} label={tr("Exception end")} locale={locale} value={entry.end} onChange={next=>setEntry({...entry,end:next})} onValidityChange={invalid=>dateValidity('entryEnd',invalid)}/></label><label>{tr("Status")}<select aria-label={tr("Exception status")} value={entry.status} onChange={e=>setEntry({...entry,status:e.target.value})}><option value="closed">{tr("Closed")}</option><option value="open">{tr("Open")}</option></select></label><label>{tr("Applies to")}<input aria-label={tr("Exception item IDs")} placeholder={tr("All calendar IDs")} value={entry.ids} onChange={e=>setEntry({...entry,ids:e.target.value})}/></label><label className="fc-calendar-entry-reason">{tr("Reason")} <span>{tr("(optional)")}</span><input aria-label={tr("Exception label")} placeholder={tr("e.g. Extra Saturday opening")} maxLength={120} value={entry.label} onChange={e=>setEntry({...entry,label:e.target.value})}/></label><button className="fc-source-secondary fc-calendar-add" type="button" disabled={dateErrors.entryStart || dateErrors.entryEnd || !entry.start || (entry.end && entry.end<entry.start) || draft.exceptions.length>=200} onClick={()=>{add({...entry,end:entry.end||entry.start,ids:entry.ids.split(',').map(v=>v.trim()).filter(Boolean)});setEntry({start:'',end:'',status:'closed',ids:'',label:''});setDateErrors({});setDateReset(n=>n+1);}}>{tr("+ Add exception")}</button></div>
+                            <div className="fc-calendar-fields fc-calendar-entry"><label>{tr("From")}<LocalizedDateInput key={`entryStart-${dateReset}`} label={tr("Exception start")} locale={locale} value={entry.start} onChange={next=>setEntry({...entry,start:next})} onValidityChange={invalid=>dateValidity('entryStart',invalid)}/></label><label>{tr("Through")}<LocalizedDateInput key={`entryEnd-${dateReset}`} label={tr("Exception end")} minValue={entry.start} locale={locale} value={entry.end} onChange={next=>setEntry({...entry,end:next})} onValidityChange={invalid=>dateValidity('entryEnd',invalid)}/></label><label>{tr("Status")}<select aria-label={tr("Exception status")} value={entry.status} onChange={e=>setEntry({...entry,status:e.target.value})}><option value="closed">{tr("Closed")}</option><option value="open">{tr("Open")}</option></select></label><label>{tr("Applies to")}<input aria-label={tr("Exception item IDs")} placeholder={tr("All calendar IDs")} value={entry.ids} onChange={e=>setEntry({...entry,ids:e.target.value})}/></label><label className="fc-calendar-entry-reason">{tr("Reason")} <span>{tr("(required)")}</span><input required aria-label={tr("Exception reason")} placeholder={tr("e.g. Extra Saturday opening")} maxLength={120} value={entry.label} onChange={e=>setEntry({...entry,label:e.target.value})}/></label><button className="fc-source-secondary fc-calendar-add" type="button" disabled={!entry.label.trim() || dateErrors.entryStart || dateErrors.entryEnd || !entry.start || (entry.end && entry.end<entry.start) || draft.exceptions.length>=200} onClick={()=>{if(!add({...entry,end:entry.end||entry.start,ids:entry.ids.split(',').map(v=>v.trim()).filter(Boolean)}))return;setEntry({start:'',end:'',status:'closed',ids:'',label:''});setDateErrors({});setDateReset(n=>n+1);}}>{tr("+ Add exception")}</button></div>
                             <p className="fc-calendar-note">{tr("Closed sets prepared sales to zero; Open retains recorded sales. Original values stay unchanged.")}</p>
                             <div className="fc-calendar-exceptions">{!draft.exceptions.length && <p className="fc-calendar-empty">{tr("No exceptions yet. Add a date above or import your calendar.")}</p>}{draft.exceptions.map((row,i)=><div className="fc-calendar-event" data-conflict={exceptionConflicts.some(conflict=>conflict.indices.includes(i))} key={i}><span className="fc-calendar-day-status" data-status={row.status}>{row.status==='open'?tr('Open'):tr('Closed')}</span><div className="fc-calendar-event-copy"><strong>{formatForecastDate(row.start,locale)}{row.end!==row.start?` – ${formatForecastDate(row.end,locale)}`:''}</strong><span>{row.label?`${row.label} · `:''}{row.ids.join(', ')||tr('All calendar IDs')}</span></div><button type="button" className="fc-source-secondary" aria-label={tr(`Remove exception ${i+1}`)} onClick={()=>change({exceptions:draft.exceptions.filter((_,j)=>j!==i)})}>{tr("Remove")}</button></div>)}</div>
-                            <details className="fc-calendar-import-help"><summary>{tr("Import file format")}</summary><p>{tr("Excel or CSV, first sheet: Start Date, End Date, Status (open/closed). Optional: Item ID, Label. Imported exceptions are added to your list.")}</p></details>
+                            <details className="fc-calendar-import-help"><summary>{tr("Import file format")}</summary><p>{tr("Excel or CSV, first sheet: Start Date, End Date, Status (open/closed), Label (reason required). Optional: Item ID. Imported exceptions are added to your list.")}</p></details>
                         </div>
                         <div className="fc-calendar-panel" hidden={calendarView!=='holidays'}>
                             <div className="fc-calendar-section-heading"><div><h4>{tr("Find public holidays")}</h4><p>{tr("Choose only the holidays when your business closes.")}</p></div></div>
@@ -5855,25 +6066,22 @@
             </details>;
         };
 
-        const PreparationFrequency = ({frequency,automatic,detectedFrequency,detectionFailed,update,locale='en-US'}) => { const tr=value=>window.ForecastDialogI18n.translate(value,locale); return <label>{tr("Frequency")}<select aria-label={tr("Missing data frequency")} value={automatic ? '' : frequency} onChange={e=>update({frequency:e.target.value || null,frequency_confirmed:false})}><option value="">{tr("Detect automatically")}</option>{['hourly','daily','business_daily','weekly','monthly','quarterly','yearly'].map(v=><option key={v} value={v}>{tr(v.replace('_',' '))}</option>)}</select>{automatic && <span className="fc-prep-auto-frequency" role="status">{detectedFrequency ? tr(`${tr(detectedFrequency.replace('_',' '))} (auto)`) : detectionFailed ? tr('Not detected') : tr('Detecting…')}</span>}</label>; };
+        const PreparationFrequency = ({frequency,automatic,detectedFrequency,detectionFailed,update,locale='en-US'}) => { const tr=value=>window.ForecastDialogI18n.translate(value,locale); return <div className="fc-prep-frequency"><span className="fc-prep-frequency-title">{tr("Frequency")}</span><select aria-label={tr("Missing data frequency")} value={automatic ? '' : frequency} onChange={e=>update({frequency:e.target.value || null,frequency_confirmed:false})}><option value="">{tr("Detect automatically")}</option>{['hourly','daily','business_daily','weekly','monthly','quarterly','yearly'].map(v=><option key={v} value={v}>{tr(v.replace('_',' '))}</option>)}</select>{automatic && <span className="fc-prep-auto-frequency" role="status">{detectedFrequency ? tr(detectedFrequency.replace('_',' ')) : detectionFailed ? tr('Not detected') : tr('Detecting…')}</span>}</div>; };
         const missingHandlingStatus = (review, current, error) => {
             if (review?.conflict_count) return {readyToConfirm:false,tone:'warning',summary:'Resolve calendar conflicts first',items:'Calendar review required'};
             if (error) return {readyToConfirm:false,tone:'warning',summary:'Resolve the scan error first',items:'Review paused'};
             if (!review || !current) return {readyToConfirm:false,tone:'pending',summary:'Updating handling status…',items:'Updating…'};
             const affected = review.items.filter(item=>item.missing);
-            const needsReview = item => item.review_required && !review.policy.reviewed_items.includes(item.id);
-            const outstanding = affected.filter(item=>item.unresolved || item.error || needsReview(item));
-            const reviews = affected.filter(needsReview).length;
+            const outstanding = affected.filter(item=>item.unresolved || item.error);
             const handled = review.missing_count - review.unresolved;
             const readyToConfirm = review.unresolved === 0 && outstanding.length === 0;
-            const detail = [review.unresolved ? `${review.unresolved} unresolved` : '', reviews ? `${reviews} ${reviews===1?'item needs':'items need'} review` : ''].filter(Boolean).join(' · ');
+            const detail = review.unresolved ? `${review.unresolved} unresolved` : 'Resolve item errors';
             return {readyToConfirm,tone:readyToConfirm && review.policy.frequency_confirmed ? 'success' : 'warning',
                 summary:readyToConfirm ? `All ${review.missing_count} gaps handled · ${review.policy.frequency_confirmed ? 'Review confirmed' : 'Confirm frequency & handling'}` : `${handled}/${review.missing_count} gaps handled · ${detail || 'Review required'}`,
                 items:outstanding.length ? `${outstanding.length}/${affected.length} items need attention` : `All ${affected.length} items handled`};
         };
         const filterPreparationRecords = (review, itemFilter, onlyUnresolved, openOnly) => {
-            const reviewed = new Set(review?.policy?.reviewed_items || []);
-            const pendingItems = new Set((review?.items || []).filter(item=>item.error || (item.review_required && !reviewed.has(item.id))).map(item=>item.id));
+            const pendingItems = new Set((review?.items || []).filter(item=>item.error).map(item=>item.id));
             return (review?.records || []).filter(row=>
                 (!itemFilter || row.unique_id===itemFilter) &&
                 (!onlyUnresolved || row.conflict || row.prepared == null || (row.missing && pendingItems.has(row.unique_id))) &&
@@ -5891,7 +6099,7 @@
         const searchPreviewRows = (index, terms) => index.filter(({values})=>terms.every(term=>values.some(value=>value.includes(term)))).map(({row})=>row);
         const rawPreviewItemIds = (rows, itemColumn) => itemColumn < 0 ? [] : [...new Set(rows.map(row=>String(row[itemColumn] ?? '')).filter(Boolean))];
         const filterRawPreviewItems = (rows, itemColumn, itemId) => !itemId || itemColumn < 0 ? rows : rows.filter(row=>String(row[itemColumn] ?? '')===itemId);
-        const MissingDataReview = ({review,update,locale='en-US',frequencyAuto,detectedFrequency,detectionFailed,handlingLocked,handlingStatus}) => {
+        const MissingDataReview = ({review,update,locale='en-US',frequencyAuto,detectedFrequency,detectionFailed,handlingLocked,handlingStatus,recommendationsLocked,previewError}) => {
             const tr=value=>window.ForecastDialogI18n.translate(value,locale);
             const policy=review.policy, affected=review.items.filter(item=>item.missing || item.conflicts);
             const [view,setView] = useState('handling');
@@ -5907,28 +6115,60 @@
                 <nav className="fc-calendar-nav fc-missing-nav" aria-label={tr("Missing data sections")}><button type="button" aria-pressed={view==='handling'} onClick={()=>setView('handling')}>{tr("Handling setup")}</button><button type="button" aria-pressed={view==='items'} onClick={()=>setView('items')}>{tr("Review items (")}{affected.length})</button><span className="fc-missing-review-status" data-tone={handlingStatus.tone} role="status">{tr(handlingStatus.items)}</span></nav>
                 <div className="fc-missing-tab" hidden={view!=='handling'}>
                     <div className="fc-missing-setup">
-                        <div className="fc-missing-frequency"><PreparationFrequency locale={locale} frequency={policy.frequency} automatic={frequencyAuto} detectedFrequency={detectedFrequency} detectionFailed={detectionFailed} update={update}/><p>{tr("The interval between observations.")}</p></div>
-                        <fieldset className="fc-prep-dependent fc-missing-default" disabled={handlingLocked}><label>{tr("Default handling")}<select aria-label={tr("Default missing data handling")} value={policy.auto_suggest ? 'auto' : policy.method} onChange={e=>update(e.target.value==='auto' ? {auto_suggest:true,method:'none'} : {auto_suggest:false,suggested_methods:{},method:e.target.value,overrides:{}})}><option value="auto">{tr("Auto Suggestion")}</option>{Object.entries(PREPARATION_METHODS).map(([v,label])=><option key={v} value={v}>{tr(label)}</option>)}</select></label><p>{tr("Set a method, then fine-tune each item.")}</p></fieldset>
-                        <fieldset className="fc-prep-dependent fc-missing-confirm" disabled={handlingLocked}><label className="fc-prep-check fc-prep-final-check" title={tr(handlingStatus.readyToConfirm ? 'Confirm the frequency and review the prepared values.' : 'Resolve all gaps and required item reviews first.')}><input type="checkbox" disabled={!handlingStatus.readyToConfirm} checked={policy.frequency_confirmed} onChange={e=>update({frequency_confirmed:e.target.checked})}/>{tr("I confirm the frequency and all missing-data handling")}</label><p>{handlingStatus.readyToConfirm ? tr('Review your preview, then confirm.') : tr('Available after all gaps and item reviews are resolved.')}</p></fieldset>
+                        <div className="fc-missing-frequency"><PreparationFrequency locale={locale} frequency={policy.frequency} automatic={frequencyAuto} detectedFrequency={detectedFrequency} detectionFailed={detectionFailed} update={update}/></div>
+                        <fieldset className="fc-prep-dependent fc-missing-default" disabled={handlingLocked}><label>{tr("Default handling")}<select aria-label={tr("Default missing data handling")} value={policy.auto_suggest ? 'auto' : policy.method} onChange={e=>update(e.target.value==='auto' ? {auto_suggest:true,method:'none'} : {auto_suggest:false,suggested_methods:{},method:e.target.value,overrides:{}})}><option value="auto">{tr("Auto Suggestion")}</option>{Object.entries(PREPARATION_METHODS).map(([v,label])=><option key={v} value={v}>{tr(label)}</option>)}</select></label></fieldset>
+                        <fieldset className="fc-prep-dependent fc-missing-confirm" disabled={handlingLocked}><label className="fc-prep-check fc-prep-final-check" title={tr(handlingStatus.readyToConfirm ? 'Confirm the frequency and review the prepared values.' : 'Resolve all gaps and item errors first.')}><input type="checkbox" disabled={!handlingStatus.readyToConfirm} checked={policy.frequency_confirmed} onChange={e=>update({frequency_confirmed:e.target.checked})}/>{tr("I confirm the frequency and all missing-data handling")}</label></fieldset>
                     </div>
                     {policy.auto_suggest && <p className="fc-missing-guidance">{tr("Auto Suggestion uses each item’s recommended method and keeps manual overrides. Items without a recommendation remain unresolved.")}</p>}
-                    <details className="fc-missing-help"><summary>{tr("How handling works")}</summary><p>{tr("Interpolation needs values on both sides. Seasonal filling uses earlier matching cycles. Validation reapplies your rule inside each training window; some boundary gaps may still require correction. Review prepared values before confirming.")}</p></details>
                 </div>
                 <div className="fc-missing-tab" hidden={view!=='items'}>
                     <fieldset className="fc-prep-dependent" disabled={handlingLocked}><div className="fc-prep-items fc-missing-items">{affected.map(item=>{
-                        const needsReview=item.review_required && !policy.reviewed_items.includes(item.id);
-                        const status=item.conflicts?'Calendar conflict':item.error?'Needs attention':item.unresolved?`${item.unresolved} unresolved`:needsReview?'Review required':'Handled';
+                        const itemPreview=review.records.filter(row=>row.unique_id===item.id && row.missing);
+                        const effectiveMethods=[...new Set(itemPreview.map(row=>policy.value_overrides?.[item.id]?.[row.ds] ?? item.method))];
+                        const individually=effectiveMethods.length>1, commonMethod=effectiveMethods[0] ?? item.method;
+                        const applyItemMethod=method=>update({overrides:{...policy.overrides,[item.id]:method},value_overrides:{...policy.value_overrides,[item.id]:{}}});
+                        const status=item.conflicts?'Calendar conflict':item.error?'Needs attention':item.unresolved?`${item.unresolved} unresolved`:'Handled';
                         return <article className="fc-prep-item" key={item.id}>
                             <div className="fc-missing-item-heading"><div><strong>{item.id}</strong><span>{item.missing} {tr("missing · longest gap")} {item.longest_gap}</span></div><span className="fc-missing-item-status" data-complete={status==='Handled'}>{tr(status)}</span></div>
-                            <p>{tr(item.reason)}</p>
-                            <div className="fc-prep-controls"><label className="fc-missing-item-method">{tr("Handling")}<select aria-label={tr(`Handling for ${item.id}`)} disabled={item.entirely_missing} value={item.method} onChange={e=>update({overrides:{...policy.overrides,[item.id]:e.target.value}})}>{Object.entries(PREPARATION_METHODS).map(([v,label])=><option key={v} value={v}>{tr(label)}</option>)}</select></label>{item.suggested!=='none' && <button type="button" className="fc-source-secondary" onClick={()=>update({overrides:{...policy.overrides,[item.id]:item.suggested}})}>{tr("Use suggested")} {tr(PREPARATION_METHODS[item.suggested])}</button>}</div>
-                            {item.entirely_missing?<p className="fc-source-error">{tr("This entire series is missing. Correct the original data.")}</p>:item.review_required && <label className="fc-prep-check"><input type="checkbox" checked={policy.reviewed_items.includes(item.id)} onChange={e=>update({reviewed_items:e.target.checked?[...policy.reviewed_items,item.id]:policy.reviewed_items.filter(id=>id!==item.id)})}/>{tr("I reviewed this long or boundary gap, including whether it predates the item’s launch.")}</label>}
+                            {!item.recommendation && <p>{tr(item.reason)}</p>}
+                            <MissingItemRecommendation pending={recommendationsLocked} previewError={previewError} recommendation={item.recommendation} locale={locale} itemId={item.id} method={item.method} rows={itemPreview} valueMethods={policy.value_overrides?.[item.id] || {}} disabled={item.entirely_missing} handlingControl={<label className="fc-missing-item-method">{tr("Handling")}<select aria-label={tr(`Handling for ${item.id}`)} disabled={item.entirely_missing} value={individually ? 'individual' : commonMethod} onChange={e=>applyItemMethod(e.target.value)}>{individually && <option value="individual" disabled>{tr("Individually")}</option>}{Object.entries(PREPARATION_METHODS).map(([v,label])=><option key={v} value={v}>{tr(label)}</option>)}</select></label>} onValueMethod={(date,value)=>update({value_overrides:{...policy.value_overrides,[item.id]:{...policy.value_overrides?.[item.id],[date]:value}}})}/>
+                            {item.entirely_missing && <p className="fc-source-error">{tr("This entire series is missing. Correct the original data.")}</p>}
                             {item.error && <p className="fc-source-error">{tr(formatCalendarMessage(item.error,locale))}</p>}
                         </article>;
                     })}</div></fieldset>
                 </div>
-                <fieldset className="fc-prep-dependent fc-missing-preview-controls" disabled={handlingLocked}><button type="button" className="fc-source-secondary" onClick={()=>update({method:'none',auto_suggest:false,suggested_methods:{},overrides:{},zero_confirmed:false,reviewed_items:[]})}>{tr("Reset handling")}</button></fieldset>
+                <div className="fc-missing-preview-controls">
+                    <details className="fc-missing-help"><summary>{tr("How handling works")}</summary><p>{tr("Interpolation needs values on both sides. Seasonal filling uses earlier matching cycles. Validation reapplies your rule inside each training window; some boundary gaps may still require correction. Review prepared values before confirming.")}</p></details>
+                    <fieldset className="fc-prep-dependent" disabled={handlingLocked}><button type="button" className="fc-source-secondary" onClick={()=>update({method:'none',auto_suggest:false,suggested_methods:{},overrides:{},value_overrides:{},zero_confirmed:false,reviewed_items:[]})}>{tr("Reset handling")}</button></fieldset>
+                </div>
             </section>;
+        };
+
+        const MissingItemRecommendation = ({recommendation,locale,itemId,method,rows,pending,previewError,valueMethods={},onValueMethod,disabled,handlingControl}) => {
+            const [previewOpen,setPreviewOpen]=useState(false);
+            useEffect(()=>setPreviewOpen(false),[itemId]);
+            const tr=value=>window.ForecastDialogI18n.translate(value,locale);
+            const candidate=recommendation && recommendation.method!=='none';
+            return <div className="fc-missing-recommendation">
+                {recommendation && <><strong>{tr(candidate?'Suggested method to review':'No method suggested')}{candidate?` · ${tr(PREPARATION_METHODS[recommendation.method])}`:''}</strong>
+                {!candidate && recommendation.history_warning && <p><strong>{tr('History pattern:')}</strong> {tr(recommendation.history_warning)}{Number.isFinite(recommendation.zero_count) && <> {tr(`${recommendation.zero_count} of ${recommendation.observed_count} recorded values are zero.`)}</>}</p>}
+                {!candidate && recommendation.why_no_method && <p><strong>{tr('Why:')}</strong> {tr(recommendation.why_no_method)}</p>}
+                {candidate && <p>{tr(recommendation.reason)}</p>}
+                {recommendation.caution && <p className="fc-missing-recommendation-caution"><strong>{tr('Warning:')}</strong> {tr(recommendation.caution)}</p>}
+                {!candidate && <p><strong>{tr('Recommended next step')}</strong> {tr(recommendation.reason)}</p>}</>}
+                <div className="fc-prep-controls fc-missing-actions">
+                    {rows.length>0 && <button type="button" className="fc-source-secondary" aria-expanded={previewOpen} onClick={()=>setPreviewOpen(open=>!open)}>{tr(previewOpen?'Hide preview':'Preview')}</button>}
+                    {handlingControl}
+                </div>
+                {rows.length>0 && previewOpen && <div className="fc-missing-recommendation-preview" aria-busy={pending && !previewError}>
+                    {pending && <p role="status">{tr(previewError?'Preview unavailable. Resolve the scan error first.':'Updating preview…')}</p>}
+                    <p>{tr('Choose a method for each date. ID-level Handling applies one method to all missing values.')}</p>
+                    <div className="fc-missing-recommendation-table" tabIndex={0} role="region" aria-label={`${tr('Preview')} · ${itemId}`}><table><thead><tr><th>{tr('Date')}</th><th>{tr('Handling')}</th><th>{tr('Estimated value')}</th></tr></thead><tbody>{rows.map(row=>{
+                        const effective=valueMethods[row.ds] ?? method;
+                        return <tr key={row.ds}><td>{formatForecastDate(row.ds,locale)}</td><td><select className="fc-missing-value-method" aria-label={`${tr(`Handling for ${itemId}`)} · ${formatForecastDate(row.ds,locale)}`} value={effective} disabled={disabled} onChange={event=>onValueMethod(row.ds,event.target.value)}>{Object.entries(PREPARATION_METHODS).map(([value,label])=><option key={value} value={value}>{tr(label)}</option>)}</select></td><td>{effective==='none' ? tr('Unresolved') : pending ? '—' : row.prepared==null ? tr('Unresolved') : new Intl.NumberFormat(locale,{maximumFractionDigits:2}).format(row.prepared)}</td></tr>;
+                    })}</tbody></table></div>
+                </div>}
+            </div>;
         };
 
         const MappingModal = ({ initialSource, onClose, onConfirm, t, baseUrl }) => {
@@ -5960,12 +6200,15 @@
             const reviewCurrent = !!review && reviewState.signature === signature;
             const handlingLocked = !!reviewError || !review || (reviewState.frequencySelection ?? null) !== (source?.preparation?.frequency ?? null);
             const detectedFrequency = review && reviewState.frequencySelection == null && source?.preparation?.frequency == null ? review.frequency : null;
+            const calendarFrequency = source?.preparation?.frequency ?? detectedFrequency;
+            const calendarVisible = ['daily','business_daily'].includes(calendarFrequency) || (!calendarFrequency && !!source?.preparation?.operating_calendar?.enabled);
             const reviewUpdating = !!review && !reviewCurrent && !reviewError;
             const draftPolicy = source?.preparation || review?.policy;
             const displayReview = review && !reviewCurrent ? {...review,policy:{...review.policy,...draftPolicy},items:review.items.map(item=>({...item,method:draftPolicy?.overrides?.[item.id] || (draftPolicy?.auto_suggest ? item.suggested : draftPolicy?.method || review.policy.method)}))} : review;
             const info = review ? {valid:reviewCurrent && !reviewError && review.valid,count:review.period_count,items:review.item_count,frequency:review.frequency} : {valid:false,count:0,items:0};
             const loading = busy === sourceKey;
             const handlingStatus = missingHandlingStatus(review,reviewCurrent,reviewError);
+            useEffect(()=>{if(!calendarVisible)setCalendarDirty(false);},[calendarVisible]);
             useEffect(()=>{setPage(0);setPreviewQuery('');setItemFilter('');setReviewError('');},[source?.file,mappingSignature]);
             useEffect(()=>{
                 if (!source) return;
@@ -5976,15 +6219,34 @@
                 datasetRequest(baseUrl,'/data/preview',{method:'POST',body:form,signal:controller.signal}).then(r=>r.json()).then(data=>{if(!controller.signal.aborted){setReviewState({file:source.file,mappingSignature,signature,frequencySelection:source.preparation?.frequency ?? null,data});setReviewError('');}}).catch(e=>{if(!controller.signal.aborted)setReviewError(e.message);});
                 return ()=>controller.abort();
             },[source?.file,signature,baseUrl]);
-            const updatePreparation = patch => setSources(prev=>({...prev,[sourceKey]:{...prev[sourceKey],versionId:null,preparation:{...review?.policy,...prev[sourceKey].preparation,calendar_conflicts_seen:review?.policy?.calendar_conflicts_seen || prev[sourceKey].preparation?.calendar_conflicts_seen || {},frequency:prev[sourceKey].preparation?.frequency ?? null,frequency_confirmed:false,...patch}}}));
-            const readySource = () => ({...source,preparation:review?.policy || source.preparation,analysis:info,mode});
+            const updatePreparation = patch => {
+                // A frequency change must not leave an incompatible calendar active.
+                // Auto detection also needs the original intervals, without calendar expansion.
+                const frequencyChanged = Object.prototype.hasOwnProperty.call(patch,'frequency');
+                const disableCalendar = frequencyChanged && !patch.operating_calendar && !['daily','business_daily'].includes(patch.frequency);
+                if(disableCalendar)setCalendarDirty(false);
+                setSources(prev=>{
+                    const current=prev[sourceKey];
+                    const preparation={...review?.policy,...current.preparation,calendar_conflicts_seen:review?.policy?.calendar_conflicts_seen || current.preparation?.calendar_conflicts_seen || {},frequency:current.preparation?.frequency ?? null,frequency_confirmed:false,...patch};
+                    if(disableCalendar && preparation.operating_calendar)preparation.operating_calendar={...preparation.operating_calendar,enabled:false};
+                    return {...prev,[sourceKey]:{...current,versionId:null,preparation}};
+                });
+            };
+            const readyPreparation = () => ({...(review?.policy || source.preparation),frequency:source.preparation?.frequency ?? null});
+            const readySource = () => ({...source,preparation:readyPreparation(),analysis:info,mode});
+            useEffect(()=>{
+                const policy=source?.preparation;
+                if(policy?.operating_calendar?.enabled && policy.frequency && !['daily','business_daily'].includes(policy.frequency)){
+                    updatePreparation({operating_calendar:{...policy.operating_calendar,enabled:false}});
+                }
+            },[source?.file,source?.preparation?.frequency,source?.preparation?.operating_calendar?.enabled]);
             const saveDataset = async () => {
                 setSaving(true);setSaveMessage('');
                 try {
                     let response;
-                    if(source.datasetId) response=await datasetRequest(baseUrl,`/datasets/${source.datasetId}/versions`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mapping:preparationMapping(source),preparation:review.policy})});
-                    else {const form=new FormData();form.append('file',source.file);form.append('name',datasetName.trim() || source.file.name);form.append('mapping',JSON.stringify(preparationMapping(source)));form.append('preparation',JSON.stringify(review.policy));response=await datasetRequest(baseUrl,'/datasets',{method:'POST',body:form});}
-                    const saved=await response.json();setSources(prev=>prev[sourceKey]?.file!==source.file || JSON.stringify([prev[sourceKey].mapping,prev[sourceKey].preparation,prev[sourceKey].format])!==signature ? prev : ({...prev,[sourceKey]:{...prev[sourceKey],datasetId:saved.id,versionId:saved.version.id,preparation:saved.version.settings.preparation}}));setSaveMessage('Saved to your private library.');
+                    if(source.datasetId) response=await datasetRequest(baseUrl,`/datasets/${source.datasetId}/versions`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mapping:preparationMapping(source),preparation:readyPreparation()})});
+                    else {const form=new FormData();form.append('file',source.file);form.append('name',datasetName.trim() || source.file.name);form.append('mapping',JSON.stringify(preparationMapping(source)));form.append('preparation',JSON.stringify(readyPreparation()));response=await datasetRequest(baseUrl,'/datasets',{method:'POST',body:form});}
+                    const saved=await response.json();setSources(prev=>prev[sourceKey]?.file!==source.file || JSON.stringify([prev[sourceKey].mapping,prev[sourceKey].preparation,prev[sourceKey].format])!==signature ? prev : ({...prev,[sourceKey]:{...prev[sourceKey],datasetId:saved.id,versionId:saved.version.id,preparation:{...saved.version.settings.preparation,frequency:source.preparation?.frequency ?? null}}}));setSaveMessage('Saved to your private library.');
                 } catch(e){setSaveMessage(e.message);}finally{setSaving(false);}
             };
             const openDataset = async (dataset,version) => {
@@ -6160,10 +6422,10 @@
                                 </div>)}
                             </div>
                             {reviewError && <div role="alert" className="fc-source-error">{tr(formatCalendarMessage(reviewError,t.numberLocale))}</div>}
-                            {mode==='custom' && <OperatingCalendarEditor key={sourceKey+source.file.name+source.file.lastModified} calendar={source.preparation?.operating_calendar} review={review} baseUrl={baseUrl} update={updatePreparation} onDirty={setCalendarDirty} locale={t.numberLocale}/>}
-                            {!review && reviewError && /calendar|frequency/i.test(reviewError) && <section className="fc-prep-panel" aria-label={tr("Calendar settings")}><div className="fc-prep-controls"><PreparationFrequency locale={locale} frequency={source.preparation?.frequency} automatic={source.preparation?.frequency == null} detectionFailed={!!reviewError} update={updatePreparation}/></div></section>}
+                            {mode==='custom' && (!gapPreview || !!reviewError) && <section className="fc-source-frequency" aria-label={tr("Frequency")}><PreparationFrequency locale={locale} frequency={source.preparation?.frequency} automatic={source.preparation?.frequency == null} detectedFrequency={detectedFrequency} detectionFailed={!!reviewError} update={updatePreparation}/></section>}
                             {!review && !reviewError && <p role="status" className="fc-prep-help">{tr("Scanning quantities and calendar…")}</p>}
-                            {gapPreview && <details className="fc-source-foldout" open={preparationOpen} onToggle={event=>setPreparationOpen(event.currentTarget.open)} data-attention={!info.valid}><summary>{tr("Missing data")}<span className="fc-prep-status" data-tone={handlingStatus.tone} role="status">{tr(handlingStatus.summary)}</span></summary><MissingDataReview locale={t.numberLocale} review={displayReview} handlingStatus={handlingStatus} handlingLocked={handlingLocked} frequencyAuto={source.preparation?.frequency == null} detectedFrequency={detectedFrequency} detectionFailed={!!reviewError} update={updatePreparation} /></details>}
+                            {gapPreview && <details className="fc-source-foldout" open={preparationOpen} onToggle={event=>setPreparationOpen(event.currentTarget.open)} data-attention={!info.valid}><summary>{tr("Missing data")}<span className="fc-prep-status" data-tone={handlingStatus.tone} role="status">{tr(handlingStatus.summary)}</span></summary><MissingDataReview locale={t.numberLocale} review={displayReview} handlingStatus={handlingStatus} handlingLocked={handlingLocked} recommendationsLocked={!reviewCurrent || !!reviewError} previewError={!!reviewError} frequencyAuto={source.preparation?.frequency == null} detectedFrequency={detectedFrequency} detectionFailed={!!reviewError} update={updatePreparation} /></details>}
+                            {mode==='custom' && calendarVisible && <OperatingCalendarEditor key={sourceKey+source.file.name+source.file.lastModified} calendar={source.preparation?.operating_calendar} frequency={source.preparation?.frequency ?? null} review={review} baseUrl={baseUrl} update={updatePreparation} onDirty={setCalendarDirty} locale={t.numberLocale}/>}
                             {mode === 'custom' && <details className="fc-source-foldout"><summary>{tr("Save & download")}<span>{tr("Keep a private version or export prepared data")}</span></summary><div className="fc-prep-save"><input aria-label={tr("Save dataset as")} disabled={!!source.datasetId} title={tr(source.datasetId ? "Rename this dataset in My datasets" : undefined)} maxLength={120} placeholder={tr("Dataset name (optional)")} value={datasetName} onChange={e=>setDatasetName(e.target.value)} /><button type="button" className="fc-source-secondary" disabled={!info.valid || calendarDirty || saving} onClick={saveDataset}>{source.datasetId?tr('Save new version'):tr('Save to My datasets')}</button><button type="button" className="fc-source-secondary" disabled={!info.valid || calendarDirty} onClick={()=>downloadPreparedPreview(review,source.file.name)}>{tr("Download prepared data")}</button></div>
                             {saveMessage && <p role="status" className="fc-prep-help">{tr(saveMessage)}</p>}</details>}
                             <div className="fc-source-preview-heading"><h3>{t('mapping.preview')}</h3>{previewItemIds.length > 0 && <fieldset className="fc-prep-dependent fc-preview-filters" aria-label={tr("Data Preview filters")}><div className="fc-prep-controls"><label><select aria-label={tr("Preview item")} value={itemFilter} onChange={e=>{setItemFilter(e.target.value);setPage(0);}}><option value="">{tr("All items")}</option>{previewItemIds.map(id=><option key={id} value={id}>{id}</option>)}</select></label></div></fieldset>}<div className="fc-preview-search"><input type="search" aria-label={tr("Search Data Preview")} placeholder={tr("Search preview…")} value={previewQuery} onChange={e=>changePreviewQuery(e.target.value)} onKeyDown={e=>{if(e.key==='Escape' && previewQuery){e.preventDefault();e.stopPropagation();changePreviewQuery('');}}}/>{previewQuery && <button type="button" aria-label={tr("Clear preview search")} onClick={()=>changePreviewQuery('')}>×</button>}</div><span>{info.items} {t('mapping.items')} <span aria-hidden="true">·</span> {info.count} {t('mapping.months_detected')}</span></div>
@@ -8224,7 +8486,7 @@
                                                             setDetailView('replay');
                                                             document.getElementById('fc-detail-tab-replay')?.focus();
                                                         }} />
-                                                        <ForecastValuesTable data={skuData.forecast_data} t={t} />
+                                                        <ForecastValuesTable data={skuData.forecast_data} preparation={skuData.preparation} sku={skuData.sku} t={t} />
                                                             </div>
                                                         </div>}
                                                         {detailView === 'replay' && <div key={`replay-${skuData.sku}`} id="fc-detail-panel-replay" role="tabpanel" aria-labelledby="fc-detail-tab-replay" tabIndex={0} className="fc-detail-scroll scroller flex-1 min-h-0">
