@@ -1799,8 +1799,10 @@
         .fc-calendar-exception-warning { margin: 0; }
         .fc-calendar-exception-warning p { margin: 6px 0; }
         .fc-calendar-exception-warning ul { max-height: 100px; overflow: auto; }
+        .fc-calendar-event[data-conflict="true"] { margin: 6px 0; padding: 9px 10px; border: 1px solid #be123c; border-radius: 8px; background: rgba(190, 18, 60, 0.08); }
         .fc-calendar-event[data-conflict="true"] .fc-calendar-event-copy strong,
         .fc-calendar-event[data-conflict="true"] .fc-calendar-day-status { color: #be123c; }
+        .dark .fc-calendar-event[data-conflict="true"] { border-color: #fda4af; background: rgba(253, 164, 175, 0.08); }
         .dark .fc-calendar-event[data-conflict="true"] .fc-calendar-event-copy strong,
         .dark .fc-calendar-event[data-conflict="true"] .fc-calendar-day-status { color: #fda4af; }
 
@@ -1827,10 +1829,19 @@
         }
         .fc-calendar-conflicts { margin-bottom: 0; }
         .fc-calendar-conflicts p { margin: 6px 0; }
-        .fc-calendar-conflict-dates { max-height: 200px; overflow-y: auto; }
-        .fc-calendar-conflict-dates details { padding: 5px 0; }
+        .fc-calendar-conflict-dates { max-height: 280px; overflow-y: auto; }
+        .fc-calendar-conflict-dates details { padding: 8px 0; border-top: 1px solid rgb(239 68 68 / .18); }
         .fc-calendar-conflict-dates summary { cursor: pointer; font-weight: 600; }
-        .fc-calendar-conflict-dates p { padding-left: 14px; color: var(--source-text); overflow-wrap: anywhere; }
+        .fc-calendar-conflict-table-wrap { max-height: 168px; overflow: auto; margin: 8px 0 8px 14px; border: 1px solid rgb(239 68 68 / .28); border-radius: 8px; background: var(--source-bg); }
+        .fc-calendar-conflict-table { width: 100%; border-collapse: collapse; color: var(--source-text); font-size: 12px; line-height: 1.35; font-variant-numeric: tabular-nums; }
+        .fc-calendar-conflict-table th, .fc-calendar-conflict-table td { padding: 5px 10px; border-bottom: 1px solid var(--source-line); }
+        .fc-calendar-conflict-table thead th { position: sticky; top: 0; z-index: 1; background: var(--source-soft); color: var(--source-muted); font-size: 11px; font-weight: 600; }
+        .fc-calendar-conflict-table tbody th { text-align: left; font-weight: 500; overflow-wrap: anywhere; }
+        .fc-calendar-conflict-table thead th:last-child, .fc-calendar-conflict-table td { text-align: right; }
+        .fc-calendar-conflict-table tbody tr:last-child th, .fc-calendar-conflict-table tbody tr:last-child td { border-bottom: 0; }
+        .fc-calendar-conflict-actions { display: flex; flex-wrap: wrap; gap: 8px; padding: 4px 0 2px 14px; }
+        .fc-calendar-confirm-zero { color: #b91c1c; border-color: rgb(239 68 68 / .45); }
+        .dark .fc-calendar-confirm-zero { color: #fca5a5; }
 
         .fc-prep-dependent:disabled { opacity: .45; }
         .fc-prep-dependent:disabled :is(input,select,button) { cursor: not-allowed; }
@@ -5971,27 +5982,88 @@
             const dates = new Map(), ids = new Set();
             for (const row of review?.records || []) {
                 if (!row.conflict) continue;
-                if (!dates.has(row.ds)) dates.set(row.ds, new Set());
-                dates.get(row.ds).add(row.unique_id);
+                if (!dates.has(row.ds)) dates.set(row.ds, new Map());
+                dates.get(row.ds).set(row.unique_id,row.original);
                 ids.add(row.unique_id);
             }
             const groupedErrors = new Set((review?.items || []).filter(item=>item.conflicts && ids.has(item.id)).map(item=>`${item.id}: ${item.error}`));
             return {
-                dates: [...dates].sort(([a],[b])=>a.localeCompare(b)).map(([date,items])=>({date,ids:[...items].sort()})),
+                dates: [...dates].sort(([a],[b])=>a.localeCompare(b)).map(([date,items])=>({date,items:[...items].sort(([a],[b])=>a.localeCompare(b)).map(([id,original])=>({id,original})),ids:[...items.keys()].sort()})),
                 itemCount: ids.size,
                 otherErrors: (review?.calendar_errors || []).filter(message=>!groupedErrors.has(message)),
             };
         };
-        const CalendarConflictSummary = ({review,locale='en-US'}) => {
+        const calendarConflictShiftDate = (date, days) => {
+            const value = new Date(`${date}T00:00:00Z`);
+            value.setUTCDate(value.getUTCDate() + days);
+            return value.toISOString().slice(0, 10);
+        };
+        const calendarIsoWeekday = date => (new Date(`${date}T00:00:00Z`).getUTCDay() + 6) % 7;
+        const calendarWeekdayOpen = (weekdays, date) => (weekdays || []).map(Number).includes(calendarIsoWeekday(date));
+        const calendarExceptionCovers = (row, date, ids) => row.start <= date && date <= row.end && (!row.ids?.length || !(ids || []).length || ids.some(id => row.ids.includes(id)));
+        const calendarConflictExceptions = (exceptions, group, resolution, weekdays) => {
+            if (resolution !== 'open') return [...(exceptions || [])];
+            const usualOpen = calendarWeekdayOpen(weekdays, group.date);
+            let changed = false;
+            const next = [];
+            for (const row of exceptions || []) {
+                if (row.status === 'closed' && calendarExceptionCovers(row, group.date, group.ids)) {
+                    changed = true;
+                    if (row.start < group.date) next.push({...row, end: calendarConflictShiftDate(group.date, -1)});
+                    if (!usualOpen) next.push({...row, start: group.date, end: group.date, status: 'open'});
+                    if (row.end > group.date) next.push({...row, start: calendarConflictShiftDate(group.date, 1)});
+                } else next.push(row);
+            }
+            if (!changed && !usualOpen) next.push({start: group.date, end: group.date, status: 'open', ids: [...group.ids], label: 'Recorded sales kept'});
+            return next;
+        };
+        const pruneCalendarSalesResolutions = (resolutions, exceptions) => {
+            const next = {};
+            for (const [id, dates] of Object.entries(resolutions || {})) {
+                const kept = {};
+                for (const [date, resolution] of Object.entries(dates || {})) {
+                    if (resolution !== 'closed') continue;
+                    if ((exceptions || []).some(row => row.status === 'open' && calendarExceptionCovers(row, date, [id]))) continue;
+                    kept[date] = resolution;
+                }
+                if (Object.keys(kept).length) next[id] = kept;
+            }
+            return next;
+        };
+        const calendarConflictResolutionPatch = (calendar, current, group, resolution) => {
+            const exceptions = calendarConflictExceptions(calendar?.exceptions, group, resolution, calendar?.weekdays);
+            const next = {...(current || {})};
+            if (resolution === 'open') {
+                for (const id of group.ids) {
+                    if (!next[id]) continue;
+                    const dates = {...next[id]};
+                    delete dates[group.date];
+                    if (Object.keys(dates).length) next[id] = dates;
+                    else delete next[id];
+                }
+            } else {
+                for (const id of group.ids) next[id] = {...(next[id] || {}), [group.date]: resolution};
+            }
+            return {
+                operating_calendar: {...calendar, exceptions},
+                calendar_sales_resolutions: pruneCalendarSalesResolutions(next, exceptions),
+            };
+        };
+        const CalendarConflictSummary = ({review,calendar,salesResolutions,update,locale='en-US'}) => {
             const tr=value=>window.ForecastDialogI18n.translate(value,locale);
             const conflicts = groupCalendarConflicts(review);
+            const resolve=(group,resolution)=>{
+                if(resolution==='closed' && !window.confirm(tr("Confirm this closure and set the affected prepared sales to 0? Original values will remain unchanged.")))return;
+                update(calendarConflictResolutionPatch(calendar,salesResolutions,group,resolution));
+            };
             return <>
                 {!!conflicts.dates.length && <section className="fc-source-error fc-calendar-conflicts" aria-label={tr("Calendar conflicts")}>
-                    <strong role="alert">{tr("Sales recorded on closed dates:")} {conflicts.dates.length} {conflicts.dates.length===1?tr('date'):tr('dates')} · {conflicts.itemCount} {conflicts.itemCount===1?tr('ID'):tr('IDs')}</strong>
-                    <p>{tr("Apply an Open exception to retain sales, or a Closed exception to set prepared sales to zero. Original values are preserved. Expand a date to see affected IDs.")}</p>
-                    <div className="fc-calendar-conflict-dates">{conflicts.dates.map(group=><details key={group.date}>
+                    <strong role="alert">{tr("Recorded sales found on proposed closed dates:")} {conflicts.dates.length} {conflicts.dates.length===1?tr('date'):tr('dates')} · {conflicts.itemCount} {conflicts.itemCount===1?tr('ID'):tr('IDs')}</strong>
+                    <p>{tr("No prepared values have been changed. Keep the recorded sales (recommended), or explicitly confirm that the affected prepared values should be 0.")}</p>
+                    <div className="fc-calendar-conflict-dates">{conflicts.dates.map(group=><details key={group.date} open={conflicts.dates.length===1}>
                         <summary>{formatForecastDate(group.date,locale)} · {group.ids.length} {group.ids.length===1?tr('ID'):tr('IDs')}</summary>
-                        <p>{group.ids.join(', ')}</p>
+                        <div className="fc-calendar-conflict-table-wrap"><table className="fc-calendar-conflict-table"><thead><tr><th scope="col">{tr("Item ID")}</th><th scope="col">{tr("Original")}</th></tr></thead><tbody>{group.items.map(item=><tr key={item.id}><th scope="row">{item.id}</th><td>{item.original == null ? '—' : new Intl.NumberFormat(locale,{maximumFractionDigits:2}).format(item.original)}</td></tr>)}</tbody></table></div>
+                        <div className="fc-calendar-conflict-actions"><button type="button" className="fc-source-confirm" onClick={()=>resolve(group,'open')}>{tr("Keep recorded sales (recommended)")}</button><button type="button" className="fc-source-secondary fc-calendar-confirm-zero" onClick={()=>resolve(group,'closed')}>{tr("Confirm closed · set to 0")}</button></div>
                     </details>)}</div>
                 </section>}
                 {conflicts.otherErrors.map((message,i)=><p key={i} className="fc-source-error" role="alert">{tr(formatCalendarMessage(message,locale))}</p>)}
@@ -6012,7 +6084,38 @@
             }
             return conflicts;
         };
-        const OperatingCalendarEditor = ({calendar,review,baseUrl,update,onDirty,frequency=null,locale='en-US'}) => {
+        const oppositeExceptionCoversDate = (row, opposite, date) => {
+            if (String(opposite.status || '').toLowerCase() === String(row.status || '').toLowerCase() || opposite.start > date || opposite.end < date) return false;
+            if (!opposite.ids?.length) return true;
+            if (!row.ids?.length) return false;
+            return row.ids.some(id => opposite.ids.includes(id));
+        };
+        const firstWeeklyRedundantDate = (row, weekdays, others) => {
+            if (!row?.start) return null;
+            const status = String(row.status || 'closed').toLowerCase();
+            const end = row.end || row.start;
+            let date = row.start;
+            for (let n = 0; n < 3660 && date <= end; n++) {
+                const usualOpen = calendarWeekdayOpen(weekdays, date);
+                const matchesWeekly = status === 'closed' ? !usualOpen : usualOpen;
+                if (matchesWeekly && !(others || []).some(other => oppositeExceptionCoversDate({...row, status}, other, date))) return date;
+                const next = calendarConflictShiftDate(date, 1);
+                if (!next || next <= date) break;
+                date = next;
+            }
+            return null;
+        };
+        const weeklyRedundantExceptionMessage = (row, weekdays, others) => {
+            if (!firstWeeklyRedundantDate(row, weekdays, others)) return '';
+            return String(row.status || 'closed').toLowerCase() === 'closed'
+                ? 'Closed exceptions are only for days that are usually open. This date is already closed by the weekly schedule.'
+                : 'Open exceptions are only for days that are usually closed. This date is already open by the weekly schedule.';
+        };
+        const weeklyExceptionConflicts = (exceptions, weekdays) => (exceptions || []).flatMap((row, i) => {
+            const message = weeklyRedundantExceptionMessage(row, weekdays, (exceptions || []).filter((_, j) => j !== i));
+            return message ? [{indices:[i], start:row.start, end:row.end || row.start, ids:row.ids || [], message}] : [];
+        });
+        const OperatingCalendarEditor = ({calendar,salesResolutions,review,baseUrl,update,onDirty,frequency=null,locale='en-US'}) => {
             const tr=value=>window.ForecastDialogI18n.translate(value,locale);
             const defaults = {enabled:false,start:'',end:'',weekdays:[0,1,2,3,4],ids:[],exceptions:[]};
             const [draft,setDraft] = useState(()=>({...defaults,...calendar}));
@@ -6034,20 +6137,39 @@
             const add = row => {
                 const label = String(row.label || '').trim();
                 if (!label) {setError('Give every calendar exception a reason.');return false;}
-                change({exceptions:[...draft.exceptions,{...row,label}]});return true;
+                const next = {...row, label, status: String(row.status || 'closed').toLowerCase(), ids: row.ids || []};
+                const weeklyError = weeklyRedundantExceptionMessage(next, draft.weekdays, draft.exceptions);
+                if (weeklyError) {setError(weeklyError);setCalendarView('exceptions');return false;}
+                change({exceptions:[...draft.exceptions, next]});return true;
             };
             const apply = () => {
                 if(draft.enabled && (dateErrors.start || dateErrors.end)) {setError('Correct the calendar coverage dates.');return;}
                 if(draft.enabled && draft.exceptions.some(row=>!String(row.label || '').trim())) {setError('Give every calendar exception a reason.');setCalendarView('exceptions');return;}
                 const conflicts = draft.enabled ? findCalendarExceptionConflicts(draft.exceptions) : [];
                 if(conflicts.length) {setExceptionConflicts(conflicts);setCalendarView('exceptions');return;}
+                if(draft.enabled) {
+                    const weeklyError = weeklyExceptionConflicts(draft.exceptions, draft.weekdays)[0]?.message;
+                    if (weeklyError) {setError(weeklyError);setCalendarView('exceptions');return;}
+                }
                 setExceptionConflicts([]);
                 if(draft.enabled && (!draft.start || !draft.end || draft.end<draft.start || !draft.weekdays.length)) {setError('Set calendar coverage and at least one opening weekday.');return;}
-                update({operating_calendar:{...draft,start:draft.start||null,end:draft.end||null,ids:scope.split(',').map(v=>v.trim()).filter(Boolean)},frequency:draft.enabled?frequency:null});setDirty(false);onDirty(false);setError('');
+                update({operating_calendar:{...draft,start:draft.start||null,end:draft.end||null,ids:scope.split(',').map(v=>v.trim()).filter(Boolean)},calendar_sales_resolutions:pruneCalendarSalesResolutions(salesResolutions,draft.exceptions),frequency:draft.enabled?frequency:null});setDirty(false);onDirty(false);setError('');
             };
             const importFile = async event => {
                 const file=event.target.files?.[0];event.target.value='';if(!file)return;setBusy(true);setError('');
-                try {const body=new FormData();body.append('file',file);const data=await(await datasetRequest(baseUrl,'/data/operating-calendar',{method:'POST',body})).json();change({exceptions:[...draft.exceptions,...data.exceptions]});}
+                try {
+                    const body=new FormData();body.append('file',file);
+                    const data=await(await datasetRequest(baseUrl,'/data/operating-calendar',{method:'POST',body})).json();
+                    const kept=[];
+                    let rejected='';
+                    for (const row of data.exceptions || []) {
+                        const weeklyError = weeklyRedundantExceptionMessage(row, draft.weekdays, [...draft.exceptions, ...kept]);
+                        if (weeklyError) rejected = rejected || weeklyError;
+                        else kept.push(row);
+                    }
+                    if (kept.length) change({exceptions:[...draft.exceptions, ...kept]});
+                    if (rejected) setError(rejected);
+                }
                 catch(e){setError(e.message);}finally{setBusy(false);}
             };
             const loadHolidays = async () => {
@@ -6056,6 +6178,10 @@
                 try {const query=new URLSearchParams({country,subdivision,start_year:draft.start.slice(0,4),end_year:draft.end.slice(0,4)});const data=await(await datasetRequest(baseUrl,`/data/public-holidays?${query}`)).json();setHolidays(data.holidays.filter(row=>row.date>=draft.start && row.date<=draft.end));}
                 catch(e){setError(e.message);}finally{setBusy(false);}
             };
+            const parsedExceptionEntry = {start:entry.start,end:entry.end||entry.start,status:entry.status,ids:entry.ids.split(',').map(v=>v.trim()).filter(Boolean),label:entry.label};
+            const entryWeeklyError = entry.start ? weeklyRedundantExceptionMessage(parsedExceptionEntry, draft.weekdays, draft.exceptions) : '';
+            const weeklyConflicts = weeklyExceptionConflicts(draft.enabled ? draft.exceptions : [], draft.weekdays);
+            const markedConflicts = [...exceptionConflicts, ...weeklyConflicts];
             const applied=calendar?.enabled;
             return <details className="fc-source-foldout fc-calendar">
                 <summary>{tr("Operating calendar")}<span className="fc-calendar-summary-state" data-dirty={dirty}>{dirty?tr('Unapplied changes'):applied?`${calendar.weekdays.map(d=>weekdays[d]).join(', ')} · ${tr(`${calendar.exceptions.length} ${calendar.exceptions.length===1?'exception':'exceptions'}`)}`:tr('Optional · set your opening days')}</span></summary>
@@ -6075,21 +6201,23 @@
                         <div className="fc-calendar-panel" hidden={calendarView!=='exceptions'}>
                             <div className="fc-calendar-section-heading"><div><h4>{tr("Closures & extra opening days")}</h4><p>{tr("Exceptions override your regular week.")}</p></div><button type="button" className="fc-source-secondary" disabled={busy} onClick={()=>fileRef.current?.click()}>{tr("Import calendar")}</button></div>
                             {!!exceptionConflicts.length && <div ref={conflictNoticeRef} tabIndex={-1} className="fc-source-error fc-calendar-exception-warning" role="alert"><strong>{tr("Calendar exceptions conflict")}</strong><p>{tr("Exceptions repeat or contradict each other for the same dates and IDs. Remove or correct one of the highlighted exceptions, then apply again.")}</p><ul>{exceptionConflicts.map((conflict,i)=><li key={i}>{tr("Exceptions")} {conflict.indices.map(index=>index+1).join(' & ')} · {formatForecastDate(conflict.start,locale)}{conflict.end!==conflict.start?` – ${formatForecastDate(conflict.end,locale)}`:''} · {conflict.ids.join(', ')||tr('All calendar IDs')}</li>)}</ul></div>}
+                            {!!weeklyConflicts.length && <div className="fc-source-error fc-calendar-exception-warning" role="alert">{[...new Set(weeklyConflicts.map(conflict=>conflict.message))].map(message=><p key={message}>{tr(message)}</p>)}</div>}
                             <input ref={fileRef} type="file" accept=".xlsx,.csv" hidden onChange={importFile}/>
-                            <div className="fc-calendar-fields fc-calendar-entry"><label>{tr("From")}<LocalizedDateInput key={`entryStart-${dateReset}`} label={tr("Exception start")} locale={locale} value={entry.start} onChange={next=>setEntry({...entry,start:next})} onValidityChange={invalid=>dateValidity('entryStart',invalid)}/></label><label>{tr("Through")}<LocalizedDateInput key={`entryEnd-${dateReset}`} label={tr("Exception end")} minValue={entry.start} locale={locale} value={entry.end} onChange={next=>setEntry({...entry,end:next})} onValidityChange={invalid=>dateValidity('entryEnd',invalid)}/></label><label>{tr("Status")}<select aria-label={tr("Exception status")} value={entry.status} onChange={e=>setEntry({...entry,status:e.target.value})}><option value="closed">{tr("Closed")}</option><option value="open">{tr("Open")}</option></select></label><label>{tr("Applies to")}<input aria-label={tr("Exception item IDs")} placeholder={tr("All calendar IDs")} value={entry.ids} onChange={e=>setEntry({...entry,ids:e.target.value})}/></label><label className="fc-calendar-entry-reason">{tr("Reason")} <span>{tr("(required)")}</span><input required aria-label={tr("Exception reason")} placeholder={tr("e.g. Extra Saturday opening")} maxLength={120} value={entry.label} onChange={e=>setEntry({...entry,label:e.target.value})}/></label><button className="fc-source-secondary fc-calendar-add" type="button" disabled={!entry.label.trim() || dateErrors.entryStart || dateErrors.entryEnd || !entry.start || (entry.end && entry.end<entry.start) || draft.exceptions.length>=200} onClick={()=>{if(!add({...entry,end:entry.end||entry.start,ids:entry.ids.split(',').map(v=>v.trim()).filter(Boolean)}))return;setEntry({start:'',end:'',status:'closed',ids:'',label:''});setDateErrors({});setDateReset(n=>n+1);}}>{tr("+ Add exception")}</button></div>
-                            <p className="fc-calendar-note">{tr("Closed sets prepared sales to zero; Open retains recorded sales. Original values stay unchanged.")}</p>
-                            <div className="fc-calendar-exceptions">{!draft.exceptions.length && <p className="fc-calendar-empty">{tr("No exceptions yet. Add a date above or import your calendar.")}</p>}{draft.exceptions.map((row,i)=><div className="fc-calendar-event" data-conflict={exceptionConflicts.some(conflict=>conflict.indices.includes(i))} key={i}><span className="fc-calendar-day-status" data-status={row.status}>{row.status==='open'?tr('Open'):tr('Closed')}</span><div className="fc-calendar-event-copy"><strong>{formatForecastDate(row.start,locale)}{row.end!==row.start?` – ${formatForecastDate(row.end,locale)}`:''}</strong><span>{row.label?`${row.label} · `:''}{row.ids.join(', ')||tr('All calendar IDs')}</span></div><button type="button" className="fc-source-secondary" aria-label={tr(`Remove exception ${i+1}`)} onClick={()=>change({exceptions:draft.exceptions.filter((_,j)=>j!==i)})}>{tr("Remove")}</button></div>)}</div>
+                            <div className="fc-calendar-fields fc-calendar-entry"><label>{tr("From")}<LocalizedDateInput key={`entryStart-${dateReset}`} label={tr("Exception start")} locale={locale} value={entry.start} onChange={next=>setEntry({...entry,start:next})} onValidityChange={invalid=>dateValidity('entryStart',invalid)}/></label><label>{tr("Through")}<LocalizedDateInput key={`entryEnd-${dateReset}`} label={tr("Exception end")} minValue={entry.start} locale={locale} value={entry.end} onChange={next=>setEntry({...entry,end:next})} onValidityChange={invalid=>dateValidity('entryEnd',invalid)}/></label><label>{tr("Status")}<select aria-label={tr("Exception status")} value={entry.status} onChange={e=>setEntry({...entry,status:e.target.value})}><option value="closed">{tr("Closed")}</option><option value="open">{tr("Open")}</option></select></label><label>{tr("Applies to")}<input aria-label={tr("Exception item IDs")} placeholder={tr("All calendar IDs")} value={entry.ids} onChange={e=>setEntry({...entry,ids:e.target.value})}/></label><label className="fc-calendar-entry-reason">{tr("Reason")} <span>{tr("(required)")}</span><input required aria-label={tr("Exception reason")} placeholder={tr("e.g. Extra Saturday opening")} maxLength={120} value={entry.label} onChange={e=>setEntry({...entry,label:e.target.value})}/></label><button className="fc-source-secondary fc-calendar-add" type="button" disabled={!entry.label.trim() || dateErrors.entryStart || dateErrors.entryEnd || !entry.start || (entry.end && entry.end<entry.start) || draft.exceptions.length>=200 || !!entryWeeklyError} onClick={()=>{if(!add({...entry,end:entry.end||entry.start,ids:entry.ids.split(',').map(v=>v.trim()).filter(Boolean)}))return;setEntry({start:'',end:'',status:'closed',ids:'',label:''});setDateErrors({});setDateReset(n=>n+1);}}>{tr("+ Add exception")}</button></div>
+                            {entryWeeklyError && <p className="fc-source-error" role="alert">{tr(entryWeeklyError)}</p>}
+                            <p className="fc-calendar-note">{tr("Closed days with recorded sales require your confirmation before prepared values are set to zero. Original values always stay unchanged.")} {tr("To reopen a confirmed weekly closed day, add an Open exception. Remove that exception and apply the calendar to review the conflict again.")} {tr("Do not add a Closed exception on a day the weekly schedule already closes.")}</p>
+                            <div className="fc-calendar-exceptions">{!draft.exceptions.length && <p className="fc-calendar-empty">{tr("No exceptions yet. Add a date above or import your calendar.")}</p>}{draft.exceptions.map((row,i)=><div className="fc-calendar-event" data-conflict={markedConflicts.some(conflict=>conflict.indices.includes(i))} key={i}><span className="fc-calendar-day-status" data-status={row.status}>{row.status==='open'?tr('Open'):tr('Closed')}</span><div className="fc-calendar-event-copy"><strong>{formatForecastDate(row.start,locale)}{row.end!==row.start?` – ${formatForecastDate(row.end,locale)}`:''}</strong><span>{row.label?`${row.label} · `:''}{row.ids.join(', ')||tr('All calendar IDs')}</span></div><button type="button" className="fc-source-secondary" aria-label={tr(`Remove exception ${i+1}`)} onClick={()=>change({exceptions:draft.exceptions.filter((_,j)=>j!==i)})}>{tr("Remove")}</button></div>)}</div>
                             <details className="fc-calendar-import-help"><summary>{tr("Import file format")}</summary><p>{tr("Excel or CSV, first sheet: Start Date, End Date, Status (open/closed), Label (reason required). Optional: Item ID. Imported exceptions are added to your list.")}</p></details>
                         </div>
                         <div className="fc-calendar-panel" hidden={calendarView!=='holidays'}>
                             <div className="fc-calendar-section-heading"><div><h4>{tr("Find public holidays")}</h4><p>{tr("Choose only the holidays when your business closes.")}</p></div></div>
                             <div className="fc-calendar-fields fc-calendar-holiday-fields"><label>{tr("Country")}<select aria-label={tr("Holiday country")} value={country} onChange={e=>{setCountry(e.target.value);setHolidays([]);}}>{[['DE','Germany'],['VN','Vietnam'],['US','United States'],['GB','United Kingdom'],['FR','France'],['AU','Australia'],['CA','Canada']].map(([code,name])=><option key={code} value={code}>{tr(name)}</option>)}</select></label><label>{tr("Region code")} <span>{tr("(optional)")}</span><input aria-label={tr("Holiday region")} placeholder={tr("e.g. BE")} value={subdivision} onChange={e=>{setSubdivision(e.target.value);setHolidays([]);}}/></label><button type="button" className="fc-source-secondary" disabled={busy} onClick={loadHolidays}>{busy?tr('Loading…'):tr('Find holidays')}</button></div>
-                            <p className="fc-calendar-note">{tr("Suggestions use your calendar coverage. Adding a holiday creates a Closed exception.")}</p>
-                            <div className="fc-calendar-exceptions">{!holidays.length && <p className="fc-calendar-empty">{tr("Holiday suggestions will appear here.")}</p>}{holidays.map(row=><div className="fc-calendar-event" key={row.date}><div className="fc-calendar-event-copy"><strong>{row.label}</strong><span>{formatForecastDate(row.date,locale)}</span></div><button type="button" className="fc-source-secondary" disabled={draft.exceptions.some(e=>e.start===row.date && e.end===row.date && e.status==='closed' && !e.ids.length)} onClick={()=>add({start:row.date,end:row.date,status:'closed',ids:[],label:row.label.slice(0,120)})}>{draft.exceptions.some(e=>e.start===row.date && e.end===row.date && e.status==='closed' && !e.ids.length)?tr('Added'):tr('Add closure')}</button></div>)}</div>
+                            <p className="fc-calendar-note">{tr("Holiday suggestions are proposed closures. If recorded sales exist, you must choose whether to keep them or confirm zero.")}</p>
+                            <div className="fc-calendar-exceptions">{!holidays.length && <p className="fc-calendar-empty">{tr("Holiday suggestions will appear here.")}</p>}{holidays.map(row=>{const added=draft.exceptions.some(e=>e.start===row.date && e.end===row.date && !e.ids.length);const alreadyClosed=!calendarWeekdayOpen(draft.weekdays,row.date);return <div className="fc-calendar-event" key={row.date}><div className="fc-calendar-event-copy"><strong>{row.label}</strong><span>{formatForecastDate(row.date,locale)}</span></div><button type="button" className="fc-source-secondary" disabled={added || alreadyClosed} onClick={()=>add({start:row.date,end:row.date,status:'closed',ids:[],label:row.label.slice(0,120)})}>{added?tr('Added'):alreadyClosed?tr('Already closed'):tr('Propose closure')}</button></div>;})}</div>
                         </div>
                     </> : <p className="fc-calendar-note">{tr("Enable the calendar to distinguish scheduled closures from missing data, and show zero expected sales on closed days.")}</p>}
                     {error && <p className="fc-source-error" role="alert">{tr(formatCalendarMessage(error,locale))}</p>}
-                    <CalendarConflictSummary review={review} locale={locale} />
+                    <CalendarConflictSummary review={review} calendar={calendar} salesResolutions={salesResolutions} update={patch=>{update(patch);if(patch.operating_calendar){setDraft(prev=>({...prev,...patch.operating_calendar}));setError('');setExceptionConflicts([]);}}} locale={locale} />
                     <div className="fc-calendar-actions"><div className="fc-calendar-action-status" role="status">{dirty?<><strong>{tr("Changes ready to apply")}</strong><span>{tr("Your preview updates after applying.")}</span></>:applied?<><strong>{review?.closed_count||0} {tr("closed item-days ·")} {review?.conflict_count||0} {tr("conflicts")}</strong><span>{formatForecastDate(calendar.start,locale)} – {formatForecastDate(calendar.end,locale)}</span></>:<span>{tr("No calendar applied")}</span>}</div><div>{dirty && <button type="button" className="fc-source-secondary" onClick={()=>{setDraft({...defaults,...calendar});setDateErrors({});setDateReset(n=>n+1);setScope((calendar?.ids||[]).join(', '));setDirty(false);onDirty(false);setError('');setExceptionConflicts([]);}}>{tr("Discard changes")}</button>}<button type="button" className="fc-source-confirm" disabled={!dirty || busy} onClick={apply}>{tr("Apply calendar")}</button></div></div>
                 </div>
             </details>;
@@ -6120,7 +6248,7 @@
             row.unique_id, row.ds,
             row.original ?? ((row.original_kind ?? row.kind)==='absent_period' || (row.original_kind === undefined && row.closed) ? 'Missing period' : 'Empty'),
             row.prepared ?? (row.conflict ? 'Conflict' : 'Unresolved'),
-            row.conflict ? 'Calendar conflict' : row.calendar_conflict_resolved ? (row.closed ? 'Closed · conflict resolved' : 'Observed · conflict resolved') : row.closed ? (row.original == null ? 'No record · closed' : 'Closed') : PREPARATION_METHODS[row.method] || (row.missing ? 'Unresolved' : 'Observed')
+            row.conflict ? 'Calendar conflict · no change' : row.calendar_conflict_resolved || row.calendar_conflict_resolution ? (row.closed || row.calendar_conflict_resolution==='closed' ? 'Closed · conflict resolved' : 'Open · conflict resolved') : row.closed ? (row.original == null ? 'No record · closed' : 'Closed') : PREPARATION_METHODS[row.method] || (row.missing ? 'Unresolved' : 'Observed')
         ];
         const normalizePreviewSearch = value => String(value ?? '').normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/[đĐ]/g, 'd').toLowerCase();
         const previewSearchTerms = query => Array.from(query.matchAll(/"([^"]*)"|(\S+)/g), match=>normalizePreviewSearch(match[1] ?? match[2]).trim()).filter(Boolean);
@@ -6255,7 +6383,7 @@
                 setSources(prev=>{
                     const current=prev[sourceKey];
                     const preparation={...review?.policy,...current.preparation,calendar_conflicts_seen:review?.policy?.calendar_conflicts_seen || current.preparation?.calendar_conflicts_seen || {},frequency:current.preparation?.frequency ?? null,frequency_confirmed:false,...patch};
-                    if(disableCalendar && preparation.operating_calendar)preparation.operating_calendar={...preparation.operating_calendar,enabled:false};
+                    if(disableCalendar && preparation.operating_calendar){preparation.operating_calendar={...preparation.operating_calendar,enabled:false};preparation.calendar_sales_resolutions={};}
                     return {...prev,[sourceKey]:{...current,versionId:null,preparation}};
                 });
             };
@@ -6451,7 +6579,7 @@
                             {mode==='custom' && (!gapPreview || !!reviewError) && <section className="fc-source-frequency" aria-label={tr("Frequency")}><PreparationFrequency locale={locale} frequency={source.preparation?.frequency} automatic={source.preparation?.frequency == null} detectedFrequency={detectedFrequency} detectionFailed={!!reviewError} update={updatePreparation}/></section>}
                             {!review && !reviewError && <p role="status" className="fc-prep-help">{tr("Scanning quantities and calendar…")}</p>}
                             {gapPreview && <details className="fc-source-foldout" open={preparationOpen} onToggle={event=>setPreparationOpen(event.currentTarget.open)} data-attention={!info.valid}><summary>{tr("Missing data")}<span className="fc-prep-status" data-tone={handlingStatus.tone} role="status">{tr(handlingStatus.summary)}</span></summary><MissingDataReview locale={t.numberLocale} review={displayReview} handlingStatus={handlingStatus} handlingLocked={handlingLocked} recommendationsLocked={!reviewCurrent || !!reviewError} previewError={!!reviewError} frequencyAuto={source.preparation?.frequency == null} detectedFrequency={detectedFrequency} detectionFailed={!!reviewError} update={updatePreparation} /></details>}
-                            {mode==='custom' && calendarVisible && <OperatingCalendarEditor key={sourceKey+source.file.name+source.file.lastModified} calendar={source.preparation?.operating_calendar} frequency={source.preparation?.frequency ?? null} review={review} baseUrl={baseUrl} update={updatePreparation} onDirty={setCalendarDirty} locale={t.numberLocale}/>}
+                            {mode==='custom' && calendarVisible && <OperatingCalendarEditor key={sourceKey+source.file.name+source.file.lastModified} calendar={source.preparation?.operating_calendar} salesResolutions={source.preparation?.calendar_sales_resolutions || review?.policy?.calendar_sales_resolutions || {}} frequency={source.preparation?.frequency ?? null} review={review} baseUrl={baseUrl} update={updatePreparation} onDirty={setCalendarDirty} locale={t.numberLocale}/>}
                             {mode === 'custom' && <details className="fc-source-foldout"><summary>{tr("Save & download")}<span>{tr("Keep a private version or export prepared data")}</span></summary><div className="fc-prep-save"><input aria-label={tr("Save dataset as")} disabled={!!source.datasetId} title={tr(source.datasetId ? "Rename this dataset in My datasets" : undefined)} maxLength={120} placeholder={tr("Dataset name (optional)")} value={datasetName} onChange={e=>setDatasetName(e.target.value)} /><button type="button" className="fc-source-secondary" disabled={!info.valid || calendarDirty || saving} onClick={saveDataset}>{source.datasetId?tr('Save new version'):tr('Save to My datasets')}</button><button type="button" className="fc-source-secondary" disabled={!info.valid || calendarDirty} onClick={()=>downloadPreparedPreview(review,source.file.name)}>{tr("Download prepared data")}</button></div>
                             {saveMessage && <p role="status" className="fc-prep-help">{tr(saveMessage)}</p>}</details>}
                             <div className="fc-source-preview-heading"><h3>{t('mapping.preview')}</h3>{previewItemIds.length > 0 && <fieldset className="fc-prep-dependent fc-preview-filters" aria-label={tr("Data Preview filters")}><div className="fc-prep-controls"><label><select aria-label={tr("Preview item")} value={itemFilter} onChange={e=>{setItemFilter(e.target.value);setPage(0);}}><option value="">{tr("All items")}</option>{previewItemIds.map(id=><option key={id} value={id}>{id}</option>)}</select></label></div></fieldset>}<div className="fc-preview-search"><input type="search" aria-label={tr("Search Data Preview")} placeholder={tr("Search preview…")} value={previewQuery} onChange={e=>changePreviewQuery(e.target.value)} onKeyDown={e=>{if(e.key==='Escape' && previewQuery){e.preventDefault();e.stopPropagation();changePreviewQuery('');}}}/>{previewQuery && <button type="button" aria-label={tr("Clear preview search")} onClick={()=>changePreviewQuery('')}>×</button>}</div><span>{info.items} {t('mapping.items')} <span aria-hidden="true">·</span> {info.count} {t('mapping.months_detected')}</span></div>
