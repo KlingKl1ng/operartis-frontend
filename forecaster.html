@@ -2492,7 +2492,9 @@
                     value_domain_signed: "Allow negatives",
                     train_h: "Train Horizon",
                     test_h: "Test Horizon",
+                    test_horizon_cap: "Test horizon is capped at {max} periods.",
                     fc_h: "Forecast Horizon",
+                    forecast_horizon_cap: "Forecast horizon is capped at {max} periods.",
                     total_periods: "Total time periods",
                     detected_frequency: "Detected frequency",
                     history_too_long: "This {frequency} file has {count} periods; the maximum is {max}.",
@@ -2823,7 +2825,9 @@
                     value_domain_signed: "Cho phép âm",
                     train_h: "Chu kỳ H.luyện",
                     test_h: "Chu kỳ K.định",
+                    test_horizon_cap: "Chu kỳ kiểm định được giới hạn tối đa ở {max} kỳ.",
                     fc_h: "Chu kỳ dự báo",
+                    forecast_horizon_cap: "Chu kỳ dự báo được giới hạn tối đa ở {max} kỳ.",
                     total_periods: "Tổng số chu kỳ",
                     detected_frequency: "Tần suất phát hiện",
                     history_too_long: "Tệp {frequency} này có {count} chu kỳ; tối đa là {max}.",
@@ -3154,7 +3158,9 @@
                     value_domain_signed: "Negative Werte erlaubt",
                     train_h: "Train-Horizont",
                     test_h: "Test-Horizont",
+                    test_horizon_cap: "Der Test-Horizont ist auf {max} Perioden begrenzt.",
                     fc_h: "Prognose-Horizont",
+                    forecast_horizon_cap: "Der Prognose-Horizont ist auf {max} Perioden begrenzt.",
                     total_periods: "Gesamtzeiträume",
                     detected_frequency: "Erkannte Frequenz",
                     history_too_long: "Diese {frequency}-Datei hat {count} Perioden; das Maximum ist {max}.",
@@ -3540,8 +3546,8 @@
 
         const DEFAULT_FREQUENCY_PROFILES = {
             hourly: { seasonal_period: 24, label: 'Hourly', max_history_columns: 720, max_train_horizon: 720, max_test_horizon: 48, max_forecast_horizon: 48, mlp_lag_window: 24, prophet_min_points: 336 },
-            daily: { seasonal_period: 7, label: 'Daily', max_history_columns: 730, max_train_horizon: 730, max_test_horizon: 60, max_forecast_horizon: 60, mlp_lag_window: 14, prophet_min_points: 14 },
-            business_daily: { seasonal_period: 5, label: 'Business daily (Mon-Fri)', max_history_columns: 730, max_train_horizon: 730, max_test_horizon: 60, max_forecast_horizon: 60, mlp_lag_window: 10, prophet_min_points: 10 },
+            daily: { seasonal_period: 7, label: 'Daily', max_history_columns: 730, max_train_horizon: 730, max_test_horizon: 184, max_forecast_horizon: 180, mlp_lag_window: 14, prophet_min_points: 14 },
+            business_daily: { seasonal_period: 5, label: 'Business daily (Mon-Fri)', max_history_columns: 730, max_train_horizon: 730, max_test_horizon: 184, max_forecast_horizon: 180, mlp_lag_window: 10, prophet_min_points: 10 },
             yearly: { seasonal_period: 1, label: 'Yearly', max_history_columns: 100, max_train_horizon: 100, max_test_horizon: 20, max_forecast_horizon: 20, mlp_lag_window: 4, prophet_min_points: 8 },
             weekly: { seasonal_period: 52, label: 'Weekly', max_history_columns: 312, max_train_horizon: 312, max_test_horizon: 52, max_forecast_horizon: 52, mlp_lag_window: 52, prophet_min_points: 104 },
             monthly: { seasonal_period: 12, label: 'Monthly', max_history_columns: 240, max_train_horizon: 240, max_test_horizon: 60, max_forecast_horizon: 60, mlp_lag_window: 12, prophet_min_points: 24 },
@@ -8582,6 +8588,11 @@
                                             />
                                         </div>
                                     </div>
+                                    {adaptiveValidation && Number(testHorizon) > maxTestHorizon && (
+                                        <p role="note" className="text-[9px] leading-4 text-amber-700 dark:text-amber-400">
+                                            ⚠️ {t('sidebar.test_horizon_cap').replace('{max}', fmtNumber(maxTestHorizon, 0, 0, t.numberLocale))}
+                                        </p>
+                                    )}
                                     {totalTimeSeries > 0 && (
                                         <div className={`text-[9px] leading-4 ${invalidFrequency || horizonMismatch || historyTooLong ? 'text-red-500' : 'text-slate-400'}`}>
                                             {invalidFrequency
@@ -8614,6 +8625,11 @@
                                             max={maxForecastHorizon}
                                             className="fc-sidebar-control w-full text-xxs px-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 dark:text-slate-200 outline-none focus:border-brand-gold transition-colors dark:[color-scheme:dark]"
                                         />
+                                        {Number(forecastSteps) > maxForecastHorizon && (
+                                            <p role="note" className="mt-1 text-[9px] leading-4 text-amber-700 dark:text-amber-400">
+                                                ⚠️ {t('sidebar.forecast_horizon_cap').replace('{max}', fmtNumber(maxForecastHorizon, 0, 0, t.numberLocale))}
+                                            </p>
+                                        )}
                                     </div>
                                     <div aria-live="polite" className={`text-[10px] leading-relaxed ${validationHorizonTooShort || simpleSplitInvalid ? 'text-red-600 dark:text-red-400' : 'text-slate-500 dark:text-slate-400'}`}>
                                         {simpleSplitInvalid ? t('sidebar.validation_simple_invalid') : validationHorizonTooShort ? t('sidebar.validation_short') : adaptiveValidation ? (
