@@ -1813,7 +1813,18 @@
         .fc-calendar-day-status[data-status="open"] { color: #047857; }
         .dark .fc-calendar-day-status[data-status="open"] { color: #6ee7b7; }
         .fc-calendar-empty { padding: 18px; text-align: center; border: 1px dashed var(--source-line); border-radius: 8px; color: var(--source-muted); font-size: 12px; }
-        .fc-calendar-holiday-fields { grid-template-columns: 1fr 1fr auto; }
+        .fc-calendar-holiday-toolbar { display: flex; align-items: end; gap: 12px; }
+        .fc-calendar-holiday-toolbar .fc-calendar-holiday-fields { flex: 1; min-width: 0; }
+        .fc-calendar-holiday-fields { grid-template-columns: minmax(0, 168px) minmax(0, 132px) auto; }
+        .fc-calendar-holiday-fields input, .fc-calendar-holiday-fields select { min-height: 34px; box-sizing: border-box; }
+        .fc-calendar-holiday-actions { display: flex; align-items: center; gap: 8px; align-self: end; }
+        .fc-calendar-info { position: relative; display: inline-flex; flex-shrink: 0; }
+        .fc-calendar-info-button { width: 34px; height: 34px; min-height: 34px; padding: 0; border: 0; background: transparent; color: var(--source-muted); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
+        .fc-calendar-info-button svg { width: 18px; height: 18px; }
+        .fc-calendar-info-button:hover, .fc-calendar-info-button[aria-expanded="true"] { color: #f59e0b; }
+        .fc-calendar-info-button:focus-visible { outline: 2px solid #f59e0b; outline-offset: 2px; }
+        .fc-calendar-info-popover { position: absolute; top: calc(100% + 8px); right: 0; z-index: 5; width: min(320px, 70vw); padding: 10px 12px; border: 1px solid var(--source-line); border-radius: 8px; background: var(--source-bg); color: var(--source-muted); font-size: 12px; line-height: 1.5; box-shadow: 0 8px 24px rgb(15 23 42 / .12); }
+        .fc-calendar-holiday-toolbar > .fc-source-secondary, .fc-calendar-holiday-actions .fc-source-secondary, .fc-calendar-holiday-list .fc-calendar-event > .fc-source-secondary { min-height: 34px; height: 34px; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; padding: 0 12px; white-space: nowrap; flex-shrink: 0; }
         .fc-calendar-actions { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding-top: 12px; border-top: 1px solid var(--source-line); }
         .fc-calendar-actions > div:last-child { display: flex; gap: 8px; }
         .fc-calendar-action-status { display: grid; gap: 3px; font-size: 11px; color: var(--source-muted); }
@@ -1823,12 +1834,16 @@
             .fc-calendar-switch strong { display: none; }
             .fc-calendar-nav button { padding: 9px 6px; }
             .fc-calendar-coverage, .fc-calendar-entry, .fc-calendar-holiday-fields { grid-template-columns: 1fr 1fr; }
+            .fc-calendar-holiday-toolbar { flex-wrap: wrap; }
+            .fc-calendar-holiday-toolbar > .fc-source-secondary { margin-left: auto; }
+            .fc-calendar-holiday-actions { grid-column: 1 / -1; }
             .fc-calendar-coverage label:last-child, .fc-calendar-entry-reason { grid-column: span 2; }
             .fc-calendar-actions { flex-wrap: wrap; }
             .fc-calendar-week { gap: 4px; }
         }
         .fc-calendar-conflicts { margin-bottom: 0; }
         .fc-calendar-conflicts p { margin: 6px 0; }
+        .fc-calendar-conflicts > .fc-calendar-conflict-actions { padding-left: 0; margin: 8px 0 10px; }
         .fc-calendar-conflict-dates { max-height: 280px; overflow-y: auto; }
         .fc-calendar-conflict-dates details { padding: 8px 0; border-top: 1px solid rgb(239 68 68 / .18); }
         .fc-calendar-conflict-dates summary { cursor: pointer; font-weight: 600; overflow-wrap: anywhere; }
@@ -6028,6 +6043,13 @@
         };
         const proposableHolidayClosures = (holidays, exceptions, proposals, weekdays) => (holidays || []).filter(row => holidaySuggestionState(row, exceptions, proposals, weekdays).canPropose).map(row => ({date: row.date, label: String(row.label || '').trim().slice(0, 120)}));
         const visibleCalendarExceptions = (exceptions, proposals) => (exceptions || []).filter(row => !isPendingHolidayClosure(row, proposals));
+        const sortedCalendarExceptionRows = (exceptions, proposals) => (exceptions || [])
+            .map((row, index) => ({row, index}))
+            .filter(({row}) => !isPendingHolidayClosure(row, proposals))
+            .sort((left, right) => {
+                const byStart = String(left.row.start || '').localeCompare(String(right.row.start || ''));
+                return byStart || String(left.row.end || left.row.start || '').localeCompare(String(right.row.end || right.row.start || ''));
+            });
         const retainPendingHolidayProposals = (proposals, appliedExceptions, conflictDates) => {
             const dates = conflictDates instanceof Set ? conflictDates : new Set(conflictDates || []);
             return (proposals || []).filter(row => {
@@ -6066,6 +6088,17 @@
             }
             return next;
         };
+        const pruneCalendarConflictsSeen = (seen, exceptions, resolutions) => {
+            const next = {};
+            for (const [id, dates] of Object.entries(seen || {})) {
+                const kept = (dates || []).filter(date =>
+                    resolutions?.[id]?.[date]
+                    || (exceptions || []).some(row => calendarExceptionCovers(row, date, [id]))
+                );
+                if (kept.length) next[id] = kept;
+            }
+            return next;
+        };
         const calendarConflictResolutionPatch = (calendar, current, group, resolution) => {
             const exceptions = calendarConflictExceptions(calendar?.exceptions, group, resolution, calendar?.weekdays);
             const next = {...(current || {})};
@@ -6084,6 +6117,11 @@
                 operating_calendar: {...calendar, exceptions},
                 calendar_sales_resolutions: pruneCalendarSalesResolutions(next, exceptions),
             };
+        };
+        const calendarConflictBulkResolutionPatch = (calendar, current, groups, resolution) => {
+            let patch = {operating_calendar: calendar, calendar_sales_resolutions: current || {}};
+            for (const group of groups || []) patch = calendarConflictResolutionPatch(patch.operating_calendar, patch.calendar_sales_resolutions, group, resolution);
+            return patch;
         };
         const calendarDisablePatch = (applied, salesResolutions, frequency, restore) => {
             const source = restore?.operating_calendar || applied || {enabled:false,start:null,end:null,weekdays:[0,1,2,3,4],ids:[],exceptions:[]};
@@ -6110,14 +6148,20 @@
                 if(resolution==='closed' && !window.confirm(tr("Confirm this closure and set the affected prepared sales to 0? Original values will remain unchanged.")))return;
                 update(calendarConflictResolutionPatch(calendar,salesResolutions,group,resolution));
             };
+            const resolveAll=resolution=>{
+                if(!conflicts.dates.length)return;
+                if(resolution==='closed' && !window.confirm(tr("Confirm all closures and set the affected prepared sales to 0? Original values will remain unchanged.")))return;
+                update(calendarConflictBulkResolutionPatch(calendar,salesResolutions,conflicts.dates,resolution));
+            };
             return <>
                 {!!conflicts.dates.length && <section className="fc-source-error fc-calendar-conflicts" aria-label={tr("Calendar conflicts")}>
                     <strong role="alert">{tr("Recorded sales found on proposed closed dates:")} {conflicts.dates.length} {conflicts.dates.length===1?tr('date'):tr('dates')} · {conflicts.itemCount} {conflicts.itemCount===1?tr('ID'):tr('IDs')}</strong>
                     <p>{tr("No prepared values have been changed. Keep the recorded sales (recommended), or explicitly confirm that the affected prepared values should be 0.")}</p>
+                    <div className="fc-calendar-conflict-actions"><button type="button" className="fc-source-confirm" onClick={()=>resolveAll('open')}>{tr("Keep records (recommended)")}</button><button type="button" className="fc-source-secondary fc-calendar-confirm-zero" onClick={()=>resolveAll('closed')}>{tr("Confirm closed")}</button></div>
                     <div className="fc-calendar-conflict-dates">{conflicts.dates.map(group=>{const holiday=calendarConflictDateLabel(calendar?.exceptions,group.date);return <details key={group.date} open={conflicts.dates.length===1}>
                         <summary>{holiday?`${holiday} · `:''}{formatForecastDate(group.date,locale)} · {group.ids.length} {group.ids.length===1?tr('ID'):tr('IDs')}</summary>
                         <div className="fc-calendar-conflict-table-wrap"><table className="fc-calendar-conflict-table"><thead><tr><th scope="col">{tr("Item ID")}</th><th scope="col">{tr("Original")}</th></tr></thead><tbody>{group.items.map(item=><tr key={item.id}><th scope="row">{item.id}</th><td>{item.original == null ? '—' : new Intl.NumberFormat(locale,{maximumFractionDigits:2}).format(item.original)}</td></tr>)}</tbody></table></div>
-                        <div className="fc-calendar-conflict-actions"><button type="button" className="fc-source-confirm" onClick={()=>resolve(group,'open')}>{tr("Keep recorded sales (recommended)")}</button><button type="button" className="fc-source-secondary fc-calendar-confirm-zero" onClick={()=>resolve(group,'closed')}>{tr("Confirm closed · set to 0")}</button></div>
+                        <div className="fc-calendar-conflict-actions"><button type="button" className="fc-source-confirm" onClick={()=>resolve(group,'open')}>{tr("Keep records (recommended)")}</button><button type="button" className="fc-source-secondary fc-calendar-confirm-zero" onClick={()=>resolve(group,'closed')}>{tr("Confirm closed")}</button></div>
                     </details>;})}</div>
                 </section>}
                 {conflicts.otherErrors.map((message,i)=><p key={i} className="fc-source-error" role="alert">{tr(formatCalendarMessage(message,locale))}</p>)}
@@ -6188,10 +6232,21 @@
             const [exceptionConflicts,setExceptionConflicts] = useState([]);
             const [pendingDisable,setPendingDisable] = useState(false);
             const [holidayProposals,setHolidayProposals] = useState([]);
+            const [holidayInfoOpen,setHolidayInfoOpen] = useState(false);
             const conflictNoticeRef = useRef(null);
             const disableConfirmRef = useRef(null);
             useEffect(()=>{if(exceptionConflicts.length) conflictNoticeRef.current?.focus();},[exceptionConflicts]);
             useEffect(()=>{if(pendingDisable) disableConfirmRef.current?.focus();},[pendingDisable]);
+            useEffect(()=>{
+                if (!holidayInfoOpen) return;
+                const close = event => {
+                    if (event.type === 'keydown' && event.key === 'Escape') setHolidayInfoOpen(false);
+                    else if (event.type === 'pointerdown' && !event.target.closest('.fc-calendar-info')) setHolidayInfoOpen(false);
+                };
+                document.addEventListener('pointerdown', close);
+                document.addEventListener('keydown', close);
+                return () => { document.removeEventListener('pointerdown', close); document.removeEventListener('keydown', close); };
+            },[holidayInfoOpen]);
             useEffect(()=>{
                 if (dirty) return;
                 const applied = review?.policy?.operating_calendar?.exceptions;
@@ -6249,6 +6304,28 @@
                 if (weeklyError) {setError(weeklyError);setCalendarView('exceptions');return false;}
                 change({exceptions:[...draft.exceptions, next]});return true;
             };
+            const syncCalendarExceptions = exceptions => {
+                const prunedResolutions = pruneCalendarSalesResolutions(salesResolutions, exceptions);
+                update({
+                    operating_calendar:{...draft,exceptions,start:draft.start||null,end:draft.end||null,ids:scope.split(',').map(v=>v.trim()).filter(Boolean)},
+                    calendar_sales_resolutions:prunedResolutions,
+                    calendar_conflicts_seen:pruneCalendarConflictsSeen(review?.policy?.calendar_conflicts_seen, exceptions, prunedResolutions),
+                    frequency:draft.enabled?frequency:null,
+                });
+            };
+            const discardDraft = () => {
+                setDraft({...defaults,...calendar});
+                setDateErrors({});
+                setDateReset(n=>n+1);
+                setScope((calendar?.ids||[]).join(', '));
+                setHolidayProposals(prev=>prev.filter(row=>(calendar?.exceptions||[]).some(item=>item.start===row.date && item.end===row.date)));
+                setDirty(false);
+                onDirty(false);
+                setError('');
+                setExceptionConflicts([]);
+                setPendingDisable(false);
+            };
+            const removeException = index => change({exceptions:draft.exceptions.filter((_, j) => j !== index)});
             const apply = () => {
                 if(!draft.enabled) {disableCalendar();return;}
                 if(draft.enabled && (dateErrors.start || dateErrors.end)) {setError('Correct the calendar coverage dates.');return;}
@@ -6262,7 +6339,7 @@
                 }
                 setExceptionConflicts([]);
                 if(draft.enabled && (!draft.start || !draft.end || draft.end<draft.start || !draft.weekdays.length)) {setError('Set calendar coverage and at least one opening weekday.');return;}
-                update({operating_calendar:{...draft,exceptions,start:draft.start||null,end:draft.end||null,ids:scope.split(',').map(v=>v.trim()).filter(Boolean)},calendar_sales_resolutions:pruneCalendarSalesResolutions(salesResolutions,exceptions),frequency:draft.enabled?frequency:null});
+                syncCalendarExceptions(exceptions);
                 setDraft(prev=>({...prev,exceptions}));setDirty(false);onDirty(false);setError('');
             };
             const importFile = async event => {
@@ -6328,19 +6405,18 @@
                             {entryOverlapError && <p className="fc-source-error" role="alert">{tr(entryOverlapError)}</p>}
                             {entryWeeklyError && <p className="fc-source-error" role="alert">{tr(entryWeeklyError)}</p>}
                             <p className="fc-calendar-note">{tr("Closed days with recorded sales require your confirmation before prepared values are set to zero. Original values always stay unchanged.")} {tr("To reopen a confirmed weekly closed day, add an Open exception. Remove that exception and apply the calendar to review the conflict again.")} {tr("Do not add a Closed exception on a day the weekly schedule already closes.")}</p>
-                            <div className="fc-calendar-exceptions">{!visibleExceptions.length && <p className="fc-calendar-empty">{tr("No exceptions yet. Add a date above or import your calendar.")}</p>}{draft.exceptions.map((row,i)=>isPendingHolidayClosure(row,holidayProposals)?null:<div className="fc-calendar-event" data-conflict={markedConflicts.some(conflict=>conflict.indices.includes(i))} key={i}><span className="fc-calendar-day-status" data-status={row.status}>{row.status==='open'?tr('Open'):tr('Closed')}</span><div className="fc-calendar-event-copy"><strong>{formatForecastDate(row.start,locale)}{row.end!==row.start?` – ${formatForecastDate(row.end,locale)}`:''}</strong><span>{row.label?`${row.label} · `:''}{row.ids.join(', ')||tr('All calendar IDs')}</span></div><button type="button" className="fc-source-secondary" aria-label={tr(`Remove exception ${i+1}`)} onClick={()=>change({exceptions:draft.exceptions.filter((_,j)=>j!==i)})}>{tr("Remove")}</button></div>)}</div>
+                            <div className="fc-calendar-exceptions">{!visibleExceptions.length && <p className="fc-calendar-empty">{tr("No exceptions yet. Add a date above or import your calendar.")}</p>}{sortedCalendarExceptionRows(draft.exceptions,holidayProposals).map(({row,index})=><div className="fc-calendar-event" data-conflict={markedConflicts.some(conflict=>conflict.indices.includes(index))} key={index}><span className="fc-calendar-day-status" data-status={row.status}>{row.status==='open'?tr('Open'):tr('Closed')}</span><div className="fc-calendar-event-copy"><strong>{formatForecastDate(row.start,locale)}{row.end!==row.start?` – ${formatForecastDate(row.end,locale)}`:''}</strong><span>{row.label?`${row.label} · `:''}{row.ids.join(', ')||tr('All calendar IDs')}</span></div><button type="button" className="fc-source-secondary" aria-label={tr(`Remove exception ${index+1}`)} onClick={()=>removeException(index)}>{tr("Remove")}</button></div>)}</div>
                             <details className="fc-calendar-import-help"><summary>{tr("Import file format")}</summary><p>{tr("Excel or CSV, first sheet: Start Date, End Date, Status (open/closed), Label (reason required). Optional: Item ID. Imported exceptions are added to your list.")}</p></details>
                         </div>
                         <div className="fc-calendar-panel" hidden={calendarView!=='holidays'}>
-                            <div className="fc-calendar-section-heading"><div><h4>{tr("Find public holidays")}</h4><p>{tr("Choose only the holidays when your business closes.")}</p></div>{!!holidays.length && <button type="button" className="fc-source-secondary" disabled={!proposableHolidayClosures(holidays,draft.exceptions,holidayProposals,draft.weekdays).length} onClick={()=>{const next=proposableHolidayClosures(holidays,draft.exceptions,holidayProposals,draft.weekdays);if(!next.length)return;setHolidayProposals(prev=>[...prev,...next]);setError('');setExceptionConflicts([]);}}>{tr("Propose all closures")}</button>}</div>
-                            <div className="fc-calendar-fields fc-calendar-holiday-fields"><label>{tr("Country")}<select aria-label={tr("Holiday country")} value={country} onChange={e=>{setCountry(e.target.value);setHolidays([]);}}>{[['DE','Germany'],['VN','Vietnam'],['US','United States'],['GB','United Kingdom'],['FR','France'],['AU','Australia'],['CA','Canada']].map(([code,name])=><option key={code} value={code}>{tr(name)}</option>)}</select></label><label>{tr("Region code")} <span>{tr("(optional)")}</span><input aria-label={tr("Holiday region")} placeholder={tr("e.g. BE")} value={subdivision} onChange={e=>{setSubdivision(e.target.value);setHolidays([]);}}/></label><button type="button" className="fc-source-secondary" disabled={busy} onClick={loadHolidays}>{busy?tr('Loading…'):tr('Find holidays')}</button></div>
-                            <p className="fc-calendar-note">{tr("Propose a holiday closure, then apply the calendar. The holiday is added as Closed if there is no recorded-sales conflict, or if you confirm zero. If you keep recorded sales, it is added as Open.")}</p>
-                            <div className="fc-calendar-exceptions">{!holidays.length && <p className="fc-calendar-empty">{tr("Holiday suggestions will appear here.")}</p>}{holidays.map(row=>{const state=holidaySuggestionState(row,draft.exceptions,holidayProposals,draft.weekdays);return <div className="fc-calendar-event" key={row.date}><div className="fc-calendar-event-copy"><strong>{row.label}</strong><span>{formatForecastDate(row.date,locale)}</span></div><button type="button" className="fc-source-secondary" disabled={state.opened || state.closedAdded || state.alreadyClosed || state.appliedPending} onClick={()=>{if(state.opened||state.closedAdded||state.alreadyClosed||state.appliedPending)return;if(state.proposed)setHolidayProposals(prev=>prev.filter(item=>item.date!==row.date));else setHolidayProposals(prev=>[...prev,{date:row.date,label:row.label.slice(0,120)}]);setError('');setExceptionConflicts([]);}}>{state.opened?tr('Opened'):state.closedAdded?tr('Added'):state.alreadyClosed?tr('Already closed'):state.proposed?tr('Proposed'):tr('Propose closure')}</button></div>;})}</div>
+                            <div className="fc-calendar-section-heading"><div><h4>{tr("Find public holidays")}</h4><p>{tr("Choose only the holidays when your business closes.")}</p></div></div>
+                            <div className="fc-calendar-holiday-toolbar"><div className="fc-calendar-fields fc-calendar-holiday-fields"><label>{tr("Country")}<select aria-label={tr("Holiday country")} value={country} onChange={e=>{setCountry(e.target.value);setHolidays([]);}}>{[['DE','Germany'],['VN','Vietnam'],['US','United States'],['GB','United Kingdom'],['FR','France'],['AU','Australia'],['CA','Canada']].map(([code,name])=><option key={code} value={code}>{tr(name)}</option>)}</select></label><label>{tr("Region code")} <span>{tr("(optional)")}</span><input aria-label={tr("Holiday region")} placeholder={tr("e.g. BE")} value={subdivision} onChange={e=>{setSubdivision(e.target.value);setHolidays([]);}}/></label><div className="fc-calendar-holiday-actions"><button type="button" className="fc-source-secondary" disabled={busy} onClick={loadHolidays}>{busy?tr('Loading…'):tr('Find holidays')}</button><div className="fc-calendar-info"><button type="button" className="fc-calendar-info-button" aria-label={tr("How holiday closures work")} aria-expanded={holidayInfoOpen} onClick={()=>setHolidayInfoOpen(open=>!open)}><InformationIcon /></button>{holidayInfoOpen && <div role="tooltip" className="fc-calendar-info-popover">{tr("Propose a holiday closure, then apply the calendar. The holiday is added as Closed if there is no recorded-sales conflict, or if you confirm zero. If you keep recorded sales, it is added as Open.")}</div>}</div></div></div>{!!holidays.length && <button type="button" className="fc-source-secondary" disabled={!proposableHolidayClosures(holidays,draft.exceptions,holidayProposals,draft.weekdays).length} onClick={()=>{const next=proposableHolidayClosures(holidays,draft.exceptions,holidayProposals,draft.weekdays);if(!next.length)return;setHolidayProposals(prev=>[...prev,...next]);setError('');setExceptionConflicts([]);}}>{tr("Propose all closures")}</button>}</div>
+                            <div className="fc-calendar-exceptions fc-calendar-holiday-list">{!holidays.length && <p className="fc-calendar-empty">{tr("Holiday suggestions will appear here.")}</p>}{holidays.map(row=>{const state=holidaySuggestionState(row,draft.exceptions,holidayProposals,draft.weekdays);return <div className="fc-calendar-event" key={row.date}><div className="fc-calendar-event-copy"><strong>{row.label}</strong><span>{formatForecastDate(row.date,locale)}</span></div><button type="button" className="fc-source-secondary" disabled={state.opened || state.closedAdded || state.alreadyClosed || state.appliedPending} onClick={()=>{if(state.opened||state.closedAdded||state.alreadyClosed||state.appliedPending)return;if(state.proposed)setHolidayProposals(prev=>prev.filter(item=>item.date!==row.date));else setHolidayProposals(prev=>[...prev,{date:row.date,label:row.label.slice(0,120)}]);setError('');setExceptionConflicts([]);}}>{state.opened?tr('Opened'):state.closedAdded?tr('Added'):state.alreadyClosed?tr('Already closed'):state.proposed?tr('Proposed'):tr('Propose closure')}</button></div>;})}</div>
                         </div>
                     </> : <p className="fc-calendar-note">{tr("Enable the calendar to distinguish scheduled closures from missing data, and show zero expected sales on closed days.")}</p>}
                     {error && <p className="fc-source-error" role="alert">{tr(formatCalendarMessage(error,locale))}</p>}
                     {draft.enabled && !pendingDisable && <CalendarConflictSummary review={review} calendar={calendar} salesResolutions={salesResolutions} update={patch=>{update(patch);if(patch.operating_calendar){setDraft(prev=>({...prev,...patch.operating_calendar}));setError('');setExceptionConflicts([]);}}} locale={locale} />}
-                    <div className="fc-calendar-actions"><div className="fc-calendar-action-status" role="status">{hasUnapplied?<><strong>{tr("Changes ready to apply")}</strong><span>{tr("Your preview updates after applying.")}</span></>:applied?<><strong>{review?.closed_count||0} {tr("closed item-days ·")} {review?.conflict_count||0} {tr("conflicts")}</strong><span>{formatForecastDate(calendar.start,locale)} – {formatForecastDate(calendar.end,locale)}</span></>:<span>{tr("No calendar applied")}</span>}</div><div>{hasUnapplied && <button type="button" className="fc-source-secondary" onClick={()=>{setDraft({...defaults,...calendar});setDateErrors({});setDateReset(n=>n+1);setScope((calendar?.ids||[]).join(', '));setHolidayProposals(prev=>prev.filter(row=>(calendar?.exceptions||[]).some(item=>item.start===row.date && item.end===row.date)));setDirty(false);onDirty(false);setError('');setExceptionConflicts([]);setPendingDisable(false);}}>{tr("Discard changes")}</button>}<button type="button" className="fc-source-confirm" disabled={!hasUnapplied || busy || pendingDisable} onClick={apply}>{tr("Apply calendar")}</button></div></div>
+                    <div className="fc-calendar-actions"><div className="fc-calendar-action-status" role="status">{hasUnapplied?<><strong>{tr("Changes ready to apply")}</strong><span>{tr("Your preview updates after applying.")}</span></>:applied?<><strong>{review?.closed_count||0} {tr("closed item-days ·")} {review?.conflict_count||0} {tr("conflicts")}</strong><span>{formatForecastDate(calendar.start,locale)} – {formatForecastDate(calendar.end,locale)}</span></>:<span>{tr("No calendar applied")}</span>}</div><div>{!pendingDisable && <button type="button" className="fc-source-secondary" disabled={!hasUnapplied || busy} onClick={discardDraft}>{tr("Discard changes")}</button>}{!pendingDisable && <button type="button" className="fc-source-confirm" disabled={!hasUnapplied || busy} onClick={apply}>{tr("Apply calendar")}</button>}</div></div>
                 </div>
             </details>;
         };
