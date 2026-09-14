@@ -1684,8 +1684,8 @@
         }
         .fc-source-overlay { position: fixed; inset: 0; z-index: 70; display: flex; align-items: center; justify-content: center; padding: 24px; }
         .fc-source-backdrop { position: absolute; inset: 0; background: rgb(2 6 23 / .62); backdrop-filter: blur(6px); }
-        .fc-source-dialog { --source-bg: #fff; --source-soft: #f8fafc; --source-line: #e2e8f0; --source-text: #1e293b; --source-muted: #64748b; position: relative; display: flex; flex-direction: column; width: min(100%, 1040px); height: min(820px, calc(100vh - 48px)); height: min(820px, calc(100dvh - 48px)); color: var(--source-text); background: var(--source-bg); border: 1px solid var(--source-line); border-radius: 18px; box-shadow: 0 28px 90px rgb(0 0 0 / .35); overflow: hidden; }
-        .dark .fc-source-dialog { --source-bg: #101827; --source-soft: #172132; --source-line: #2b374b; --source-text: #e2e8f0; --source-muted: #94a3b8; }
+        .fc-source-dialog { --source-bg: #fff; --source-soft: #f8fafc; --source-line: #e2e8f0; --source-text: #1e293b; --source-muted: #64748b; --fc-select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); position: relative; display: flex; flex-direction: column; width: min(100%, 1040px); height: min(820px, calc(100vh - 48px)); height: min(820px, calc(100dvh - 48px)); color: var(--source-text); background: var(--source-bg); border: 1px solid var(--source-line); border-radius: 18px; box-shadow: 0 28px 90px rgb(0 0 0 / .35); overflow: hidden; }
+        .dark .fc-source-dialog { --source-bg: #101827; --source-soft: #172132; --source-line: #2b374b; --source-text: #e2e8f0; --source-muted: #94a3b8; --fc-select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); }
         .fc-source-header { display: flex; align-items: center; justify-content: space-between; padding: 22px 26px; border-bottom: 1px solid var(--source-line); gap: 16px; flex-shrink: 0; }
         .fc-source-heading { display: flex; align-items: center; gap: 14px; }
         .fc-source-icon { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 12px; color: #d68b00; background: rgb(245 158 11 / .12); flex-shrink: 0; }
@@ -1721,7 +1721,7 @@
         .fc-source-template-note svg { width: 14px; height: 14px; }
         .fc-source-mapping { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 14px; margin: 18px 0 24px; }
         .fc-source-mapping label { display: block; font-size: 12px; font-weight: 600; color: var(--source-muted); margin-bottom: 7px; }
-        .fc-source-mapping select { width: 100%; border: 1px solid var(--source-line); background: var(--source-soft); border-radius: 8px; padding: 10px; font-size: 14px; color: var(--source-text); }
+        .fc-source-mapping select { width: 100%; border: 1px solid var(--source-line); background-color: var(--source-soft); border-radius: 8px; padding: 10px; font-size: 14px; color: var(--source-text); }
         .fc-source-mapping select:disabled {
             appearance: none;
             -webkit-appearance: none;
@@ -1746,7 +1746,7 @@
         .fc-source-frequency { margin-bottom: 8px; padding: 9px 12px; border: 1px solid var(--source-line); border-radius: 8px; background: var(--source-soft); }
         .fc-source-frequency > .fc-prep-frequency { display: flex; align-items: center; gap: 12px; min-width: 0; }
         .fc-source-frequency .fc-prep-frequency-title { margin-right: auto; color: var(--source-text); font-size: 12px; font-weight: 600; }
-        .fc-source-dialog .fc-source-body.scroller .fc-source-frequency > .fc-prep-frequency > select { width: 200px; max-width: 100%; min-width: 0; height: 34px; min-height: 34px; padding: 6px 9px; border: 1px solid var(--source-line); border-radius: 6px; background: var(--source-bg); color: var(--source-text); font-size: 12px; line-height: 20px; }
+        .fc-source-dialog .fc-source-body.scroller .fc-source-frequency > .fc-prep-frequency > select { width: 200px; max-width: 100%; min-width: 0; height: 34px; min-height: 34px; padding: 6px 9px; border: 1px solid var(--source-line); border-radius: 6px; background-color: var(--source-bg); color: var(--source-text); font-size: 12px; line-height: 20px; }
         .fc-source-frequency .fc-prep-auto-frequency, .fc-missing-frequency .fc-prep-auto-frequency { width: auto; max-width: 100%; min-width: 0; height: 34px; box-sizing: border-box; padding: 6px 9px; border: 1px solid var(--source-line); border-radius: 6px; background: var(--source-bg); color: var(--source-muted); font-size: 12px; line-height: 20px; }
         @media (max-width: 640px) {
             .fc-source-frequency { padding: 10px; }
@@ -1787,7 +1787,7 @@
         .fc-calendar-coverage { grid-template-columns: 1fr 1fr 1.5fr; align-items: start; }
         .fc-calendar-fields label { display: block; min-width: 0; color: var(--source-muted); font-size: 11px; font-weight: 600; }
         .fc-calendar-fields label > span { font-weight: 400; }
-        .fc-calendar-fields input, .fc-calendar-fields select { display: block; width: 100%; min-width: 0; padding: 8px 10px; margin-top: 5px; border: 1px solid var(--source-line); border-radius: 7px; background: var(--source-bg); color: var(--source-text); font-size: 12px; font-weight: 400; color-scheme: light; }
+        .fc-calendar-fields input, .fc-calendar-fields select { display: block; width: 100%; min-width: 0; padding: 8px 10px; margin-top: 5px; border: 1px solid var(--source-line); border-radius: 7px; background-color: var(--source-bg); color: var(--source-text); font-size: 12px; font-weight: 400; color-scheme: light; }
         .dark .fc-calendar-fields input, .dark .fc-calendar-fields select { color-scheme: dark; }
         .fc-calendar-note, .fc-calendar-import-help { color: var(--source-muted); font-size: 12px; line-height: 1.5; margin: 0; }
         .fc-calendar-entry { align-items: start; grid-template-columns: 1fr 1fr .8fr 1.3fr; padding: 12px; border: 1px solid var(--source-line); background: var(--source-soft); border-radius: 9px; }
@@ -1871,7 +1871,7 @@
         .fc-source-foldout summary .fc-prep-status[data-tone="warning"] { color: #a16207; }
         .dark .fc-source-foldout summary .fc-prep-status[data-tone="success"] { color: #4ade80; }
         .dark .fc-source-foldout summary .fc-prep-status[data-tone="warning"] { color: #fbbf24; }
-        .fc-prep-controls select, .fc-prep-controls input:not([type="checkbox"]), .fc-prep-save input { display: block; max-width: 100%; min-width: 0; padding: 8px 10px; border: 1px solid var(--source-line); background: var(--source-soft); border-radius: 8px; color: var(--source-text); font-size: 13px; }
+        .fc-prep-controls select, .fc-prep-controls input:not([type="checkbox"]), .fc-prep-save input { display: block; max-width: 100%; min-width: 0; padding: 8px 10px; border: 1px solid var(--source-line); background-color: var(--source-soft); border-radius: 8px; color: var(--source-text); font-size: 13px; }
         .fc-prep-controls label select { margin-top: 5px; }
         .fc-prep-check { display: flex; align-items: center; gap: 8px; font-size: 12px; line-height: 1.5; cursor: pointer; }
         .fc-prep-check input { width: 15px; height: 15px; accent-color: #f59e0b; flex-shrink: 0; }
@@ -1921,7 +1921,7 @@
         @media (max-width: 700px) { .fc-dataset-grid { grid-template-columns: 1fr; } .fc-source-header { flex-wrap: wrap; } .fc-prep-panel { max-height: 300px; } }
         .fc-source-format-row { display: flex; align-items: center; gap: 14px; margin: -6px 0 16px; }
         .fc-source-format-row label { font-size: 13px; font-weight: 600; color: var(--source-muted); }
-        .fc-source-format-row select { min-width: 210px; max-width: 100%; border: 1px solid var(--source-line); background: var(--source-soft); color: var(--source-text); border-radius: 8px; padding: 9px 12px; font-size: 14px; }
+        .fc-source-format-row select { min-width: 210px; max-width: 100%; border: 1px solid var(--source-line); background-color: var(--source-soft); color: var(--source-text); border-radius: 8px; padding: 9px 12px; font-size: 14px; }
         .fc-source-table[data-format="vertical"] { width: 100%; table-layout: fixed; }
         .fc-source-table[data-format="vertical"] th:nth-child(2), .fc-source-table[data-format="vertical"] td:nth-child(2) { text-align: left; }
         @media (max-width: 640px) { .fc-source-format-row { align-items: stretch; flex-direction: column; gap: 6px; } }
@@ -2047,18 +2047,18 @@
         .fc-missing-review-status[data-tone="success"], .fc-missing-item-status[data-complete="true"] { color: #047857; }
         .dark .fc-missing-review-status[data-tone="success"], .dark .fc-missing-item-status[data-complete="true"] { color: #6ee7b7; }
         .fc-missing-tab[hidden] { display: none; }
-        .fc-missing-setup { display: grid; grid-template-columns: 1fr 1fr 1.8fr; align-items: start; gap: 16px; padding: 4px 0; }
+        .fc-missing-setup { display: grid; grid-template-columns: 1fr 1fr 1.8fr; align-items: end; gap: 16px; padding: 4px 0; }
         .fc-missing-setup label { font-size: 11px; color: var(--source-muted); display: block; }
-        .fc-missing-setup select { display: block; width: 100%; min-width: 0; margin-top: 6px; border: 1px solid var(--source-line); border-radius: 7px; padding: 7px 9px; background: var(--source-bg); color: var(--source-text); font-size: 12px; }
+        .fc-missing-setup select { display: block; width: 100%; min-width: 0; margin-top: 6px; border: 1px solid var(--source-line); border-radius: 7px; padding: 7px 9px; background-color: var(--source-bg); color: var(--source-text); font-size: 12px; box-sizing: border-box; min-height: 34px; }
         .fc-missing-setup p { font-size: 11px; color: var(--source-muted); margin: 6px 0 0; }
+        .fc-missing-default, .fc-missing-confirm { border: 0; margin: 0; padding: 0; min-width: 0; }
         .fc-missing-frequency > .fc-prep-frequency { display: grid; grid-template-columns: minmax(0, 180px) auto; align-items: center; justify-content: start; gap: 6px 8px; }
         .fc-missing-frequency .fc-prep-frequency-title { grid-column: 1 / -1; font-size: 11px; color: var(--source-muted); }
         .fc-missing-frequency select { margin-top: 0; height: 34px; border-radius: 6px; }
         .fc-missing-frequency .fc-prep-auto-frequency { margin: 0; height: auto; align-self: stretch; }
         @media (max-width: 640px) { .fc-missing-frequency .fc-prep-auto-frequency { font-size: 14px; } }
-        .fc-missing-confirm { padding-top: 21px; }
-        .fc-missing-confirm .fc-prep-check { display: flex; align-items: flex-start; font-size: 12px; color: var(--source-text); }
-        .fc-missing-confirm input { margin-top: 2px; }
+        .fc-missing-confirm .fc-prep-check { display: flex; align-items: center; min-height: 34px; font-size: 12px; color: var(--source-text); }
+        .fc-missing-confirm input { margin-top: 0; flex-shrink: 0; }
         .fc-missing-confirm p { margin-left: 22px; }
         .fc-missing-guidance, .fc-missing-lock { padding: 9px 11px; border-radius: 7px; border: 1px solid var(--source-line); font-size: 12px; color: var(--source-muted); margin: 8px 0 0; }
         .fc-source-foldout .fc-missing-help { font-size: 11px; color: var(--source-muted); margin: 8px 0 0; }
@@ -2074,7 +2074,7 @@
         .fc-missing-recommendation-table { max-height: 230px; overflow: auto; border: 1px solid var(--source-line); border-radius: 6px; margin-top: 8px; }
         .fc-missing-recommendation-table table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 12px; }
         .fc-missing-recommendation-table th, .fc-missing-recommendation-table td { padding: 6px 8px; text-align: left; }
-        .fc-missing-value-method { width: 100%; max-width: 180px; min-width: 110px; height: 32px; padding: 4px 6px; border: 1px solid var(--source-line); border-radius: 6px; background: var(--source-bg); color: var(--source-text); font: inherit; }
+        .fc-missing-value-method { width: 100%; max-width: 180px; min-width: 110px; height: 32px; padding: 4px 6px; border: 1px solid var(--source-line); border-radius: 6px; background-color: var(--source-bg); color: var(--source-text); font: inherit; }
         .fc-missing-recommendation-table th { position: sticky; top: 0; background: var(--source-bg); }
         .fc-missing-recommendation-table th:last-child, .fc-missing-recommendation-table td:last-child { text-align: right; }
         .fc-missing-item-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
@@ -2277,6 +2277,15 @@
             .fc-missing-actions > button { flex: 0 0 auto; white-space: nowrap; }
             .fc-source-foldout .fc-missing-actions > .fc-missing-item-method { flex: 1; gap: 6px; white-space: nowrap; }
             .fc-source-dialog .fc-source-body.scroller .fc-source-foldout .fc-missing-actions select { flex: 1; width: 0; min-width: 0; padding: 6px; font-size: 12px; }
+        }
+        .fc-source-dialog select:not(:disabled) {
+            -webkit-appearance: none;
+            appearance: none;
+            padding-right: 28px;
+            background-image: var(--fc-select-chevron);
+            background-repeat: no-repeat;
+            background-position: right 9px center;
+            background-size: 12px;
         }
     </style>
 
@@ -6416,7 +6425,7 @@
                     </> : <p className="fc-calendar-note">{tr("Enable the calendar to distinguish scheduled closures from missing data, and show zero expected sales on closed days.")}</p>}
                     {error && <p className="fc-source-error" role="alert">{tr(formatCalendarMessage(error,locale))}</p>}
                     {draft.enabled && !pendingDisable && <CalendarConflictSummary review={review} calendar={calendar} salesResolutions={salesResolutions} update={patch=>{update(patch);if(patch.operating_calendar){setDraft(prev=>({...prev,...patch.operating_calendar}));setError('');setExceptionConflicts([]);}}} locale={locale} />}
-                    <div className="fc-calendar-actions"><div className="fc-calendar-action-status" role="status">{hasUnapplied?<><strong>{tr("Changes ready to apply")}</strong><span>{tr("Your preview updates after applying.")}</span></>:applied?<><strong>{review?.closed_count||0} {tr("closed item-days ·")} {review?.conflict_count||0} {tr("conflicts")}</strong><span>{formatForecastDate(calendar.start,locale)} – {formatForecastDate(calendar.end,locale)}</span></>:<span>{tr("No calendar applied")}</span>}</div><div>{!pendingDisable && <button type="button" className="fc-source-secondary" disabled={!hasUnapplied || busy} onClick={discardDraft}>{tr("Discard changes")}</button>}{!pendingDisable && <button type="button" className="fc-source-confirm" disabled={!hasUnapplied || busy} onClick={apply}>{tr("Apply calendar")}</button>}</div></div>
+                    <div className="fc-calendar-actions"><div className="fc-calendar-action-status" role="status">{hasUnapplied?<><strong>{tr("Changes ready to apply")}</strong><span>{tr("Your preview updates after applying.")}</span></>:applied?<><strong>{review?.closed_count||0} {tr("closed item-days ·")} {review?.conflict_count||0} {tr("conflicts")}</strong><span>{formatForecastDate(calendar.start,locale)} – {formatForecastDate(calendar.end,locale)}</span></>:<span>{tr("No calendar applied")}</span>}</div><div>{!pendingDisable && <button type="button" className="fc-source-secondary" disabled={!hasUnapplied || busy} onClick={discardDraft}>{tr("Discard")}</button>}{!pendingDisable && <button type="button" className="fc-source-confirm" disabled={!hasUnapplied || busy} onClick={apply}>{tr("Apply")}</button>}</div></div>
                 </div>
             </details>;
         };

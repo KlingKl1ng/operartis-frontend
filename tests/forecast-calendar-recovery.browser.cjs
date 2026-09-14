@@ -44,7 +44,7 @@ assert.equal(await page.evaluate(()=>window.confirmedSource.preparation.frequenc
 await page.getByLabel('Missing data frequency',{exact:true}).selectOption('daily');
 await page.locator('.fc-calendar > summary').click();await page.locator('.fc-calendar-switch').click();
 await page.getByLabel('Calendar coverage start',{exact:true}).fill('2021-01-01');await page.getByLabel('Calendar coverage end',{exact:true}).fill('2024-12-31');
-await page.getByRole('button',{name:'Apply calendar',exact:true}).click();
+await page.getByRole('button',{name:'Apply',exact:true}).click();
 await page.getByRole('alert').filter({hasText:'history limit'}).waitFor();
 const frequency=page.getByLabel('Missing data frequency',{exact:true});assert.equal(await frequency.isVisible(),true);assert.equal(await frequency.inputValue(),'daily');assert.equal(await confirm.isDisabled(),true);
 await page.locator('.fc-calendar-switch').click();
@@ -64,7 +64,7 @@ assert.equal(await page.locator('.fc-calendar').count(),0);
 await frequency.selectOption('business_daily');
 assert.equal(await page.locator('.fc-calendar').count(),1,'Business daily can use the calendar');
 await page.locator('.fc-calendar > summary').click();await page.locator('.fc-calendar-switch').click();
-await page.getByRole('button',{name:'Apply calendar',exact:true}).click();
+await page.getByRole('button',{name:'Apply',exact:true}).click();
 await page.getByRole('alert').filter({hasText:'history limit'}).waitFor();
 await frequency.selectOption('monthly');
 await page.waitForFunction(()=>!document.querySelector('.fc-source-body > .fc-source-error'));
