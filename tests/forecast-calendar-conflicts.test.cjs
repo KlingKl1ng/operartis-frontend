@@ -26,20 +26,22 @@ test('does not hide errors when detailed conflict records are unavailable',()=>{
     assert.deepEqual(group(review).otherErrors,['A: Conflict']);
 });
 
-const findConflicts = new Function(html.slice(html.indexOf('const findCalendarExceptionConflicts ='),html.indexOf('const OperatingCalendarEditor ='))+';return findCalendarExceptionConflicts;')();
+const findHelpers = new Function(html.slice(html.indexOf('const findCalendarExceptionConflicts ='),html.indexOf('const OperatingCalendarEditor ='))+';return {findCalendarExceptionConflicts, overlappingExceptionMessage};')();
+const findConflicts = findHelpers.findCalendarExceptionConflicts;
+const overlapMessage = findHelpers.overlappingExceptionMessage;
 const exception=(status,start='2026-02-14',end=start,ids=[])=>({status,start,end,ids});
 test('opposite statuses on the same date are reported with their exception indices',()=>{
     assert.deepEqual(findConflicts([exception('open'),exception('closed')]),[{indices:[0,1],start:'2026-02-14',end:'2026-02-14',ids:[]}]);
 });
-test('date ranges and intersecting item scopes identify the actual overlap',()=>{
-    assert.deepEqual(findConflicts([exception('open','2026-02-10','2026-02-20',['A','B']),exception('closed','2026-02-14','2026-02-25',['B','C'])]),[{indices:[0,1],start:'2026-02-14',end:'2026-02-20',ids:['B']}]);
+test('date ranges identify the actual overlap regardless of status or item IDs',()=>{
+    assert.deepEqual(findConflicts([exception('open','2026-02-10','2026-02-20',['A','B']),exception('closed','2026-02-14','2026-02-25',['C'])]),[{indices:[0,1],start:'2026-02-14',end:'2026-02-20',ids:[]}]);
 });
-test('distinct days, disjoint IDs and item-specific overrides are allowed',()=>{
-    for(const rows of [
-        [exception('open'),exception('closed','2026-02-15')],
-        [exception('open',undefined,undefined,['A']),exception('closed',undefined,undefined,['B'])],
-        [exception('open'),exception('closed',undefined,undefined,['A'])],
-    ]) assert.deepEqual(findConflicts(rows),[]);
+test('distinct days are allowed, but the same day cannot appear twice',()=>{
+    assert.deepEqual(findConflicts([exception('open'),exception('closed','2026-02-15')]),[]);
+    assert.equal(findConflicts([exception('open',undefined,undefined,['A']),exception('closed',undefined,undefined,['B'])]).length,1);
+    assert.equal(findConflicts([exception('open'),exception('closed',undefined,undefined,['A'])]).length,1);
+    assert.match(overlapMessage(exception('closed'),[exception('open')]),/already in the exception list/);
+    assert.equal(overlapMessage(exception('closed','2026-02-15'),[exception('open')]),'');
 });
 
 test('repeated Open and Closed rules also conflict, including partially overlapping ranges',()=>{
@@ -66,6 +68,7 @@ test('closed Saturdays and open Mondays are rejected as weekly-schedule duplicat
         indices:[0], start:'2026-01-03', end:'2026-01-03', ids:[],
         message:'Closed exceptions are only for days that are usually open. This date is already closed by the weekly schedule.',
     }]);
+    assert.deepEqual(weekly.weeklyExceptionConflicts([{...openMonday,label:'New Year\'s Day'}],weekdays),[]);
     assert.equal(weekly.firstWeeklyRedundantDate({status:'Closed',start:'2026-01-03',end:'2026-01-03',ids:[]},['0','1','2','3','4'],[]),'2026-01-03');
 });
 test('open Saturdays, closed Mondays and item reopenings of weekday closures are allowed',()=>{

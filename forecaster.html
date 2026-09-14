@@ -1831,7 +1831,7 @@
         .fc-calendar-conflicts p { margin: 6px 0; }
         .fc-calendar-conflict-dates { max-height: 280px; overflow-y: auto; }
         .fc-calendar-conflict-dates details { padding: 8px 0; border-top: 1px solid rgb(239 68 68 / .18); }
-        .fc-calendar-conflict-dates summary { cursor: pointer; font-weight: 600; }
+        .fc-calendar-conflict-dates summary { cursor: pointer; font-weight: 600; overflow-wrap: anywhere; }
         .fc-calendar-conflict-table-wrap { max-height: 168px; overflow: auto; margin: 8px 0 8px 14px; border: 1px solid rgb(239 68 68 / .28); border-radius: 8px; background: var(--source-bg); }
         .fc-calendar-conflict-table { width: 100%; border-collapse: collapse; color: var(--source-text); font-size: 12px; line-height: 1.35; font-variant-numeric: tabular-nums; }
         .fc-calendar-conflict-table th, .fc-calendar-conflict-table td { padding: 5px 10px; border-bottom: 1px solid var(--source-line); }
@@ -1842,6 +1842,9 @@
         .fc-calendar-conflict-actions { display: flex; flex-wrap: wrap; gap: 8px; padding: 4px 0 2px 14px; }
         .fc-calendar-confirm-zero { color: #b91c1c; border-color: rgb(239 68 68 / .45); }
         .dark .fc-calendar-confirm-zero { color: #fca5a5; }
+        .fc-calendar-disable-warning { margin: 0; }
+        .fc-calendar-disable-warning p { margin: 6px 0; }
+        .fc-calendar-disable-warning .fc-calendar-conflict-actions { padding-left: 0; }
 
         .fc-prep-dependent:disabled { opacity: .45; }
         .fc-prep-dependent:disabled :is(input,select,button) { cursor: not-allowed; }
@@ -6001,6 +6004,37 @@
         const calendarIsoWeekday = date => (new Date(`${date}T00:00:00Z`).getUTCDay() + 6) % 7;
         const calendarWeekdayOpen = (weekdays, date) => (weekdays || []).map(Number).includes(calendarIsoWeekday(date));
         const calendarExceptionCovers = (row, date, ids) => row.start <= date && date <= row.end && (!row.ids?.length || !(ids || []).length || ids.some(id => row.ids.includes(id)));
+        const mergeProposedHolidayClosures = (exceptions, proposals) => {
+            const next = [...(exceptions || [])];
+            for (const row of proposals || []) {
+                const date = row.date, label = String(row.label || '').trim().slice(0, 120);
+                if (!date || !label) continue;
+                if (next.some(item => item.start <= date && date <= (item.end || item.start))) continue;
+                next.push({start: date, end: date, status: 'closed', ids: [], label});
+            }
+            return next;
+        };
+        const isPendingHolidayClosure = (row, proposals) => row && row.status !== 'open' && !(row.ids || []).length && row.start === row.end && (proposals || []).some(item => item.date === row.start);
+        const holidaySuggestionState = (row, exceptions, proposals, weekdays) => {
+            const date = row?.date;
+            const opened = (exceptions || []).some(item => item.status === 'open' && item.start <= date && date <= (item.end || item.start));
+            const closedException = (exceptions || []).some(item => item.status !== 'open' && item.start <= date && date <= (item.end || item.start));
+            const proposed = (proposals || []).some(item => item.date === date);
+            const pending = isPendingHolidayClosure({status:'closed', ids:[], start:date, end:date}, proposals);
+            const closedAdded = closedException && !pending;
+            const alreadyClosed = !calendarWeekdayOpen(weekdays, date);
+            const appliedPending = proposed && closedException;
+            return {opened, closedAdded, alreadyClosed, proposed, appliedPending, canPropose: !opened && !closedAdded && !alreadyClosed && !appliedPending && !proposed};
+        };
+        const proposableHolidayClosures = (holidays, exceptions, proposals, weekdays) => (holidays || []).filter(row => holidaySuggestionState(row, exceptions, proposals, weekdays).canPropose).map(row => ({date: row.date, label: String(row.label || '').trim().slice(0, 120)}));
+        const visibleCalendarExceptions = (exceptions, proposals) => (exceptions || []).filter(row => !isPendingHolidayClosure(row, proposals));
+        const retainPendingHolidayProposals = (proposals, appliedExceptions, conflictDates) => {
+            const dates = conflictDates instanceof Set ? conflictDates : new Set(conflictDates || []);
+            return (proposals || []).filter(row => {
+                const inApplied = (appliedExceptions || []).some(item => item.start === row.date && item.end === row.date && !(item.ids || []).length);
+                return !inApplied || dates.has(row.date);
+            });
+        };
         const calendarConflictExceptions = (exceptions, group, resolution, weekdays) => {
             if (resolution !== 'open') return [...(exceptions || [])];
             const usualOpen = calendarWeekdayOpen(weekdays, group.date);
@@ -6010,8 +6044,10 @@
                 if (row.status === 'closed' && calendarExceptionCovers(row, group.date, group.ids)) {
                     changed = true;
                     if (row.start < group.date) next.push({...row, end: calendarConflictShiftDate(group.date, -1)});
-                    if (!usualOpen) next.push({...row, start: group.date, end: group.date, status: 'open'});
                     if (row.end > group.date) next.push({...row, start: calendarConflictShiftDate(group.date, 1)});
+                    const rowIds = row.ids || [];
+                    if (!rowIds.length) next.push({...row, start: group.date, end: group.date, status: 'open', ids: []});
+                    else next.push({...row, start: group.date, end: group.date, status: 'open', ids: rowIds});
                 } else next.push(row);
             }
             if (!changed && !usualOpen) next.push({start: group.date, end: group.date, status: 'open', ids: [...group.ids], label: 'Recorded sales kept'});
@@ -6049,6 +6085,24 @@
                 calendar_sales_resolutions: pruneCalendarSalesResolutions(next, exceptions),
             };
         };
+        const calendarDisablePatch = (applied, salesResolutions, frequency, restore) => {
+            const source = restore?.operating_calendar || applied || {enabled:false,start:null,end:null,weekdays:[0,1,2,3,4],ids:[],exceptions:[]};
+            return {
+                operating_calendar: {...source, enabled:false, start:source.start||null, end:source.end||null, ids:[...(source.ids||[])], weekdays:[...(source.weekdays||[0,1,2,3,4])], exceptions:[...(source.exceptions||[])]},
+                calendar_sales_resolutions: restore ? {...(restore.calendar_sales_resolutions || {})} : {},
+                calendar_conflicts_seen: restore ? {...(restore.calendar_conflicts_seen || {})} : {},
+                frequency: restore ? restore.frequency ?? null : frequency ?? null,
+            };
+        };
+        const calendarConflictDateLabel = (exceptions, date) => {
+            const labels = [];
+            for (const row of exceptions || []) {
+                if (!row?.start || date < row.start || date > (row.end || row.start)) continue;
+                const label = String(row.label || '').trim();
+                if (label && !labels.includes(label)) labels.push(label);
+            }
+            return labels.join(' · ');
+        };
         const CalendarConflictSummary = ({review,calendar,salesResolutions,update,locale='en-US'}) => {
             const tr=value=>window.ForecastDialogI18n.translate(value,locale);
             const conflicts = groupCalendarConflicts(review);
@@ -6060,11 +6114,11 @@
                 {!!conflicts.dates.length && <section className="fc-source-error fc-calendar-conflicts" aria-label={tr("Calendar conflicts")}>
                     <strong role="alert">{tr("Recorded sales found on proposed closed dates:")} {conflicts.dates.length} {conflicts.dates.length===1?tr('date'):tr('dates')} · {conflicts.itemCount} {conflicts.itemCount===1?tr('ID'):tr('IDs')}</strong>
                     <p>{tr("No prepared values have been changed. Keep the recorded sales (recommended), or explicitly confirm that the affected prepared values should be 0.")}</p>
-                    <div className="fc-calendar-conflict-dates">{conflicts.dates.map(group=><details key={group.date} open={conflicts.dates.length===1}>
-                        <summary>{formatForecastDate(group.date,locale)} · {group.ids.length} {group.ids.length===1?tr('ID'):tr('IDs')}</summary>
+                    <div className="fc-calendar-conflict-dates">{conflicts.dates.map(group=>{const holiday=calendarConflictDateLabel(calendar?.exceptions,group.date);return <details key={group.date} open={conflicts.dates.length===1}>
+                        <summary>{holiday?`${holiday} · `:''}{formatForecastDate(group.date,locale)} · {group.ids.length} {group.ids.length===1?tr('ID'):tr('IDs')}</summary>
                         <div className="fc-calendar-conflict-table-wrap"><table className="fc-calendar-conflict-table"><thead><tr><th scope="col">{tr("Item ID")}</th><th scope="col">{tr("Original")}</th></tr></thead><tbody>{group.items.map(item=><tr key={item.id}><th scope="row">{item.id}</th><td>{item.original == null ? '—' : new Intl.NumberFormat(locale,{maximumFractionDigits:2}).format(item.original)}</td></tr>)}</tbody></table></div>
                         <div className="fc-calendar-conflict-actions"><button type="button" className="fc-source-confirm" onClick={()=>resolve(group,'open')}>{tr("Keep recorded sales (recommended)")}</button><button type="button" className="fc-source-secondary fc-calendar-confirm-zero" onClick={()=>resolve(group,'closed')}>{tr("Confirm closed · set to 0")}</button></div>
-                    </details>)}</div>
+                    </details>;})}</div>
                 </section>}
                 {conflicts.otherErrors.map((message,i)=><p key={i} className="fc-source-error" role="alert">{tr(formatCalendarMessage(message,locale))}</p>)}
             </>;
@@ -6075,14 +6129,20 @@
                 const left=exceptions[i];
                 for (let j=i+1;j<exceptions.length;j++) {
                     const right=exceptions[j];
-                    const ids=left.ids.filter(id=>right.ids.includes(id));
-                    const sameScope=(!left.ids.length && !right.ids.length) || ids.length>0;
-                    if (sameScope && left.start<=right.end && right.start<=left.end) {
+                    if (left.start<=right.end && right.start<=left.end) {
+                        const ids=(left.ids || []).filter(id=>(right.ids || []).includes(id));
                         conflicts.push({indices:[i,j],start:left.start>right.start?left.start:right.start,end:left.end<right.end?left.end:right.end,ids});
                     }
                 }
             }
             return conflicts;
+        };
+        const overlappingExceptionMessage = (row, exceptions) => {
+            if (!row?.start) return '';
+            const end = row.end || row.start;
+            return (exceptions || []).some(other => other.start <= end && (other.end || other.start) >= row.start)
+                ? 'This date is already in the exception list. Remove the existing exception or choose a different date.'
+                : '';
         };
         const oppositeExceptionCoversDate = (row, opposite, date) => {
             if (String(opposite.status || '').toLowerCase() === String(row.status || '').toLowerCase() || opposite.start > date || opposite.end < date) return false;
@@ -6112,6 +6172,7 @@
                 : 'Open exceptions are only for days that are usually closed. This date is already open by the weekly schedule.';
         };
         const weeklyExceptionConflicts = (exceptions, weekdays) => (exceptions || []).flatMap((row, i) => {
+            if (String(row.status || 'closed').toLowerCase() === 'open') return [];
             const message = weeklyRedundantExceptionMessage(row, weekdays, (exceptions || []).filter((_, j) => j !== i));
             return message ? [{indices:[i], start:row.start, end:row.end || row.start, ids:row.ids || [], message}] : [];
         });
@@ -6125,35 +6186,84 @@
             const [country,setCountry] = useState('DE'), [subdivision,setSubdivision] = useState(''), [holidays,setHolidays] = useState([]);
             const [calendarView,setCalendarView] = useState('schedule');
             const [exceptionConflicts,setExceptionConflicts] = useState([]);
+            const [pendingDisable,setPendingDisable] = useState(false);
+            const [holidayProposals,setHolidayProposals] = useState([]);
             const conflictNoticeRef = useRef(null);
+            const disableConfirmRef = useRef(null);
             useEffect(()=>{if(exceptionConflicts.length) conflictNoticeRef.current?.focus();},[exceptionConflicts]);
+            useEffect(()=>{if(pendingDisable) disableConfirmRef.current?.focus();},[pendingDisable]);
+            useEffect(()=>{
+                if (dirty) return;
+                const applied = review?.policy?.operating_calendar?.exceptions;
+                if (!applied) return;
+                const conflictDates = new Set(groupCalendarConflicts(review).dates.map(group => group.date));
+                setHolidayProposals(prev => {
+                    if (!prev.length) return prev;
+                    const next = retainPendingHolidayProposals(prev, applied, conflictDates);
+                    return next.length === prev.length && next.every((row, i) => row.date === prev[i].date) ? prev : next;
+                });
+            },[review, dirty]);
+            useEffect(()=>{
+                const unapplied = holidayProposals.some(row => !draft.exceptions.some(item => item.start === row.date && item.end === row.date && !(item.ids || []).length));
+                onDirty(dirty || unapplied);
+            },[dirty, holidayProposals, draft.exceptions]);
             const fileRef=useRef(null);
+            const restoreRef=useRef(null);
             const weekdays=locale==='de-DE'?['Mo','Di','Mi','Do','Fr','Sa','So']:locale==='vi-VN'?['T2','T3','T4','T5','T6','T7','CN']:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
             const [dateErrors,setDateErrors]=useState({});
             const [dateReset,setDateReset]=useState(0);
             const dateValidity=(key,invalid)=>setDateErrors(prev=>prev[key]===invalid?prev:{...prev,[key]:invalid});
             useEffect(()=>{if (!dirty) {setDraft({...defaults,...calendar});setScope((calendar?.ids||[]).join(', '));}},[JSON.stringify(calendar)]);
             const change = patch => {setDraft(prev=>({...prev,...patch}));setDirty(true);onDirty(true);setError('');setExceptionConflicts([]);};
+            const resetDraft = next => {
+                setDraft({...defaults,...next});setScope((next?.ids||[]).join(', '));setDirty(false);onDirty(false);setError('');setExceptionConflicts([]);setPendingDisable(false);setHolidayProposals([]);
+                setDateErrors({});setDateReset(n=>n+1);setEntry({start:'',end:'',status:'closed',ids:'',label:''});setHolidays([]);
+            };
+            const disableCalendar = () => {
+                const patch = calendarDisablePatch(calendar, salesResolutions, frequency, restoreRef.current);
+                restoreRef.current = null;
+                resetDraft(patch.operating_calendar);
+                update(patch);
+            };
+            const toggleCalendar = on => {
+                if (on) {
+                    setPendingDisable(false);
+                    if (!calendar?.enabled) {
+                        const seen = {};
+                        for (const [id, dates] of Object.entries(review?.policy?.calendar_conflicts_seen || {})) seen[id] = [...dates];
+                        restoreRef.current = {operating_calendar:{...defaults,...calendar}, calendar_sales_resolutions:{...(salesResolutions||{})}, calendar_conflicts_seen:seen, frequency};
+                    }
+                    const days=(review?.records||[]).map(r=>r.ds).sort();
+                    change({enabled:true,...(!draft.start && days.length ? {start:days[0].slice(0,10),end:`${Number(days[days.length-1].slice(0,4))+1}-12-31`}:{})});
+                    return;
+                }
+                setPendingDisable(true);
+            };
             const add = row => {
                 const label = String(row.label || '').trim();
                 if (!label) {setError('Give every calendar exception a reason.');return false;}
-                const next = {...row, label, status: String(row.status || 'closed').toLowerCase(), ids: row.ids || []};
+                const next = {...row, label, status: String(row.status || 'closed').toLowerCase(), ids: row.ids || [], end: row.end || row.start};
+                const overlapError = overlappingExceptionMessage(next, draft.exceptions);
+                if (overlapError) {setError(overlapError);setCalendarView('exceptions');return false;}
                 const weeklyError = weeklyRedundantExceptionMessage(next, draft.weekdays, draft.exceptions);
                 if (weeklyError) {setError(weeklyError);setCalendarView('exceptions');return false;}
                 change({exceptions:[...draft.exceptions, next]});return true;
             };
             const apply = () => {
+                if(!draft.enabled) {disableCalendar();return;}
                 if(draft.enabled && (dateErrors.start || dateErrors.end)) {setError('Correct the calendar coverage dates.');return;}
-                if(draft.enabled && draft.exceptions.some(row=>!String(row.label || '').trim())) {setError('Give every calendar exception a reason.');setCalendarView('exceptions');return;}
-                const conflicts = draft.enabled ? findCalendarExceptionConflicts(draft.exceptions) : [];
+                const exceptions = mergeProposedHolidayClosures(draft.exceptions, holidayProposals);
+                if(draft.enabled && exceptions.some(row=>!String(row.label || '').trim())) {setError('Give every calendar exception a reason.');setCalendarView('exceptions');return;}
+                const conflicts = draft.enabled ? findCalendarExceptionConflicts(exceptions) : [];
                 if(conflicts.length) {setExceptionConflicts(conflicts);setCalendarView('exceptions');return;}
                 if(draft.enabled) {
-                    const weeklyError = weeklyExceptionConflicts(draft.exceptions, draft.weekdays)[0]?.message;
+                    const weeklyError = weeklyExceptionConflicts(exceptions, draft.weekdays)[0]?.message;
                     if (weeklyError) {setError(weeklyError);setCalendarView('exceptions');return;}
                 }
                 setExceptionConflicts([]);
                 if(draft.enabled && (!draft.start || !draft.end || draft.end<draft.start || !draft.weekdays.length)) {setError('Set calendar coverage and at least one opening weekday.');return;}
-                update({operating_calendar:{...draft,start:draft.start||null,end:draft.end||null,ids:scope.split(',').map(v=>v.trim()).filter(Boolean)},calendar_sales_resolutions:pruneCalendarSalesResolutions(salesResolutions,draft.exceptions),frequency:draft.enabled?frequency:null});setDirty(false);onDirty(false);setError('');
+                update({operating_calendar:{...draft,exceptions,start:draft.start||null,end:draft.end||null,ids:scope.split(',').map(v=>v.trim()).filter(Boolean)},calendar_sales_resolutions:pruneCalendarSalesResolutions(salesResolutions,exceptions),frequency:draft.enabled?frequency:null});
+                setDraft(prev=>({...prev,exceptions}));setDirty(false);onDirty(false);setError('');
             };
             const importFile = async event => {
                 const file=event.target.files?.[0];event.target.value='';if(!file)return;setBusy(true);setError('');
@@ -6163,8 +6273,10 @@
                     const kept=[];
                     let rejected='';
                     for (const row of data.exceptions || []) {
+                        const overlapError = overlappingExceptionMessage(row, [...draft.exceptions, ...kept]);
                         const weeklyError = weeklyRedundantExceptionMessage(row, draft.weekdays, [...draft.exceptions, ...kept]);
-                        if (weeklyError) rejected = rejected || weeklyError;
+                        if (overlapError) rejected = rejected || overlapError;
+                        else if (weeklyError) rejected = rejected || weeklyError;
                         else kept.push(row);
                     }
                     if (kept.length) change({exceptions:[...draft.exceptions, ...kept]});
@@ -6179,19 +6291,28 @@
                 catch(e){setError(e.message);}finally{setBusy(false);}
             };
             const parsedExceptionEntry = {start:entry.start,end:entry.end||entry.start,status:entry.status,ids:entry.ids.split(',').map(v=>v.trim()).filter(Boolean),label:entry.label};
-            const entryWeeklyError = entry.start ? weeklyRedundantExceptionMessage(parsedExceptionEntry, draft.weekdays, draft.exceptions) : '';
+            const entryOverlapError = entry.start ? overlappingExceptionMessage(parsedExceptionEntry, draft.exceptions) : '';
+            const entryWeeklyError = entry.start && !entryOverlapError ? weeklyRedundantExceptionMessage(parsedExceptionEntry, draft.weekdays, draft.exceptions) : '';
             const weeklyConflicts = weeklyExceptionConflicts(draft.enabled ? draft.exceptions : [], draft.weekdays);
             const markedConflicts = [...exceptionConflicts, ...weeklyConflicts];
+            const visibleExceptions = visibleCalendarExceptions(draft.exceptions, holidayProposals);
+            const unappliedHolidayProposals = holidayProposals.filter(row => !draft.exceptions.some(item => item.start === row.date && item.end === row.date && !(item.ids || []).length));
+            const hasUnapplied = dirty || unappliedHolidayProposals.length > 0;
             const applied=calendar?.enabled;
             return <details className="fc-source-foldout fc-calendar">
-                <summary>{tr("Operating calendar")}<span className="fc-calendar-summary-state" data-dirty={dirty}>{dirty?tr('Unapplied changes'):applied?`${calendar.weekdays.map(d=>weekdays[d]).join(', ')} · ${tr(`${calendar.exceptions.length} ${calendar.exceptions.length===1?'exception':'exceptions'}`)}`:tr('Optional · set your opening days')}</span></summary>
+                <summary>{tr("Operating calendar")}<span className="fc-calendar-summary-state" data-dirty={hasUnapplied}>{hasUnapplied?tr('Unapplied changes'):applied?`${calendar.weekdays.map(d=>weekdays[d]).join(', ')} · ${tr(`${visibleExceptions.length} ${visibleExceptions.length===1?'exception':'exceptions'}`)}`:tr('Optional · set your opening days')}</span></summary>
                 <div className="fc-calendar-body">
                     <div className="fc-calendar-intro">
                         <div><strong>{tr("Forecast around your opening days")}</strong><p>{tr("Keep your weekly routine and one-off changes in one place.")}</p></div>
-                        <label className="fc-calendar-switch"><input type="checkbox" aria-label={tr("Use an operating calendar")} checked={draft.enabled} onChange={e=>{const days=(review?.records||[]).map(r=>r.ds).sort();change({enabled:e.target.checked,...(e.target.checked && !draft.start && days.length ? {start:days[0].slice(0,10),end:`${Number(days[days.length-1].slice(0,4))+1}-12-31`}:{})});}}/><span aria-hidden="true"/><strong>{draft.enabled?tr('Enabled'):tr('Enable calendar')}</strong></label>
+                        <label className="fc-calendar-switch"><input type="checkbox" aria-label={tr("Use an operating calendar")} checked={draft.enabled} onChange={e=>toggleCalendar(e.target.checked)}/><span aria-hidden="true"/><strong>{tr('Calendar')}</strong></label>
                     </div>
+                    {pendingDisable && <div ref={disableConfirmRef} tabIndex={-1} className="fc-source-error fc-calendar-disable-warning" role="alertdialog" aria-labelledby="fc-calendar-disable-title" aria-describedby="fc-calendar-disable-copy">
+                        <strong id="fc-calendar-disable-title">{tr("Turn off the operating calendar?")}</strong>
+                        <p id="fc-calendar-disable-copy">{tr("Calendar changes and conflict decisions will be discarded, and preparation will return to the state from before the calendar was turned on.")}</p>
+                        <div className="fc-calendar-conflict-actions"><button type="button" className="fc-source-secondary" onClick={()=>setPendingDisable(false)}>{tr("Keep calendar on")}</button><button type="button" className="fc-source-confirm" onClick={disableCalendar}>{tr("Turn off calendar")}</button></div>
+                    </div>}
                     {draft.enabled ? <>
-                        <nav className="fc-calendar-nav" aria-label={tr("Calendar sections")}>{[['schedule','Weekly schedule'],['exceptions',`Exceptions (${draft.exceptions.length})`],['holidays','Public holidays']].map(([key,label])=><button key={key} type="button" aria-pressed={calendarView===key} onClick={()=>setCalendarView(key)}>{tr(label)}</button>)}</nav>
+                        <nav className="fc-calendar-nav" aria-label={tr("Calendar sections")}>{[['schedule','Weekly schedule'],['exceptions',`Exceptions (${visibleExceptions.length})`],['holidays','Public holidays']].map(([key,label])=><button key={key} type="button" aria-pressed={calendarView===key} onClick={()=>setCalendarView(key)}>{tr(label)}</button>)}</nav>
                         <div className="fc-calendar-panel" hidden={calendarView!=='schedule'}>
                             <div className="fc-calendar-section-heading"><div><h4>{tr("Your regular week")}</h4><p>{tr("Select the days you are usually open.")}</p></div><span className="fc-calendar-muted">{draft.weekdays.length} {tr("open ·")} {7-draft.weekdays.length} {tr("closed")}</span></div>
                             <div className="fc-calendar-week" role="group" aria-label={tr("Opening weekdays")}>{weekdays.map((day,i)=><button type="button" key={day} aria-label={tr(`${day}: ${draft.weekdays.includes(i)?'open':'closed'}`)} aria-pressed={draft.weekdays.includes(i)} onClick={()=>change({weekdays:draft.weekdays.includes(i)?draft.weekdays.filter(d=>d!==i):[...draft.weekdays,i].sort()})}><strong>{day}</strong><span>{draft.weekdays.includes(i)?tr('Open'):tr('Closed')}</span></button>)}</div>
@@ -6200,25 +6321,26 @@
                         </div>
                         <div className="fc-calendar-panel" hidden={calendarView!=='exceptions'}>
                             <div className="fc-calendar-section-heading"><div><h4>{tr("Closures & extra opening days")}</h4><p>{tr("Exceptions override your regular week.")}</p></div><button type="button" className="fc-source-secondary" disabled={busy} onClick={()=>fileRef.current?.click()}>{tr("Import calendar")}</button></div>
-                            {!!exceptionConflicts.length && <div ref={conflictNoticeRef} tabIndex={-1} className="fc-source-error fc-calendar-exception-warning" role="alert"><strong>{tr("Calendar exceptions conflict")}</strong><p>{tr("Exceptions repeat or contradict each other for the same dates and IDs. Remove or correct one of the highlighted exceptions, then apply again.")}</p><ul>{exceptionConflicts.map((conflict,i)=><li key={i}>{tr("Exceptions")} {conflict.indices.map(index=>index+1).join(' & ')} · {formatForecastDate(conflict.start,locale)}{conflict.end!==conflict.start?` – ${formatForecastDate(conflict.end,locale)}`:''} · {conflict.ids.join(', ')||tr('All calendar IDs')}</li>)}</ul></div>}
+                            {!!exceptionConflicts.length && <div ref={conflictNoticeRef} tabIndex={-1} className="fc-source-error fc-calendar-exception-warning" role="alert"><strong>{tr("Calendar exceptions conflict")}</strong><p>{tr("Exceptions cannot share the same dates. Remove or correct one of the highlighted exceptions, then apply again.")}</p><ul>{exceptionConflicts.map((conflict,i)=><li key={i}>{tr("Exceptions")} {conflict.indices.map(index=>index+1).join(' & ')} · {formatForecastDate(conflict.start,locale)}{conflict.end!==conflict.start?` – ${formatForecastDate(conflict.end,locale)}`:''}</li>)}</ul></div>}
                             {!!weeklyConflicts.length && <div className="fc-source-error fc-calendar-exception-warning" role="alert">{[...new Set(weeklyConflicts.map(conflict=>conflict.message))].map(message=><p key={message}>{tr(message)}</p>)}</div>}
                             <input ref={fileRef} type="file" accept=".xlsx,.csv" hidden onChange={importFile}/>
-                            <div className="fc-calendar-fields fc-calendar-entry"><label>{tr("From")}<LocalizedDateInput key={`entryStart-${dateReset}`} label={tr("Exception start")} locale={locale} value={entry.start} onChange={next=>setEntry({...entry,start:next})} onValidityChange={invalid=>dateValidity('entryStart',invalid)}/></label><label>{tr("Through")}<LocalizedDateInput key={`entryEnd-${dateReset}`} label={tr("Exception end")} minValue={entry.start} locale={locale} value={entry.end} onChange={next=>setEntry({...entry,end:next})} onValidityChange={invalid=>dateValidity('entryEnd',invalid)}/></label><label>{tr("Status")}<select aria-label={tr("Exception status")} value={entry.status} onChange={e=>setEntry({...entry,status:e.target.value})}><option value="closed">{tr("Closed")}</option><option value="open">{tr("Open")}</option></select></label><label>{tr("Applies to")}<input aria-label={tr("Exception item IDs")} placeholder={tr("All calendar IDs")} value={entry.ids} onChange={e=>setEntry({...entry,ids:e.target.value})}/></label><label className="fc-calendar-entry-reason">{tr("Reason")} <span>{tr("(required)")}</span><input required aria-label={tr("Exception reason")} placeholder={tr("e.g. Extra Saturday opening")} maxLength={120} value={entry.label} onChange={e=>setEntry({...entry,label:e.target.value})}/></label><button className="fc-source-secondary fc-calendar-add" type="button" disabled={!entry.label.trim() || dateErrors.entryStart || dateErrors.entryEnd || !entry.start || (entry.end && entry.end<entry.start) || draft.exceptions.length>=200 || !!entryWeeklyError} onClick={()=>{if(!add({...entry,end:entry.end||entry.start,ids:entry.ids.split(',').map(v=>v.trim()).filter(Boolean)}))return;setEntry({start:'',end:'',status:'closed',ids:'',label:''});setDateErrors({});setDateReset(n=>n+1);}}>{tr("+ Add exception")}</button></div>
+                            <div className="fc-calendar-fields fc-calendar-entry"><label>{tr("From")}<LocalizedDateInput key={`entryStart-${dateReset}`} label={tr("Exception start")} locale={locale} value={entry.start} onChange={next=>setEntry({...entry,start:next})} onValidityChange={invalid=>dateValidity('entryStart',invalid)}/></label><label>{tr("Through")}<LocalizedDateInput key={`entryEnd-${dateReset}`} label={tr("Exception end")} minValue={entry.start} locale={locale} value={entry.end} onChange={next=>setEntry({...entry,end:next})} onValidityChange={invalid=>dateValidity('entryEnd',invalid)}/></label><label>{tr("Status")}<select aria-label={tr("Exception status")} value={entry.status} onChange={e=>setEntry({...entry,status:e.target.value})}><option value="closed">{tr("Closed")}</option><option value="open">{tr("Open")}</option></select></label><label>{tr("Applies to")}<input aria-label={tr("Exception item IDs")} placeholder={tr("All calendar IDs")} value={entry.ids} onChange={e=>setEntry({...entry,ids:e.target.value})}/></label><label className="fc-calendar-entry-reason">{tr("Reason")} <span>{tr("(required)")}</span><input required aria-label={tr("Exception reason")} placeholder={tr("e.g. Extra Saturday opening")} maxLength={120} value={entry.label} onChange={e=>setEntry({...entry,label:e.target.value})}/></label><button className="fc-source-secondary fc-calendar-add" type="button" disabled={!entry.label.trim() || dateErrors.entryStart || dateErrors.entryEnd || !entry.start || (entry.end && entry.end<entry.start) || draft.exceptions.length>=200 || !!entryWeeklyError || !!entryOverlapError} onClick={()=>{if(!add({...entry,end:entry.end||entry.start,ids:entry.ids.split(',').map(v=>v.trim()).filter(Boolean)}))return;setEntry({start:'',end:'',status:'closed',ids:'',label:''});setDateErrors({});setDateReset(n=>n+1);}}>{tr("+ Add exception")}</button></div>
+                            {entryOverlapError && <p className="fc-source-error" role="alert">{tr(entryOverlapError)}</p>}
                             {entryWeeklyError && <p className="fc-source-error" role="alert">{tr(entryWeeklyError)}</p>}
                             <p className="fc-calendar-note">{tr("Closed days with recorded sales require your confirmation before prepared values are set to zero. Original values always stay unchanged.")} {tr("To reopen a confirmed weekly closed day, add an Open exception. Remove that exception and apply the calendar to review the conflict again.")} {tr("Do not add a Closed exception on a day the weekly schedule already closes.")}</p>
-                            <div className="fc-calendar-exceptions">{!draft.exceptions.length && <p className="fc-calendar-empty">{tr("No exceptions yet. Add a date above or import your calendar.")}</p>}{draft.exceptions.map((row,i)=><div className="fc-calendar-event" data-conflict={markedConflicts.some(conflict=>conflict.indices.includes(i))} key={i}><span className="fc-calendar-day-status" data-status={row.status}>{row.status==='open'?tr('Open'):tr('Closed')}</span><div className="fc-calendar-event-copy"><strong>{formatForecastDate(row.start,locale)}{row.end!==row.start?` – ${formatForecastDate(row.end,locale)}`:''}</strong><span>{row.label?`${row.label} · `:''}{row.ids.join(', ')||tr('All calendar IDs')}</span></div><button type="button" className="fc-source-secondary" aria-label={tr(`Remove exception ${i+1}`)} onClick={()=>change({exceptions:draft.exceptions.filter((_,j)=>j!==i)})}>{tr("Remove")}</button></div>)}</div>
+                            <div className="fc-calendar-exceptions">{!visibleExceptions.length && <p className="fc-calendar-empty">{tr("No exceptions yet. Add a date above or import your calendar.")}</p>}{draft.exceptions.map((row,i)=>isPendingHolidayClosure(row,holidayProposals)?null:<div className="fc-calendar-event" data-conflict={markedConflicts.some(conflict=>conflict.indices.includes(i))} key={i}><span className="fc-calendar-day-status" data-status={row.status}>{row.status==='open'?tr('Open'):tr('Closed')}</span><div className="fc-calendar-event-copy"><strong>{formatForecastDate(row.start,locale)}{row.end!==row.start?` – ${formatForecastDate(row.end,locale)}`:''}</strong><span>{row.label?`${row.label} · `:''}{row.ids.join(', ')||tr('All calendar IDs')}</span></div><button type="button" className="fc-source-secondary" aria-label={tr(`Remove exception ${i+1}`)} onClick={()=>change({exceptions:draft.exceptions.filter((_,j)=>j!==i)})}>{tr("Remove")}</button></div>)}</div>
                             <details className="fc-calendar-import-help"><summary>{tr("Import file format")}</summary><p>{tr("Excel or CSV, first sheet: Start Date, End Date, Status (open/closed), Label (reason required). Optional: Item ID. Imported exceptions are added to your list.")}</p></details>
                         </div>
                         <div className="fc-calendar-panel" hidden={calendarView!=='holidays'}>
-                            <div className="fc-calendar-section-heading"><div><h4>{tr("Find public holidays")}</h4><p>{tr("Choose only the holidays when your business closes.")}</p></div></div>
+                            <div className="fc-calendar-section-heading"><div><h4>{tr("Find public holidays")}</h4><p>{tr("Choose only the holidays when your business closes.")}</p></div>{!!holidays.length && <button type="button" className="fc-source-secondary" disabled={!proposableHolidayClosures(holidays,draft.exceptions,holidayProposals,draft.weekdays).length} onClick={()=>{const next=proposableHolidayClosures(holidays,draft.exceptions,holidayProposals,draft.weekdays);if(!next.length)return;setHolidayProposals(prev=>[...prev,...next]);setError('');setExceptionConflicts([]);}}>{tr("Propose all closures")}</button>}</div>
                             <div className="fc-calendar-fields fc-calendar-holiday-fields"><label>{tr("Country")}<select aria-label={tr("Holiday country")} value={country} onChange={e=>{setCountry(e.target.value);setHolidays([]);}}>{[['DE','Germany'],['VN','Vietnam'],['US','United States'],['GB','United Kingdom'],['FR','France'],['AU','Australia'],['CA','Canada']].map(([code,name])=><option key={code} value={code}>{tr(name)}</option>)}</select></label><label>{tr("Region code")} <span>{tr("(optional)")}</span><input aria-label={tr("Holiday region")} placeholder={tr("e.g. BE")} value={subdivision} onChange={e=>{setSubdivision(e.target.value);setHolidays([]);}}/></label><button type="button" className="fc-source-secondary" disabled={busy} onClick={loadHolidays}>{busy?tr('Loading…'):tr('Find holidays')}</button></div>
-                            <p className="fc-calendar-note">{tr("Holiday suggestions are proposed closures. If recorded sales exist, you must choose whether to keep them or confirm zero.")}</p>
-                            <div className="fc-calendar-exceptions">{!holidays.length && <p className="fc-calendar-empty">{tr("Holiday suggestions will appear here.")}</p>}{holidays.map(row=>{const added=draft.exceptions.some(e=>e.start===row.date && e.end===row.date && !e.ids.length);const alreadyClosed=!calendarWeekdayOpen(draft.weekdays,row.date);return <div className="fc-calendar-event" key={row.date}><div className="fc-calendar-event-copy"><strong>{row.label}</strong><span>{formatForecastDate(row.date,locale)}</span></div><button type="button" className="fc-source-secondary" disabled={added || alreadyClosed} onClick={()=>add({start:row.date,end:row.date,status:'closed',ids:[],label:row.label.slice(0,120)})}>{added?tr('Added'):alreadyClosed?tr('Already closed'):tr('Propose closure')}</button></div>;})}</div>
+                            <p className="fc-calendar-note">{tr("Propose a holiday closure, then apply the calendar. The holiday is added as Closed if there is no recorded-sales conflict, or if you confirm zero. If you keep recorded sales, it is added as Open.")}</p>
+                            <div className="fc-calendar-exceptions">{!holidays.length && <p className="fc-calendar-empty">{tr("Holiday suggestions will appear here.")}</p>}{holidays.map(row=>{const state=holidaySuggestionState(row,draft.exceptions,holidayProposals,draft.weekdays);return <div className="fc-calendar-event" key={row.date}><div className="fc-calendar-event-copy"><strong>{row.label}</strong><span>{formatForecastDate(row.date,locale)}</span></div><button type="button" className="fc-source-secondary" disabled={state.opened || state.closedAdded || state.alreadyClosed || state.appliedPending} onClick={()=>{if(state.opened||state.closedAdded||state.alreadyClosed||state.appliedPending)return;if(state.proposed)setHolidayProposals(prev=>prev.filter(item=>item.date!==row.date));else setHolidayProposals(prev=>[...prev,{date:row.date,label:row.label.slice(0,120)}]);setError('');setExceptionConflicts([]);}}>{state.opened?tr('Opened'):state.closedAdded?tr('Added'):state.alreadyClosed?tr('Already closed'):state.proposed?tr('Proposed'):tr('Propose closure')}</button></div>;})}</div>
                         </div>
                     </> : <p className="fc-calendar-note">{tr("Enable the calendar to distinguish scheduled closures from missing data, and show zero expected sales on closed days.")}</p>}
                     {error && <p className="fc-source-error" role="alert">{tr(formatCalendarMessage(error,locale))}</p>}
-                    <CalendarConflictSummary review={review} calendar={calendar} salesResolutions={salesResolutions} update={patch=>{update(patch);if(patch.operating_calendar){setDraft(prev=>({...prev,...patch.operating_calendar}));setError('');setExceptionConflicts([]);}}} locale={locale} />
-                    <div className="fc-calendar-actions"><div className="fc-calendar-action-status" role="status">{dirty?<><strong>{tr("Changes ready to apply")}</strong><span>{tr("Your preview updates after applying.")}</span></>:applied?<><strong>{review?.closed_count||0} {tr("closed item-days ·")} {review?.conflict_count||0} {tr("conflicts")}</strong><span>{formatForecastDate(calendar.start,locale)} – {formatForecastDate(calendar.end,locale)}</span></>:<span>{tr("No calendar applied")}</span>}</div><div>{dirty && <button type="button" className="fc-source-secondary" onClick={()=>{setDraft({...defaults,...calendar});setDateErrors({});setDateReset(n=>n+1);setScope((calendar?.ids||[]).join(', '));setDirty(false);onDirty(false);setError('');setExceptionConflicts([]);}}>{tr("Discard changes")}</button>}<button type="button" className="fc-source-confirm" disabled={!dirty || busy} onClick={apply}>{tr("Apply calendar")}</button></div></div>
+                    {draft.enabled && !pendingDisable && <CalendarConflictSummary review={review} calendar={calendar} salesResolutions={salesResolutions} update={patch=>{update(patch);if(patch.operating_calendar){setDraft(prev=>({...prev,...patch.operating_calendar}));setError('');setExceptionConflicts([]);}}} locale={locale} />}
+                    <div className="fc-calendar-actions"><div className="fc-calendar-action-status" role="status">{hasUnapplied?<><strong>{tr("Changes ready to apply")}</strong><span>{tr("Your preview updates after applying.")}</span></>:applied?<><strong>{review?.closed_count||0} {tr("closed item-days ·")} {review?.conflict_count||0} {tr("conflicts")}</strong><span>{formatForecastDate(calendar.start,locale)} – {formatForecastDate(calendar.end,locale)}</span></>:<span>{tr("No calendar applied")}</span>}</div><div>{hasUnapplied && <button type="button" className="fc-source-secondary" onClick={()=>{setDraft({...defaults,...calendar});setDateErrors({});setDateReset(n=>n+1);setScope((calendar?.ids||[]).join(', '));setHolidayProposals(prev=>prev.filter(row=>(calendar?.exceptions||[]).some(item=>item.start===row.date && item.end===row.date)));setDirty(false);onDirty(false);setError('');setExceptionConflicts([]);setPendingDisable(false);}}>{tr("Discard changes")}</button>}<button type="button" className="fc-source-confirm" disabled={!hasUnapplied || busy || pendingDisable} onClick={apply}>{tr("Apply calendar")}</button></div></div>
                 </div>
             </details>;
         };

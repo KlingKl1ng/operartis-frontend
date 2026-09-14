@@ -8,7 +8,7 @@ const {preparationPreviewCells:cells,previewSearchTerms:terms,indexPreviewRows:i
 const conflictGroupingSource=source.slice(source.indexOf('const groupCalendarConflicts ='),source.indexOf('const calendarConflictShiftDate ='));
 const {groupCalendarConflicts:groupConflicts}=new Function(conflictGroupingSource+';return {groupCalendarConflicts};')();
 const conflictResolutionSource=source.slice(source.indexOf('const calendarConflictShiftDate ='),source.indexOf('const CalendarConflictSummary ='));
-const {calendarConflictResolutionPatch:resolveConflicts,pruneCalendarSalesResolutions:pruneResolutions}=new Function(conflictResolutionSource+';return {calendarConflictResolutionPatch,pruneCalendarSalesResolutions};')();
+const {calendarConflictResolutionPatch:resolveConflicts,pruneCalendarSalesResolutions:pruneResolutions,calendarDisablePatch:disableCalendar,mergeProposedHolidayClosures:mergeHolidays,visibleCalendarExceptions:visibleExceptions,retainPendingHolidayProposals:retainProposals,proposableHolidayClosures:proposableHolidays,calendarConflictDateLabel:conflictDateLabel}=new Function(conflictResolutionSource+';return {calendarConflictResolutionPatch,pruneCalendarSalesResolutions,calendarDisablePatch,mergeProposedHolidayClosures,visibleCalendarExceptions,retainPendingHolidayProposals,proposableHolidayClosures,calendarConflictDateLabel};')();
 const verticalSource=source.slice(source.indexOf('const verticalForecastPreviewRows ='),source.indexOf('const PREPARATION_METHODS ='));
 const {verticalForecastPreviewRows:verticalize}=new Function(verticalSource+';return {verticalForecastPreviewRows};')();
 const find=(rows,q)=>search(index(rows,cells),terms(q));
@@ -50,7 +50,9 @@ test('groups conflict values and keeps recorded sales by opening the exception',
  const calendar={enabled:true,weekdays:[0,1,2,3,4],exceptions:[{start:'2023-01-20',end:'2023-01-20',status:'closed',ids:[],label:'Lunar New Year'}]};
  const current={A:{'2023-01-19':'open','2023-01-20':'closed'}};
  const keep=resolveConflicts(calendar,current,grouped.dates[0],'open');
- assert.deepEqual(keep.operating_calendar.exceptions,[]);
+ assert.deepEqual(keep.operating_calendar.exceptions,[
+  {start:'2023-01-20',end:'2023-01-20',status:'open',ids:[],label:'Lunar New Year'},
+ ]);
  assert.deepEqual(keep.calendar_sales_resolutions,{});
  assert.deepEqual(current,{A:{'2023-01-19':'open','2023-01-20':'closed'}});
  const confirm=resolveConflicts(calendar,{A:{'2023-01-19':'open'}},grouped.dates[0],'closed');
@@ -66,16 +68,73 @@ test('confirm closed on a weekly closed day does not add an exception',()=>{
  assert.deepEqual(reopened,{});
  assert.deepEqual(pruneResolutions(confirm.calendar_sales_resolutions,[]),confirm.calendar_sales_resolutions);
 });
-test('keep recorded sales splits a closed range and adds an open exception only on usual closed days',()=>{
+test('keep recorded sales splits a closed range and adds an open exception for recorded sales',()=>{
  const friday={date:'2023-01-20',ids:['A']};
  const split=resolveConflicts({weekdays:[0,1,2,3,4],exceptions:[{start:'2023-01-19',end:'2023-01-21',status:'closed',ids:[],label:'Break'}]},{},friday,'open');
  assert.deepEqual(split.operating_calendar.exceptions,[
   {start:'2023-01-19',end:'2023-01-19',status:'closed',ids:[],label:'Break'},
   {start:'2023-01-21',end:'2023-01-21',status:'closed',ids:[],label:'Break'},
+  {start:'2023-01-20',end:'2023-01-20',status:'open',ids:[],label:'Break'},
  ]);
  const saturday={date:'2026-01-03',ids:['A']};
  const added=resolveConflicts({weekdays:[0,1,2,3,4],exceptions:[]},{},saturday,'open');
  assert.deepEqual(added.operating_calendar.exceptions,[{start:'2026-01-03',end:'2026-01-03',status:'open',ids:['A'],label:'Recorded sales kept'}]);
+ const newYear={date:'2023-01-01',ids:['GOINANI4060','GOINANI5070']};
+ const holiday=resolveConflicts({weekdays:[0,1,2,3,4,5,6],exceptions:[{start:'2023-01-01',end:'2023-01-01',status:'closed',ids:[],label:"New Year's Day"}]},{},newYear,'open');
+ assert.deepEqual(holiday.operating_calendar.exceptions,[
+  {start:'2023-01-01',end:'2023-01-01',status:'open',ids:[],label:"New Year's Day"},
+ ]);
+});
+test('proposed holidays stay out of exceptions until apply, then hide until the conflict is resolved',()=>{
+ const proposals=[{date:'2023-01-01',label:"New Year's Day"}];
+ const merged=mergeHolidays([],proposals);
+ assert.deepEqual(merged,[{start:'2023-01-01',end:'2023-01-01',status:'closed',ids:[],label:"New Year's Day"}]);
+ assert.deepEqual(visibleExceptions(merged,proposals),[]);
+ assert.deepEqual(visibleExceptions(merged,[]),merged);
+ const stillPending=retainProposals(proposals,merged,['2023-01-01']);
+ assert.deepEqual(stillPending,proposals);
+ assert.deepEqual(retainProposals(proposals,merged,[]),[]);
+ assert.deepEqual(retainProposals(proposals,[],['2023-01-01']),proposals);
+ const opened=[{start:'2023-01-01',end:'2023-01-01',status:'open',ids:[],label:"New Year's Day"}];
+ assert.deepEqual(visibleExceptions(opened,proposals),opened);
+});
+test('propose all closures skips opened, weekly-closed and already proposed holidays',()=>{
+ const holidays=[
+  {date:'2023-01-01',label:"New Year's Day"},
+  {date:'2023-01-02',label:"New Year's Day (observed)"},
+  {date:'2023-01-20',label:'29 of Lunar New Year'},
+  {date:'2023-01-21',label:"Lunar New Year's Eve"},
+  {date:'2023-01-22',label:'Lunar New Year'},
+ ];
+ const weekdays=[0,1,2,3,4,5,6];
+ assert.deepEqual(proposableHolidays(holidays,[{start:'2023-01-01',end:'2023-01-01',status:'open',ids:[],label:"New Year's Day"}],[{date:'2023-01-02',label:"New Year's Day (observed)"}],weekdays),[
+  {date:'2023-01-20',label:'29 of Lunar New Year'},
+  {date:'2023-01-21',label:"Lunar New Year's Eve"},
+  {date:'2023-01-22',label:'Lunar New Year'},
+ ]);
+ assert.deepEqual(proposableHolidays(holidays,[],[], [0,1,2,3,4]).map(row=>row.date),['2023-01-02','2023-01-20']);
+});
+test('conflict dates show the holiday exception label when the closure was proposed',()=>{
+ const exceptions=[{start:'2023-01-01',end:'2023-01-01',status:'closed',ids:[],label:"New Year's Day"},{start:'2023-01-20',end:'2023-01-20',status:'closed',ids:[],label:'29 of Lunar New Year'}];
+ assert.equal(conflictDateLabel(exceptions,'2023-01-01'),"New Year's Day");
+ assert.equal(conflictDateLabel(exceptions,'2023-01-20'),'29 of Lunar New Year');
+ assert.equal(conflictDateLabel(exceptions,'2023-01-03'),'');
+});
+test('turning the calendar off restores the pre-enable policy and does not keep recorded sales',()=>{
+ const applied={enabled:true,start:'2023-01-01',end:'2025-12-31',weekdays:[0,1,2,3,4],ids:[],exceptions:[{start:'2023-02-26',end:'2023-02-26',status:'closed',ids:[],label:'Holiday'}]};
+ const restore={operating_calendar:{enabled:false,start:'',end:'',weekdays:[0,1,2,3,4],ids:[],exceptions:[]},calendar_sales_resolutions:{},calendar_conflicts_seen:{},frequency:null};
+ const reverted=disableCalendar(applied,{'DATE-001':{'2023-02-26':'open'}},'daily',restore);
+ assert.equal(reverted.operating_calendar.enabled,false);
+ assert.deepEqual(reverted.operating_calendar.exceptions,[]);
+ assert.deepEqual(reverted.calendar_sales_resolutions,{});
+ assert.deepEqual(reverted.calendar_conflicts_seen,{});
+ assert.equal(reverted.frequency,null);
+ const deactivated=disableCalendar(applied,{'DATE-001':{'2023-02-26':'closed'}},'daily',null);
+ assert.equal(deactivated.operating_calendar.enabled,false);
+ assert.deepEqual(deactivated.operating_calendar.exceptions,applied.exceptions);
+ assert.deepEqual(deactivated.calendar_sales_resolutions,{});
+ assert.deepEqual(deactivated.calendar_conflicts_seen,{});
+ assert.equal(deactivated.frequency,'daily');
 });
 test('search composes with ID, unresolved and open-day filters',()=>{
  const a={unique_id:'A',ds:'2026-02-14',original:4,prepared:null,closed:true,conflict:true};
