@@ -5485,14 +5485,77 @@
             );
         };
 
-        // A single observation cannot form a line or filled area. Keep it visible,
-        // including when zooming leaves just one finite point in the series.
-        const singlePointDot = (data, key, color) => data.filter(point => Number.isFinite(point[key])).length === 1
-            ? chartPointStyle(color)
-            : false;
+        // Recharts cannot draw a line or filled area for a point whose adjacent
+        // values are empty. Keep each isolated observation visible without adding
+        // markers to ordinary multi-period line segments.
+        const isIsolatedChartPoint = (data, key, index) => Number.isFinite(data[index]?.[key])
+            && !Number.isFinite(data[index - 1]?.[key])
+            && !Number.isFinite(data[index + 1]?.[key]);
+
+        const isolatedPointDot = (data, key, color) => ({ cx, cy, index }) => (
+            isIsolatedChartPoint(data, key, index) && Number.isFinite(cx) && Number.isFinite(cy)
+                ? <circle cx={cx} cy={cy} {...chartPointStyle(color)} />
+                : null
+        );
+
+        const validationTimestamp = value => {
+            if (typeof value !== 'string') return NaN;
+            const iso = value.includes('T') && !/(Z|[+-]\d{2}:?\d{2})$/.test(value) ? `${value}Z` : value;
+            return Date.parse(iso);
+        };
+
+        const latestValidationOriginByTime = data => {
+            const latest = new Map();
+            const pairs = data?.validation_summary?.all_forecasts || data?.validation_forecasts || [];
+            const groups = new Map();
+            for (const pair of pairs) {
+                const time = validationTimestamp(pair.date);
+                const originTime = validationTimestamp(pair.origin);
+                if (!Number.isFinite(time) || !Number.isFinite(originTime) || !Number.isFinite(pair.forecast)) continue;
+                const previous = latest.get(time);
+                if (!previous || originTime >= previous.time) latest.set(time, { time: originTime, origin: pair.origin });
+                const group = groups.get(originTime) || { start: time, end: time };
+                group.start = Math.min(group.start, time);
+                group.end = Math.max(group.end, time);
+                groups.set(originTime, group);
+            }
+            let segment = -1;
+            let coveredUntil = -Infinity;
+            const segmentByOrigin = new Map();
+            for (const [originTime, group] of [...groups].sort(([a], [b]) => a - b)) {
+                if (group.start > coveredUntil) segment++;
+                segmentByOrigin.set(originTime, segment);
+                coveredUntil = Math.max(coveredUntil, group.end);
+            }
+            for (const placement of latest.values()) {
+                placement.segment = segmentByOrigin.get(placement.time);
+            }
+            return latest;
+        };
+
+        // Overlapping evaluations form one continuous validation chain. Assign a
+        // separate data key only after a gap between non-overlapping evaluations.
+        const segmentedValidationForecastData = rows => {
+            if (!rows) return { data: rows, series: [] };
+            const keyByOrigin = new Map();
+            const series = [];
+            const data = rows.map(point => {
+                if (!Number.isFinite(point.val_forecast)) return point;
+                const origin = point.validation_segment ?? point.validation_origin ?? 'legacy';
+                if (!keyByOrigin.has(origin)) {
+                    const key = `val_forecast_segment_${series.length}`;
+                    keyByOrigin.set(origin, key);
+                    series.push({ key, origin });
+                }
+                return { ...point, [keyByOrigin.get(origin)]: point.val_forecast };
+            });
+            return { data, series };
+        };
 
         const BacktestChart = ({ data: sourceData, syncId, isDark, t, zoomState }) => {
-            const data = useMemo(() => preparedActualChartData(sourceData), [sourceData]);
+            const preparedData = useMemo(() => preparedActualChartData(sourceData), [sourceData]);
+            const segmentedForecast = useMemo(() => segmentedValidationForecastData(preparedData), [preparedData]);
+            const data = segmentedForecast.data;
             if (!data) return null;
 
             const { zoomDomain, containerRef, handlers, isDragging, zoomIn, zoomOut } = useChartZoom(data.length, zoomState);
@@ -5567,9 +5630,9 @@
                             <YAxis tickFormatter={value => formatChartAxis(value, t.numberLocale)} width={44} axisLine={false} tickLine={false} tick={{ fill: isDark ? "#cbd5e1" : "#64748b", fontSize: 10 }} tickMargin={6} />
                             <Tooltip wrapperClassName="fc-chart-tooltip-wrapper" cursor={{ stroke: isDark ? '#475569' : '#cbd5e1', strokeWidth: 1 }} content={<ChartTooltipContent locale={t.numberLocale} isDark={isDark} />} />
                             <Area type="linear" dataKey="actual_train" name={t('charts.act_train')} stroke="#64748b" fill="url(#gd_bt_actual_train)" strokeWidth={2} isAnimationActive={false} />
-                            <Area type="linear" dataKey="actual_test" name={t('charts.act_test')} stroke="#10b981" fill="url(#gd_bt_actual_test)" strokeWidth={2} dot={singlePointDot(visibleData, 'actual_test', '#10b981')} isAnimationActive={false} />
+                            <Area type="linear" dataKey="actual_test" name={t('charts.act_test')} stroke="#10b981" fill="url(#gd_bt_actual_test)" strokeWidth={2} dot={isolatedPointDot(visibleData, 'actual_test', '#10b981')} isAnimationActive={false} />
                             <Area type="linear" dataKey="fitted" name={t('charts.fitted')} stroke="#94a3b8" fill="url(#gd_bt_fitted)" strokeDasharray="3 3" strokeWidth={2} isAnimationActive={false} />
-                            <Area type="linear" dataKey="val_forecast" name={t('charts.val_fc')} stroke="#f59e0b" fill="url(#gd_bt_val_forecast)" strokeWidth={2} strokeDasharray="5 5" dot={singlePointDot(visibleData, 'val_forecast', '#f59e0b')} isAnimationActive={false} />
+                            {segmentedForecast.series.map(segment => <Area key={segment.key} type="linear" dataKey={segment.key} name={t('charts.val_fc')} stroke="#f59e0b" fill="url(#gd_bt_val_forecast)" strokeWidth={2} strokeDasharray="5 5" dot={isolatedPointDot(visibleData, segment.key, '#f59e0b')} isAnimationActive={false} />)}
                         </ComposedChart>
                     </ResponsiveContainer>
                     </div>
@@ -5677,7 +5740,7 @@
                             <Tooltip wrapperClassName="fc-chart-tooltip-wrapper" cursor={{ stroke: isDark ? '#475569' : '#cbd5e1', strokeWidth: 1 }} content={<ChartTooltipContent locale={t.numberLocale} isDark={isDark} />} />
                             <Area type="linear" dataKey="actual_history" name={t('charts.history')} stroke="#64748b" fill="url(#gd_fc_history)" strokeWidth={2} isAnimationActive={false} />
                             <Area type="linear" dataKey="final_fit" name={t('charts.final_fit')} stroke="#94a3b8" fill="url(#gd_fc_final_fit)" strokeDasharray="3 3" strokeWidth={2} isAnimationActive={false} />
-                            <Area type="linear" dataKey="future_forecast" name={t('charts.future_fc')} stroke="#f59e0b" fill="url(#gd_fc_future)" strokeWidth={2} strokeDasharray="5 5" dot={singlePointDot(visibleData, 'future_forecast', '#f59e0b')} isAnimationActive={false} />
+                            <Area type="linear" dataKey="future_forecast" name={t('charts.future_fc')} stroke="#f59e0b" fill="url(#gd_fc_future)" strokeWidth={2} strokeDasharray="5 5" dot={isolatedPointDot(visibleData, 'future_forecast', '#f59e0b')} isAnimationActive={false} />
                         </ComposedChart>
                     </ResponsiveContainer>
                     </div>
@@ -8144,13 +8207,17 @@
             const alignedValidationData = useMemo(() => {
                 if (!skuData || !skuData.forecast_data || !skuData.validation_data) return null;
                 const valMap = new Map(skuData.validation_data.map(d => [d.date, d]));
+                const validationOrigins = latestValidationOriginByTime(skuData);
                 return skuData.forecast_data.map(fd => {
                     const vd = valMap.get(fd.date);
+                    const validationPlacement = validationOrigins.get(validationTimestamp(fd.date));
                     return {
                         ...vd, // Preserve preparation metadata and each point's train/test role.
                         date: fd.date, // Use forecast date as master axis
                         fitted: vd ? vd.fitted : null,
-                        val_forecast: vd ? vd.val_forecast : null
+                        val_forecast: vd ? vd.val_forecast : null,
+                        validation_origin: validationPlacement?.origin || null,
+                        validation_segment: validationPlacement?.segment ?? null,
                     };
                 });
             }, [skuData]);

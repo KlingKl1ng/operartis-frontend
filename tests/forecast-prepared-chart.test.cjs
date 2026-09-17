@@ -9,6 +9,12 @@ const compactLabel = source.slice(source.indexOf('const chartTooltipLabel ='), s
 const {display,label} = new Function(translations + compactLabel + helpers + '; return {display:preparedActualChartData,label:chartTooltipEntryLabel};')();
 const replaySource = source.slice(source.indexOf('const buildReplayChartData ='), source.indexOf('const ReplayWindowLabel ='));
 const replay = new Function('preparedActualChartData', replaySource + ';return buildReplayChartData;')(display);
+const isolatedPointSource = source.slice(source.indexOf('const isIsolatedChartPoint ='), source.indexOf('const isolatedPointDot ='));
+const isIsolatedChartPoint = new Function(isolatedPointSource + ';return isIsolatedChartPoint;')();
+const latestOriginSource = source.slice(source.indexOf('const validationTimestamp ='), source.indexOf('const segmentedValidationForecastData ='));
+const latestValidationOriginByTime = new Function(latestOriginSource + ';return latestValidationOriginByTime;')();
+const segmentedForecastSource = source.slice(source.indexOf('const segmentedValidationForecastData ='), source.indexOf('const BacktestChart ='));
+const segmentedValidationForecastData = new Function(segmentedForecastSource + ';return segmentedValidationForecastData;')();
 
 test('chart Actual uses prepared values while raw observations and fits stay unchanged', () => {
  const rows = [
@@ -28,6 +34,58 @@ test('chart Actual uses prepared values while raw observations and fits stay unc
  assert.equal(chart[4].actual_history,0);assert.equal(chart[5].actual_history,undefined);
  assert.deepEqual(rows,before);
  assert.equal(display(undefined),undefined);
+});
+
+test('isolated one-step validation forecasts remain visible as chart points', () => {
+ const rows = Array.from({length:10},(_,index)=>({
+  val_forecast:[0,2,4,6,9].includes(index)?100+index:null,
+ }));
+ for(const index of [0,2,4,6,9]) assert.equal(isIsolatedChartPoint(rows,'val_forecast',index),true);
+ for(const index of [1,3,5,7,8]) assert.equal(isIsolatedChartPoint(rows,'val_forecast',index),false);
+ assert.equal(isIsolatedChartPoint([{val_forecast:1},{val_forecast:2},{}],'val_forecast',0),false);
+ assert.equal(isIsolatedChartPoint([{val_forecast:1},{val_forecast:2},{}],'val_forecast',1),false);
+ assert.equal(isIsolatedChartPoint([{},{val_forecast:3},{}],'val_forecast',1),true);
+});
+
+test('validation forecast lines break between non-overlapping evaluation groups', () => {
+ const rows = [
+  {date:'2023-01-01',val_forecast:10,validation_origin:'2022-12-01',validation_segment:0},
+  {date:'2023-02-01',val_forecast:11,validation_origin:'2022-12-01',validation_segment:0},
+  {date:'2023-03-01',val_forecast:12,validation_origin:'2023-02-01',validation_segment:1},
+  {date:'2023-04-01',val_forecast:13,validation_origin:'2023-02-01',validation_segment:1},
+  {date:'2023-05-01',val_forecast:null,validation_origin:null},
+  {date:'2023-06-01',val_forecast:14,validation_origin:'2023-05-01',validation_segment:2},
+ ];
+ const before=structuredClone(rows),result=segmentedValidationForecastData(rows);
+ assert.equal(result.series.length,3);
+ const [first,second,third]=result.series.map(segment=>segment.key);
+ assert.deepEqual(result.data.map(row=>row[first]),[10,11,undefined,undefined,undefined,undefined]);
+ assert.deepEqual(result.data.map(row=>row[second]),[undefined,undefined,12,13,undefined,undefined]);
+ assert.deepEqual(result.data.map(row=>row[third]),[undefined,undefined,undefined,undefined,undefined,14]);
+ assert.equal(isIsolatedChartPoint(result.data,first,0),false);
+ assert.equal(isIsolatedChartPoint(result.data,second,2),false);
+ assert.equal(isIsolatedChartPoint(result.data,third,5),true);
+ assert.deepEqual(rows,before);
+});
+
+test('overlapping evaluations retain the latest origin in one connected segment', () => {
+ const result=latestValidationOriginByTime({validation_forecasts:[
+  {origin:'2022-12-01',date:'2023-01-01',forecast:9},
+  {origin:'2022-12-01',date:'2023-02-01',forecast:10},
+  {origin:'2023-01-01',date:'2023-02-01',forecast:11},
+  {origin:'2023-01-01',date:'2023-03-01',forecast:12},
+  {origin:'2023-03-01',date:'2023-04-01',forecast:13},
+  {origin:'2023-03-01',date:'2023-05-01',forecast:14},
+ ]});
+ assert.equal(result.get(Date.parse('2023-02-01')).origin,'2023-01-01');
+ assert.equal(result.get(Date.parse('2023-03-01')).origin,'2023-01-01');
+ assert.equal(result.get(Date.parse('2023-01-01')).segment,result.get(Date.parse('2023-03-01')).segment);
+ assert.notEqual(result.get(Date.parse('2023-03-01')).segment,result.get(Date.parse('2023-04-01')).segment);
+});
+
+test('validation and final forecast charts use the defined isolated-point renderer', () => {
+ assert.equal(source.includes('singlePointDot'),false);
+ assert.equal((source.match(/dot=\{isolatedPointDot\(/g)||[]).length,3);
 });
 
 test('all filling methods use localized Estimation labels only for estimated tooltip values', () => {
