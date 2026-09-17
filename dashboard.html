@@ -1273,9 +1273,6 @@
         .table-wrap tr.is-revoked td {
             opacity: 0.55;
         }
-        .api-key-owner-col {
-            white-space: nowrap;
-        }
         .api-key-prefix,
         .api-token-box {
             font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
@@ -3265,7 +3262,6 @@
                                         <thead>
                                             <tr>
                                                 <th data-i18n="table.name">Name</th>
-                                                <th class="api-key-owner-col hidden" data-i18n="table.owner">Owner</th>
                                                 <th data-i18n="table.prefix">Prefix</th>
                                                 <th data-i18n="table.last_used">Last used</th>
                                                 <th data-i18n="table.expires">Expires</th>
@@ -3487,6 +3483,29 @@
                         <div id="admin-user-details" class="kv-list"></div>
                     </div>
                     <div id="admin-user-session-policy" class="card" style="margin-top:18px"></div>
+                    <div class="card" style="margin-top:18px">
+                        <div class="section-head">
+                            <div>
+                                <h2 data-i18n="admin_api_keys.title">API keys</h2>
+                                <p class="section-sub" data-i18n="admin_api_keys.description">API keys owned by this user. Revoked keys stay listed.</p>
+                            </div>
+                        </div>
+                        <div class="table-wrap">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th data-i18n="table.name">Name</th>
+                                        <th data-i18n="table.prefix">Prefix</th>
+                                        <th data-i18n="table.last_used">Last used</th>
+                                        <th data-i18n="table.expires">Expires</th>
+                                        <th data-i18n="table.status">Status</th>
+                                        <th data-i18n="table.actions">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="admin-user-api-keys-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
                     <div id="admin-user-run-statistics" class="card user-run-statistics" aria-live="polite"></div>
                 </section>
 
@@ -4549,9 +4568,57 @@
             if (!canEdit) container.appendChild(el('p', {class: 'section-sub', style: 'margin-top:12px', text: dt('session_policy.restricted')}));
         }
 
+        function paintAdminUserApiKeys(user, failed = false) {
+            const tbody = document.getElementById('admin-user-api-keys-body');
+            if (!tbody) return;
+            clear(tbody);
+            if (!Array.isArray(user?.api_keys)) {
+                tbody.appendChild(el('tr', {}, [
+                    el('td', {
+                        class: 'empty',
+                        colspan: '6',
+                        text: dt(failed ? 'admin_api_keys.error' : 'admin_api_keys.loading'),
+                    }),
+                ]));
+                return;
+            }
+            if (!user.api_keys.length) {
+                tbody.appendChild(el('tr', {}, [
+                    el('td', { class: 'empty', colspan: '6', text: dt('empty.no_api_keys') }),
+                ]));
+                return;
+            }
+            user.api_keys.forEach(key => {
+                const revoked = Boolean(key.revoked_at);
+                const actions = el('div', { class: 'row-actions' });
+                if (!revoked) {
+                    actions.appendChild(el('button', {
+                        class: 'button-danger',
+                        type: 'button',
+                        dataset: {
+                            action: 'revoke-admin-api-key',
+                            userId: user.id,
+                            keyId: key.id,
+                            keyName: key.name || key.prefix || '',
+                        },
+                        text: dt('actions.revoke'),
+                    }));
+                }
+                tbody.appendChild(el('tr', { class: revoked ? 'is-revoked' : '' }, [
+                    el('td', { text: key.name || '-' }),
+                    el('td', {}, [el('span', { class: 'api-key-prefix', text: key.prefix || '-' })]),
+                    el('td', { text: key.last_used_at ? formatDate(key.last_used_at) : dt('table.never') }),
+                    el('td', { text: key.expires_at ? formatDate(key.expires_at) : dt('sections.security.expiry_never') }),
+                    el('td', {}, [badge(apiKeyStatus(key))]),
+                    el('td', {}, [actions]),
+                ]));
+            });
+        }
+
         function paintAdminUserDetail(user) {
             paintUserSessionPolicy(user);
             paintUserRunStatistics(user.run_statistics);
+            paintAdminUserApiKeys(user);
             const details = document.getElementById('admin-user-details');
             const nameEl = document.getElementById('admin-user-name');
             const emailEl = document.getElementById('admin-user-email');
@@ -4598,6 +4665,7 @@
                 nameEl.textContent = dt('sections.admin-users.detail_title');
                 emailEl.textContent = '';
                 renderAvatar(avatarEl, {}, true);
+                paintAdminUserApiKeys({ api_keys: [] });
                 clear(details);
                 details.appendChild(el('div', { class: 'empty', text: dt('sections.admin-users.not_found') }));
                 return;
@@ -4616,6 +4684,7 @@
             } catch (error) {
                 if (state.activeSection !== 'admin-user' || state.adminUserId !== userId) return;
                 paintUserRunStatistics(null, true);
+                paintAdminUserApiKeys(null, true);
                 if (user) return;
                 nameEl.textContent = dt('sections.admin-users.detail_title');
                 emailEl.textContent = '';
@@ -5386,12 +5455,8 @@
             const atLimit = activeApiKeyCount() >= MAX_ACTIVE_API_KEYS;
             limitNote?.classList.toggle('hidden', !atLimit);
             if (createButton) createButton.disabled = atLimit;
-            const showOwner = isPrivilegedRole(state.user?.role);
-            document.querySelectorAll('.api-key-owner-col').forEach(node => {
-                node.classList.toggle('hidden', !showOwner);
-            });
             if (!state.apiKeys.length) {
-                keysBody.appendChild(el('tr', {}, [el('td', { class: 'empty', colspan: String(showOwner ? 7 : 6), text: dt('empty.no_api_keys') })]));
+                keysBody.appendChild(el('tr', {}, [el('td', { class: 'empty', colspan: '6', text: dt('empty.no_api_keys') })]));
             } else {
                 state.apiKeys.forEach(key => {
                     const revoked = Boolean(key.revoked_at);
@@ -5407,13 +5472,6 @@
                     const cells = [
                         el('td', { text: key.name || '-' }),
                     ];
-                    if (showOwner) {
-                        cells.push(el('td', {
-                            class: 'api-key-owner-col',
-                            text: key.user_email || '-',
-                            title: key.user_email || '',
-                        }));
-                    }
                     cells.push(
                         el('td', {}, [el('span', { class: 'api-key-prefix', text: key.prefix || '-' })]),
                         el('td', { text: key.last_used_at ? formatDate(key.last_used_at) : dt('table.never') }),
@@ -6003,6 +6061,30 @@
                 return;
             }
             if (!canUseAdminDashboard(state.user?.role)) return;
+
+            if (actionButton.dataset.action === 'revoke-admin-api-key') {
+                const userId = actionButton.dataset.userId;
+                const keyId = actionButton.dataset.keyId;
+                const keyName = actionButton.dataset.keyName || '';
+                if (!userId || !keyId) return;
+                if (!window.confirm(dt('sections.security.revoke_confirm', { name: keyName || keyId }))) return;
+                actionButton.disabled = true;
+                try {
+                    await api(`/auth/admin/users/${encodeURIComponent(userId)}/api-keys/${encodeURIComponent(keyId)}`, { method: 'DELETE' });
+                    const index = (state.adminUsers || []).findIndex(item => item.id === userId);
+                    if (index >= 0) state.adminUsers[index] = { ...state.adminUsers[index], adminDetailLoaded: false };
+                    if (userId === state.user?.id) {
+                        state.apiKeys = await api('/auth/api-keys');
+                        renderSecurityApi();
+                    }
+                    await renderAdminUserDetail();
+                    showMessage(dt('messages.api_key_revoked'), 'success');
+                } catch (error) {
+                    showMessage(error.message || dt('messages.api_key_revoke_failed'), 'error');
+                    actionButton.disabled = false;
+                }
+                return;
+            }
 
             if (actionButton.dataset.action === 'save-user') {
                 const userId = actionButton.dataset.userId;
