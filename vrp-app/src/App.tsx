@@ -835,8 +835,9 @@ function MetricCard({ icon: Icon, label, value, meta, accent }: { icon: typeof M
 }
 
 function RoutesPanel({ selectedRouteId, onSelectRoute }: { selectedRouteId: string | null; onSelectRoute: (routeId: string | null) => void }) {
-  const { viewData } = useVrpRuntime();
+  const { scenario, viewData } = useVrpRuntime();
   const { routes, vehicles } = viewData;
+  const currency = new Intl.NumberFormat(undefined, { style: 'currency', currency: scenario.currency, maximumFractionDigits: 0 });
   const tripCount = routes.reduce((total, route) => total + route.trips, 0);
   const stopCount = routes.reduce((total, route) => total + route.stops, 0);
   return (
@@ -856,7 +857,7 @@ function RoutesPanel({ selectedRouteId, onSelectRoute }: { selectedRouteId: stri
           <button key={route.id} className={`route-card ${selectedRouteId === route.id ? 'is-selected' : ''}`} type="button" onClick={() => onSelectRoute(route.id)} style={{ '--route-color': route.color } as CSSProperties}>
             <span className="route-number"><i />{route.id.replace('R-', '')}</span>
             <span className="route-card-copy"><strong>{vehicle?.plate || route.vehicleId}</strong><small>{route.label} · {route.trips} {route.trips === 1 ? 'trip' : 'trips'}</small><em>{route.stops} stops · {route.distanceKm} km · {route.duration}</em></span>
-            <span className="route-cost">€{route.cost}<ChevronRight size={15} /></span>
+            <span className="route-cost">{currency.format(route.cost)}<ChevronRight size={15} /></span>
           </button>
         );
       })}
