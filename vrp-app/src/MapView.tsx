@@ -120,23 +120,31 @@ function clusterImage(count: number, dark = false): ImageData {
   context.strokeStyle = palette.clusterStroke;
   context.stroke();
 
+  // Center the icon + label group inside the pill (pill spans x 5..width-5, y 5..height-9).
+  const label = `${count} STOPS`;
+  context.font = '800 18px Inter, Arial, sans-serif';
+  const labelWidth = context.measureText(label).width;
+  const iconWidth = 32;
+  const gap = 6;
+  const groupLeft = (width - (iconWidth + gap + labelWidth)) / 2;
+  const centerY = 5 + (height - 14) / 2;
+
   context.fillStyle = palette.clusterCoin;
   context.beginPath();
-  context.arc(27, 25, 10, 0, Math.PI * 2);
+  context.arc(groupLeft + 10, centerY, 10, 0, Math.PI * 2);
   context.fill();
   context.beginPath();
-  context.arc(39, 25, 10, 0, Math.PI * 2);
+  context.arc(groupLeft + 22, centerY, 10, 0, Math.PI * 2);
   context.fill();
   context.fillStyle = palette.clusterCoinCore;
   context.beginPath();
-  context.arc(33, 25, 7, 0, Math.PI * 2);
+  context.arc(groupLeft + 16, centerY, 7, 0, Math.PI * 2);
   context.fill();
 
   context.fillStyle = palette.clusterText;
-  context.font = '800 18px Inter, Arial, sans-serif';
   context.textAlign = 'left';
   context.textBaseline = 'middle';
-  context.fillText(`${count} STOPS`, 55, 26);
+  context.fillText(label, groupLeft + iconWidth + gap, centerY + 1);
   return context.getImageData(0, 0, width, height);
 }
 
