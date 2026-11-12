@@ -64,26 +64,34 @@ const depotFeatures = (depots: Depot[]) => featureCollection(depots.map((depot) 
   geometry: { type: 'Point' as const, coordinates: depot.coordinate },
 })));
 
-function markerImage(label: string, color: string, shape: 'circle' | 'square' = 'circle'): ImageData {
+const markerPalettes = {
+  dark: { depotFill: '#0f172a', depotStroke: '#fbbf24', depotLabel: '#fbbf24', clusterFill: '#0f172a', clusterStroke: '#fbbf24', clusterCoin: '#fbbf24', clusterCoinCore: '#0f172a', clusterText: '#ffffff' },
+  light: { depotFill: '#ffffff', depotStroke: '#f59e0b', depotLabel: '#b45309', clusterFill: '#ffffff', clusterStroke: '#f59e0b', clusterCoin: '#f59e0b', clusterCoinCore: '#ffffff', clusterText: '#0f172a' },
+};
+
+const markerPalette = (dark: boolean) => (dark ? markerPalettes.dark : markerPalettes.light);
+
+function markerImage(label: string, color: string, shape: 'circle' | 'square' = 'circle', dark = false): ImageData {
+  const palette = markerPalette(dark);
   const size = 72;
   const canvas = document.createElement('canvas');
   canvas.width = size;
   canvas.height = size;
   const context = canvas.getContext('2d')!;
   context.clearRect(0, 0, size, size);
-  context.shadowColor = 'rgba(15, 23, 42, 0.32)';
+  context.shadowColor = dark ? 'rgba(15, 23, 42, 0.32)' : 'rgba(15, 23, 42, 0.22)';
   context.shadowBlur = 8;
   context.shadowOffsetY = 4;
   context.beginPath();
   if (shape === 'square') context.roundRect(10, 10, 52, 52, 13);
   else context.arc(36, 36, 25, 0, Math.PI * 2);
-  context.fillStyle = shape === 'square' ? '#0f172a' : '#ffffff';
+  context.fillStyle = shape === 'square' ? palette.depotFill : '#ffffff';
   context.fill();
   context.shadowColor = 'transparent';
   context.lineWidth = 7;
   context.strokeStyle = color;
   context.stroke();
-  context.fillStyle = shape === 'square' ? '#fbbf24' : '#0f172a';
+  context.fillStyle = shape === 'square' ? palette.depotLabel : '#0f172a';
   context.font = `${label.length > 2 ? 700 : 800} ${label.length > 2 ? 19 : 24}px Inter, Arial, sans-serif`;
   context.textAlign = 'center';
   context.textBaseline = 'middle';
@@ -91,7 +99,8 @@ function markerImage(label: string, color: string, shape: 'circle' | 'square' = 
   return context.getImageData(0, 0, size, size);
 }
 
-function clusterImage(count: number): ImageData {
+function clusterImage(count: number, dark = false): ImageData {
+  const palette = markerPalette(dark);
   const width = 152;
   const height = 64;
   const canvas = document.createElement('canvas');
@@ -99,31 +108,31 @@ function clusterImage(count: number): ImageData {
   canvas.height = height;
   const context = canvas.getContext('2d')!;
   context.clearRect(0, 0, width, height);
-  context.shadowColor = 'rgba(15, 23, 42, 0.34)';
+  context.shadowColor = dark ? 'rgba(15, 23, 42, 0.34)' : 'rgba(15, 23, 42, 0.22)';
   context.shadowBlur = 8;
   context.shadowOffsetY = 4;
   context.beginPath();
   context.roundRect(5, 5, width - 10, height - 14, 25);
-  context.fillStyle = '#0f172a';
+  context.fillStyle = palette.clusterFill;
   context.fill();
   context.shadowColor = 'transparent';
   context.lineWidth = 4;
-  context.strokeStyle = '#fbbf24';
+  context.strokeStyle = palette.clusterStroke;
   context.stroke();
 
-  context.fillStyle = '#fbbf24';
+  context.fillStyle = palette.clusterCoin;
   context.beginPath();
   context.arc(27, 25, 10, 0, Math.PI * 2);
   context.fill();
   context.beginPath();
   context.arc(39, 25, 10, 0, Math.PI * 2);
   context.fill();
-  context.fillStyle = '#0f172a';
+  context.fillStyle = palette.clusterCoinCore;
   context.beginPath();
   context.arc(33, 25, 7, 0, Math.PI * 2);
   context.fill();
 
-  context.fillStyle = '#ffffff';
+  context.fillStyle = palette.clusterText;
   context.font = '800 18px Inter, Arial, sans-serif';
   context.textAlign = 'left';
   context.textBaseline = 'middle';
@@ -131,7 +140,7 @@ function clusterImage(count: number): ImageData {
   return context.getImageData(0, 0, width, height);
 }
 
-function registerPointImages(map: MapLibreMap, customers: Customer[], routes: Route[]) {
+function registerPointImages(map: MapLibreMap, customers: Customer[], routes: Route[], dark: boolean) {
   if (!map.hasImage('customer-unassigned')) map.addImage('customer-unassigned', markerImage('•', '#64748b'), { pixelRatio: 2 });
   customers.forEach((customer) => {
     const route = routes.find((item) => item.id === customer.routeId);
@@ -140,9 +149,18 @@ function registerPointImages(map: MapLibreMap, customers: Customer[], routes: Ro
     if (!map.hasImage(icon)) map.addImage(icon, markerImage(String(customer.sequence), route.color), { pixelRatio: 2 });
   });
   for (let count = 2; count <= customers.length; count += 1) {
-    map.addImage(`cluster-${count}`, clusterImage(count), { pixelRatio: 2 });
+    map.addImage(`cluster-${count}`, clusterImage(count, dark), { pixelRatio: 2 });
   }
-  map.addImage('depot-marker', markerImage('D', '#fbbf24', 'square'), { pixelRatio: 2 });
+  map.addImage('depot-marker', depotImage(dark), { pixelRatio: 2 });
+}
+
+const depotImage = (dark: boolean) => markerImage('D', markerPalette(dark).depotStroke, 'square', dark);
+
+function applyMarkerTheme(map: MapLibreMap, dark: boolean) {
+  if (map.hasImage('depot-marker')) map.updateImage('depot-marker', depotImage(dark));
+  for (let count = 2; map.hasImage(`cluster-${count}`); count += 1) {
+    map.updateImage(`cluster-${count}`, clusterImage(count, dark));
+  }
 }
 
 function scenarioBounds(depots: Depot[], customers: Customer[]) {
@@ -249,7 +267,7 @@ export default function MapView({ customers, depots, routes, selectedRouteId, on
     const popup = new maplibregl.Popup({ offset: 20, closeButton: false, closeOnClick: false });
 
     map.on('load', () => {
-      registerPointImages(map, customers, routes);
+      registerPointImages(map, customers, routes, darkRef.current);
       applyBasemapTheme(map, darkRef.current);
       routes.forEach((route) => {
         map.addSource(`route-${route.id}`, { type: 'geojson', data: routeFeature(routes, route.id) });
@@ -392,7 +410,10 @@ export default function MapView({ customers, depots, routes, selectedRouteId, on
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
-    const apply = () => applyBasemapTheme(map, dark);
+    const apply = () => {
+      applyBasemapTheme(map, dark);
+      applyMarkerTheme(map, dark);
+    };
     if (map.isStyleLoaded()) apply();
     else map.once('load', apply);
   }, [dark]);
