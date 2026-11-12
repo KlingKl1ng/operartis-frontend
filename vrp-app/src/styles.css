@@ -110,7 +110,6 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 .icon-button,
 .data-nav-item,
 .rule-row,
-.ready-card-head,
 .map-toolbar,
 .inspector-header,
 .card-heading,
@@ -241,7 +240,6 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 .scenario-sidebar.is-collapsed .count-pill,
 .scenario-sidebar.is-collapsed .nav-chevron,
 .scenario-sidebar.is-collapsed .sidebar-section,
-.scenario-sidebar.is-collapsed .sidebar-ready-card { display: none; }
 .scenario-sidebar.is-collapsed .sidebar-scroll { overflow: visible; }
 .scenario-sidebar.is-collapsed .data-navigation { gap: 8px; padding: 14px 8px 12px; }
 
@@ -270,14 +268,6 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 .rule-row small { color: var(--muted); font-size: 8px; }
 .rule-row > svg:last-child { color: #10b981; }
 
-.sidebar-ready-card { margin: 14px 14px 16px; padding: 13px; border: 1px solid rgba(16, 185, 129, 0.22); border-radius: 12px; background: linear-gradient(145deg, rgba(16, 185, 129, 0.09), rgba(16, 185, 129, 0.02)); }
-.ready-card-head { gap: 9px; color: #059669; }
-.ready-card-head div { display: flex; flex-direction: column; gap: 2px; }
-.ready-card-head strong { color: var(--text); font-size: 10px; }
-.ready-card-head small { color: var(--muted); font-size: 8px; }
-.ready-progress { height: 3px; margin: 11px 0 8px; overflow: hidden; border-radius: 99px; background: rgba(16, 185, 129, 0.15); }
-.ready-progress span { display: block; height: 100%; background: #10b981; }
-.sidebar-ready-card button { display: flex; align-items: center; gap: 3px; padding: 0; border: 0; background: none; color: #059669; font-size: 9px; font-weight: 700; cursor: pointer; }
 .sidebar-reset { margin-top: auto; padding: 16px 8px 4px; }
 .sidebar-reset-button { width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 8px; border: 1px solid transparent; border-radius: 8px; background: transparent; color: #94a3b8; font-size: 12px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; box-shadow: 0 1px 2px 0 rgba(15, 23, 42, 0.05); cursor: pointer; transition: color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease; }
 .sidebar-reset-button:hover,
@@ -711,8 +701,7 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
   .scenario-sidebar.is-collapsed .data-nav-copy,
   .scenario-sidebar.is-collapsed .count-pill,
   .scenario-sidebar.is-collapsed .nav-chevron,
-  .scenario-sidebar.is-collapsed .sidebar-section,
-  .scenario-sidebar.is-collapsed .sidebar-ready-card { display: flex; }
+  .scenario-sidebar.is-collapsed .sidebar-section { display: flex; }
   .scenario-sidebar.is-collapsed .sidebar-heading { display: flex; padding: 14px 18px 12px; }
   .scenario-sidebar.is-collapsed .data-nav-item { justify-content: flex-start; padding: 9px 8px; }
   .mobile-sidebar-close { position: absolute; right: 12px; display: flex; }

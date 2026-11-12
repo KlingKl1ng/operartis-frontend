@@ -539,15 +539,6 @@ function App() {
                 </button>
               </div>
 
-              <div className="sidebar-ready-card">
-                <div className="ready-card-head">
-                  <ShieldCheck size={19} />
-                  <div><strong>{blockingErrors ? 'Input corrections required' : validation ? 'Ready to optimize' : 'Ready for validation'}</strong><small>{blockingErrors} blocking error{blockingErrors === 1 ? '' : 's'}</small></div>
-                </div>
-                <div className="ready-progress"><span style={{ width: blockingErrors ? '28%' : '100%' }} /></div>
-                <button type="button" onClick={() => setInspectorTab('validation')}>Review {warningCount} warning{warningCount === 1 ? '' : 's'} <ChevronRight size={14} /></button>
-              </div>
-
               </>}
               <div className="sidebar-reset">
                 <button type="button" className="sidebar-reset-button" onClick={handleReset} disabled={importing}>
