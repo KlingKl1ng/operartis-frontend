@@ -14,11 +14,8 @@ import {
   CloudUpload,
   Download,
   FileSpreadsheet,
-  Filter,
-  Focus,
   Gauge,
   Info,
-  Layers3,
   LayoutDashboard,
   ListFilter,
   LoaderCircle,
@@ -614,18 +611,10 @@ function App() {
             )}
 
             {scenario && <>
-            <div className="map-toolbar map-toolbar-left glass-panel">
-              <button className="toolbar-back" type="button" onClick={() => { setSelectedRouteId(null); setSelectedCustomerId(null); setMapFitRequest((value) => value + 1); }} aria-label="Show all routes"><ArrowLeft size={17} /></button>
+            <div className="map-toolbar glass-panel">
+              <button className="toolbar-back" type="button" onClick={() => { setSelectedRouteId(null); setSelectedCustomerId(null); setMapFitRequest((value) => value + 1); }} title="Show all routes" aria-label="Show all routes"><ArrowLeft size={16} /></button>
               <span />
-              <button type="button" onClick={() => { setSelectedRouteId(null); setMapFitRequest((value) => value + 1); }}><Focus size={16} /> All routes</button>
-              <span />
-              <button type="button" onClick={() => setDataManager('customers')}><Table2 size={16} /> Data table</button>
-            </div>
-
-            <div className="map-toolbar map-toolbar-right glass-panel">
-              <button type="button" onClick={() => setToast('Route and stop layers are visible')}><Layers3 size={16} /> Layers</button>
-              <button type="button" onClick={() => setToast('Map filters cleared')} aria-label="Filter map"><Filter size={16} /></button>
-              <button type="button" onClick={() => { setMapFitRequest((value) => value + 1); setToast('Map centered on scenario'); }} aria-label="Fit map"><Focus size={16} /></button>
+              <button type="button" onClick={() => setDataManager('customers')} title="Data table" aria-label="Data table"><Table2 size={15} /></button>
             </div>
 
             {legendCollapsed ? (

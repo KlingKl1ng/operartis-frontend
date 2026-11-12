@@ -304,10 +304,15 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 .dark .map-canvas { background: #101827; }
 .map-loading { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; background: var(--surface-muted); color: var(--muted); font-size: 10px; font-weight: 700; }
 .maplibregl-canvas { outline: none; }
-.maplibregl-ctrl-group { overflow: hidden; border: 1px solid var(--border) !important; border-radius: 10px !important; background: var(--surface-elevated) !important; box-shadow: var(--shadow-soft) !important; }
-.map-workspace .maplibregl-ctrl-top-right { top: 58px; right: 14px; }
+/* Zoom control: same corner offset, radius, and glass surface as the map toolbar. */
+.maplibregl-ctrl-group { overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.42) !important; border-radius: 9px !important; background: var(--surface-glass) !important; -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); box-shadow: 0 8px 28px rgba(15, 23, 42, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.45) !important; }
+.dark .maplibregl-ctrl-group { border-color: rgba(255, 255, 255, 0.08) !important; box-shadow: 0 10px 32px rgba(0, 0, 0, 0.26), inset 0 1px 0 rgba(255, 255, 255, 0.06) !important; }
+.maplibregl-ctrl-group button + button { border-top: 1px solid var(--border) !important; }
+.maplibregl-ctrl-group button:hover { background-color: var(--surface-muted) !important; }
+.map-workspace .maplibregl-ctrl-top-right { top: 0; right: 0; }
+.map-workspace .maplibregl-ctrl-top-right .maplibregl-ctrl { margin: 12px 12px 0 0; }
 .map-workspace .maplibregl-ctrl-bottom-right { right: 14px; bottom: 10px; }
-.maplibregl-ctrl-group button { width: 32px !important; height: 32px !important; }
+.maplibregl-ctrl-group button { width: 30px !important; height: 30px !important; }
 .dark .maplibregl-ctrl-icon { filter: invert(1); }
 /* Map popups are hover-only tooltips; letting them take the pointer makes the hovered marker
    fire mouseleave/mouseenter in a loop, so the tooltip would flicker. */
@@ -333,13 +338,12 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 .map-depot-marker span { width: 15px; height: 13px; border: 2px solid #fbbf24; border-radius: 2px; }
 .map-depot-marker span::before { content: ''; position: absolute; width: 18px; height: 7px; margin: -6px 0 0 -4px; border: solid #fbbf24; border-width: 2px 0 0; transform: rotate(0deg); }
 
-.map-toolbar { position: absolute; z-index: 5; top: 14px; height: 39px; gap: 0; overflow: hidden; border-radius: 11px; }
-.map-toolbar-left { left: 14px; }
-.map-toolbar-right { right: 14px; }
-.map-toolbar button { height: 100%; display: flex; align-items: center; gap: 7px; padding: 0 11px; border: 0; background: transparent; color: var(--text-soft); font-size: 10px; font-weight: 700; cursor: pointer; }
+.map-toolbar { position: absolute; z-index: 5; top: 12px; left: 12px; height: 32px; gap: 0; overflow: hidden; border-radius: 9px; }
+.map-toolbar button { width: 32px; height: 100%; display: flex; align-items: center; justify-content: center; padding: 0; border: 0; background: transparent; color: var(--text-soft); cursor: pointer; }
 .map-toolbar button:hover { background: var(--surface-muted); color: var(--text); }
-.map-toolbar > span { width: 1px; height: 18px; background: var(--border); }
-.map-toolbar .toolbar-back { width: 39px; padding: 0; justify-content: center; color: var(--brand-gold-deep); }
+.map-toolbar button:focus-visible { outline: 2px solid var(--brand-gold); outline-offset: -2px; }
+.map-toolbar > span { width: 1px; height: 16px; background: var(--border); }
+.map-toolbar .toolbar-back { color: var(--brand-gold-deep); }
 .dark .map-toolbar .toolbar-back { color: #fbbf24; }
 .map-legend { position: absolute; z-index: 5; bottom: 14px; left: 14px; display: flex; align-items: center; flex-wrap: wrap; gap: 6px 13px; max-width: calc(100% - 28px); padding: 8px 10px; border-radius: 9px; }
 .map-legend span { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 8px; font-weight: 650; }
@@ -731,8 +735,6 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
   .route-inspector { position: absolute; z-index: 12; top: 64px; right: 8px; width: min(310px, calc(100vw - 16px)); max-height: calc(100% - 126px); border: 1px solid var(--border); border-radius: 13px; box-shadow: var(--shadow-float); }
   .timeline-panel { flex: 0 0 200px; height: 200px; }
   .timeline-panel.is-collapsed { flex-basis: var(--timeline-collapsed-height); height: var(--timeline-collapsed-height); }
-  .map-toolbar-right { display: none; }
-  .map-toolbar-left button:not(.toolbar-back):last-child, .map-toolbar-left span:last-of-type { display: none; }
   .map-legend { display: none; }
   .data-manager { height: 94vh; width: 96vw; }
   .data-manager-tabs { overflow-x: auto; }
