@@ -64,6 +64,10 @@ const depotFeatures = (depots: Depot[]) => featureCollection(depots.map((depot) 
   geometry: { type: 'Point' as const, coordinates: depot.coordinate },
 })));
 
+const ROUTE_LINE_WIDTH = 3;
+const ROUTE_LINE_WIDTH_SELECTED = 4.5;
+const ROUTE_SHADOW_WIDTH = 5.5;
+
 const markerPalettes = {
   dark: { depotFill: '#0f172a', depotStroke: '#fbbf24', depotLabel: '#fbbf24', clusterFill: '#0f172a', clusterStroke: '#fbbf24', clusterCoin: '#fbbf24', clusterCoinCore: '#0f172a', clusterText: '#ffffff' },
   light: { depotFill: '#ffffff', depotStroke: '#f59e0b', depotLabel: '#b45309', clusterFill: '#ffffff', clusterStroke: '#f59e0b', clusterCoin: '#f59e0b', clusterCoinCore: '#ffffff', clusterText: '#0f172a' },
@@ -282,12 +286,12 @@ export default function MapView({ customers, depots, routes, selectedRouteId, on
         map.addLayer({
           id: `route-shadow-${route.id}`, type: 'line', source: `route-${route.id}`,
           layout: { 'line-cap': 'round', 'line-join': 'round' },
-          paint: { 'line-color': '#0f172a', 'line-width': 8, 'line-opacity': 0.12 },
+          paint: { 'line-color': '#0f172a', 'line-width': ROUTE_SHADOW_WIDTH, 'line-opacity': 0.12 },
         });
         map.addLayer({
           id: `route-line-${route.id}`, type: 'line', source: `route-${route.id}`,
           layout: { 'line-cap': 'round', 'line-join': 'round' },
-          paint: { 'line-color': route.color, 'line-width': 4.5, 'line-opacity': 0.88 },
+          paint: { 'line-color': route.color, 'line-width': ROUTE_LINE_WIDTH, 'line-opacity': 0.88 },
         });
         map.on('click', `route-line-${route.id}`, () => onSelectRoute(route.id));
       });
@@ -403,7 +407,7 @@ export default function MapView({ customers, depots, routes, selectedRouteId, on
     routes.forEach((route) => {
       const selected = !selectedRouteId || selectedRouteId === route.id;
       map.setPaintProperty(`route-line-${route.id}`, 'line-opacity', selected ? 0.92 : 0.11);
-      map.setPaintProperty(`route-line-${route.id}`, 'line-width', selectedRouteId === route.id ? 6.5 : 4.5);
+      map.setPaintProperty(`route-line-${route.id}`, 'line-width', selectedRouteId === route.id ? ROUTE_LINE_WIDTH_SELECTED : ROUTE_LINE_WIDTH);
       map.setPaintProperty(`route-shadow-${route.id}`, 'line-opacity', selected ? 0.14 : 0.03);
     });
     fitMap(map, depots, customers, routes, selectedRouteId, true);
