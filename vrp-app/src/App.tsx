@@ -51,6 +51,7 @@ import operartisLogo from '../../operartis-logo.svg';
 import operartisWatermark from '../../fulllogo_transparent_nobuffer.png';
 
 const MapView = lazy(() => import('./MapView'));
+const LEGEND_COLLAPSED_KEY = 'operartis_vrp_legend_collapsed';
 
 const OperartisAuthTopbarSlot = memo(function OperartisAuthTopbarSlot() {
   return <div id="operartis-auth-topbar-slot" className="auth-slot" />;
@@ -245,6 +246,16 @@ function App() {
   const [importedFilename, setImportedFilename] = useState<string | null>(null);
   const [importError, setImportError] = useState<string | null>(null);
   const [timelineCollapsed, setTimelineCollapsed] = useState(false);
+  const [legendCollapsed, setLegendCollapsed] = useState(() => {
+    try { return window.localStorage.getItem(LEGEND_COLLAPSED_KEY) !== '0'; } catch { return true; }
+  });
+  const toggleLegend = useCallback(() => {
+    setLegendCollapsed((value) => {
+      const next = !value;
+      try { window.localStorage.setItem(LEGEND_COLLAPSED_KEY, next ? '1' : '0'); } catch { /* storage unavailable */ }
+      return next;
+    });
+  }, []);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [optimizing, setOptimizing] = useState(false);
@@ -627,12 +638,21 @@ function App() {
               <button type="button" onClick={() => { setMapFitRequest((value) => value + 1); setToast('Map centered on scenario'); }} aria-label="Fit map"><Focus size={16} /></button>
             </div>
 
-            <div className="map-legend glass-panel" aria-label="Map legend">
-              <span><i className="legend-depot" /> Depot</span>
-              <span><i className="legend-stop" /> Customer</span>
-              <span><i className="legend-cluster" /> Grouped stops</span>
-              <span><i className="legend-route" /> Vehicle route</span>
-            </div>
+            {legendCollapsed ? (
+              <button className="map-legend map-legend-collapsed glass-panel" type="button" onClick={toggleLegend} aria-label="Show map legend" aria-expanded="false">
+                <Info size={13} strokeWidth={2.2} /> Legend <ChevronRight size={13} strokeWidth={2.2} />
+              </button>
+            ) : (
+              <div className="map-legend glass-panel" aria-label="Map legend">
+                <span><i className="legend-depot" /> Depot</span>
+                <span><i className="legend-stop">1</i> Customer</span>
+                <span><i className="legend-cluster" /> Grouped stops</span>
+                {viewData.routes.length > 0 && <span><i className="legend-route" /> Vehicle route</span>}
+                <button className="legend-toggle" type="button" onClick={toggleLegend} aria-label="Hide map legend" aria-expanded="true" title="Hide legend">
+                  <ChevronLeft size={13} strokeWidth={2.2} />
+                </button>
+              </div>
+            )}
             </>}
           </section>
 

@@ -13,7 +13,8 @@ import type {
   VrpViewData,
 } from './types';
 
-const ROUTE_COLORS = ['#f59e0b', '#0891b2', '#7c3aed', '#e11d48', '#059669', '#2563eb', '#db2777', '#65a30d'];
+// Amber/gold is reserved for depots, grouped stops, and brand accents, so routes never reuse it.
+const ROUTE_COLORS = ['#0891b2', '#7c3aed', '#e11d48', '#059669', '#2563eb', '#db2777', '#65a30d'];
 
 export function formatClock(seconds: number): string {
   const normalized = Math.max(0, Math.round(seconds));
