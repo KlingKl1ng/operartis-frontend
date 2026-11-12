@@ -305,17 +305,8 @@ function App() {
     setInspectorTab('summary');
   }, []);
 
-  const prepareScenarioForRuntime = useCallback((value: VrpScenario): VrpScenario => {
-    const local = ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname);
-    if (!local || value.solver.matrix_provider !== 'auto') return value;
-    return { ...value, solver: { ...value.solver, matrix_provider: 'haversine' } };
-  }, []);
-
-  const handleImported = useCallback(async (report: ValidationResponse) => {
-    const imported = prepareScenarioForRuntime(report.normalized_scenario);
-    const checked = imported.solver.matrix_provider === report.normalized_scenario.solver.matrix_provider
-      ? report
-      : await validateScenario(imported);
+  const handleImported = useCallback((checked: ValidationResponse) => {
+    const imported = checked.normalized_scenario;
     setScenario(checked.normalized_scenario);
     setEnabledDepotIds(null);
     setAllowedDepotChoices(null);
@@ -331,7 +322,7 @@ function App() {
     setToast(checked.valid
       ? `${checked.counts.customers || imported.customers.length} customers imported and validated`
       : `Import completed with ${checked.errors.length} blocking error${checked.errors.length === 1 ? '' : 's'}`);
-  }, [prepareScenarioForRuntime]);
+  }, []);
 
   const handleFileSelection = async (file: File | undefined) => {
     if (!file || importing || optimizing) return;
@@ -339,7 +330,7 @@ function App() {
     setImportError(null);
     try {
       const report = await importScenarioFile(file);
-      await handleImported(report);
+      handleImported(report);
       setImportedFilename(file.name);
     } catch (error) {
       setImportError(error instanceof Error ? error.message : 'Scenario import failed');
@@ -359,8 +350,7 @@ function App() {
     setSolution(null);
     setCompletedJobId(null);
     try {
-      const runtimeScenario = prepareScenarioForRuntime(scenario);
-      const report = await validateScenario(runtimeScenario);
+      const report = await validateScenario(scenario);
       if (controller.signal.aborted) return;
       setScenario(report.normalized_scenario);
       setValidation(report);
@@ -726,7 +716,7 @@ function App() {
               if (!allowed.length || allowed.some(id => !selected.includes(id))) throw new Error(`${customer.id}: choose an available Allowed Depot or Unassigned.`);
               return { ...customer, compatible_depot_ids: choice === 'Unassigned' && selected.length === scenario.depots.length ? null : allowed };
             });
-            const report = await validateScenario(prepareScenarioForRuntime({ ...scenario, customers }));
+            const report = await validateScenario({ ...scenario, customers });
             if (!report.valid) throw new Error(report.errors.map(issue => `${issue.entity_id || 'Scenario'}: ${issue.message}`).join(' · '));
             setScenario(report.normalized_scenario);
             setValidation(report);

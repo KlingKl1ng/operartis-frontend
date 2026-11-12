@@ -11,8 +11,6 @@ function windowToApi(value: string) {
   return { start: timeToSeconds(start), end: timeToSeconds(end) };
 }
 
-const localDevelopment = ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname);
-
 export const sampleScenario: VrpScenario = {
   schema_version: '1.0',
   name: 'Berlin pilot',
@@ -68,7 +66,7 @@ export const sampleScenario: VrpScenario = {
   solver: {
     seed: 17,
     time_limit_seconds: 10,
-    matrix_provider: localDevelopment ? 'haversine' : 'auto',
+    matrix_provider: 'auto',
     include_geometry: true,
   },
 };
