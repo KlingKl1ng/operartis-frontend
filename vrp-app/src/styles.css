@@ -309,6 +309,9 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 .map-workspace .maplibregl-ctrl-bottom-right { right: 14px; bottom: 10px; }
 .maplibregl-ctrl-group button { width: 32px !important; height: 32px !important; }
 .dark .maplibregl-ctrl-icon { filter: invert(1); }
+/* Map popups are hover-only tooltips; letting them take the pointer makes the hovered marker
+   fire mouseleave/mouseenter in a loop, so the tooltip would flicker. */
+.map-canvas .maplibregl-popup { pointer-events: none; }
 .maplibregl-popup-content { padding: 12px 14px !important; border: 1px solid var(--border); border-radius: 10px !important; background: var(--surface) !important; color: var(--text); box-shadow: var(--shadow-soft) !important; }
 .maplibregl-popup-anchor-top .maplibregl-popup-tip,
 .maplibregl-popup-anchor-top-left .maplibregl-popup-tip,

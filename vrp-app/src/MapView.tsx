@@ -67,6 +67,10 @@ const depotFeatures = (depots: Depot[]) => featureCollection(depots.map((depot) 
 const ROUTE_LINE_WIDTH = 3;
 const ROUTE_LINE_WIDTH_SELECTED = 4.5;
 const ROUTE_SHADOW_WIDTH = 5.5;
+const CUSTOMER_MARKER_SIZE = 0.85;
+const CUSTOMER_MARKER_SIZE_SELECTED = 0.92;
+const DEPOT_MARKER_SIZE = 0.92;
+const CLUSTER_MARKER_SIZE = 0.85;
 
 const markerPalettes = {
   dark: { depotFill: '#0f172a', depotStroke: '#fbbf24', depotLabel: '#fbbf24', clusterFill: '#0f172a', clusterStroke: '#fbbf24', clusterCoin: '#fbbf24', clusterCoinCore: '#0f172a', clusterText: '#ffffff' },
@@ -175,6 +179,77 @@ function applyMarkerTheme(map: MapLibreMap, dark: boolean) {
   }
 }
 
+// Screen-space half sizes (CSS px) of the rendered markers, plus a little breathing room.
+const CUSTOMER_HALF = 13;
+const DEPOT_HALF = 14;
+const BADGE_HALF_WIDTH = 31;
+const BADGE_HALF_HEIGHT = 12;
+const BADGE_GAP = 2;
+// Candidate badge centers relative to the cluster point, tried in order until one is free.
+const BADGE_CANDIDATES: [number, number][] = [
+  [0, -16], [0, 16], [38, 0], [-38, 0],
+  [36, -16], [-36, -16], [36, 16], [-36, 16],
+  [0, -34], [0, 34], [70, 0], [-70, 0],
+];
+
+interface ScreenBox { left: number; right: number; top: number; bottom: number }
+
+const boxAround = (x: number, y: number, halfWidth: number, halfHeight: number): ScreenBox => ({
+  left: x - halfWidth, right: x + halfWidth, top: y - halfHeight, bottom: y + halfHeight,
+});
+
+const boxesOverlap = (a: ScreenBox, b: ScreenBox) => a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
+
+// Places each "N STOPS" badge next to its cluster where it does not cover a depot,
+// a visible customer marker, or another badge.
+function placeClusterBadges(map: MapLibreMap, depots: Depot[]) {
+  const badgeSource = map.getSource('cluster-badges') as GeoJSONSource | undefined;
+  if (!badgeSource || !map.isSourceLoaded('customers-all')) return;
+
+  const clusters = new Map<number, { coordinates: [number, number]; count: number }>();
+  const points = new Map<string, [number, number]>();
+  map.querySourceFeatures('customers-all').forEach((feature) => {
+    if (feature.geometry.type !== 'Point') return;
+    const coordinates = feature.geometry.coordinates as [number, number];
+    if (feature.properties?.cluster) {
+      clusters.set(Number(feature.properties.cluster_id), { coordinates, count: Number(feature.properties.point_count) });
+    } else {
+      points.set(String(feature.properties?.id), coordinates);
+    }
+  });
+
+  const obstacles: ScreenBox[] = [];
+  depots.forEach((depot) => {
+    const point = map.project(depot.coordinate);
+    obstacles.push(boxAround(point.x, point.y, DEPOT_HALF, DEPOT_HALF));
+  });
+  points.forEach((coordinates) => {
+    const point = map.project(coordinates);
+    obstacles.push(boxAround(point.x, point.y, CUSTOMER_HALF, CUSTOMER_HALF));
+  });
+
+  const badges = [...clusters.entries()]
+    .sort((a, b) => b[1].count - a[1].count)
+    .map(([clusterId, cluster]) => {
+      const point = map.project(cluster.coordinates);
+      const boxFor = ([dx, dy]: [number, number]) => boxAround(point.x + dx, point.y + dy, BADGE_HALF_WIDTH + BADGE_GAP, BADGE_HALF_HEIGHT + BADGE_GAP);
+      const offset = BADGE_CANDIDATES.find((candidate) => !obstacles.some((obstacle) => boxesOverlap(boxFor(candidate), obstacle))) || BADGE_CANDIDATES[0];
+      obstacles.push(boxFor(offset));
+      return {
+        type: 'Feature' as const,
+        properties: {
+          cluster_id: clusterId,
+          point_count: cluster.count,
+          // icon-offset is expressed in icon pixels and scaled by icon-size.
+          offset: [offset[0] / CLUSTER_MARKER_SIZE, offset[1] / CLUSTER_MARKER_SIZE],
+        },
+        geometry: { type: 'Point' as const, coordinates: cluster.coordinates },
+      };
+    });
+
+  badgeSource.setData({ type: 'FeatureCollection', features: badges });
+}
+
 function scenarioBounds(depots: Depot[], customers: Customer[]) {
   const bounds = new maplibregl.LngLatBounds();
   depots.forEach((item) => bounds.extend(item.coordinate));
@@ -247,6 +322,7 @@ export default function MapView({ customers, depots, routes, selectedRouteId, on
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
 
+    let badgeFrame = 0;
     const map = new maplibregl.Map({
       container: containerRef.current,
       center: [13.31, 52.52],
@@ -303,30 +379,30 @@ export default function MapView({ customers, depots, routes, selectedRouteId, on
         clusterRadius: 24,
         clusterMaxZoom: 8,
       });
+      map.addSource('cluster-badges', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
       map.addLayer({
-        id: 'customer-clusters', type: 'symbol', source: 'customers-all',
-        filter: ['has', 'point_count'],
+        id: 'customer-clusters', type: 'symbol', source: 'cluster-badges',
         layout: {
           'icon-image': ['concat', 'cluster-', ['to-string', ['get', 'point_count']]],
-          'icon-size': 1,
-          'icon-offset': [0, -18],
+          'icon-size': CLUSTER_MARKER_SIZE,
+          'icon-offset': ['get', 'offset'],
           'icon-allow-overlap': true,
         },
       });
       map.addLayer({
         id: 'customer-points', type: 'symbol', source: 'customers-all',
         filter: ['!', ['has', 'point_count']],
-        layout: { 'icon-image': ['get', 'iconAll'], 'icon-size': 1, 'icon-allow-overlap': true },
+        layout: { 'icon-image': ['get', 'iconAll'], 'icon-size': CUSTOMER_MARKER_SIZE, 'icon-allow-overlap': true },
       });
       map.addSource('customers-selected', { type: 'geojson', data: customerFeatures(customers, routes, '__none__') });
       map.addLayer({
         id: 'customer-points-selected', type: 'symbol', source: 'customers-selected',
-        layout: { 'icon-image': ['get', 'iconRoute'], 'icon-size': 1.08, 'icon-allow-overlap': true, visibility: 'none' },
+        layout: { 'icon-image': ['get', 'iconRoute'], 'icon-size': CUSTOMER_MARKER_SIZE_SELECTED, 'icon-allow-overlap': true, visibility: 'none' },
       });
       map.addSource('depots', { type: 'geojson', data: depotFeatures(depots) });
       map.addLayer({
         id: 'depot-points', type: 'symbol', source: 'depots',
-        layout: { 'icon-image': 'depot-marker', 'icon-size': 1.08, 'icon-allow-overlap': true },
+        layout: { 'icon-image': 'depot-marker', 'icon-size': DEPOT_MARKER_SIZE, 'icon-allow-overlap': true },
       });
 
       const interactiveLayers = ['customer-points', 'customer-points-selected', 'depot-points'];
@@ -364,14 +440,33 @@ export default function MapView({ customers, depots, routes, selectedRouteId, on
         const feature = event.features?.[0];
         if (!feature || feature.geometry.type !== 'Point') return;
         const count = Number(feature.properties?.point_count);
+        // Anchor the tooltip on the badge itself, which may sit away from the cluster point.
+        const rawOffset = feature.properties?.offset;
+        const [offsetX, offsetY] = (typeof rawOffset === 'string' ? JSON.parse(rawOffset) : rawOffset || [0, 0]) as [number, number];
+        const clusterPoint = map.project(feature.geometry.coordinates as [number, number]);
+        const badgeCenter = map.unproject([clusterPoint.x + offsetX * CLUSTER_MARKER_SIZE, clusterPoint.y + offsetY * CLUSTER_MARKER_SIZE]);
         popup
-          .setLngLat(feature.geometry.coordinates as [number, number])
+          .setLngLat(badgeCenter)
           .setHTML(`<strong>${count} nearby customers</strong><small>Click to expand this group</small>`)
           .addTo(map);
       });
       map.on('mouseleave', 'customer-clusters', () => {
         map.getCanvas().style.cursor = '';
         popup.remove();
+      });
+
+      const scheduleBadgePlacement = () => {
+        if (badgeFrame) return;
+        badgeFrame = requestAnimationFrame(() => {
+          badgeFrame = 0;
+          placeClusterBadges(map, depots);
+        });
+      };
+      map.on('zoom', scheduleBadgePlacement);
+      map.on('moveend', scheduleBadgePlacement);
+      map.on('resize', scheduleBadgePlacement);
+      map.on('sourcedata', (event) => {
+        if (event.sourceId === 'customers-all' && event.isSourceLoaded) scheduleBadgePlacement();
       });
 
       const initialRoute = selectedRouteRef.current;
@@ -389,6 +484,7 @@ export default function MapView({ customers, depots, routes, selectedRouteId, on
     observer.observe(containerRef.current);
 
     return () => {
+      if (badgeFrame) cancelAnimationFrame(badgeFrame);
       observer.disconnect();
       popup.remove();
       map.remove();
