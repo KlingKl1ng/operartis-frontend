@@ -711,8 +711,6 @@ function App() {
             {scenario && <>
             <div className="map-toolbar glass-panel">
               <button className="toolbar-back" type="button" onClick={() => { setSelectedRouteId(null); setSelectedCustomerId(null); setMapFitRequest((value) => value + 1); }} title="Show all routes" aria-label="Show all routes"><ArrowLeft size={16} /></button>
-              <span />
-              <button type="button" onClick={() => setDataManager('customers')} title="Data table" aria-label="Data table"><Table2 size={15} /></button>
             </div>
 
             {legendCollapsed ? (
@@ -1020,7 +1018,7 @@ function RoutesPanel({ selectedRouteId, selectedCustomerId, onSelectRoute, onSel
         {query && <button type="button" onClick={() => setQuery('')} aria-label="Clear search"><X size={16} /></button>}
       </div>
       {selectedOffRoute && <OffRouteCustomerCard customer={selectedOffRoute} onClose={onClearCustomer} />}
-      {!needle && (
+      {!needle && routes.length > 0 && (
         <button className={`route-card route-card-all ${selectedRouteId === null ? 'is-selected' : ''}`} type="button" onClick={() => onSelectRoute(null)}>
           <span className="route-overview-icon"><LayoutDashboard size={18} /></span>
           <span><strong>All vehicle routes</strong><small>{routes.length} vehicles · {tripCount} trips · {stopCount} stops</small></span>
@@ -1095,8 +1093,8 @@ function RoutesPanel({ selectedRouteId, selectedCustomerId, onSelectRoute, onSel
           </button>
         );
       })}
-      {needle && !visibleRoutes.length && !offRouteMatches.length && <div className="inspector-card"><strong>No matches</strong><p>No route, vehicle or customer matches “{query.trim()}”.</p></div>}
-      {!routes.length && !needle && <div className="inspector-card"><strong>No solved routes yet</strong><p>Validate the scenario and run Optimize to create a route plan.</p></div>}
+      {needle && !visibleRoutes.length && !offRouteMatches.length && <div className="inspector-card inspector-empty"><strong>No matches</strong><p>No route, vehicle or customer matches “{query.trim()}”.</p></div>}
+      {!routes.length && !needle && <div className="inspector-card inspector-empty"><strong>No solved routes yet</strong><p>Run Optimize plan to create routes.</p></div>}
     </div>
   );
 }
