@@ -637,7 +637,6 @@ function App() {
                         <small>{item.description}</small>
                       </span>
                       <span className="count-pill">{item.count}</span>
-                      <ChevronRight className="nav-chevron" size={15} />
                     </button>
                   );
                 })}

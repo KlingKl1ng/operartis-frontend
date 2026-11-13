@@ -223,7 +223,6 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 .scenario-sidebar.is-collapsed .sidebar-heading,
 .scenario-sidebar.is-collapsed .data-nav-copy,
 .scenario-sidebar.is-collapsed .count-pill,
-.scenario-sidebar.is-collapsed .nav-chevron,
 .scenario-sidebar.is-collapsed .sidebar-section { display: none; }
 .scenario-sidebar.is-collapsed .sidebar-scroll { overflow: visible; }
 .scenario-sidebar.is-collapsed .data-navigation { gap: 8px; padding: 14px 8px 12px; }
@@ -239,7 +238,6 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 .data-nav-copy small { color: var(--muted); font-size: 9px; }
 .count-pill, .tab-count { display: grid; place-items: center; border-radius: 99px; background: var(--surface-muted); color: var(--muted); font: 600 9px 'Roboto Mono', monospace; }
 .count-pill { min-width: 24px; height: 22px; padding: 0 6px; }
-.nav-chevron { color: var(--muted-2); }
 .scenario-sidebar.is-collapsed .data-nav-item { justify-content: center; padding: 9px 0; }
 
 .sidebar-section { margin: 2px 14px 0; padding-top: 14px; border-top: 1px solid var(--border); }
@@ -872,7 +870,6 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
   .scenario-sidebar.is-collapsed .sidebar-import { display: block; }
   .scenario-sidebar.is-collapsed .data-nav-copy,
   .scenario-sidebar.is-collapsed .count-pill,
-  .scenario-sidebar.is-collapsed .nav-chevron,
   .scenario-sidebar.is-collapsed .sidebar-section { display: flex; }
   .scenario-sidebar.is-collapsed .sidebar-heading { display: block; }
   .scenario-sidebar.is-collapsed .data-nav-item { justify-content: flex-start; padding: 9px 8px; }
