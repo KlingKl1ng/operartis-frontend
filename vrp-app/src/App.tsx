@@ -894,7 +894,9 @@ function customerPlanStatus(customerId: string, scenario: VrpScenario, solution:
     const index = trip.visits.findIndex((visit) => visit.customerId === customerId);
     if (index >= 0) {
       const route = viewData.routes.find((item) => item.vehicleId === trip.vehicleId);
-      return { kind: 'planned', route, trip, visit: trip.visits[index], stopNumber: index + 1 };
+      // Stops are numbered across the whole route, matching the map and timeline.
+      const earlierStops = viewData.trips.filter((item) => item.vehicleId === trip.vehicleId && item.startMinute < trip.startMinute).reduce((total, item) => total + item.visits.length, 0);
+      return { kind: 'planned', route, trip, visit: trip.visits[index], stopNumber: earlierStops + index + 1 };
     }
   }
   const unserved = solution?.unserved.find((item) => item.customer_id === customerId);
@@ -989,7 +991,7 @@ function RoutesPanel({ selectedRouteId, selectedCustomerId, onSelectRoute, onSel
                         return (
                           <li key={visit.customerId}>
                             <button type="button" className={`route-stop ${matchedStops.has(visit.customerId) ? 'is-match' : ''} ${selected ? 'is-selected' : ''}`} aria-expanded={selected} onClick={() => (selected ? onClearCustomer() : onSelectCustomer(visit.customerId))}>
-                              <span className="route-stop-number">{index + 1}</span>
+                              <span className="route-stop-number">{customer?.sequence || index + 1}</span>
                               <span className="route-stop-copy">
                                 <strong>{customer?.name || visit.customerId}</strong>
                                 <small>{visit.customerId} · arrives {visit.arrival}{visit.waitingMinutes ? ` · waits ${visit.waitingMinutes} min` : ''}</small>
