@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { AlertTriangle, ArrowDownRight, ArrowUpRight, Check, FolderOpen, LoaderCircle, PencilLine, Route, Save, Trash2, X } from 'lucide-react';
+import { AlertTriangle, ArrowDownRight, ArrowUpRight, Check, FolderOpen, LoaderCircle, PencilLine, Plus, Route, Save, Trash2, X } from 'lucide-react';
 import { deleteSavedScenario, listSavedScenarios, openScenarioVersion, renameSavedScenario } from './api';
 import type { OpenedScenarioVersion, SavedScenario, SavedScenarioVersion } from './types';
 
@@ -70,6 +70,8 @@ export function ScenarioLibraryPane({ current, onOpened, onRenamed, onDeleted, o
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => { onBusyChange(Boolean(busy)); }, [busy, onBusyChange]);
+  // Follow the open scenario, e.g. after it is saved as a new scenario.
+  useEffect(() => { if (current?.id) setSelectedId(current.id); }, [current?.id]);
 
   const run = async (key: string, action: () => Promise<void>) => {
     setBusy(key);
@@ -120,7 +122,7 @@ export function ScenarioLibraryPane({ current, onOpened, onRenamed, onDeleted, o
       <div className="scenario-library-empty">
         <FolderOpen size={30} />
         <strong>No saved scenarios yet</strong>
-        <span>Load a template or upload a workbook, then press <Save size={12} aria-label="Save" /> in the top bar to keep it here with its version history.</span>
+        <span>Load a template or upload a workbook, then save it here to keep its version history and route plans.</span>
         <button className="button button-quiet" type="button" onClick={onChooseTemplate}>Browse templates</button>
       </div>
     );
@@ -209,46 +211,70 @@ export function ScenarioLibraryPane({ current, onOpened, onRenamed, onDeleted, o
   );
 }
 
-export function SaveScenarioDialog({ defaultName, saving, error, onCancel, onSave }: {
+export interface CurrentScenarioSave {
   defaultName: string;
+  saved: OpenSavedScenario | null;
+  hasUnsavedChanges: boolean;
   saving: boolean;
   error: string | null;
-  onCancel: () => void;
-  onSave: (name: string) => void;
-}) {
-  const [name, setName] = useState(defaultName);
+  onSaveVersion: () => void;
+  onSaveNew: (name: string) => void;
+}
+
+/** Save controls for the scenario that is open on the map, shown above the library. */
+export function CurrentScenarioStrip({ defaultName, saved, hasUnsavedChanges, saving, error, onSaveVersion, onSaveNew }: CurrentScenarioSave) {
+  const [naming, setNaming] = useState(!saved);
+  const [name, setName] = useState(saved ? `${saved.name} (copy)` : defaultName);
+
+  // After a save the strip returns to its summary; a first save leaves naming mode for good.
   useEffect(() => {
-    const closeOnEscape = (event: KeyboardEvent) => { if (event.key === 'Escape' && !saving) onCancel(); };
-    window.addEventListener('keydown', closeOnEscape);
-    return () => window.removeEventListener('keydown', closeOnEscape);
-  }, [onCancel, saving]);
+    setNaming(!saved);
+    setName(saved ? `${saved.name} (copy)` : defaultName);
+  }, [saved?.id, saved?.versionNumber, saved?.name, defaultName]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const submit = (event: FormEvent) => {
     event.preventDefault();
-    if (name.trim() && !saving) onSave(name.trim());
+    if (name.trim() && !saving) onSaveNew(name.trim());
   };
+
+  const status = !saved
+    ? 'Not saved yet'
+    : hasUnsavedChanges ? `Version ${saved.versionNumber} · unsaved changes` : `Saved · version ${saved.versionNumber}`;
+
   return (
-    <div className="modal-layer modal-layer-top" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget && !saving) onCancel(); }}>
-      <form className="import-dialog save-scenario-dialog" role="dialog" aria-modal="true" aria-labelledby="save-scenario-title" onSubmit={submit}>
-        <header>
-          <div>
-            <span className="entity-dialog-icon"><Save size={20} /></span>
-            <span><h2 id="save-scenario-title">Save scenario</h2><small>Keep it in My scenarios. Later saves add new versions.</small></span>
-          </div>
-          <button className="icon-button" type="button" onClick={onCancel} disabled={saving} aria-label="Close dialog"><X size={18} /></button>
-        </header>
-        <label className="save-scenario-field">
-          <span>Name</span>
-          <input autoFocus value={name} maxLength={120} onChange={(event) => setName(event.target.value)} />
-        </label>
-        {error && <p className="import-error" role="alert"><AlertTriangle size={16} /> {error}</p>}
-        <footer>
-          <span className="scenario-dialog-note">Private to your account.</span>
-          <button className="button button-quiet" type="button" onClick={onCancel} disabled={saving}>Cancel</button>
+    <section className={`current-scenario-strip ${hasUnsavedChanges ? 'has-changes' : ''} ${saved && !hasUnsavedChanges ? 'is-saved' : ''}`} aria-label="Current scenario">
+      <div className="current-scenario-copy">
+        <span className="eyebrow">Current scenario</span>
+        <strong>{saved?.name || defaultName}</strong>
+        <small>{saved && !hasUnsavedChanges && <Check size={12} />}{status}</small>
+      </div>
+      {naming ? (
+        <form className="current-scenario-form" onSubmit={submit}>
+          <input
+            value={name}
+            maxLength={120}
+            aria-label={saved ? 'Name of the new scenario' : 'Scenario name'}
+            placeholder="Scenario name"
+            onChange={(event) => setName(event.target.value)}
+            onKeyDown={(event) => { if (event.key === 'Escape' && saved) { event.stopPropagation(); setNaming(false); } }}
+            autoFocus={Boolean(saved)}
+          />
+          {saved && <button className="button button-quiet" type="button" onClick={() => setNaming(false)} disabled={saving}>Cancel</button>}
           <button className="button button-primary" type="submit" disabled={!name.trim() || saving}>
-            {saving ? <LoaderCircle className="spin" size={16} /> : <Save size={16} />} Save
+            {saving ? <LoaderCircle className="spin" size={15} /> : <Save size={15} />} {saved ? 'Save as new' : 'Save to My scenarios'}
           </button>
-        </footer>
-      </form>
-    </div>
+        </form>
+      ) : (
+        <div className="current-scenario-actions">
+          <button className="button button-quiet" type="button" onClick={() => setNaming(true)} disabled={saving}><Plus size={15} /> Save as new scenario</button>
+          {hasUnsavedChanges && saved && (
+            <button className="button button-primary" type="button" onClick={onSaveVersion} disabled={saving}>
+              {saving ? <LoaderCircle className="spin" size={15} /> : <Save size={15} />} Save as version {saved.versionNumber + 1}
+            </button>
+          )}
+        </div>
+      )}
+      {error && <p className="import-error current-scenario-error" role="alert"><AlertTriangle size={16} /> {error}</p>}
+    </section>
   );
 }
