@@ -1,4 +1,4 @@
-import type { OpenedScenarioVersion, SavedScenario, SavedScenarioList, SaveScenarioResult, ScenarioTemplate, SolveAccepted, ValidationResponse, VrpJobStatus, VrpScenario, VrpSolution } from './types';
+import type { AttachPlanResult, OpenedScenarioVersion, SavedScenario, SavedScenarioList, SaveScenarioResult, ScenarioTemplate, SolveAccepted, ValidationResponse, VrpJobStatus, VrpScenario, VrpSolution } from './types';
 
 const unsafeMethods = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
 const localDevelopment = ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname);
@@ -186,6 +186,14 @@ export function renameSavedScenario(scenarioId: string, name: string): Promise<S
     method: 'PATCH',
     headers: jsonHeaders,
     body: JSON.stringify({ name }),
+  });
+}
+
+export function attachVersionPlan(scenarioId: string, versionId: string, jobId: string): Promise<AttachPlanResult> {
+  return request<AttachPlanResult>(`/vrp/saved-scenarios/${encodeURIComponent(scenarioId)}/versions/${encodeURIComponent(versionId)}/plans`, {
+    method: 'POST',
+    headers: jsonHeaders,
+    body: JSON.stringify({ job_id: jobId }),
   });
 }
 

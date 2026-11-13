@@ -185,11 +185,29 @@ export interface ScenarioTemplate {
   counts: { depots: number; customers: number; vehicle_types: number; vehicles: number };
 }
 
+export interface SavedPlanInfo {
+  id: string;
+  job_id: string | null;
+  created_at: string;
+  summary: {
+    total_cost?: number;
+    distance_meters?: number;
+    vehicles_used?: number;
+    trips?: number;
+    customers_served?: number;
+    customers_total?: number;
+    currency?: string;
+    solver_version?: string;
+  };
+}
+
 export interface SavedScenarioVersion {
   id: string;
   version_number: number;
   created_at: string;
   byte_size: number;
+  plan_count: number;
+  latest_plan: SavedPlanInfo | null;
   summary: {
     scenario_name?: string;
     planning_date?: string;
@@ -224,6 +242,13 @@ export interface OpenedScenarioVersion {
   scenario: SavedScenario;
   version: SavedScenarioVersion;
   report: ValidationResponse;
+  plan: (SavedPlanInfo & { solution: VrpSolution }) | null;
+}
+
+export interface AttachPlanResult {
+  plan: SavedPlanInfo;
+  version: SavedScenarioVersion;
+  created: boolean;
 }
 
 export interface ValidationResponse {

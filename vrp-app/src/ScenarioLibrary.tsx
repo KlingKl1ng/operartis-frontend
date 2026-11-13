@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { AlertTriangle, Check, FolderOpen, LoaderCircle, PencilLine, Save, Trash2, X } from 'lucide-react';
+import { AlertTriangle, ArrowDownRight, ArrowUpRight, Check, FolderOpen, LoaderCircle, PencilLine, Route, Save, Trash2, X } from 'lucide-react';
 import { deleteSavedScenario, listSavedScenarios, openScenarioVersion, renameSavedScenario } from './api';
 import type { OpenedScenarioVersion, SavedScenario, SavedScenarioVersion } from './types';
 
@@ -17,16 +17,44 @@ function formatTimestamp(value: string): string {
   return new Date(value).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
 }
 
+function formatMoney(value: number, currency: string | undefined): string {
+  try {
+    return new Intl.NumberFormat(undefined, { style: 'currency', currency: currency || 'EUR', maximumFractionDigits: currency === 'VND' ? 0 : 2 }).format(value);
+  } catch {
+    return value.toFixed(2);
+  }
+}
+
+function planLine(version: SavedScenarioVersion): string | null {
+  const summary = version.latest_plan?.summary;
+  if (!summary || summary.total_cost == null) return null;
+  const parts = [formatMoney(summary.total_cost, summary.currency)];
+  if (summary.vehicles_used != null) parts.push(`${summary.vehicles_used} vehicle${summary.vehicles_used === 1 ? '' : 's'}`);
+  if (summary.distance_meters != null) parts.push(`${(summary.distance_meters / 1000).toFixed(1)} km`);
+  if (summary.customers_served != null && summary.customers_total != null) parts.push(`${summary.customers_served}/${summary.customers_total} served`);
+  return parts.join(' · ');
+}
+
+/** Cost change against the nearest older version that has a saved plan. */
+function costChange(versions: SavedScenarioVersion[], index: number): { delta: number; currency?: string; against: number } | null {
+  const cost = versions[index].latest_plan?.summary.total_cost;
+  if (cost == null) return null;
+  const older = versions.slice(index + 1).find((version) => version.latest_plan?.summary.total_cost != null);
+  if (!older) return null;
+  return { delta: cost - (older.latest_plan!.summary.total_cost as number), currency: versions[index].latest_plan!.summary.currency, against: older.version_number };
+}
+
 function versionCounts(version: SavedScenarioVersion | null): string {
   const counts = version?.summary.counts;
   if (!counts) return '';
   return `${counts.depots} depots · ${counts.customers} customers · ${counts.vehicles} vehicles`;
 }
 
-export function ScenarioLibraryPane({ current, onOpened, onRenamed, onChooseTemplate, onBusyChange }: {
+export function ScenarioLibraryPane({ current, onOpened, onRenamed, onDeleted, onChooseTemplate, onBusyChange }: {
   current: OpenSavedScenario | null;
   onOpened: (opened: OpenedScenarioVersion) => void;
   onRenamed: (scenarioId: string, name: string) => void;
+  onDeleted: (scenarioId: string) => void;
   onChooseTemplate: () => void;
   onBusyChange: (busy: boolean) => void;
 }) {
@@ -71,6 +99,7 @@ export function ScenarioLibraryPane({ current, onOpened, onRenamed, onChooseTemp
 
   const remove = (item: SavedScenario) => void run(`delete-${item.id}`, async () => {
     await deleteSavedScenario(item.id);
+    onDeleted(item.id);
     setConfirmDeleteId(null);
     if (selectedId === item.id) setSelectedId(null);
     await refresh();
@@ -147,14 +176,25 @@ export function ScenarioLibraryPane({ current, onOpened, onRenamed, onChooseTemp
 
       <section className="scenario-library-versions" aria-label="Version history">
         <span className="eyebrow">Version history</span>
-        {selected?.versions.map((version) => {
+        {selected?.versions.map((version, index, versions) => {
           const isOpen = current?.versionId === version.id;
+          const plan = planLine(version);
+          const change = costChange(versions, index);
           return (
             <article key={version.id} className={`scenario-version-card ${isOpen ? 'is-open' : ''}`}>
               <div>
                 <strong>Version {version.version_number}{isOpen && <span className="scenario-library-badge">Open</span>}</strong>
                 <small>{formatTimestamp(version.created_at)}</small>
                 <small>{versionCounts(version)}</small>
+                {plan
+                  ? <span className="scenario-version-plan"><Route size={12} /> Plan · {plan}</span>
+                  : <span className="scenario-version-plan is-empty">No saved plan · open and optimize to add one</span>}
+                {change && Math.abs(change.delta) >= 0.005 && (
+                  <span className={`scenario-version-change ${change.delta < 0 ? 'is-better' : 'is-worse'}`}>
+                    {change.delta < 0 ? <ArrowDownRight size={12} /> : <ArrowUpRight size={12} />}
+                    {change.delta < 0 ? '−' : '+'}{formatMoney(Math.abs(change.delta), change.currency)} vs version {change.against}
+                  </span>
+                )}
               </div>
               <button className="button button-primary" type="button" onClick={() => selected && open(selected, version)} disabled={Boolean(busy)}>
                 {busy === `open-${version.id}` ? <LoaderCircle className="spin" size={15} /> : <FolderOpen size={15} />} Open

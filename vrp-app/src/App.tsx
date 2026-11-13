@@ -43,7 +43,7 @@ import {
   Zap,
 } from 'lucide-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { cancelJob, downloadJobExport, downloadTemplate, importScenarioFile, importTemplate, listTemplates, saveNewScenario, saveScenarioVersion, submitSolve, validateScenario, waitForJob } from './api';
+import { attachVersionPlan, cancelJob, downloadJobExport, downloadTemplate, importScenarioFile, importTemplate, listTemplates, saveNewScenario, saveScenarioVersion, submitSolve, validateScenario, waitForJob } from './api';
 import { SAVED_SCENARIOS_QUERY_KEY, SaveScenarioDialog, ScenarioLibraryPane, type OpenSavedScenario } from './ScenarioLibrary';
 import type { Customer, DataKind, Depot, InspectorTab, OpenedScenarioVersion, Route, SaveScenarioResult, ScenarioTemplate, ValidationResponse, Vehicle, VehicleType, VrpScenario, VrpSolution, VrpViewData } from './types';
 import { buildViewData } from './view-model';
@@ -246,6 +246,7 @@ function App() {
   const queryClient = useQueryClient();
   const [savedScenario, setSavedScenario] = useState<OpenSavedScenario | null>(null);
   const [savedSnapshot, setSavedSnapshot] = useState<string | null>(null);
+  const [solvedSnapshot, setSolvedSnapshot] = useState<string | null>(null);
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -336,6 +337,7 @@ function App() {
     setImportedFilename(filename);
     setSavedScenario(null);
     setSavedSnapshot(null);
+    setSolvedSnapshot(null);
     setScenarioDialog(null);
   }, [handleImported]);
 
@@ -343,15 +345,51 @@ function App() {
     handleImported(opened.report);
     setImportedFilename(opened.scenario.source_filename || opened.scenario.name);
     setSavedScenario({ id: opened.scenario.id, name: opened.scenario.name, versionId: opened.version.id, versionNumber: opened.version.version_number });
-    setSavedSnapshot(JSON.stringify(opened.report.normalized_scenario));
+    const snapshot = JSON.stringify(opened.report.normalized_scenario);
+    setSavedSnapshot(snapshot);
     setScenarioDialog(null);
-    setToast(`Opened ${opened.scenario.name} · version ${opened.version.version_number}`);
+    if (opened.plan && opened.report.valid) {
+      setSolution(opened.plan.solution);
+      setCompletedJobId(opened.plan.job_id);
+      setSolvedSnapshot(snapshot);
+      setProgress(100);
+      setOptimizationStage('Saved plan');
+      setInspectorTab('summary');
+      setToast(`Opened ${opened.scenario.name} · version ${opened.version.version_number} with its saved plan`);
+    } else {
+      setSolvedSnapshot(null);
+      setToast(`Opened ${opened.scenario.name} · version ${opened.version.version_number}`);
+    }
   }, [handleImported, setToast]);
+
+  // Deleting the open scenario keeps its data on screen, but it is no longer saved.
+  const handleSavedScenarioDeleted = useCallback((scenarioId: string) => {
+    if (savedScenario?.id !== scenarioId) return;
+    setSavedScenario(null);
+    setSavedSnapshot(null);
+  }, [savedScenario]);
+
+  const attachPlan = useCallback(async (scenarioId: string, versionId: string, versionNumber: number, jobId: string) => {
+    try {
+      const attached = await attachVersionPlan(scenarioId, versionId, jobId);
+      void queryClient.invalidateQueries({ queryKey: SAVED_SCENARIOS_QUERY_KEY });
+      return attached.plan.id;
+    } catch (error) {
+      showErrorToast(`The plan could not be saved with version ${versionNumber}: ${error instanceof Error ? error.message : 'request failed'}`);
+      return null;
+    }
+  }, [queryClient, showErrorToast]);
 
   const applySaveResult = (result: SaveScenarioResult, saved: VrpScenario) => {
     setSavedScenario({ id: result.scenario.id, name: result.scenario.name, versionId: result.version.id, versionNumber: result.version.version_number });
     setSavedSnapshot(JSON.stringify(saved));
     void queryClient.invalidateQueries({ queryKey: SAVED_SCENARIOS_QUERY_KEY });
+  };
+
+  // A plan belongs to a version only if it was solved from exactly that version's data.
+  const attachCurrentPlan = async (result: SaveScenarioResult, saved: VrpScenario) => {
+    if (!solution?.verification.passed || !completedJobId || solvedSnapshot !== JSON.stringify(saved)) return false;
+    return (await attachPlan(result.scenario.id, result.version.id, result.version.version_number, completedJobId)) !== null;
   };
 
   const handleSave = async () => {
@@ -366,7 +404,10 @@ function App() {
     try {
       const result = await saveScenarioVersion(savedScenario.id, snapshot);
       applySaveResult(result, snapshot);
-      setToast(result.created ? `Saved ${result.scenario.name} · version ${result.version.version_number}` : `No changes since version ${result.version.version_number}`);
+      const planSaved = await attachCurrentPlan(result, snapshot);
+      setToast(result.created
+        ? `Saved ${result.scenario.name} · version ${result.version.version_number}${planSaved ? ' with its plan' : ''}`
+        : `No changes since version ${result.version.version_number}${planSaved ? ' · plan saved' : ''}`);
     } catch (error) {
       showErrorToast(error instanceof Error ? error.message : 'The scenario could not be saved');
     } finally {
@@ -383,7 +424,8 @@ function App() {
       const result = await saveNewScenario(name, snapshot, importedFilename);
       applySaveResult(result, snapshot);
       setSaveDialogOpen(false);
-      setToast(`Saved ${result.scenario.name} · version 1`);
+      const planSaved = await attachCurrentPlan(result, snapshot);
+      setToast(`Saved ${result.scenario.name} · version 1${planSaved ? ' with its plan' : ''}`);
     } catch (error) {
       setSaveError(error instanceof Error ? error.message : 'The scenario could not be saved');
     } finally {
@@ -437,6 +479,11 @@ function App() {
       if (controller.signal.aborted) return;
       setSolution(result);
       setCompletedJobId(accepted.job_id);
+      const solvedJson = JSON.stringify(report.normalized_scenario);
+      setSolvedSnapshot(solvedJson);
+      if (result.verification.passed && savedScenario && savedSnapshot === solvedJson) {
+        void attachPlan(savedScenario.id, savedScenario.versionId, savedScenario.versionNumber, accepted.job_id);
+      }
       setProgress(100);
       setOptimizationStage(result.verification.passed ? 'Verified plan' : 'Verification failed');
       setInspectorTab(result.verification.passed ? 'summary' : 'validation');
@@ -445,7 +492,7 @@ function App() {
       window.OperartisApi?.broadcastDashboardDataChanged('vrp');
     } catch (error) {
       if (!controller.signal.aborted && !(error instanceof DOMException && error.name === 'AbortError')) {
-        setToast(error instanceof Error ? error.message : 'Optimization failed');
+        showErrorToast(error instanceof Error ? error.message : 'Optimization failed');
       }
     } finally {
       if (optimizationAbortRef.current === controller) {
@@ -484,6 +531,7 @@ function App() {
     setImportedFilename(null);
     setSavedScenario(null);
     setSavedSnapshot(null);
+    setSolvedSnapshot(null);
     setOptimizationStage('Ready to optimize');
     setProgress(0);
     setActiveJobId(null);
@@ -501,7 +549,7 @@ function App() {
       await downloadJobExport(completedJobId, format);
       setToast(`Operational ${format.toUpperCase()} export downloaded`);
     } catch (error) {
-      setToast(error instanceof Error ? error.message : 'Export failed');
+      showErrorToast(error instanceof Error ? error.message : 'Export failed');
     }
   };
 
@@ -762,7 +810,7 @@ function App() {
             setToast('Allowed depots applied. Optimize again to calculate routes.');
           }} onClose={() => setDataManager(null)} onAdd={() => setEntityDialog(dataManager)} onToast={setToast} />
       )}
-      {scenarioDialog && <ScenarioDialog initialSource={scenarioDialog} current={savedScenario} onClose={() => setScenarioDialog(null)} onImported={handleScenarioChosen} onOpened={handleSavedScenarioOpened} onRenamed={(id, name) => setSavedScenario((value) => value && value.id === id ? { ...value, name } : value)} />}
+      {scenarioDialog && <ScenarioDialog initialSource={scenarioDialog} current={savedScenario} onClose={() => setScenarioDialog(null)} onImported={handleScenarioChosen} onOpened={handleSavedScenarioOpened} onRenamed={(id, name) => setSavedScenario((value) => value && value.id === id ? { ...value, name } : value)} onDeleted={handleSavedScenarioDeleted} />}
       {saveDialogOpen && scenario && <SaveScenarioDialog defaultName={scenario.name} saving={saving} error={saveError} onCancel={() => setSaveDialogOpen(false)} onSave={(name) => void handleSaveAsNew(name)} />}
       {entityDialog && <EntityDialog kind={entityDialog} onClose={() => setEntityDialog(null)} onSaved={(message) => { setEntityDialog(null); setToast(message); }} />}
       <SettingsModal isOpen={settingsOpen} onClose={() => setSettingsOpen(false)} theme={theme} setTheme={setTheme} lang={lang} setLang={setLang} />
@@ -1439,13 +1487,14 @@ const REQUIRED_SHEETS = [
   { label: 'Objective & Solver', icon: Gauge },
 ];
 
-function ScenarioDialog({ initialSource, current, onClose, onImported, onOpened, onRenamed }: {
+function ScenarioDialog({ initialSource, current, onClose, onImported, onOpened, onRenamed, onDeleted }: {
   initialSource: ScenarioSource;
   current: OpenSavedScenario | null;
   onClose: () => void;
   onImported: (report: ValidationResponse, filename: string) => void;
   onOpened: (opened: OpenedScenarioVersion) => void;
   onRenamed: (scenarioId: string, name: string) => void;
+  onDeleted: (scenarioId: string) => void;
 }) {
   const [source, setSource] = useState<ScenarioSource>(initialSource);
   const templatesQuery = useQuery({ queryKey: ['vrp-templates'], queryFn: listTemplates, staleTime: Infinity });
@@ -1519,7 +1568,7 @@ function ScenarioDialog({ initialSource, current, onClose, onImported, onOpened,
 
         {source === 'library' ? (
           <div className="scenario-dialog-body">
-            <ScenarioLibraryPane current={current} onOpened={onOpened} onRenamed={onRenamed} onChooseTemplate={() => setSource('templates')} onBusyChange={setLibraryBusy} />
+            <ScenarioLibraryPane current={current} onOpened={onOpened} onRenamed={onRenamed} onDeleted={onDeleted} onChooseTemplate={() => setSource('templates')} onBusyChange={setLibraryBusy} />
           </div>
         ) : source === 'templates' ? (
           <div className="scenario-dialog-body">

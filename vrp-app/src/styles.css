@@ -684,6 +684,15 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 .scenario-version-card strong { display: flex; align-items: center; gap: 6px; font-size: 12px; }
 .scenario-version-card small { color: var(--muted); font-size: 10px; }
 .scenario-version-card .button { flex: 0 0 auto; min-height: 32px; padding: 0 12px; font-size: 11px; }
+.scenario-version-plan { display: inline-flex; align-items: center; gap: 5px; margin-top: 3px; color: var(--text); font-size: 10px; font-weight: 650; }
+.scenario-version-plan svg { color: var(--brand-gold-deep); }
+.dark .scenario-version-plan svg { color: #fbbf24; }
+.scenario-version-plan.is-empty { color: var(--muted); font-weight: 500; font-style: italic; }
+.scenario-version-change { display: inline-flex; align-items: center; gap: 3px; width: fit-content; padding: 1px 7px; border-radius: 99px; font-size: 10px; font-weight: 700; }
+.scenario-version-change.is-better { background: rgba(16, 185, 129, 0.12); color: #047857; }
+.scenario-version-change.is-worse { background: rgba(225, 29, 72, 0.1); color: #be123c; }
+.dark .scenario-version-change.is-better { color: #6ee7b7; }
+.dark .scenario-version-change.is-worse { color: #fda4af; }
 .scenario-library-error { grid-column: 1 / -1; margin: 0; }
 .scenario-library-status { margin: 24px 20px; }
 .scenario-library-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; min-height: 290px; padding: 24px 40px; color: var(--muted); text-align: center; }
