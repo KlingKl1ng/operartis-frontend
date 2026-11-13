@@ -667,10 +667,6 @@ function App() {
                     {optimizing ? <LoaderCircle className="spin" size={16} /> : <Sparkles size={16} />}
                     <span>{optimizing ? `Optimizing · ${progress}%` : optimizeLabel}</span>
                   </button>
-                  <button className="sidebar-run-secondary" type="button" onClick={() => void handleExport('xlsx')} disabled={!completedJobId || optimizing} title={completedJobId ? 'Export plan as Excel' : 'Optimize first to export a plan'} aria-label="Export plan">
-                    <Download size={16} />
-                    <span>Export</span>
-                  </button>
                 </div>
               </div>
             )}
@@ -774,9 +770,6 @@ function App() {
                 </button>
                 <div><span className="eyebrow">Vehicle schedule</span><h3>Trips & reloads</h3></div>
               </div>
-              <div className="timeline-actions">
-                <span className="timeline-note"><span /> Hard-window feasible</span>
-              </div>
             </div>
             {!timelineCollapsed && <VehicleTimeline selectedRouteId={selectedRouteId} onSelectRoute={handleSelectRoute} />}
           </section>
@@ -842,7 +835,7 @@ function App() {
   );
 }
 
-function SolutionMenu({ canExport, onExport, onReset }: { canExport: boolean; onExport: (format: 'json' | 'geojson') => void; onReset: () => void }) {
+function SolutionMenu({ canExport, onExport, onReset }: { canExport: boolean; onExport: (format: 'xlsx' | 'json' | 'geojson') => void; onReset: () => void }) {
   const [open, setOpen] = useState(false);
   const [confirmReset, setConfirmReset] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -869,6 +862,9 @@ function SolutionMenu({ canExport, onExport, onReset }: { canExport: boolean; on
       </button>
       {open && (
         <div className="solution-menu-panel" role="menu">
+          <button type="button" role="menuitem" disabled={!canExport} onClick={() => choose(() => onExport('xlsx'))}>
+            <Download size={15} aria-hidden="true" /> Export as Excel
+          </button>
           <button type="button" role="menuitem" disabled={!canExport} onClick={() => choose(() => onExport('json'))}>
             <Download size={15} aria-hidden="true" /> Export as JSON
           </button>
