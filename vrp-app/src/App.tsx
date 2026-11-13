@@ -49,7 +49,7 @@ import type { Customer, DataKind, Depot, InspectorTab, OpenedScenarioVersion, Ro
 import { buildViewData } from './view-model';
 import { applyTableEdits, isEditableColumn, rowEditErrors } from './scenario-edits';
 import { SettingsModal } from './SettingsModal';
-import operartisLogo from '../../operartis-logo.svg';
+import operartisLogo from '../../icononly_transparent_quadratic.png';
 import operartisWatermark from '../../fulllogo_transparent_nobuffer.png';
 
 const MapView = lazy(() => import('./MapView'));

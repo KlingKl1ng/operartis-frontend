@@ -129,16 +129,19 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 .header-leading { grid-column: 1; min-width: 0; gap: 10px; }
 .header-actions { grid-column: 3; }
 
+/* Same lockup as forecaster: 40px icon (32px on small screens), 8px gap, 16px bold slate-800 with tight tracking. */
 .brand-lockup {
-  gap: 9px;
+  gap: 8px;
   min-width: fit-content;
   color: var(--text);
   text-decoration: none;
 }
 
-.brand-lockup img { width: 38px; height: 38px; object-fit: contain; transition: transform 0.18s ease; }
-.brand-lockup:hover img { transform: scale(1.06); }
-.brand-lockup span { font-size: 15px; font-weight: 900; letter-spacing: 0.15em; }
+.brand-lockup img { width: 40px; height: 40px; object-fit: contain; transition: transform 0.15s ease; }
+.brand-lockup:hover img { transform: scale(1.1); }
+.brand-lockup span { color: #1e293b; font-size: 16px; font-weight: 700; line-height: 24px; letter-spacing: -0.025em; }
+.dark .brand-lockup span { color: #f1f5f9; }
+@media (max-width: 767px) { .brand-lockup img { width: 32px; height: 32px; } }
 .module-identity { min-width: 0; align-items: center; flex-direction: column; gap: 2px; }
 .module-identity strong { max-width: 280px; overflow: hidden; color: var(--text); font-size: 14px; font-weight: 800; text-overflow: ellipsis; white-space: nowrap; }
 .module-title { position: absolute; z-index: 1; top: 50%; left: 50%; max-width: min(70%, 36rem); transform: translate(-50%, -50%); pointer-events: none; }
@@ -272,7 +275,8 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 .sidebar-run-primary:disabled { cursor: progress; opacity: 0.85; }
 .sidebar-run-primary span { overflow: hidden; text-overflow: ellipsis; }
 /* Collapsed rail: one icon button, status hidden. */
-.scenario-sidebar.is-collapsed .sidebar-run { justify-items: center; padding: 10px 0; }
+/* 64px tall, like the collapsed schedule bar and the brand footer, so their top rules line up. */
+.scenario-sidebar.is-collapsed .sidebar-run { justify-items: center; padding: 9px 0 10px; border-bottom: 0; }
 .scenario-sidebar.is-collapsed .sidebar-run-status,
 .scenario-sidebar.is-collapsed .sidebar-run-buttons span { display: none; }
 .scenario-sidebar.is-collapsed .sidebar-run-primary { width: 44px; height: 44px; padding: 0; border-radius: 12px; }
@@ -831,7 +835,6 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 @media (max-width: 1180px) {
   .app-header { grid-template-columns: minmax(196px, 1fr) auto minmax(300px, 1fr); gap: 10px; }
   .scenario-sidebar-shell { width: 256px; flex-basis: 256px; }
-  .sidebar-brand-header .brand-lockup span { font-size: 14px; }
   .planning-workspace { grid-template-columns: minmax(0, 1fr) 310px; }
 }
 
@@ -853,7 +856,7 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
   .scenario-sidebar.is-collapsed .sidebar-section { display: flex; }
   .scenario-sidebar.is-collapsed .sidebar-heading { display: block; }
   .scenario-sidebar.is-collapsed .data-nav-item { justify-content: flex-start; padding: 9px 8px; }
-  .scenario-sidebar.is-collapsed .sidebar-run { justify-items: stretch; padding: 12px 10px 14px; }
+  .scenario-sidebar.is-collapsed .sidebar-run { justify-items: stretch; padding: 12px 10px 14px; border-bottom: 1px solid var(--border); }
   .scenario-sidebar.is-collapsed .sidebar-run-status { display: flex; }
   .scenario-sidebar.is-collapsed .sidebar-run-buttons span { display: inline; }
   .scenario-sidebar.is-collapsed .sidebar-run-primary { width: 100%; height: 40px; padding: 0 12px; border-radius: 10px; }
@@ -896,7 +899,6 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 }
 
 @media (max-width: 520px) {
-  .sidebar-brand-header .brand-lockup img { width: 34px; height: 34px; }
   .route-inspector { top: auto; bottom: 62px; max-height: 42vh; }
   .timeline-panel { display: none; }
   .planning-workspace { height: 100%; }
