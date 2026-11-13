@@ -190,7 +190,7 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 .scenario-sidebar.is-collapsed .sidebar-brand-header { padding: 0; }
 .scenario-sidebar.is-collapsed .brand-lockup span { display: none; }
 .sidebar-import { margin: 12px 14px 0; padding: 0 0 12px; border-bottom: 1px solid var(--border); }
-.sidebar-import > .sidebar-section-label { color: var(--brand-gold); margin-bottom: 8px; }
+.sidebar-import > .sidebar-section-label { margin-bottom: 8px; }
 /* Same card as forecaster's Source Data: solid light surface, 12px corners; status text carries the state. -2px sides give the forecaster's 231px width with labels kept in line. */
 .sidebar-file-card { position: relative; width: auto; min-width: 0; margin: 0 -2px; padding: 24px 12px; overflow: hidden; border: 1px solid #f1f5f9; border-radius: 12px; background: #f8fafc; text-align: center; transition: background-color .15s; }
 .dark .sidebar-file-card { border-color: #1e293b; background: rgba(30, 41, 59, 0.5); }
