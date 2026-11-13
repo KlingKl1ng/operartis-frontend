@@ -39,10 +39,12 @@
             },
             access: {
                 subtitle: 'Dashboard',
-                title: 'Sign In To Continue',
+                title: 'Sign In to Continue',
                 body: 'Sign in with your invited account to manage your profile, open modules, view retained reports, and change your password.',
                 sign_in: 'Sign In',
                 back_to_site: 'Back To Site',
+                help_prompt: "Don't have an account yet?",
+                help_link: 'Contact Operartis',
             },
             sections: {
                 overview: {
@@ -549,6 +551,8 @@
                 body: 'Đăng nhập bằng tài khoản được mời để quản lý hồ sơ, mở mô-đun, xem báo cáo được lưu và đổi mật khẩu.',
                 sign_in: 'Đăng nhập',
                 back_to_site: 'Về trang chủ',
+                help_prompt: 'Bạn vẫn chưa có tài khoản riêng?',
+                help_link: 'Liên hệ Operartis',
             },
             sections: {
                 overview: {
@@ -1055,6 +1059,8 @@
                 body: 'Melden Sie sich mit Ihrem eingeladenen Konto an, um Ihr Profil zu verwalten, Module zu öffnen, gespeicherte Berichte anzusehen und Ihr Passwort zu ändern.',
                 sign_in: 'Anmelden',
                 back_to_site: 'Zurück zur Website',
+                help_prompt: 'Sie haben noch kein eigenes Konto?',
+                help_link: 'Operartis kontaktieren',
             },
             sections: {
                 overview: {

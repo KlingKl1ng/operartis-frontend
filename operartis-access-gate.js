@@ -13,9 +13,11 @@
 
     var COPY = {
         en: {
-            title: 'Sign In To Continue',
+            title: 'Sign In to Continue',
             signIn: 'Sign In',
             back: 'Back To Site',
+            helpPrompt: "Don't have an account yet?",
+            helpLink: 'Contact Operartis',
             dashboard: {
                 subtitle: 'Dashboard',
                 body: 'Sign in with your invited account to manage your profile, open modules, view retained reports, and change your password.',
@@ -31,6 +33,8 @@
             title: 'Đăng nhập để tiếp tục',
             signIn: 'Đăng nhập',
             back: 'Về trang chủ',
+            helpPrompt: 'Bạn vẫn chưa có tài khoản riêng?',
+            helpLink: 'Liên hệ Operartis',
             dashboard: {
                 subtitle: 'Bảng điều khiển',
                 body: 'Đăng nhập bằng tài khoản được mời để quản lý hồ sơ, mở mô-đun, xem báo cáo được lưu và đổi mật khẩu.',
@@ -46,6 +50,8 @@
             title: 'Anmelden zum Fortfahren',
             signIn: 'Anmelden',
             back: 'Zur Startseite',
+            helpPrompt: 'Sie haben noch kein eigenes Konto?',
+            helpLink: 'Operartis kontaktieren',
             dashboard: {
                 subtitle: 'Dashboard',
                 body: 'Melden Sie sich mit Ihrem eingeladenen Konto an, um Ihr Profil zu verwalten, Module zu offnen, gespeicherte Berichte anzusehen und Ihr Passwort zu andern.',
@@ -139,7 +145,7 @@
         var link = document.createElement('link');
         link.id = styleId;
         link.rel = 'stylesheet';
-        link.href = './operartis-access-shell.css?v=20260622-access-mobile-full';
+        link.href = './operartis-access-shell.css?v=20261113-access-redesign';
         document.head.appendChild(link);
     }
 
@@ -155,18 +161,17 @@
         gate.innerHTML = [
             '<div class="access-card">',
             '  <div class="access-brand">',
-            '    <img src="./icononly_transparent_nobuffer.png" alt="">',
-            '    <div>',
-            '      <strong>OPERARTIS</strong>',
-            '      <span data-op-access="subtitle"></span>',
-            '    </div>',
+            '    <span class="access-mark"><img src="./icononly_transparent_nobuffer.png" alt=""></span>',
+            '    <strong>OPERARTIS</strong>',
+            '    <span class="access-context"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg><span data-op-access="subtitle"></span></span>',
             '  </div>',
             '  <h1 data-op-access="title"></h1>',
             '  <p class="sub" data-op-access="body"></p>',
             '  <div class="access-actions">',
-            '    <button type="button" class="access-sign-in" data-op-access-login></button>',
-            '    <a class="button-ghost" data-op-access-back></a>',
+            '    <button type="button" class="access-sign-in" data-op-access-login><span data-op-access="signIn"></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></button>',
+            '    <a class="button-ghost" data-op-access-back><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg><span data-op-access="back"></span></a>',
             '  </div>',
+            '  <p class="access-help"><span data-op-access="helpPrompt"></span> <a href="mailto:info@operartis.io" data-op-access="helpLink"></a></p>',
             '</div>',
         ].join('');
         document.body.appendChild(gate);
@@ -197,8 +202,11 @@
         var subtitle = gate.querySelector('[data-op-access="subtitle"]');
         var title = gate.querySelector('[data-op-access="title"]');
         var body = gate.querySelector('[data-op-access="body"]');
-        var login = gate.querySelector('[data-op-access-login]');
+        var login = gate.querySelector('[data-op-access="signIn"]');
         var back = gate.querySelector('[data-op-access-back]');
+        var backLabel = gate.querySelector('[data-op-access="back"]');
+        var helpPrompt = gate.querySelector('[data-op-access="helpPrompt"]');
+        var helpLink = gate.querySelector('[data-op-access="helpLink"]');
         if (subtitle) {
             if (config.subtitle) subtitle.textContent = config.subtitle;
             else if (resolveGateScope() === 'module' && moduleSubtitle()) subtitle.textContent = moduleSubtitle();
@@ -207,10 +215,10 @@
         if (title) title.textContent = t('title');
         if (body) body.textContent = config.body || t('body');
         if (login) login.textContent = t('signIn');
-        if (back) {
-            back.textContent = t('back');
-            back.href = backHref;
-        }
+        if (back) back.href = backHref;
+        if (backLabel) backLabel.textContent = t('back');
+        if (helpPrompt) helpPrompt.textContent = t('helpPrompt');
+        if (helpLink) helpLink.textContent = t('helpLink');
     }
 
     function setAppVisible(visible) {
