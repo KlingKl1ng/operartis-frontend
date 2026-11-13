@@ -647,8 +647,9 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 .dark .data-row-edit-actions .is-apply { color: #34d399; }
 .dark .data-row-edit-actions .is-cancel { color: #f87171; }
 .data-row-menu { position: relative; display: inline-flex; }
-.data-row-menu-panel { position: absolute; z-index: 6; top: calc(100% + 4px); right: 0; min-width: 148px; padding: 4px; border: 1px solid var(--border); border-radius: 9px; background: var(--surface); box-shadow: var(--shadow-float); }
-.data-row-menu-panel button { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 36px; padding: 0 10px; border: 0; border-radius: 7px; background: transparent; color: var(--text); font-size: 13px; font-weight: 600; text-align: left; cursor: pointer; }
+/* Opens beside the dots, inside the row: below the button it was cut off on the last row and added empty scroll space. */
+.data-row-menu-panel { position: absolute; z-index: 6; top: 50%; right: calc(100% + 6px); transform: translateY(-50%); min-width: 148px; padding: 3px; border: 1px solid var(--border); border-radius: 9px; background: var(--surface); box-shadow: var(--shadow-float); }
+.data-row-menu-panel button { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 34px; padding: 0 10px; border: 0; border-radius: 7px; background: transparent; color: var(--text); font-size: 13px; font-weight: 600; text-align: left; cursor: pointer; }
 .data-row-menu-panel button svg { flex-shrink: 0; width: 16px; height: 16px; }
 .data-row-menu-panel button:hover { background: var(--bg-soft); color: var(--brand-gold-deep); }
 .dark .data-row-menu-panel button:hover { color: #fbbf24; }
@@ -927,7 +928,6 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
   .timeline-panel { display: none; }
   .planning-workspace { height: 100%; }
   .map-workspace { height: 100%; }
-  .data-manager-toolbar .button-quiet { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {

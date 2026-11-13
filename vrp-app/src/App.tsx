@@ -1596,8 +1596,6 @@ function DataManager({ kind, onClose, onToast, enabledDepotIds, allowedDepotChoi
         </div>
         <div className="data-manager-toolbar">
           <label><Search size={18} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={`Search ${title.toLowerCase()}`} /></label>
-          <button className="button button-quiet" type="button" onClick={() => onToast(`${title} template downloaded`)}><Download size={16} /> Template</button>
-          <button className="button button-quiet" type="button" onClick={() => onToast(blocking ? `${title} table has ${blocking} incomplete record${blocking === 1 ? '' : 's'}` : `${title} table validated`)}><ShieldCheck size={16} /> Validate</button>
           <button className="button button-primary" type="button" onClick={() => setAddingKind(activeKind)} disabled={saving}><Plus size={17} /> Add {singular(activeKind)}</button>
         </div>
         <div className="data-table-wrap scroller">
