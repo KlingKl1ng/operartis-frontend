@@ -370,6 +370,16 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 .map-legend-collapsed { gap: 5px; padding: 6px 8px; border: 1px solid var(--border); color: var(--muted); font: inherit; font-size: 8px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; cursor: pointer; transition: color 0.15s ease; }
 .map-legend-collapsed:hover { color: var(--text); }
 .legend-toggle:focus-visible, .map-legend-collapsed:focus-visible { outline: 2px solid var(--brand-gold); outline-offset: 2px; }
+/* Dark map controls sit on the navy basemap: a navy surface one step above the map (#0c1422),
+   with a visible slate edge, instead of the shared slate glass that blends into it. */
+.dark .map-workspace .glass-panel,
+.dark .maplibregl-ctrl-group { border-color: rgba(148, 163, 184, 0.2) !important; background: rgba(16, 24, 39, 0.94) !important; box-shadow: 0 10px 28px rgba(2, 6, 23, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.05) !important; }
+.dark .map-legend span { color: #cbd5e1; }
+.dark .map-legend-collapsed { color: #cbd5e1; }
+.dark .map-legend-collapsed:hover { color: #fbbf24; }
+.dark .legend-toggle { border-left-color: rgba(148, 163, 184, 0.2); }
+.dark .legend-toggle:hover { background: rgba(148, 163, 184, 0.12); color: #fbbf24; }
+.dark .legend-route { background: #94a3b8; }
 
 .route-inspector { min-height: 0; display: flex; flex-direction: column; background: var(--surface); }
 .inspector-header { min-height: 64px; justify-content: space-between; padding: 12px 14px 8px 16px; }
