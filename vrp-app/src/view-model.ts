@@ -116,6 +116,7 @@ export function buildViewData(
       depotId: assignment?.depotId || customer.compatible_depot_ids?.[0] || 'Unassigned',
       routeId: assignment?.routeId || '',
       sequence: assignment?.sequence || 0,
+      enabled: customer.enabled !== false,
     };
   });
 

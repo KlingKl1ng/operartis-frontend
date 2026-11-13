@@ -72,6 +72,7 @@ export const EDITABLE_COLUMNS: Record<DataKind, Record<string, ColumnWriter>> = 
   },
   customers: {
     Customer: (value, customer) => ({ ...customer, name: text(value) }),
+    Coordinates: (value, customer) => ({ ...customer, coordinates: coordinates(value) }),
     Demand: (value, customer) => ({ ...customer, demand: number(value) }),
     'Time window': (value, customer) => ({ ...customer, time_window: timeWindow(value) }),
     Service: (value, customer) => ({ ...customer, service_duration_seconds: minutesAsSeconds(value) }),
@@ -125,6 +126,24 @@ export function applyTableEdits(scenario: VrpScenario, original: ScenarioTableSe
         }
       });
       return result;
+    });
+    // Rows that are not in the scenario yet were added in the table (customers only).
+    const known = new Set(entities.map((entity) => String(entity.id)));
+    const added = kind === 'customers' ? edited[kind].filter((row) => !known.has(row.ID)) : [];
+    added.forEach((row) => {
+      let created: Entity = {
+        id: row.ID, required: true, compatible_depot_ids: null, compatible_vehicle_type_ids: null, address_label: null,
+      };
+      Object.entries(EDITABLE_COLUMNS.customers).forEach(([column, write]) => {
+        try {
+          created = write(row[column] ?? '', created);
+        } catch (error) {
+          if (!(error instanceof EditError)) throw error;
+          errors.push(`${row.ID} ${column}: ${error.message}`);
+        }
+      });
+      updated.push(created);
+      changed = true;
     });
     if (changed) (next as Record<string, unknown>)[listKey] = updated;
   });

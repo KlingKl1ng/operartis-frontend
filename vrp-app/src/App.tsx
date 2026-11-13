@@ -242,7 +242,6 @@ function App() {
   const [dataManager, setDataManager] = useState<DataKind | null>(null);
   const [enabledDepotIds, setEnabledDepotIds] = useState<string[] | null>(null);
   const [allowedDepotChoices, setAllowedDepotChoices] = useState<Record<string, string> | null>(null);
-  const [entityDialog, setEntityDialog] = useState<DataKind | null>(null);
   const [scenarioDialog, setScenarioDialog] = useState<ScenarioSource | null>(null);
   const queryClient = useQueryClient();
   const [savedScenario, setSavedScenario] = useState<OpenSavedScenario | null>(null);
@@ -428,6 +427,7 @@ function App() {
     }
   };
 
+  const plannedCustomers = useMemo(() => viewData.customers.filter((customer) => customer.enabled !== false), [viewData.customers]);
   const hasUnsavedChanges = Boolean(scenario && savedScenario && savedSnapshot !== JSON.stringify(scenario));
   const saveState = !savedScenario ? 'Not saved' : hasUnsavedChanges ? `Version ${savedScenario.versionNumber} · unsaved changes` : `Saved · version ${savedScenario.versionNumber}`;
   const scenarioDisplayName = savedScenario?.name || scenario?.name || importedFilename || 'Scenario';
@@ -527,7 +527,6 @@ function App() {
     setSelectedCustomerId(null);
     setInspectorTab('summary');
     setDataManager(null);
-    setEntityDialog(null);
     setImportedFilename(null);
     setSavedScenario(null);
     setSavedSnapshot(null);
@@ -686,7 +685,7 @@ function App() {
           <main className={`planning-workspace ${scenario ? '' : 'is-empty'}`}>
           <section className="map-workspace">
             {scenario ? <Suspense fallback={<div className="map-loading"><LoaderCircle className="spin" size={22} /><span>Loading route map</span></div>}>
-              <MapView customers={viewData.customers} depots={mapDepots} routes={viewData.routes} selectedRouteId={selectedRouteId} onSelectRoute={handleSelectRoute} onSelectCustomer={handleSelectCustomer} dark={dark} fitRequest={mapFitRequest} />
+              <MapView customers={plannedCustomers} depots={mapDepots} routes={viewData.routes} selectedRouteId={selectedRouteId} onSelectRoute={handleSelectRoute} onSelectCustomer={handleSelectCustomer} dark={dark} fitRequest={mapFitRequest} />
             </Suspense> : (
               <div className="vrp-empty-state" aria-hidden="true">
                 <img src={operartisWatermark} alt="" width="420" height="117" className="vrp-empty-watermark" />
@@ -779,17 +778,22 @@ function App() {
 
       {dataManager && (
         <DataManager kind={dataManager} enabledDepotIds={enabledDepotIds} allowedDepotChoices={allowedDepotChoices}
-          onApply={async (selected, choices, original, edited) => {
+          onApply={async (selection, choices, original, edited) => {
             if (!scenario || optimizing) throw new Error('Wait for optimization to finish before changing scenario data.');
+            const selected = selection.depots;
             if (!selected.length) throw new Error('Select at least one depot.');
             const withEdits = applyTableEdits(scenario, original, edited);
+            const plannedIds = new Set(selection.customers);
+            const enabledVehicleIds = new Set(selection.vehicles);
+            const vehicles = withEdits.vehicles.map(vehicle => vehicle.enabled === enabledVehicleIds.has(vehicle.id) ? vehicle : { ...vehicle, enabled: enabledVehicleIds.has(vehicle.id) });
             const customers = withEdits.customers.map(customer => {
               const choice = choices[customer.id];
               const allowed = choice === 'Unassigned' ? selected : choice.split(',').map(id => id.trim());
               if (!allowed.length || allowed.some(id => !selected.includes(id))) throw new Error(`${customer.id}: choose an available Allowed Depot or Unassigned.`);
-              return { ...customer, compatible_depot_ids: choice === 'Unassigned' && selected.length === scenario.depots.length ? null : allowed };
+              const { enabled: _enabled, ...rest } = customer;
+              return { ...rest, compatible_depot_ids: choice === 'Unassigned' && selected.length === scenario.depots.length ? null : allowed, ...(plannedIds.has(customer.id) ? {} : { enabled: false }) };
             });
-            const candidate = { ...withEdits, customers };
+            const candidate = { ...withEdits, customers, vehicles };
             setEnabledDepotIds(selected);
             setAllowedDepotChoices(choices);
             if (JSON.stringify(candidate) === JSON.stringify(scenario)) return;
@@ -803,10 +807,9 @@ function App() {
             setSelectedCustomerId(null);
             setInspectorTab('summary');
             setToast('Scenario data updated. Optimize again to calculate routes.');
-          }} onClose={() => setDataManager(null)} onAdd={() => setEntityDialog(dataManager)} onToast={setToast} />
+          }} onClose={() => setDataManager(null)} onToast={setToast} />
       )}
       {scenarioDialog && <ScenarioDialog initialSource={scenarioDialog} current={savedScenario} save={scenario ? { defaultName: scenario.name, saved: savedScenario, hasUnsavedChanges, saving, error: saveError, onSaveVersion: () => void handleSaveVersion(), onSaveNew: (name) => void handleSaveAsNew(name) } : null} onClose={() => { setScenarioDialog(null); setSaveError(null); }} onImported={handleScenarioChosen} onOpened={handleSavedScenarioOpened} onRenamed={(id, name) => setSavedScenario((value) => value && value.id === id ? { ...value, name } : value)} onDeleted={handleSavedScenarioDeleted} />}
-      {entityDialog && <EntityDialog kind={entityDialog} onClose={() => setEntityDialog(null)} onSaved={(message) => { setEntityDialog(null); setToast(message); }} />}
       <SettingsModal isOpen={settingsOpen} onClose={() => setSettingsOpen(false)} theme={theme} setTheme={setTheme} lang={lang} setLang={setLang} />
 
       {toastState && (
@@ -828,6 +831,8 @@ function SummaryPanel({ selectedRoute, selectedCustomer, onOpenRoutes }: {
 }) {
   const { scenario, solution } = useVrpRuntime();
   const summary = solution?.summary;
+  const excludedCount = scenario.customers.filter((customer) => customer.enabled === false).length;
+  const plannedCount = scenario.customers.length - excludedCount;
   const currency = new Intl.NumberFormat(undefined, { style: 'currency', currency: scenario.currency, maximumFractionDigits: 0 });
   const totalCost = summary?.total_cost || 0;
   const distanceKm = (summary?.distance_meters || 0) / 1000;
@@ -866,7 +871,7 @@ function SummaryPanel({ selectedRoute, selectedCustomer, onOpenRoutes }: {
   return (
     <div className="inspector-stack">
       <div className="metric-grid">
-        <MetricCard icon={MapPin} label="Customers" value={`${summary?.customers_served || 0} / ${scenario.customers.length}`} meta={solution ? `${Math.round(((summary?.customers_served || 0) / scenario.customers.length) * 100)}% served` : 'Awaiting solution'} accent="emerald" />
+        <MetricCard icon={MapPin} label="Customers" value={`${summary?.customers_served || 0} / ${plannedCount}`} meta={solution ? `${Math.round(((summary?.customers_served || 0) / Math.max(plannedCount, 1)) * 100)}% served${excludedCount ? ` · ${excludedCount} excluded` : ''}` : excludedCount ? `${excludedCount} excluded · awaiting solution` : 'Awaiting solution'} accent="emerald" />
         <MetricCard icon={Truck} label="Fleet used" value={`${summary?.vehicles_used || 0} / ${scenario.vehicles.filter((vehicle) => vehicle.enabled).length}`} meta={`${summary?.trips || 0} trips`} />
         <MetricCard icon={RouteIcon} label="Distance" value={distanceKm.toFixed(1)} meta="kilometres" />
         <MetricCard icon={CircleDollarSign} label="Plan cost" value={currency.format(totalCost)} meta={`${currency.format(costPerKm)} / km`} accent="gold" />
@@ -1106,6 +1111,7 @@ function VehicleTimeline({ selectedRouteId, onSelectRoute }: { selectedRouteId: 
 
 type TableRow = Record<string, string>;
 type ScenarioTables = Record<DataKind, TableRow[]>;
+type DataSelection = Record<'depots' | 'customers' | 'vehicles', string[]>;
 
 function cloneScenarioTables(tables: ScenarioTables): ScenarioTables {
   return {
@@ -1125,7 +1131,7 @@ function createScenarioTables(viewData: VrpViewData): ScenarioTables {
   };
 }
 
-function DataManager({ kind, onClose, onAdd, onToast, enabledDepotIds, allowedDepotChoices, onApply }: { kind: DataKind; onClose: () => void; onAdd: () => void; onToast: (message: string) => void; enabledDepotIds: string[] | null; allowedDepotChoices: Record<string, string> | null; onApply: (selected: string[], choices: Record<string, string>, original: ScenarioTables, edited: ScenarioTables) => Promise<void> }) {
+function DataManager({ kind, onClose, onToast, enabledDepotIds, allowedDepotChoices, onApply }: { kind: DataKind; onClose: () => void; onToast: (message: string) => void; enabledDepotIds: string[] | null; allowedDepotChoices: Record<string, string> | null; onApply: (selection: DataSelection, choices: Record<string, string>, original: ScenarioTables, edited: ScenarioTables) => Promise<void> }) {
   const { viewData, scenario } = useVrpRuntime();
   const dataNav = useMemo(() => createDataNav(viewData), [viewData]);
   const initialTables = useMemo(() => {
@@ -1142,8 +1148,16 @@ function DataManager({ kind, onClose, onAdd, onToast, enabledDepotIds, allowedDe
   const [editingRow, setEditingRow] = useState<number | null>(null);
   const [editingRowSnapshot, setEditingRowSnapshot] = useState<Record<string, string> | null>(null);
   const [openMenuRow, setOpenMenuRow] = useState<number | null>(null);
+  const [addingCustomer, setAddingCustomer] = useState(false);
+  // Ticks mirror the scenario: available depots, planned customers, enabled vehicles.
+  const isInitiallySelected = (key: DataKind, id: string) => {
+    if (key === 'depots') return !enabledDepotIds || enabledDepotIds.includes(id);
+    if (key === 'customers') return scenario.customers.find((item) => item.id === id)?.enabled !== false;
+    if (key === 'vehicles') return scenario.vehicles.find((item) => item.id === id)?.enabled !== false;
+    return true;
+  };
   const [selections, setSelections] = useState<Record<DataKind, Set<number>>>(() => Object.fromEntries(
-    (Object.keys(initialTables) as DataKind[]).map(key => [key, new Set(initialTables[key].flatMap((row, index) => key !== 'depots' || !enabledDepotIds || enabledDepotIds.includes(row.ID) ? [index] : []))]),
+    (Object.keys(initialTables) as DataKind[]).map(key => [key, new Set(initialTables[key].flatMap((row, index) => isInitiallySelected(key, row.ID) ? [index] : []))]),
   ) as Record<DataKind, Set<number>>);
   const selectedRows = selections[activeKind];
   const selectionLabels: Record<DataKind, string> = { depots: 'depot', customers: 'customer', vehicleTypes: 'vehicle type', vehicles: 'physical vehicle' };
@@ -1322,7 +1336,11 @@ function DataManager({ kind, onClose, onAdd, onToast, enabledDepotIds, allowedDe
     setSaving(true);
     setApplyError(null);
     try {
-      await onApply(availableDepots.map(row => row.ID), Object.fromEntries(tables.customers.map(row => [row.ID, row['Allowed Depot']])), committedTables, tables);
+      const selectedIds = (key: DataKind) => tables[key].filter((_, index) => selections[key].has(index)).map((row) => row.ID);
+      await onApply(
+        { depots: selectedIds('depots'), customers: selectedIds('customers'), vehicles: selectedIds('vehicles') },
+        Object.fromEntries(tables.customers.map(row => [row.ID, row['Allowed Depot']])), committedTables, tables,
+      );
       onClose();
     } catch (error) {
       setApplyError(error instanceof Error ? error.message : 'Could not apply the scenario data.');
@@ -1333,7 +1351,7 @@ function DataManager({ kind, onClose, onAdd, onToast, enabledDepotIds, allowedDe
     <div className="modal-layer" role="presentation">
       <div className="data-manager" role="dialog" aria-modal="true" aria-label={`Manage ${title}`}>
         <header className="data-manager-header">
-          <div><span className="eyebrow">Scenario data</span><h2>Manage operational inputs</h2><p>Edit values, select available depots, and choose each customer's Allowed Depot. Unassigned lets the solver choose among selected depots.</p></div>
+          <div><span className="eyebrow">Scenario data</span><h2>Manage operational inputs</h2><p>Edit values and untick customers or vehicles to leave them out of the plan. Unassigned lets the solver choose among the selected depots.</p></div>
           <button className="icon-button" type="button" onClick={discardAndClose} disabled={saving} aria-label="Close data manager"><X size={19} /></button>
         </header>
         <div className="data-manager-tabs">
@@ -1346,7 +1364,7 @@ function DataManager({ kind, onClose, onAdd, onToast, enabledDepotIds, allowedDe
           <label><Search size={18} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={`Search ${title.toLowerCase()}`} /></label>
           <button className="button button-quiet" type="button" onClick={() => onToast(`${title} template downloaded`)}><Download size={16} /> Template</button>
           <button className="button button-quiet" type="button" onClick={() => onToast(blocking ? `${title} table has ${blocking} incomplete record${blocking === 1 ? '' : 's'}` : `${title} table validated`)}><ShieldCheck size={16} /> Validate</button>
-          <button className="button button-primary" type="button" onClick={onAdd}><Plus size={17} /> Add {singular(activeKind)}</button>
+          {activeKind === 'customers' && <button className="button button-primary" type="button" onClick={() => setAddingCustomer(true)} disabled={saving}><Plus size={17} /> Add customer</button>}
         </div>
         <div className="data-table-wrap scroller">
           <table className="data-table" ref={tableRef}>
@@ -1450,6 +1468,21 @@ function DataManager({ kind, onClose, onAdd, onToast, enabledDepotIds, allowedDe
         </div>
         <footer className="data-manager-footer">
           {applyError && <p role="alert" className="allowed-depot-error">{applyError}</p>}
+          {addingCustomer && (
+            <CustomerDialog
+              existingIds={tables.customers.map((row) => row.ID)}
+              depotIds={availableDepots.map((depot) => depot.ID)}
+              onClose={() => setAddingCustomer(false)}
+              onAdd={(row) => {
+                const index = tables.customers.length;
+                setTables((current) => ({ ...current, customers: [...current.customers, row] }));
+                setSelections((current) => ({ ...current, customers: new Set([...current.customers, index]) }));
+                setAddingCustomer(false);
+                setQuery('');
+                onToast(`${row.ID} added. Apply changes to keep it.`);
+              }}
+            />
+          )}
           <span className={blocking ? 'is-blocked' : undefined}><CheckCircle2 size={16} /> {rows.length} record{rows.length === 1 ? '' : 's'} · {blocking} blocking error{blocking === 1 ? '' : 's'}{selectedRows.size ? ` · ${selectedRows.size} selected` : ''}{dirty ? ' · unsaved edits' : ''}</span>
           <div>
             <button className="button button-quiet" type="button" onClick={discardAndClose} disabled={saving}>Cancel</button>
@@ -1461,17 +1494,63 @@ function DataManager({ kind, onClose, onAdd, onToast, enabledDepotIds, allowedDe
   );
 }
 
-function EntityDialog({ kind, onClose, onSaved }: { kind: DataKind; onClose: () => void; onSaved: (message: string) => void }) {
-  const label = singular(kind);
-  const submit = (event: FormEvent) => { event.preventDefault(); onSaved(`${label} added and validated`); };
+function nextCustomerId(existing: string[]): string {
+  // Continue the most common pattern, e.g. C-006 -> C-007 or HCM-C-030 -> HCM-C-031.
+  const match = existing.map((id) => /^(.*?)(\d+)$/.exec(id)).filter(Boolean).pop();
+  if (!match) return `C-${String(existing.length + 1).padStart(3, '0')}`;
+  const [, prefix, digits] = match;
+  let value = Math.max(...existing.map((id) => (id.startsWith(prefix) ? Number(id.slice(prefix.length)) : NaN)).filter(Number.isFinite));
+  let candidate: string;
+  do { value += 1; candidate = `${prefix}${String(value).padStart(digits.length, '0')}`; } while (existing.includes(candidate));
+  return candidate;
+}
+
+const ENTITY_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9_.:-]*$/;
+
+function CustomerDialog({ existingIds, depotIds, onClose, onAdd }: { existingIds: string[]; depotIds: string[]; onClose: () => void; onAdd: (row: Record<string, string>) => void }) {
+  const [form, setForm] = useState({ id: nextCustomerId(existingIds), name: '', latitude: '', longitude: '', demand: '', service: '10', start: '08:00', end: '17:00', depot: 'Unassigned' });
+  const [error, setError] = useState<string | null>(null);
+  const set = (key: keyof typeof form) => (event: { target: { value: string } }) => setForm((current) => ({ ...current, [key]: event.target.value }));
+  useEffect(() => {
+    const closeOnEscape = (event: KeyboardEvent) => { if (event.key === 'Escape') { event.stopPropagation(); onClose(); } };
+    window.addEventListener('keydown', closeOnEscape, true);
+    return () => window.removeEventListener('keydown', closeOnEscape, true);
+  }, [onClose]);
+  const submit = (event: FormEvent) => {
+    event.preventDefault();
+    const id = form.id.trim();
+    if (!ENTITY_ID_PATTERN.test(id)) { setError('ID: start with a letter or digit; use letters, digits, - _ . or :'); return; }
+    if (existingIds.includes(id)) { setError(`ID: ${id} already exists`); return; }
+    const row = {
+      ID: id, Customer: form.name.trim(), Coordinates: `${form.latitude.trim()}, ${form.longitude.trim()}`,
+      'Allowed Depot': form.depot, Demand: form.demand.trim(), 'Time window': `${form.start}–${form.end}`,
+      Service: `${form.service.trim() || '0'} min`, Route: 'Unassigned',
+    };
+    const problems = rowEditErrors('customers', undefined, row);
+    if (problems.length) { setError(problems.join(' · ')); return; }
+    onAdd(row);
+  };
   return (
-    <div className="modal-layer modal-layer-top" role="presentation">
-      <form className="entity-dialog" onSubmit={submit} role="dialog" aria-modal="true" aria-label={`Add ${label}`}>
-        <header><div><span className="entity-dialog-icon">{kind === 'depots' ? <Warehouse size={20} /> : kind === 'customers' ? <MapPin size={20} /> : <Truck size={20} />}</span><span><small>Scenario data</small><h2>Add {label}</h2></span></div><button className="icon-button" type="button" onClick={onClose} aria-label="Close dialog"><X size={18} /></button></header>
-        <div className="form-section"><div className="form-section-title"><span>01</span><div><strong>General information</strong><small>Identity and operational ownership</small></div></div><div className="form-grid"><label><span>{label} ID *</span><input required placeholder={kind === 'customers' ? 'C-019' : kind === 'depots' ? 'BER-03' : 'VEH-06'} /></label><label><span>Name *</span><input required placeholder={`New ${label.toLowerCase()}`} /></label><label><span>Home depot *</span><select defaultValue="BER-01"><option>BER-01 · Berlin Central</option><option>BER-02 · Spandau</option></select></label><label><span>Status</span><select><option>Active</option><option>Draft</option></select></label></div></div>
-        <div className="form-section"><div className="form-section-title"><span>02</span><div><strong>{kind === 'customers' ? 'Demand & service' : 'Operating constraints'}</strong><small>Hard constraints used by the solver</small></div></div><div className="form-grid"><label><span>{kind === 'customers' ? 'Demand (units) *' : 'Capacity (units) *'}</span><input required type="number" placeholder="24" /></label><label><span>{kind === 'customers' ? 'Service time (min) *' : 'Reload time (min)'}</span><input required type="number" placeholder="15" /></label><label><span>Window start *</span><input required type="time" defaultValue="08:00" /></label><label><span>Window end *</span><input required type="time" defaultValue="17:00" /></label></div></div>
-        {(kind === 'customers' || kind === 'depots') && <div className="form-section"><div className="form-section-title"><span>03</span><div><strong>Location</strong><small>WGS84 coordinates are canonical</small></div></div><div className="form-grid"><label className="form-span-2"><span>Address label</span><input placeholder="Street, city" /></label><label><span>Longitude *</span><input required type="number" step="any" placeholder="13.4050" /></label><label><span>Latitude *</span><input required type="number" step="any" placeholder="52.5200" /></label></div></div>}
-        <footer><span><ShieldCheck size={15} /> Backend validation runs again on save</span><div><button className="button button-quiet" type="button" onClick={onClose}>Cancel</button><button className="button button-primary" type="submit"><Check size={16} /> Add {label}</button></div></footer>
+    <div className="modal-layer modal-layer-top" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
+      <form className="entity-dialog" onSubmit={submit} role="dialog" aria-modal="true" aria-label="Add customer">
+        <header><div><span className="entity-dialog-icon"><MapPin size={20} /></span><span><small>Scenario data</small><h2>Add customer</h2></span></div><button className="icon-button" type="button" onClick={onClose} aria-label="Close dialog"><X size={18} /></button></header>
+        <div className="form-section"><div className="form-section-title"><span>01</span><div><strong>General information</strong><small>Identity and allowed depot</small></div></div><div className="form-grid">
+          <label><span>Customer ID *</span><input required value={form.id} maxLength={80} onChange={set('id')} /></label>
+          <label><span>Name *</span><input required autoFocus value={form.name} maxLength={255} onChange={set('name')} placeholder="New customer" /></label>
+          <label className="form-span-2"><span>Allowed depot</span><select value={form.depot} onChange={set('depot')}><option value="Unassigned">Unassigned · solver chooses</option>{depotIds.map((id) => <option key={id} value={id}>{id}</option>)}</select></label>
+        </div></div>
+        <div className="form-section"><div className="form-section-title"><span>02</span><div><strong>Demand & service</strong><small>Hard constraints used by the solver</small></div></div><div className="form-grid">
+          <label><span>Demand *</span><input required inputMode="decimal" value={form.demand} onChange={set('demand')} placeholder="24" /></label>
+          <label><span>Service time (min) *</span><input required inputMode="numeric" value={form.service} onChange={set('service')} /></label>
+          <label><span>Window start *</span><input required type="time" value={form.start} onChange={set('start')} /></label>
+          <label><span>Window end *</span><input required type="time" value={form.end} onChange={set('end')} /></label>
+        </div></div>
+        <div className="form-section"><div className="form-section-title"><span>03</span><div><strong>Location</strong><small>WGS84 coordinates</small></div></div><div className="form-grid">
+          <label><span>Latitude *</span><input required inputMode="decimal" value={form.latitude} onChange={set('latitude')} placeholder="52.5200" /></label>
+          <label><span>Longitude *</span><input required inputMode="decimal" value={form.longitude} onChange={set('longitude')} placeholder="13.4050" /></label>
+        </div></div>
+        {error && <p className="import-error" role="alert"><AlertTriangle size={16} /> {error}</p>}
+        <footer><span><ShieldCheck size={15} /> Validated again when you apply changes</span><div><button className="button button-quiet" type="button" onClick={onClose}>Cancel</button><button className="button button-primary" type="submit"><Check size={16} /> Add customer</button></div></footer>
       </form>
     </div>
   );
@@ -1640,7 +1719,7 @@ function singular(kind: DataKind) {
 
 function getDataRows(kind: DataKind, viewData: VrpViewData): Array<Record<string, string>> {
   if (kind === 'depots') return viewData.depots.map((item) => ({ ID: item.id, Name: item.name, 'Operating window': item.window, Reload: `${item.reloadMinutes} min`, Fleet: String(item.vehicles), Coordinates: `${item.coordinate[1].toFixed(4)}, ${item.coordinate[0].toFixed(4)}` }));
-  if (kind === 'customers') return viewData.customers.map((item) => ({ ID: item.id, Customer: item.name, 'Allowed Depot': 'Unassigned', Demand: String(item.demand), 'Time window': item.timeWindow, Service: `${item.serviceMinutes} min`, Route: item.routeId || 'Unassigned' }));
+  if (kind === 'customers') return viewData.customers.map((item) => ({ ID: item.id, Customer: item.name, Coordinates: `${item.coordinate[1].toFixed(4)}, ${item.coordinate[0].toFixed(4)}`, 'Allowed Depot': 'Unassigned', Demand: String(item.demand), 'Time window': item.timeWindow, Service: `${item.serviceMinutes} min`, Route: item.routeId || 'Unassigned' }));
   if (kind === 'vehicleTypes') return viewData.vehicleTypes.map((item) => ({ ID: item.id, Type: item.name, Capacity: String(item.capacity), 'Fixed cost': String(item.fixedCost), 'Distance cost': String(item.distanceCost), Profile: item.profile }));
   return viewData.vehicles.map((item) => ({ ID: item.id, Plate: item.plate, Type: item.typeId, 'Home depot': item.depotId, Shift: item.shift, Trips: String(item.trips), Utilization: `${item.utilization}%` }));
 }

@@ -20,6 +20,8 @@ export interface Customer {
   depotId: string;
   routeId: string;
   sequence: number;
+  /** False when the customer is left out of planning. */
+  enabled?: boolean;
 }
 
 export interface VehicleType {
@@ -113,6 +115,8 @@ export interface ApiCustomer {
   compatible_depot_ids: string[] | null;
   compatible_vehicle_type_ids: string[] | null;
   address_label: string | null;
+  /** Omitted when true; disabled customers stay in the scenario but are not planned. */
+  enabled?: boolean;
 }
 
 export interface ApiVehicleType {
