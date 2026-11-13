@@ -18,15 +18,12 @@
     --access-border: rgba(148, 163, 184, .16);
     --access-accent-text: #fbbf24;
     --access-mark-bg: rgba(245, 158, 11, .08);
-    --access-glow: rgba(245, 158, 11, .09);
+    --access-glow: rgba(245, 158, 11, .15);
     --access-highlight: rgba(255, 255, 255, .06);
-    --page-bg:
-        linear-gradient(rgba(148, 163, 184, .04) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(148, 163, 184, .04) 1px, transparent 1px),
-        radial-gradient(circle at 10% 8%, rgba(245, 158, 11, .12), transparent 28rem),
-        radial-gradient(circle at 88% 2%, rgba(56, 189, 248, .1), transparent 30rem),
-        radial-gradient(circle at 50% 100%, rgba(15, 23, 42, .8), transparent 50%),
-        var(--bg);
+    --access-bg: radial-gradient(120% 90% at 50% 0%, #0b1226 0%, #020617 62%);
+    --access-grid: rgba(148, 163, 184, .09);
+    --access-glow-cool: rgba(56, 189, 248, .1);
+    --access-glow-far: rgba(245, 158, 11, .07);
 }
 
 html:not(.dark) {
@@ -42,15 +39,12 @@ html:not(.dark) {
     --access-border: rgba(148, 163, 184, .32);
     --access-accent-text: #b45309;
     --access-mark-bg: rgba(245, 158, 11, .1);
-    --access-glow: rgba(245, 158, 11, .1);
+    --access-glow: rgba(245, 158, 11, .16);
     --access-highlight: rgba(255, 255, 255, .9);
-    --page-bg:
-        linear-gradient(rgba(148, 163, 184, .06) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(148, 163, 184, .06) 1px, transparent 1px),
-        radial-gradient(circle at 10% 8%, rgba(245, 158, 11, .08), transparent 28rem),
-        radial-gradient(circle at 88% 2%, rgba(56, 189, 248, .06), transparent 30rem),
-        radial-gradient(circle at 50% 100%, rgba(226, 232, 240, .9), transparent 50%),
-        var(--bg);
+    --access-bg: radial-gradient(120% 90% at 50% 0%, #ffffff 0%, #f1f5f9 70%);
+    --access-grid: rgba(100, 116, 139, .13);
+    --access-glow-cool: rgba(56, 189, 248, .12);
+    --access-glow-far: rgba(245, 158, 11, .08);
 }
 
 .operartis-module-hidden {
@@ -77,9 +71,8 @@ html:not(.dark) {
     display: grid;
     place-items: center;
     padding: 24px;
-    background: var(--page-bg);
-    background-size: 72px 72px, 72px 72px, auto, auto, auto, auto;
-    background-attachment: fixed;
+    background: var(--bg);
+    background-image: var(--access-bg);
     color: var(--text);
     font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     font-size: 16px;
@@ -96,17 +89,46 @@ html:not(.dark) {
     box-sizing: border-box;
 }
 
-/* Soft gold light behind the card so it does not float in an empty page. */
+/* Background layer 1: a fine grid that is brightest behind the card and
+   fades out toward the edges, so the page has depth without looking busy. */
 .operartis-access-shell::before {
     content: '';
-    position: absolute;
+    position: fixed;
     inset: 0;
+    z-index: 0;
     pointer-events: none;
-    background: radial-gradient(34rem 24rem at 50% 46%, var(--access-glow), transparent 70%);
+    background-image:
+        linear-gradient(var(--access-grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--access-grid) 1px, transparent 1px);
+    background-size: 56px 56px;
+    background-position: center center;
+    -webkit-mask-image: radial-gradient(ellipse 62% 58% at 50% 46%, #000 18%, transparent 76%);
+    mask-image: radial-gradient(ellipse 62% 58% at 50% 46%, #000 18%, transparent 76%);
+}
+
+/* Background layer 2: soft brand light. Gold sits behind the card, with a
+   cool counterweight low on the right; the layer drifts very slowly. */
+.operartis-access-shell::after {
+    content: '';
+    position: fixed;
+    inset: -12%;
+    z-index: 0;
+    pointer-events: none;
+    background:
+        radial-gradient(36rem 24rem at 50% 40%, var(--access-glow), transparent 70%),
+        radial-gradient(34rem 26rem at 80% 84%, var(--access-glow-cool), transparent 70%),
+        radial-gradient(30rem 22rem at 16% 18%, var(--access-glow-far), transparent 70%);
+    animation: operartis-access-drift 22s ease-in-out infinite alternate;
+}
+
+@keyframes operartis-access-drift {
+    from { transform: translate3d(-1.5%, -1%, 0) scale(1); }
+    to { transform: translate3d(1.5%, 1.5%, 0) scale(1.06); }
 }
 
 .operartis-access-shell .access-card {
     position: relative;
+    z-index: 1;
     width: min(432px, 100%);
     padding: 36px 32px 24px;
     border: 1px solid var(--access-border);
@@ -350,7 +372,8 @@ html:not(.dark) {
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .operartis-access-shell .access-card {
+    .operartis-access-shell .access-card,
+    .operartis-access-shell::after {
         animation: none;
     }
 

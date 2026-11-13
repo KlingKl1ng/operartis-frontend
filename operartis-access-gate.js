@@ -145,7 +145,7 @@
         var link = document.createElement('link');
         link.id = styleId;
         link.rel = 'stylesheet';
-        link.href = './operartis-access-shell.css?v=20261113-access-redesign';
+        link.href = './operartis-access-shell.css?v=20261113-access-bg';
         document.head.appendChild(link);
     }
 
