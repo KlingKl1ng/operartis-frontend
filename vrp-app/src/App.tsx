@@ -318,6 +318,17 @@ function App() {
     setInspectorTab('routes');
   }, []);
 
+  // Picking a customer in a panel also takes the map there: its route is shown (or all
+  // routes, for a customer on none, so its marker is visible) and the map moves to it.
+  const [customerFocusRequest, setCustomerFocusRequest] = useState(0);
+  const handleFocusCustomer = useCallback((customerId: string) => {
+    const routeId = viewData.customers.find((customer) => customer.id === customerId)?.routeId || null;
+    setSelectedRouteId(routeId);
+    setSelectedCustomerId(customerId);
+    setInspectorTab('routes');
+    setCustomerFocusRequest((value) => value + 1);
+  }, [viewData.customers]);
+
   const handleImported = useCallback((checked: ValidationResponse) => {
     const imported = checked.normalized_scenario;
     setScenario(checked.normalized_scenario);
@@ -709,7 +720,7 @@ function App() {
           <main className={`planning-workspace ${scenario ? '' : 'is-empty'}`}>
           <section className="map-workspace">
             {scenario ? <Suspense fallback={<div className="map-loading"><LoaderCircle className="spin" size={22} /><span>Loading route map</span></div>}>
-              <MapView customers={plannedCustomers} depots={mapDepots} routes={viewData.routes} selectedRouteId={selectedRouteId} onSelectRoute={handleSelectRoute} onSelectCustomer={handleSelectCustomer} dark={dark} fitRequest={mapFitRequest} />
+              <MapView customers={plannedCustomers} depots={mapDepots} routes={viewData.routes} selectedRouteId={selectedRouteId} selectedCustomerId={selectedCustomerId} customerFocusRequest={customerFocusRequest} onSelectRoute={handleSelectRoute} onSelectCustomer={handleSelectCustomer} dark={dark} fitRequest={mapFitRequest} />
             </Suspense> : (
               <div className="vrp-empty-state" aria-hidden="true">
                 <img src={operartisWatermark} alt="" width="420" height="117" className="vrp-empty-watermark" />
@@ -760,10 +771,10 @@ function App() {
 
             <div className="inspector-content scroller">
               {inspectorTab === 'summary' && (
-                <SummaryPanel onOpenCustomer={handleSelectCustomer} />
+                <SummaryPanel onOpenCustomer={handleFocusCustomer} />
               )}
               {inspectorTab === 'routes' && (
-                <RoutesPanel selectedRouteId={selectedRouteId} selectedCustomerId={selectedCustomerId} onSelectRoute={handleSelectRoute} onSelectCustomer={handleSelectCustomer} onClearCustomer={() => setSelectedCustomerId(null)} />
+                <RoutesPanel selectedRouteId={selectedRouteId} selectedCustomerId={selectedCustomerId} onSelectRoute={handleSelectRoute} onSelectCustomer={handleFocusCustomer} onClearCustomer={() => setSelectedCustomerId(null)} />
               )}
             </div>
           </aside>

@@ -7,6 +7,10 @@ interface MapViewProps {
   depots: Depot[];
   routes: Route[];
   selectedRouteId: string | null;
+  /** The customer whose details are open; it gets a highlight ring on the map. */
+  selectedCustomerId: string | null;
+  /** Changes whenever the list asks the map to move to the selected customer. */
+  customerFocusRequest: number;
   onSelectRoute: (routeId: string | null) => void;
   onSelectCustomer: (customerId: string) => void;
   dark: boolean;
@@ -116,6 +120,18 @@ const customerFeatures = (customers: Customer[], routes: Route[], routeId: strin
     }),
 );
 
+// The highlight under the selected customer's marker, in its route's colour.
+const UNASSIGNED_FOCUS_COLOR = '#94a3b8';
+const focusFeatures = (customers: Customer[], routes: Route[], customerId: string | null) => {
+  const customer = customerId ? customers.find((item) => item.id === customerId) : undefined;
+  if (!customer) return featureCollection([]);
+  const color = routes.find((route) => route.id === customer.routeId)?.color || UNASSIGNED_FOCUS_COLOR;
+  return featureCollection([{
+    type: 'Feature', properties: { id: customer.id, color },
+    geometry: { type: 'Point', coordinates: customer.coordinate },
+  }]);
+};
+
 const depotFeatures = (depots: Depot[]) => featureCollection(depots.map((depot) => ({
   type: 'Feature' as const,
   properties: { id: depot.id, name: depot.name, window: depot.window, icon: 'depot-marker' },
@@ -129,6 +145,8 @@ const CUSTOMER_MARKER_SIZE = 0.85;
 const CUSTOMER_MARKER_SIZE_SELECTED = 0.92;
 const DEPOT_MARKER_SIZE = 0.92;
 const CLUSTER_MARKER_SIZE = 0.85;
+// Street level: close enough to see where the stop is, with the neighbouring stops still in view.
+const CUSTOMER_FOCUS_ZOOM = 14.5;
 
 const markerPalettes = {
   dark: { depotFill: '#0f172a', depotStroke: '#fbbf24', depotLabel: '#fbbf24', clusterFill: '#0f172a', clusterStroke: '#fbbf24', clusterCoin: '#fbbf24', clusterCoinCore: '#0f172a', clusterText: '#ffffff' },
@@ -367,10 +385,15 @@ function showPointPopup(map: MapLibreMap, popup: Popup, event: MapLayerMouseEven
     .addTo(map);
 }
 
-export default function MapView({ customers, depots, routes, selectedRouteId, onSelectRoute, onSelectCustomer, dark, fitRequest }: MapViewProps) {
+export default function MapView({ customers, depots, routes, selectedRouteId, selectedCustomerId, customerFocusRequest, onSelectRoute, onSelectCustomer, dark, fitRequest }: MapViewProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const selectedRouteRef = useRef(selectedRouteId);
+  const selectedCustomerRef = useRef(selectedCustomerId);
+  selectedCustomerRef.current = selectedCustomerId;
+  const handledFocusRef = useRef(customerFocusRequest);
+  // True while the map sits zoomed in on a customer, so closing the customer zooms back out.
+  const zoomedOnCustomerRef = useRef(false);
   const darkRef = useRef(dark);
   // The theme the current basemap style was loaded for.
   const styleDarkRef = useRef(dark);
@@ -413,6 +436,20 @@ export default function MapView({ customers, depots, routes, selectedRouteId, on
           layout: { 'line-cap': 'round', 'line-join': 'round' },
           paint: { 'line-color': route.color, 'line-width': ROUTE_LINE_WIDTH, 'line-opacity': 0.88 },
         });
+      });
+
+      // Drawn under the stop markers, so the marker itself stays readable.
+      map.addSource('customer-focus', { type: 'geojson', data: focusFeatures(customers, routes, selectedCustomerRef.current) });
+      map.addLayer({
+        id: 'customer-focus-halo', type: 'circle', source: 'customer-focus',
+        paint: { 'circle-radius': 25, 'circle-color': ['get', 'color'], 'circle-opacity': 0.24 },
+      });
+      map.addLayer({
+        id: 'customer-focus-ring', type: 'circle', source: 'customer-focus',
+        paint: {
+          'circle-radius': 18, 'circle-color': ['get', 'color'], 'circle-opacity': 0,
+          'circle-stroke-width': 2.5, 'circle-stroke-color': ['get', 'color'],
+        },
       });
 
       map.addSource('customers-all', {
@@ -546,6 +583,24 @@ export default function MapView({ customers, depots, routes, selectedRouteId, on
     if (!map || !map.isStyleLoaded()) return;
     fitMap(map, depots, customers, routes, selectedRouteRef.current, true);
   }, [customers, depots, fitRequest, routes]);
+
+  // Highlight the selected customer. This runs after the route effect above, so when a list
+  // click selects a route and a customer together, the move to the customer is the one that stays.
+  useEffect(() => {
+    const map = mapRef.current;
+    const source = map?.getSource('customer-focus') as GeoJSONSource | undefined;
+    if (!map || !source) return;
+    source.setData(focusFeatures(customers, routes, selectedCustomerId));
+    const customer = selectedCustomerId ? customers.find((item) => item.id === selectedCustomerId) : undefined;
+    if (customer && customerFocusRequest !== handledFocusRef.current) {
+      map.easeTo({ center: customer.coordinate, zoom: Math.max(map.getZoom(), CUSTOMER_FOCUS_ZOOM), duration: 700 });
+      zoomedOnCustomerRef.current = true;
+    } else if (!customer && zoomedOnCustomerRef.current) {
+      zoomedOnCustomerRef.current = false;
+      fitMap(map, depots, customers, routes, selectedRouteRef.current, true);
+    }
+    handledFocusRef.current = customerFocusRequest;
+  }, [customers, depots, routes, selectedCustomerId, customerFocusRequest]);
 
   useEffect(() => {
     const map = mapRef.current;
