@@ -15,3 +15,8 @@ interface Window {
   setOperartisLang?: (lang: 'en' | 'vi' | 'de') => string;
   persistOperartisLang?: (lang: 'en' | 'vi' | 'de') => string;
 }
+
+interface ImportMetaEnv {
+  readonly VITE_VRP_TILE_URL?: string;
+  readonly VITE_VRP_DARK_STYLE_URL?: string;
+}

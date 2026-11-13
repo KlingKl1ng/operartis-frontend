@@ -178,8 +178,17 @@ function TimelineEvent({ className, style, time, children }: { className: string
 function useTheme() {
   const initialTheme = window.getOperartisTheme?.() || 'system';
   const [theme, setThemeState] = useState(initialTheme);
-  const systemDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? false;
+  // Follow OS light/dark changes live, so 'system' also switches the map style.
+  const [systemDark, setSystemDark] = useState(() => window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? false);
   const dark = theme === 'dark' || (theme === 'system' && systemDark);
+
+  useEffect(() => {
+    const query = window.matchMedia?.('(prefers-color-scheme: dark)');
+    if (!query) return;
+    const onChange = (event: MediaQueryListEvent) => setSystemDark(event.matches);
+    query.addEventListener('change', onChange);
+    return () => query.removeEventListener('change', onChange);
+  }, []);
 
   useEffect(() => {
     const handler = (event: Event) => {

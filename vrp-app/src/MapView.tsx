@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import maplibregl, { type GeoJSONSource, type Map as MapLibreMap, type MapLayerMouseEvent, type Popup } from 'maplibre-gl';
+import maplibregl, { type GeoJSONSource, type Map as MapLibreMap, type MapLayerMouseEvent, type Popup, type StyleSpecification } from 'maplibre-gl';
 import type { Customer, Depot, Route } from './types';
 
 interface MapViewProps {
@@ -21,6 +21,21 @@ type PointFeature = {
 
 const isLocal = ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname);
 const tileUrl = import.meta.env.VITE_VRP_TILE_URL || (isLocal ? 'https://tile.openstreetmap.org/{z}/{x}/{y}.png' : '/map-tiles/{z}/{x}/{y}.png');
+// Dark mode uses a native dark vector style (OpenFreeMap: free, no key) instead of dimming the light raster tiles.
+const darkStyleUrl = import.meta.env.VITE_VRP_DARK_STYLE_URL || 'https://tiles.openfreemap.org/styles/dark';
+
+const lightStyle: StyleSpecification = {
+  version: 8,
+  sources: {
+    osm: { type: 'raster', tiles: [tileUrl], tileSize: 256, attribution: '© OpenStreetMap contributors' },
+  },
+  layers: [
+    { id: 'basemap-bg', type: 'background', paint: { 'background-color': '#dbe4ea' } },
+    { id: 'osm', type: 'raster', source: 'osm', paint: { 'raster-saturation': -0.45, 'raster-contrast': 0.04 } },
+  ],
+};
+
+const basemapStyle = (dark: boolean) => (dark ? darkStyleUrl : lightStyle);
 
 const routeFeature = (routes: Route[], routeId: string) => {
   const route = routes.find((item) => item.id === routeId)!;
@@ -164,20 +179,15 @@ function registerPointImages(map: MapLibreMap, customers: Customer[], routes: Ro
     const icon = `customer-route-${route.id}-${customer.sequence}`;
     if (!map.hasImage(icon)) map.addImage(icon, markerImage(String(customer.sequence), route.color), { pixelRatio: 2 });
   });
-  for (let count = 2; count <= customers.length; count += 1) {
-    map.addImage(`cluster-${count}`, clusterImage(count, dark), { pixelRatio: 2 });
-  }
-  map.addImage('depot-marker', depotImage(dark), { pixelRatio: 2 });
+  const setImage = (id: string, image: ImageData) => {
+    if (map.hasImage(id)) map.updateImage(id, image);
+    else map.addImage(id, image, { pixelRatio: 2 });
+  };
+  for (let count = 2; count <= customers.length; count += 1) setImage(`cluster-${count}`, clusterImage(count, dark));
+  setImage('depot-marker', depotImage(dark));
 }
 
 const depotImage = (dark: boolean) => markerImage('D', markerPalette(dark).depotStroke, 'square', dark);
-
-function applyMarkerTheme(map: MapLibreMap, dark: boolean) {
-  if (map.hasImage('depot-marker')) map.updateImage('depot-marker', depotImage(dark));
-  for (let count = 2; map.hasImage(`cluster-${count}`); count += 1) {
-    map.updateImage(`cluster-${count}`, clusterImage(count, dark));
-  }
-}
 
 // Screen-space half sizes (CSS px) of the rendered markers, plus a little breathing room.
 const CUSTOMER_HALF = 13;
@@ -283,16 +293,19 @@ const escapeHtml = (value: string | number) => String(value)
   .replaceAll('"', '&quot;')
   .replaceAll("'", '&#039;');
 
-function applyBasemapTheme(map: MapLibreMap, dark: boolean) {
-  if (!map.getLayer('osm')) return;
-  if (map.getLayer('basemap-bg')) {
-    map.setPaintProperty('basemap-bg', 'background-color', dark ? '#0b1220' : '#dbe4ea');
-  }
-  map.setPaintProperty('osm', 'raster-saturation', dark ? -0.12 : -0.45);
-  map.setPaintProperty('osm', 'raster-contrast', dark ? 0.22 : 0.04);
-  map.setPaintProperty('osm', 'raster-brightness-min', 0);
-  map.setPaintProperty('osm', 'raster-brightness-max', dark ? 0.5 : 1);
-  map.setPaintProperty('osm', 'raster-opacity', dark ? 0.88 : 1);
+// Shows one route's stops (or all stops) and dims the other routes.
+function applyRouteSelection(map: MapLibreMap, customers: Customer[], routes: Route[], routeId: string | null) {
+  const hasSelection = Boolean(routeId);
+  (map.getSource('customers-selected') as GeoJSONSource).setData(customerFeatures(customers, routes, routeId || '__none__'));
+  map.setLayoutProperty('customer-clusters', 'visibility', hasSelection ? 'none' : 'visible');
+  map.setLayoutProperty('customer-points', 'visibility', hasSelection ? 'none' : 'visible');
+  map.setLayoutProperty('customer-points-selected', 'visibility', hasSelection ? 'visible' : 'none');
+  routes.forEach((route) => {
+    const selected = !routeId || routeId === route.id;
+    map.setPaintProperty(`route-line-${route.id}`, 'line-opacity', selected ? 0.92 : 0.11);
+    map.setPaintProperty(`route-line-${route.id}`, 'line-width', routeId === route.id ? ROUTE_LINE_WIDTH_SELECTED : ROUTE_LINE_WIDTH);
+    map.setPaintProperty(`route-shadow-${route.id}`, 'line-opacity', selected ? 0.14 : 0.03);
+  });
 }
 
 function showPointPopup(map: MapLibreMap, popup: Popup, event: MapLayerMouseEvent, kind: 'customer' | 'depot') {
@@ -316,6 +329,8 @@ export default function MapView({ customers, depots, routes, selectedRouteId, on
   const mapRef = useRef<MapLibreMap | null>(null);
   const selectedRouteRef = useRef(selectedRouteId);
   const darkRef = useRef(dark);
+  // The theme the current basemap style was loaded for.
+  const styleDarkRef = useRef(dark);
   selectedRouteRef.current = selectedRouteId;
   darkRef.current = dark;
 
@@ -330,33 +345,18 @@ export default function MapView({ customers, depots, routes, selectedRouteId, on
       minZoom: 7,
       maxZoom: 16,
       attributionControl: false,
-      style: {
-        version: 8,
-        sources: {
-          osm: {
-            type: 'raster',
-            tiles: [tileUrl],
-            tileSize: 256,
-            attribution: '© OpenStreetMap contributors',
-          },
-        },
-        layers: [
-          { id: 'basemap-bg', type: 'background', paint: { 'background-color': darkRef.current ? '#0b1220' : '#dbe4ea' } },
-          {
-            id: 'osm', type: 'raster', source: 'osm',
-            paint: { 'raster-saturation': -0.45, 'raster-contrast': 0.04 },
-          },
-        ],
-      },
+      style: basemapStyle(darkRef.current),
     });
+    styleDarkRef.current = darkRef.current;
 
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
     map.addControl(new maplibregl.AttributionControl({ compact: true }), 'bottom-right');
     const popup = new maplibregl.Popup({ offset: 20, closeButton: false, closeOnClick: false });
 
-    map.on('load', () => {
+    // Route, stop and depot layers sit on top of the basemap. Switching the basemap
+    // (light/dark) replaces the whole style, so they are added again on every style load.
+    const addOverlay = () => {
       registerPointImages(map, customers, routes, darkRef.current);
-      applyBasemapTheme(map, darkRef.current);
       routes.forEach((route) => {
         map.addSource(`route-${route.id}`, { type: 'geojson', data: routeFeature(routes, route.id) });
         map.addLayer({
@@ -369,7 +369,6 @@ export default function MapView({ customers, depots, routes, selectedRouteId, on
           layout: { 'line-cap': 'round', 'line-join': 'round' },
           paint: { 'line-color': route.color, 'line-width': ROUTE_LINE_WIDTH, 'line-opacity': 0.88 },
         });
-        map.on('click', `route-line-${route.id}`, () => onSelectRoute(route.id));
       });
 
       map.addSource('customers-all', {
@@ -404,7 +403,13 @@ export default function MapView({ customers, depots, routes, selectedRouteId, on
         id: 'depot-points', type: 'symbol', source: 'depots',
         layout: { 'icon-image': 'depot-marker', 'icon-size': DEPOT_MARKER_SIZE, 'icon-allow-overlap': true },
       });
+      if (selectedRouteRef.current) applyRouteSelection(map, customers, routes, selectedRouteRef.current);
+    };
+    map.on('style.load', addOverlay);
 
+    // Layer-scoped listeners stay registered across style changes, so they are bound once.
+    map.once('load', () => {
+      routes.forEach((route) => map.on('click', `route-line-${route.id}`, () => onSelectRoute(route.id)));
       const interactiveLayers = ['customer-points', 'customer-points-selected', 'depot-points'];
       interactiveLayers.forEach((layerId) => {
         map.on('mouseenter', layerId, (event) => {
@@ -469,14 +474,7 @@ export default function MapView({ customers, depots, routes, selectedRouteId, on
         if (event.sourceId === 'customers-all' && event.isSourceLoaded) scheduleBadgePlacement();
       });
 
-      const initialRoute = selectedRouteRef.current;
-      if (initialRoute) {
-        (map.getSource('customers-selected') as GeoJSONSource).setData(customerFeatures(customers, routes, initialRoute));
-        map.setLayoutProperty('customer-clusters', 'visibility', 'none');
-        map.setLayoutProperty('customer-points', 'visibility', 'none');
-        map.setLayoutProperty('customer-points-selected', 'visibility', 'visible');
-      }
-      fitMap(map, depots, customers, routes, initialRoute, false);
+      fitMap(map, depots, customers, routes, selectedRouteRef.current, false);
     });
 
     mapRef.current = map;
@@ -494,18 +492,8 @@ export default function MapView({ customers, depots, routes, selectedRouteId, on
 
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !map.isStyleLoaded() || !map.getSource('customers-selected')) return;
-    const hasSelection = Boolean(selectedRouteId);
-    (map.getSource('customers-selected') as GeoJSONSource).setData(customerFeatures(customers, routes, selectedRouteId || '__none__'));
-    map.setLayoutProperty('customer-clusters', 'visibility', hasSelection ? 'none' : 'visible');
-    map.setLayoutProperty('customer-points', 'visibility', hasSelection ? 'none' : 'visible');
-    map.setLayoutProperty('customer-points-selected', 'visibility', hasSelection ? 'visible' : 'none');
-    routes.forEach((route) => {
-      const selected = !selectedRouteId || selectedRouteId === route.id;
-      map.setPaintProperty(`route-line-${route.id}`, 'line-opacity', selected ? 0.92 : 0.11);
-      map.setPaintProperty(`route-line-${route.id}`, 'line-width', selectedRouteId === route.id ? ROUTE_LINE_WIDTH_SELECTED : ROUTE_LINE_WIDTH);
-      map.setPaintProperty(`route-shadow-${route.id}`, 'line-opacity', selected ? 0.14 : 0.03);
-    });
+    if (!map || !map.getSource('customers-selected')) return;
+    applyRouteSelection(map, customers, routes, selectedRouteId);
     fitMap(map, depots, customers, routes, selectedRouteId, true);
   }, [customers, depots, routes, selectedRouteId]);
 
@@ -517,13 +505,10 @@ export default function MapView({ customers, depots, routes, selectedRouteId, on
 
   useEffect(() => {
     const map = mapRef.current;
-    if (!map) return;
-    const apply = () => {
-      applyBasemapTheme(map, dark);
-      applyMarkerTheme(map, dark);
-    };
-    if (map.isStyleLoaded()) apply();
-    else map.once('load', apply);
+    if (!map || styleDarkRef.current === dark) return;
+    styleDarkRef.current = dark;
+    // A full replace (no diff) drops the old images and layers; addOverlay restores them on style.load.
+    map.setStyle(basemapStyle(dark), { diff: false });
   }, [dark]);
 
   return <div ref={containerRef} className="map-canvas" aria-label="Interactive route map" />;
