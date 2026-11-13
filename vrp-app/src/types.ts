@@ -1,5 +1,5 @@
 export type DataKind = 'depots' | 'customers' | 'vehicleTypes' | 'vehicles';
-export type InspectorTab = 'summary' | 'routes' | 'validation';
+export type InspectorTab = 'summary' | 'routes';
 
 export interface Depot {
   id: string;

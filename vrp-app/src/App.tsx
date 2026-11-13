@@ -45,7 +45,7 @@ import {
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { attachVersionPlan, cancelJob, downloadJobExport, downloadTemplate, importScenarioFile, importTemplate, listSavedScenarios, listTemplates, saveNewScenario, saveScenarioVersion, submitSolve, validateScenario, waitForJob } from './api';
 import { CurrentScenarioStrip, SAVED_SCENARIOS_QUERY_KEY, ScenarioLibraryPane, type CurrentScenarioSave, type OpenSavedScenario } from './ScenarioLibrary';
-import type { Customer, DataKind, Depot, InspectorTab, OpenedScenarioVersion, Route, SaveScenarioResult, ScenarioTemplate, Trip, TripVisit, ValidationResponse, Vehicle, VehicleType, VrpScenario, VrpSolution, VrpViewData } from './types';
+import type { Customer, DataKind, Depot, InspectorTab, OpenedScenarioVersion, Route, SaveScenarioResult, ScenarioTemplate, Trip, TripVisit, ValidationItem, ValidationResponse, Vehicle, VehicleType, VrpScenario, VrpSolution, VrpViewData } from './types';
 import { buildViewData } from './view-model';
 import { applyTableEdits, isEditableColumn, rowEditErrors } from './scenario-edits';
 import { SettingsModal } from './SettingsModal';
@@ -86,7 +86,6 @@ function useVrpRuntime() {
 const inspectorTabs: Array<{ id: InspectorTab; label: string }> = [
   { id: 'summary', label: 'Summary' },
   { id: 'routes', label: 'Routes' },
-  { id: 'validation', label: 'Validation' },
 ];
 
 const TIMELINE_DURATION_MINUTES = 720;
@@ -283,8 +282,7 @@ function App() {
     ? viewData.depots
     : viewData.depots.filter(depot => enabledDepotIds.includes(depot.id)),
   [viewData.depots, enabledDepotIds]);
-  const blockingErrors = validation?.errors.length || 0;
-  const warningCount = (validation?.warnings.length || 0) + (solution?.verification.warnings.length || 0) + (solution?.unserved.length || 0);
+  const issueCount = viewData.validationItems.filter(isIssue).length;
   const runtimeValue = useMemo<VrpRuntimeContextValue>(() => ({ scenario, solution, validation, viewData }), [scenario, solution, validation, viewData]);
 
   useEffect(() => {
@@ -321,7 +319,7 @@ function App() {
     setSelectedRouteId(null);
     setSelectedCustomerId(null);
     setMapFitRequest((value) => value + 1);
-    setInspectorTab(checked.valid ? 'summary' : 'validation');
+    setInspectorTab('summary');
     setOptimizationStage(checked.valid ? 'Scenario validated' : 'Input corrections required');
     setProgress(0);
     setToast(checked.valid
@@ -449,7 +447,7 @@ function App() {
       setScenario(report.normalized_scenario);
       setValidation(report);
       if (!report.valid) {
-        setInspectorTab('validation');
+        setInspectorTab('summary');
         throw new Error(`Scenario validation found ${report.errors.length} blocking error${report.errors.length === 1 ? '' : 's'}`);
       }
 
@@ -484,7 +482,7 @@ function App() {
       }
       setProgress(100);
       setOptimizationStage(result.verification.passed ? 'Verified plan' : 'Verification failed');
-      setInspectorTab(result.verification.passed ? 'summary' : 'validation');
+      setInspectorTab('summary');
       setSelectedRouteId(null);
       setToast(`${result.verification.passed ? 'Verified' : 'Completed'} route plan generated · ${result.summary.customers_served} customers served`);
       window.OperartisApi?.broadcastDashboardDataChanged('vrp');
@@ -638,6 +636,19 @@ function App() {
                 </button>
               </div>
 
+              <div className="sidebar-actions">
+                <span className="sidebar-section-label">Action</span>
+                <div className="sidebar-action-box">
+                  <button className="sidebar-action is-run" type="button" onClick={runOptimization} disabled={optimizing} title={optimizing ? 'Optimizing' : 'Optimize'} aria-label={optimizing ? 'Optimizing' : 'Optimize'}>
+                    {optimizing ? <LoaderCircle className="spin" size={16} /> : <Sparkles size={16} />}
+                    <span>{optimizing ? 'Optimizing' : 'Optimize'}</span>
+                  </button>
+                  <button className="sidebar-action is-export" type="button" onClick={() => void handleExport('xlsx')} disabled={!completedJobId} title={completedJobId ? 'Export plan' : 'Optimize first to export a plan'} aria-label="Export plan">
+                    <Download size={16} />
+                    <span>Export</span>
+                  </button>
+                </div>
+              </div>
               </>}
               <div className="sidebar-reset">
                 <button type="button" className="sidebar-reset-button" onClick={handleReset}>
@@ -670,12 +681,6 @@ function App() {
             </div>
 
             <div className="header-actions">
-              {scenario && <>
-              <button className="button button-primary" type="button" onClick={runOptimization} disabled={optimizing}>
-                {optimizing ? <LoaderCircle className="spin" size={17} /> : <Sparkles size={17} />}
-                <span>{optimizing ? 'Optimizing' : 'Optimize'}</span>
-              </button>
-              </>}
               <OperartisAuthTopbarSlot />
             </div>
           </header>
@@ -729,19 +734,18 @@ function App() {
               {inspectorTabs.map((tab) => (
                 <button key={tab.id} className={inspectorTab === tab.id ? 'is-active' : ''} type="button" onClick={() => setInspectorTab(tab.id)} role="tab" aria-selected={inspectorTab === tab.id}>
                   {tab.label}
-                  {tab.id === 'validation' && <span className="tab-count">{blockingErrors + warningCount}</span>}
+                  {tab.id === 'summary' && issueCount > 0 && <span className="tab-count" aria-label={`${issueCount} issue${issueCount === 1 ? '' : 's'}`}>{issueCount}</span>}
                 </button>
               ))}
             </div>
 
             <div className="inspector-content scroller">
               {inspectorTab === 'summary' && (
-                <SummaryPanel />
+                <SummaryPanel onOpenCustomer={handleSelectCustomer} />
               )}
               {inspectorTab === 'routes' && (
                 <RoutesPanel selectedRouteId={selectedRouteId} selectedCustomerId={selectedCustomerId} onSelectRoute={handleSelectRoute} onSelectCustomer={handleSelectCustomer} onClearCustomer={() => setSelectedCustomerId(null)} />
               )}
-              {inspectorTab === 'validation' && <ValidationPanel />}
             </div>
           </aside>
 
@@ -755,7 +759,6 @@ function App() {
               </div>
               <div className="timeline-actions">
                 <span className="timeline-note"><span /> Hard-window feasible</span>
-                <button className="button button-quiet" type="button" onClick={() => void handleExport('xlsx')} disabled={!completedJobId}><Download size={17} /> Export</button>
               </div>
             </div>
             {!timelineCollapsed && <VehicleTimeline selectedRouteId={selectedRouteId} onSelectRoute={handleSelectRoute} />}
@@ -822,7 +825,7 @@ function App() {
   );
 }
 
-function SummaryPanel() {
+function SummaryPanel({ onOpenCustomer }: { onOpenCustomer: (customerId: string) => void }) {
   const { scenario, solution } = useVrpRuntime();
   const summary = solution?.summary;
   const excludedCount = scenario.customers.filter((customer) => customer.enabled === false).length;
@@ -843,6 +846,7 @@ function SummaryPanel() {
 
   return (
     <div className="inspector-stack">
+      <PlanCheckCard onOpenCustomer={onOpenCustomer} />
       <div className="metric-grid">
         <MetricCard icon={MapPin} label="Customers" value={`${summary?.customers_served || 0} / ${plannedCount}`} meta={solution ? `${Math.round(((summary?.customers_served || 0) / Math.max(plannedCount, 1)) * 100)}% served${excludedCount ? ` · ${excludedCount} excluded` : ''}` : excludedCount ? `${excludedCount} excluded · awaiting solution` : 'Awaiting solution'} accent="emerald" />
         <MetricCard icon={Truck} label="Fleet used" value={`${summary?.vehicles_used || 0} / ${scenario.vehicles.filter((vehicle) => vehicle.enabled).length}`} meta={`${summary?.trips || 0} trips`} />
@@ -1059,26 +1063,61 @@ function OffRouteCustomerCard({ customer, onClose }: { customer: Customer; onClo
   );
 }
 
-function ValidationPanel() {
-  const { solution, validation, viewData } = useVrpRuntime();
-  const validationItems = viewData.validationItems;
-  const verified = Boolean(solution?.verification.passed);
-  const score = verified ? 100 : validation?.valid ? 75 : validation ? 25 : 0;
+function isIssue(item: ValidationItem): boolean {
+  return item.level === 'error' || item.level === 'warning';
+}
+
+/**
+ * Result of the backend checks: scenario validation before Optimize, the
+ * independent verifier after. One line when everything passes; the issues,
+ * errors first, when something needs attention.
+ */
+function PlanCheckCard({ onOpenCustomer }: { onOpenCustomer: (customerId: string) => void }) {
+  const { scenario, solution, validation, viewData } = useVrpRuntime();
+  const issues = viewData.validationItems.filter(isIssue).sort((left, right) => Number(right.level === 'error') - Number(left.level === 'error'));
+  const customerIds = new Set(scenario.customers.map((customer) => customer.id));
+  const errorCount = issues.filter((item) => item.level === 'error').length;
+  let tone: 'ok' | 'warning' | 'error' | 'neutral';
+  let title: string;
+  let detail: string;
+  if (solution) {
+    const passed = solution.verification.passed;
+    tone = !passed || errorCount ? 'error' : issues.length ? 'warning' : 'ok';
+    title = passed ? 'Verified plan' : 'Verification failed';
+    detail = `${solution.summary.customers_served} of ${solution.summary.customers_total} customers checked against the solved schedule`;
+  } else if (validation) {
+    tone = !validation.valid ? 'error' : issues.length ? 'warning' : 'ok';
+    title = validation.valid ? 'Scenario validated' : 'Scenario needs corrections';
+    detail = validation.valid ? 'Ready to optimize.' : `Fix ${errorCount} blocking error${errorCount === 1 ? '' : 's'} before optimizing.`;
+  } else {
+    tone = 'neutral';
+    title = 'Not checked yet';
+    detail = 'Optimize runs the scenario and plan checks.';
+  }
+  const Icon = tone === 'ok' ? ShieldCheck : tone === 'neutral' ? Info : AlertTriangle;
   return (
-    <div className="validation-stack">
-      <div className="validation-score-card">
-        <span className="score-ring" aria-label={`Feasibility score ${score} out of 100`}><b>{score}</b><small>/100</small></span>
-        <div><span className="eyebrow">Feasibility score</span><strong>{verified ? 'Verified solution' : validation?.valid ? 'Scenario validated' : 'Validation required'}</strong><p>{verified ? 'All launch-version hard constraints passed.' : 'The backend verifier runs after optimization.'}</p></div>
+    <div className={`inspector-card plan-check-card is-${tone}`}>
+      <div className="plan-check-head">
+        <span className="plan-check-icon"><Icon size={17} /></span>
+        <div><strong>{title}</strong><small>{detail}</small></div>
+        {issues.length > 0 && <span className="tab-count">{issues.length}</span>}
       </div>
-      <div className="constraint-pills">
-        <span><CheckCircle2 size={14} /> Capacity</span><span><CheckCircle2 size={14} /> Time windows</span><span><CheckCircle2 size={14} /> Shifts</span><span><CheckCircle2 size={14} /> Reloads</span>
-      </div>
-      {validationItems.map((item) => (
-        <article key={item.id} className={`validation-item level-${item.level}`}>
-          <span className="validation-item-icon">{item.level === 'warning' || item.level === 'error' ? <AlertTriangle size={18} /> : item.level === 'success' ? <ShieldCheck size={18} /> : <Info size={18} />}</span>
-          <div><strong>{item.title}</strong><p>{item.detail}</p>{item.entity && <button type="button">Open {item.entity} <ChevronRight size={14} /></button>}</div>
-        </article>
-      ))}
+      {issues.length > 0 && (
+        <ul className="plan-check-issues">
+          {issues.map((item) => (
+            <li key={item.id} className={`level-${item.level}`}>
+              <AlertTriangle size={14} />
+              <div>
+                <strong>{item.title}</strong>
+                <p>{item.detail}</p>
+                {item.entity && customerIds.has(item.entity) && (
+                  <button type="button" onClick={() => onOpenCustomer(item.entity!)}>Open {item.entity} <ChevronRight size={13} /></button>
+                )}
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
@@ -1189,6 +1228,7 @@ function VehicleTimeline({ selectedRouteId, onSelectRoute }: { selectedRouteId: 
                                 <small>Arrive {visit.arrival}</small>
                                 <small>Depart {visit.departure}</small>
                                 <small>Time Window {customer.timeWindow.replace('–', ' - ')}</small>
+                                <small>Demand {customer.demand} {scenario.demand_unit}</small>
                               </span>
                             </TimelineEvent>
                           );
