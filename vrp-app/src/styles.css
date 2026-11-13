@@ -483,6 +483,7 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 .dark .route-overview-icon { color: #fbbf24; }
 .dark .route-card-all.is-selected,
 .dark .route-card-all:hover { --route-color: #fbbf24; }
+.route-card-all { grid-template-columns: auto 1fr; }
 .route-card-all > span:nth-child(2) { display: flex; flex-direction: column; gap: 3px; }
 .route-card-all strong { font-size: 12px; }
 .route-card-all small { color: var(--muted); font-size: 10px; line-height: 1.35; }

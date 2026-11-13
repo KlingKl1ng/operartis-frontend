@@ -1031,7 +1031,6 @@ function RoutesPanel({ selectedRouteId, selectedCustomerId, onSelectRoute, onSel
         <button className={`route-card route-card-all ${selectedRouteId === null ? 'is-selected' : ''}`} type="button" onClick={() => onSelectRoute(null)}>
           <span className="route-overview-icon"><LayoutDashboard size={18} /></span>
           <span><strong>All vehicle routes</strong><small>{routes.length} vehicles · {tripCount} trips · {stopCount} stops</small></span>
-          <ChevronRight size={16} />
         </button>
       )}
       {visibleRoutes.map(({ route, vehicle, routeTrips, matchedStops }) => {
