@@ -172,6 +172,19 @@ export interface ApiValidationIssue {
   details?: Record<string, unknown> | null;
 }
 
+export interface ScenarioTemplate {
+  id: string;
+  name: string;
+  description: string | null;
+  location: string;
+  filename: string;
+  planning_date: string;
+  currency: string;
+  demand_unit: string;
+  vehicle_types: string[];
+  counts: { depots: number; customers: number; vehicle_types: number; vehicles: number };
+}
+
 export interface ValidationResponse {
   valid: boolean;
   schema_version: string;

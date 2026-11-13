@@ -17,6 +17,7 @@ import {
   Gauge,
   Info,
   LayoutDashboard,
+  LayoutTemplate,
   ListFilter,
   LoaderCircle,
   MapPin,
@@ -40,8 +41,9 @@ import {
   X,
   Zap,
 } from 'lucide-react';
-import { cancelJob, downloadJobExport, importScenarioFile, submitSolve, validateScenario, waitForJob } from './api';
-import type { Customer, DataKind, Depot, InspectorTab, Route, ValidationResponse, Vehicle, VehicleType, VrpScenario, VrpSolution, VrpViewData } from './types';
+import { useQuery } from '@tanstack/react-query';
+import { cancelJob, downloadJobExport, downloadTemplate, importScenarioFile, importTemplate, listTemplates, submitSolve, validateScenario, waitForJob } from './api';
+import type { Customer, DataKind, Depot, InspectorTab, Route, ScenarioTemplate, ValidationResponse, Vehicle, VehicleType, VrpScenario, VrpSolution, VrpViewData } from './types';
 import { buildViewData } from './view-model';
 import { SettingsModal } from './SettingsModal';
 import operartisLogo from '../../operartis-logo.svg';
@@ -238,10 +240,8 @@ function App() {
   const [enabledDepotIds, setEnabledDepotIds] = useState<string[] | null>(null);
   const [allowedDepotChoices, setAllowedDepotChoices] = useState<Record<string, string> | null>(null);
   const [entityDialog, setEntityDialog] = useState<DataKind | null>(null);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [importing, setImporting] = useState(false);
+  const [scenarioDialog, setScenarioDialog] = useState<ScenarioSource | null>(null);
   const [importedFilename, setImportedFilename] = useState<string | null>(null);
-  const [importError, setImportError] = useState<string | null>(null);
   const [timelineCollapsed, setTimelineCollapsed] = useState(false);
   const [legendCollapsed, setLegendCollapsed] = useState(() => {
     try { return window.localStorage.getItem(LEGEND_COLLAPSED_KEY) !== '0'; } catch { return true; }
@@ -321,24 +321,14 @@ function App() {
       : `Import completed with ${checked.errors.length} blocking error${checked.errors.length === 1 ? '' : 's'}`);
   }, []);
 
-  const handleFileSelection = async (file: File | undefined) => {
-    if (!file || importing || optimizing) return;
-    setImporting(true);
-    setImportError(null);
-    try {
-      const report = await importScenarioFile(file);
-      handleImported(report);
-      setImportedFilename(file.name);
-    } catch (error) {
-      setImportError(error instanceof Error ? error.message : 'Scenario import failed');
-    } finally {
-      setImporting(false);
-      if (fileInputRef.current) fileInputRef.current.value = '';
-    }
-  };
+  const handleScenarioChosen = useCallback((report: ValidationResponse, filename: string) => {
+    handleImported(report);
+    setImportedFilename(filename);
+    setScenarioDialog(null);
+  }, [handleImported]);
 
   const runOptimization = async () => {
-    if (optimizing || importing || !scenario) return;
+    if (optimizing || !scenario) return;
     const controller = new AbortController();
     optimizationAbortRef.current = controller;
     setOptimizing(true);
@@ -425,8 +415,6 @@ function App() {
     setDataManager(null);
     setEntityDialog(null);
     setImportedFilename(null);
-    setImportError(null);
-    if (fileInputRef.current) fileInputRef.current.value = '';
     setOptimizationStage('Ready to optimize');
     setProgress(0);
     setActiveJobId(null);
@@ -475,32 +463,28 @@ function App() {
             <div className="sidebar-scroll scroller">
               <div className="sidebar-import">
                 <span className="sidebar-section-label">Source data</span>
-                <input ref={fileInputRef} type="file" accept=".xlsx,.json" hidden onChange={(event) => void handleFileSelection(event.target.files?.[0])} />
-                <div className={`sidebar-file-card ${importedFilename ? validation?.valid ? 'is-ready' : 'needs-review' : ''}`} aria-busy={importing}>
-                  {importing ? <div className="sidebar-file-loading" role="status"><LoaderCircle size={32} className="spin" /><span>Validating file…</span></div> : importedFilename ? (
+                <div className={`sidebar-file-card ${importedFilename ? validation?.valid ? 'is-ready' : 'needs-review' : ''}`}>
+                  {importedFilename ? (
                     <div className="sidebar-file-selected">
-                      <button className="sidebar-file-name" type="button" title={importedFilename} onClick={() => fileInputRef.current?.click()} disabled={optimizing}>{importedFilename}</button>
+                      <button className="sidebar-file-name" type="button" title={`${importedFilename} · choose another scenario`} onClick={() => setScenarioDialog('templates')} disabled={optimizing}>{importedFilename}</button>
                       <span className="sidebar-file-status">{validation?.valid ? 'Uploaded & validated' : 'Action required'}</span>
                       <div className="sidebar-file-actions">
-                        <button type="button" title="Re-upload file" aria-label="Re-upload file" onClick={() => fileInputRef.current?.click()} disabled={optimizing}><Upload size={14} /></button>
+                        <button type="button" title="Upload another file" aria-label="Upload another file" onClick={() => setScenarioDialog('upload')} disabled={optimizing}><Upload size={14} /></button>
                         <button type="button" title="Review scenario data" aria-label="Review scenario data" onClick={() => setDataManager('customers')}><Table2 size={14} /></button>
                       </div>
                     </div>
                   ) : (
-                    <button className="sidebar-file-empty" type="button" onClick={() => fileInputRef.current?.click()} disabled={optimizing} aria-label="Import scenario file">
-                      <Upload size={32} /><span>Upload Data</span>
+                    <button className="sidebar-file-empty" type="button" onClick={() => setScenarioDialog('templates')} disabled={optimizing} aria-label="Choose scenario data">
+                      <Upload size={32} /><span>Choose Data</span>
                     </button>
                   )}
                 </div>
-                {importError && <p className="sidebar-import-error" role="alert">{importError}</p>}
               </div>
 
               {scenario && <>
               <div className="sidebar-heading">
-                <div>
-                  <span className="eyebrow">Scenario data</span>
-                  <h2>{scenario.name}</h2>
-                </div>
+                <span className="sidebar-section-label">Scenario data</span>
+                <strong className="sidebar-scenario-name">{scenario.name}</strong>
               </div>
 
               <nav className="data-navigation" aria-label="Scenario data">
@@ -541,7 +525,7 @@ function App() {
 
               </>}
               <div className="sidebar-reset">
-                <button type="button" className="sidebar-reset-button" onClick={handleReset} disabled={importing}>
+                <button type="button" className="sidebar-reset-button" onClick={handleReset}>
                   <Trash2 size={16} />
                   Reset
                 </button>
@@ -564,14 +548,13 @@ function App() {
               <button className="icon-button mobile-menu-button" type="button" onClick={() => setMobileSidebarOpen(true)} aria-label="Open scenario navigation">
                 <Menu size={19} />
               </button>
-              {scenario && <button className="scenario-selector" type="button" aria-label="Choose scenario">
-                <span className="scenario-status-dot" />
+              <button className="scenario-selector" type="button" onClick={() => setScenarioDialog('templates')} disabled={optimizing} aria-haspopup="dialog" title="Choose scenario">
                 <span>
                   <small>Scenario</small>
-                  <strong>{scenario.name} · {new Date(`${scenario.planning_date}T00:00:00`).toLocaleDateString(undefined, { day: '2-digit', month: 'short' })}</strong>
+                  <strong>{scenario ? `${scenario.name} · ${new Date(`${scenario.planning_date}T00:00:00`).toLocaleDateString(undefined, { day: '2-digit', month: 'short' })}` : 'Choose a scenario'}</strong>
                 </span>
                 <ChevronDown size={15} />
-              </button>}
+              </button>
             </div>
 
             <div className="module-identity module-title">
@@ -582,7 +565,7 @@ function App() {
               {scenario && <><button className="icon-button hide-compact" type="button" onClick={() => setToast('Scenario draft saved locally')} aria-label="Save scenario">
                 <Save size={17} />
               </button>
-              <button className="button button-primary" type="button" onClick={runOptimization} disabled={optimizing || importing}>
+              <button className="button button-primary" type="button" onClick={runOptimization} disabled={optimizing}>
                 {optimizing ? <LoaderCircle className="spin" size={17} /> : <Sparkles size={17} />}
                 <span>{optimizing ? 'Optimizing' : 'Optimize'}</span>
               </button>
@@ -710,6 +693,7 @@ function App() {
             setToast('Allowed depots applied. Optimize again to calculate routes.');
           }} onClose={() => setDataManager(null)} onAdd={() => setEntityDialog(dataManager)} onToast={setToast} />
       )}
+      {scenarioDialog && <ScenarioDialog initialSource={scenarioDialog} onClose={() => setScenarioDialog(null)} onImported={handleScenarioChosen} />}
       {entityDialog && <EntityDialog kind={entityDialog} onClose={() => setEntityDialog(null)} onSaved={(message) => { setEntityDialog(null); setToast(message); }} />}
       <SettingsModal isOpen={settingsOpen} onClose={() => setSettingsOpen(false)} theme={theme} setTheme={setTheme} lang={lang} setLang={setLang} />
 
@@ -1374,31 +1358,145 @@ function EntityDialog({ kind, onClose, onSaved }: { kind: DataKind; onClose: () 
   );
 }
 
-function ImportDialog({ onClose, onImported }: { onClose: () => void; onImported: (report: ValidationResponse) => Promise<void> | void }) {
+type ScenarioSource = 'templates' | 'upload';
+
+const REQUIRED_SHEETS = [
+  { label: 'Scenario', icon: Settings2 },
+  { label: 'Depots', icon: Warehouse },
+  { label: 'Customers', icon: UsersRound },
+  { label: 'Vehicle Types', icon: Truck },
+  { label: 'Vehicles', icon: Truck },
+  { label: 'Objective & Solver', icon: Gauge },
+];
+
+function ScenarioDialog({ initialSource, onClose, onImported }: {
+  initialSource: ScenarioSource;
+  onClose: () => void;
+  onImported: (report: ValidationResponse, filename: string) => void;
+}) {
+  const [source, setSource] = useState<ScenarioSource>(initialSource);
+  const templatesQuery = useQuery({ queryKey: ['vrp-templates'], queryFn: listTemplates, staleTime: Infinity });
+  const templates = templatesQuery.data || [];
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
+  const selectedTemplate = templates.find((template) => template.id === selectedTemplateId) || templates[0] || null;
   const [file, setFile] = useState<File | null>(null);
-  const [importing, setImporting] = useState(false);
+  const [dragging, setDragging] = useState(false);
+  const [working, setWorking] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const validateAndImport = async () => {
-    if (!file || importing) return;
-    setImporting(true);
+
+  useEffect(() => {
+    const closeOnEscape = (event: KeyboardEvent) => { if (event.key === 'Escape' && !working) onClose(); };
+    window.addEventListener('keydown', closeOnEscape);
+    return () => window.removeEventListener('keydown', closeOnEscape);
+  }, [onClose, working]);
+
+  const chooseFile = (chosen: File | undefined) => {
+    if (!chosen) return;
+    setFile(chosen);
+    setError(null);
+  };
+
+  const confirm = async () => {
+    if (working) return;
+    setWorking(true);
     setError(null);
     try {
-      const report = await importScenarioFile(file);
-      await onImported(report);
+      if (source === 'templates') {
+        if (!selectedTemplate) return;
+        onImported(await importTemplate(selectedTemplate.id), selectedTemplate.filename);
+      } else {
+        if (!file) return;
+        onImported(await importScenarioFile(file), file.name);
+      }
     } catch (importError) {
       setError(importError instanceof Error ? importError.message : 'Scenario import failed');
     } finally {
-      setImporting(false);
+      setWorking(false);
     }
   };
+
+  const download = async (template: ScenarioTemplate) => {
+    try {
+      await downloadTemplate(template);
+    } catch (downloadError) {
+      setError(downloadError instanceof Error ? downloadError.message : 'Template download failed');
+    }
+  };
+
+  const canConfirm = !working && (source === 'templates' ? Boolean(selectedTemplate) : Boolean(file));
+
   return (
-    <div className="modal-layer modal-layer-top" role="presentation">
-      <div className="import-dialog" role="dialog" aria-modal="true" aria-label="Import scenario data">
-        <header><div><span className="entity-dialog-icon"><FileSpreadsheet size={20} /></span><span><small>Scenario data</small><h2>Import routing workbook</h2></span></div><button className="icon-button" type="button" onClick={onClose} aria-label="Close dialog"><X size={18} /></button></header>
-        <label className={`drop-zone ${file ? 'has-file' : ''}`}><input type="file" accept=".xlsx,.json" onChange={(event) => { setFile(event.target.files?.[0] || null); setError(null); }} />{file ? <><CheckCircle2 size={30} /><strong>{file.name}</strong><span>Ready for backend schema and constraint validation</span></> : <><CloudUpload size={32} /><strong>Drop a workbook here</strong><span>or click to browse · XLSX or JSON</span></>}</label>
-        <div className="import-structure"><span className="eyebrow">Required workbook sheets</span><div><span><Warehouse size={16} /> Depots</span><span><UsersRound size={16} /> Customers</span><span><Truck size={16} /> Vehicle Types</span><span><Settings2 size={16} /> Objective & Solver</span></div></div>
+    <div className="modal-layer modal-layer-top" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget && !working) onClose(); }}>
+      <div className="import-dialog scenario-dialog" role="dialog" aria-modal="true" aria-labelledby="scenario-dialog-title">
+        <header>
+          <div>
+            <span className="entity-dialog-icon"><FileSpreadsheet size={20} /></span>
+            <span><h2 id="scenario-dialog-title">Choose scenario</h2><small>Start from an Operartis template or upload your own workbook.</small></span>
+          </div>
+          <button className="icon-button" type="button" onClick={onClose} disabled={working} aria-label="Close dialog"><X size={18} /></button>
+        </header>
+
+        <div className="scenario-source-tabs" role="tablist" aria-label="Scenario source">
+          <button type="button" role="tab" aria-selected={source === 'templates'} className={source === 'templates' ? 'is-active' : ''} onClick={() => { setSource('templates'); setError(null); }}><LayoutTemplate size={15} /> Operartis templates</button>
+          <button type="button" role="tab" aria-selected={source === 'upload'} className={source === 'upload' ? 'is-active' : ''} onClick={() => { setSource('upload'); setError(null); }}><Upload size={15} /> Upload your own file</button>
+        </div>
+
+        {source === 'templates' ? (
+          <div className="scenario-dialog-body">
+            <p className="scenario-dialog-hint">Sample scenarios for demos and quick testing. Download one to use its layout for your own data.</p>
+            {templatesQuery.isLoading && <div className="scenario-template-status" role="status"><LoaderCircle className="spin" size={18} /> Loading templates…</div>}
+            {templatesQuery.isError && <p className="import-error" role="alert"><AlertTriangle size={16} /> {templatesQuery.error instanceof Error ? templatesQuery.error.message : 'Templates could not be loaded'}</p>}
+            <div className="scenario-template-list" role="radiogroup" aria-label="Operartis templates">
+              {templates.map((template) => {
+                const selected = selectedTemplate?.id === template.id;
+                return (
+                  <div key={template.id} className={`scenario-template-card ${selected ? 'is-selected' : ''}`}>
+                    <button type="button" role="radio" aria-checked={selected} className="scenario-template-select" onClick={() => setSelectedTemplateId(template.id)}>
+                      <span className="scenario-template-title"><strong>{template.name}</strong><small><MapPin size={12} /> {template.location}</small></span>
+                      <span className="scenario-template-counts">
+                        <span><b>{template.counts.depots}</b> depots</span>
+                        <span><b>{template.counts.customers}</b> customers</span>
+                        <span><b>{template.counts.vehicles}</b> vehicles</span>
+                      </span>
+                      <span className="scenario-template-meta">{template.vehicle_types.join(' · ')} · {template.currency}</span>
+                    </button>
+                    <button type="button" className="scenario-template-download" onClick={() => void download(template)} title={`Download ${template.filename}`} aria-label={`Download ${template.name} template`}><Download size={15} /></button>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        ) : (
+          <div className="scenario-dialog-body">
+            <label
+              className={`drop-zone ${file ? 'has-file' : ''} ${dragging ? 'is-dragging' : ''}`}
+              onDragOver={(event) => { event.preventDefault(); setDragging(true); }}
+              onDragLeave={() => setDragging(false)}
+              onDrop={(event) => { event.preventDefault(); setDragging(false); chooseFile(event.dataTransfer.files?.[0]); }}
+            >
+              <input type="file" accept=".xlsx,.json" onChange={(event) => chooseFile(event.target.files?.[0])} />
+              {file
+                ? <><CheckCircle2 size={30} /><strong>{file.name}</strong><span>Ready to validate · click to choose another file</span></>
+                : <><CloudUpload size={32} /><strong>Drop a workbook here</strong><span>or click to browse · XLSX or JSON</span></>}
+            </label>
+            <div className="import-structure">
+              <span className="eyebrow">Required workbook sheets</span>
+              <div>{REQUIRED_SHEETS.map(({ label, icon: Icon }) => <span key={label}><Icon size={16} /> {label}</span>)}</div>
+            </div>
+            <p className="scenario-dialog-hint">Not sure about the layout? Download a template from <button type="button" className="text-link" onClick={() => setSource('templates')}>Operartis templates</button>.</p>
+          </div>
+        )}
+
         {error && <p className="import-error" role="alert"><AlertTriangle size={16} /> {error}</p>}
-        <footer><button className="button button-quiet" type="button" onClick={onClose} disabled={importing}>Cancel</button><button className="button button-primary" type="button" onClick={() => void validateAndImport()} disabled={!file || importing}>{importing ? <LoaderCircle className="spin" size={16} /> : <ShieldCheck size={16} />} {importing ? 'Validating' : 'Validate & import'}</button></footer>
+
+        <footer>
+          <span className="scenario-dialog-note">Your current scenario changes only when you confirm.</span>
+          <button className="button button-quiet" type="button" onClick={onClose} disabled={working}>Cancel</button>
+          <button className="button button-primary" type="button" onClick={() => void confirm()} disabled={!canConfirm}>
+            {working ? <LoaderCircle className="spin" size={16} /> : <ShieldCheck size={16} />}
+            {working ? 'Validating' : source === 'templates' ? 'Use template' : 'Validate & import'}
+          </button>
+        </footer>
       </div>
     </div>
   );

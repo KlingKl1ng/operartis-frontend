@@ -1,4 +1,4 @@
-import type { SolveAccepted, ValidationResponse, VrpJobStatus, VrpScenario, VrpSolution } from './types';
+import type { ScenarioTemplate, SolveAccepted, ValidationResponse, VrpJobStatus, VrpScenario, VrpSolution } from './types';
 
 const unsafeMethods = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
 const localDevelopment = ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname);
@@ -91,17 +91,17 @@ export function cancelJob(jobId: string): Promise<{ job_id: string; status: stri
   return request(`/vrp/jobs/${encodeURIComponent(jobId)}/cancel`, { method: 'POST' });
 }
 
-export async function downloadJobExport(jobId: string, format: 'xlsx' | 'json' | 'geojson' = 'xlsx'): Promise<void> {
-  const path = endpoint(`/vrp/jobs/${encodeURIComponent(jobId)}/export?format=${format}`);
+async function downloadFile(apiPath: string, fallbackFilename: string, errorMessage: string): Promise<void> {
+  const path = endpoint(apiPath);
   const response = window.OperartisApi?.apiFetch
     ? await window.OperartisApi.apiFetch(path)
     : await fallbackFetch(path, {});
   if (!response.ok) {
     const payload = await response.json().catch(() => null);
-    throw new Error(apiErrorMessage(payload, 'Export failed'));
+    throw new Error(apiErrorMessage(payload, errorMessage));
   }
   const disposition = response.headers.get('Content-Disposition') || '';
-  const filename = disposition.match(/filename="?([^";]+)"?/i)?.[1] || `operartis-vrp-result.${format === 'geojson' ? 'geojson' : format}`;
+  const filename = disposition.match(/filename="?([^";]+)"?/i)?.[1] || fallbackFilename;
   const url = URL.createObjectURL(await response.blob());
   const anchor = document.createElement('a');
   anchor.href = url;
@@ -110,6 +110,27 @@ export async function downloadJobExport(jobId: string, format: 'xlsx' | 'json' |
   anchor.click();
   anchor.remove();
   URL.revokeObjectURL(url);
+}
+
+export function downloadJobExport(jobId: string, format: 'xlsx' | 'json' | 'geojson' = 'xlsx'): Promise<void> {
+  return downloadFile(
+    `/vrp/jobs/${encodeURIComponent(jobId)}/export?format=${format}`,
+    `operartis-vrp-result.${format}`,
+    'Export failed',
+  );
+}
+
+export async function listTemplates(): Promise<ScenarioTemplate[]> {
+  const payload = await request<{ templates: ScenarioTemplate[] }>('/vrp/templates');
+  return payload.templates;
+}
+
+export function importTemplate(templateId: string): Promise<ValidationResponse> {
+  return request<ValidationResponse>(`/vrp/templates/${encodeURIComponent(templateId)}/import`, { method: 'POST' });
+}
+
+export function downloadTemplate(template: ScenarioTemplate): Promise<void> {
+  return downloadFile(`/vrp/templates/${encodeURIComponent(template.id)}/download`, template.filename, 'Template download failed');
 }
 
 export async function waitForJob(
