@@ -126,6 +126,7 @@ export function buildViewData(
     capacity: vehicleType.capacity,
     fixedCost: vehicleType.fixed_activation_cost,
     distanceCost: vehicleType.distance_cost_per_km,
+    timeCost: vehicleType.working_time_cost_per_hour,
     profile: vehicleType.routing_profile,
   }));
 

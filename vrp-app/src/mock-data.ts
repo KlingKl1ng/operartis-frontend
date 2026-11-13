@@ -41,9 +41,9 @@ export const customers: Customer[] = [
 ];
 
 export const vehicleTypes: VehicleType[] = [
-  { id: 'VT-L', name: 'Large rigid · 18t', capacity: 108, fixedCost: 74, distanceCost: 1.12, profile: 'Truck' },
-  { id: 'VT-M', name: 'Medium box · 7.5t', capacity: 80, fixedCost: 52, distanceCost: 0.89, profile: 'Truck' },
-  { id: 'VT-S', name: 'Urban van · 3.5t', capacity: 64, fixedCost: 31, distanceCost: 0.61, profile: 'Van' },
+  { id: 'VT-L', name: 'Large rigid · 18t', capacity: 108, fixedCost: 74, distanceCost: 1.12, timeCost: 20, profile: 'Truck' },
+  { id: 'VT-M', name: 'Medium box · 7.5t', capacity: 80, fixedCost: 52, distanceCost: 0.89, timeCost: 20, profile: 'Truck' },
+  { id: 'VT-S', name: 'Urban van · 3.5t', capacity: 64, fixedCost: 31, distanceCost: 0.61, timeCost: 20, profile: 'Van' },
 ];
 
 export const vehicles: Vehicle[] = [

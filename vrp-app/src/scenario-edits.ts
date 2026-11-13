@@ -82,6 +82,7 @@ export const EDITABLE_COLUMNS: Record<DataKind, Record<string, ColumnWriter>> = 
     Capacity: (value, vehicleType) => ({ ...vehicleType, capacity: number(value) }),
     'Fixed cost': (value, vehicleType) => ({ ...vehicleType, fixed_activation_cost: number(value) }),
     'Distance cost': (value, vehicleType) => ({ ...vehicleType, distance_cost_per_km: number(value) }),
+    'Time cost': (value, vehicleType) => ({ ...vehicleType, working_time_cost_per_hour: number(value) }),
   },
   vehicles: {
     Plate: (value, vehicle) => ({ ...vehicle, name: text(value) }),
@@ -95,12 +96,66 @@ export function isEditableColumn(kind: DataKind, column: string): boolean {
   return column in EDITABLE_COLUMNS[kind] || (kind === 'customers' && column === 'Allowed Depot');
 }
 
+/** What the table cannot say about rows added in it. */
+export interface TableAdditions {
+  /** New vehicle type ID -> the existing type whose speed, depots and customer access it shares. */
+  vehicleTypeTemplates: Record<string, string>;
+}
+
+/** The fields of a new entity that no table column covers. */
+function newEntityBase(kind: DataKind, id: string, scenario: VrpScenario, additions: TableAdditions): Entity {
+  if (kind === 'customers') return { id, required: true, compatible_depot_ids: null, compatible_vehicle_type_ids: null, address_label: null };
+  if (kind === 'depots') return { id, supported_vehicle_type_ids: null };
+  if (kind === 'vehicles') return { id, enabled: true };
+  const template = scenario.vehicle_types.find((item) => item.id === additions.vehicleTypeTemplates[id]) ?? scenario.vehicle_types[0];
+  return {
+    id,
+    working_time_cost_per_hour: 0,
+    routing_profile: template?.routing_profile ?? 'driving',
+    speed_factor: template?.speed_factor ?? 1,
+    compatible_depot_ids: template?.compatible_depot_ids ? [...template.compatible_depot_ids] : null,
+  };
+}
+
+/**
+ * Makes rows added in the table usable. A new depot accepts every vehicle type. A new
+ * vehicle type goes wherever its template type goes: the same depots and the same customers.
+ */
+function linkNewEntities(next: VrpScenario, scenario: VrpScenario, additions: TableAdditions): void {
+  const knownDepots = new Set(scenario.depots.map((depot) => depot.id));
+  const newDepotIds = next.depots.map((depot) => depot.id).filter((id) => !knownDepots.has(id));
+  const knownTypes = new Set(scenario.vehicle_types.map((item) => item.id));
+  const newTypes = next.vehicle_types.filter((item) => !knownTypes.has(item.id));
+  if (newDepotIds.length) {
+    next.vehicle_types = next.vehicle_types.map((item) => (
+      item.compatible_depot_ids ? { ...item, compatible_depot_ids: [...new Set([...item.compatible_depot_ids, ...newDepotIds])] } : item
+    ));
+  }
+  newTypes.forEach((item) => {
+    const templateId = additions.vehicleTypeTemplates[item.id] ?? scenario.vehicle_types[0]?.id;
+    if (!templateId) return;
+    next.depots = next.depots.map((depot) => (
+      depot.supported_vehicle_type_ids?.includes(templateId)
+        ? { ...depot, supported_vehicle_type_ids: [...depot.supported_vehicle_type_ids, item.id] } : depot
+    ));
+    next.customers = next.customers.map((customer) => (
+      customer.compatible_vehicle_type_ids?.includes(templateId)
+        ? { ...customer, compatible_vehicle_type_ids: [...customer.compatible_vehicle_type_ids, item.id] } : customer
+    ));
+  });
+}
+
 /**
  * Writes the cells that differ from the table as first shown back onto the
  * scenario. Only changed cells are parsed, so rounded display values (e.g.
  * service minutes) never overwrite the exact stored values.
  */
-export function applyTableEdits(scenario: VrpScenario, original: ScenarioTableSet, edited: ScenarioTableSet): VrpScenario {
+export function applyTableEdits(
+  scenario: VrpScenario,
+  original: ScenarioTableSet,
+  edited: ScenarioTableSet,
+  additions: TableAdditions = { vehicleTypeTemplates: {} },
+): VrpScenario {
   const next = { ...scenario };
   const errors: string[] = [];
   (Object.keys(EDITABLE_COLUMNS) as DataKind[]).forEach((kind) => {
@@ -127,14 +182,11 @@ export function applyTableEdits(scenario: VrpScenario, original: ScenarioTableSe
       });
       return result;
     });
-    // Rows that are not in the scenario yet were added in the table (customers only).
+    // Rows that are not in the scenario yet were added in the table.
     const known = new Set(entities.map((entity) => String(entity.id)));
-    const added = kind === 'customers' ? edited[kind].filter((row) => !known.has(row.ID)) : [];
-    added.forEach((row) => {
-      let created: Entity = {
-        id: row.ID, required: true, compatible_depot_ids: null, compatible_vehicle_type_ids: null, address_label: null,
-      };
-      Object.entries(EDITABLE_COLUMNS.customers).forEach(([column, write]) => {
+    edited[kind].filter((row) => !known.has(row.ID)).forEach((row) => {
+      let created = newEntityBase(kind, row.ID, scenario, additions);
+      Object.entries(EDITABLE_COLUMNS[kind]).forEach(([column, write]) => {
         try {
           created = write(row[column] ?? '', created);
         } catch (error) {
@@ -148,6 +200,7 @@ export function applyTableEdits(scenario: VrpScenario, original: ScenarioTableSe
     if (changed) (next as Record<string, unknown>)[listKey] = updated;
   });
   if (errors.length) throw new Error(errors.join(' · '));
+  linkNewEntities(next, scenario, additions);
   return next;
 }
 

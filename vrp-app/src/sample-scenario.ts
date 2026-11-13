@@ -45,7 +45,7 @@ export const sampleScenario: VrpScenario = {
     capacity: vehicleType.capacity,
     fixed_activation_cost: vehicleType.fixedCost,
     distance_cost_per_km: vehicleType.distanceCost,
-    working_time_cost_per_hour: 20,
+    working_time_cost_per_hour: vehicleType.timeCost,
     routing_profile: 'driving',
     speed_factor: 1,
     compatible_depot_ids: depots.map((depot) => depot.id),

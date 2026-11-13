@@ -30,6 +30,7 @@ export interface VehicleType {
   capacity: number;
   fixedCost: number;
   distanceCost: number;
+  timeCost: number;
   profile: string;
 }
 
