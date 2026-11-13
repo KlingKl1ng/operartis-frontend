@@ -810,9 +810,9 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 .dark .toast { border-color: rgba(16, 185, 129, 0.25); background: #071a19; color: #ecfdf5; box-shadow: 0 18px 50px rgba(2, 6, 23, 0.35); }
 @keyframes toast-in { from { opacity: 0; transform: translateX(16px); } }
 .toast > span { display: grid; width: 34px; height: 34px; place-items: center; border-radius: 50%; background: #10b981; color: #fff; }
-.toast div { display: flex; flex-direction: column; gap: 3px; }
-.toast strong { font-size: 10px; }
-.toast p { margin: 0; color: #475569; font-size: 8px; line-height: 1.45; }
+.toast div { display: flex; flex-direction: column; align-self: center; gap: 2px; }
+.toast strong { font-size: 12px; font-weight: 700; line-height: 16px; }
+.toast p { margin: 0; color: #475569; font-size: 11px; line-height: 1.45; }
 .toast button { width: 25px; height: 25px; display: grid; place-items: center; border: 0; border-radius: 7px; background: transparent; color: #64748b; cursor: pointer; }
 .toast button:hover { background: #f1f5f9; color: #0f172a; }
 .toast.is-error { border-color: #fecdd3; color: #881337; }
