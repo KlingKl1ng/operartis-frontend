@@ -17,6 +17,7 @@ import {
   Gauge,
   Info,
   LayoutDashboard,
+  FolderOpen,
   LayoutTemplate,
   ListFilter,
   LoaderCircle,
@@ -41,9 +42,10 @@ import {
   X,
   Zap,
 } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
-import { cancelJob, downloadJobExport, downloadTemplate, importScenarioFile, importTemplate, listTemplates, submitSolve, validateScenario, waitForJob } from './api';
-import type { Customer, DataKind, Depot, InspectorTab, Route, ScenarioTemplate, ValidationResponse, Vehicle, VehicleType, VrpScenario, VrpSolution, VrpViewData } from './types';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { cancelJob, downloadJobExport, downloadTemplate, importScenarioFile, importTemplate, listTemplates, saveNewScenario, saveScenarioVersion, submitSolve, validateScenario, waitForJob } from './api';
+import { SAVED_SCENARIOS_QUERY_KEY, SaveScenarioDialog, ScenarioLibraryPane, type OpenSavedScenario } from './ScenarioLibrary';
+import type { Customer, DataKind, Depot, InspectorTab, OpenedScenarioVersion, Route, SaveScenarioResult, ScenarioTemplate, ValidationResponse, Vehicle, VehicleType, VrpScenario, VrpSolution, VrpViewData } from './types';
 import { buildViewData } from './view-model';
 import { SettingsModal } from './SettingsModal';
 import operartisLogo from '../../operartis-logo.svg';
@@ -241,6 +243,12 @@ function App() {
   const [allowedDepotChoices, setAllowedDepotChoices] = useState<Record<string, string> | null>(null);
   const [entityDialog, setEntityDialog] = useState<DataKind | null>(null);
   const [scenarioDialog, setScenarioDialog] = useState<ScenarioSource | null>(null);
+  const queryClient = useQueryClient();
+  const [savedScenario, setSavedScenario] = useState<OpenSavedScenario | null>(null);
+  const [savedSnapshot, setSavedSnapshot] = useState<string | null>(null);
+  const [saveDialogOpen, setSaveDialogOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [importedFilename, setImportedFilename] = useState<string | null>(null);
   const [timelineCollapsed, setTimelineCollapsed] = useState(false);
   const [legendCollapsed, setLegendCollapsed] = useState(() => {
@@ -260,7 +268,9 @@ function App() {
   const [progress, setProgress] = useState(0);
   const [activeJobId, setActiveJobId] = useState<string | null>(null);
   const [completedJobId, setCompletedJobId] = useState<string | null>(null);
-  const [toast, setToast] = useState<string | null>(null);
+  const [toastState, setToastState] = useState<{ message: string; tone: 'success' | 'error' } | null>(null);
+  const setToast = useCallback((message: string | null) => setToastState(message ? { message, tone: 'success' } : null), []);
+  const showErrorToast = useCallback((message: string) => setToastState({ message, tone: 'error' }), []);
   const [mapFitRequest, setMapFitRequest] = useState(0);
   const optimizationAbortRef = useRef<AbortController | null>(null);
 
@@ -280,10 +290,10 @@ function App() {
   const runtimeValue = useMemo<VrpRuntimeContextValue>(() => ({ scenario, solution, validation, viewData }), [scenario, solution, validation, viewData]);
 
   useEffect(() => {
-    if (!toast) return;
-    const timer = window.setTimeout(() => setToast(null), 3600);
+    if (!toastState) return;
+    const timer = window.setTimeout(() => setToastState(null), toastState.tone === 'error' ? 6000 : 3600);
     return () => window.clearTimeout(timer);
-  }, [toast]);
+  }, [toastState]);
 
   useEffect(() => {
     const openSettings = () => setSettingsOpen(true);
@@ -324,8 +334,65 @@ function App() {
   const handleScenarioChosen = useCallback((report: ValidationResponse, filename: string) => {
     handleImported(report);
     setImportedFilename(filename);
+    setSavedScenario(null);
+    setSavedSnapshot(null);
     setScenarioDialog(null);
   }, [handleImported]);
+
+  const handleSavedScenarioOpened = useCallback((opened: OpenedScenarioVersion) => {
+    handleImported(opened.report);
+    setImportedFilename(opened.scenario.source_filename || opened.scenario.name);
+    setSavedScenario({ id: opened.scenario.id, name: opened.scenario.name, versionId: opened.version.id, versionNumber: opened.version.version_number });
+    setSavedSnapshot(JSON.stringify(opened.report.normalized_scenario));
+    setScenarioDialog(null);
+    setToast(`Opened ${opened.scenario.name} · version ${opened.version.version_number}`);
+  }, [handleImported, setToast]);
+
+  const applySaveResult = (result: SaveScenarioResult, saved: VrpScenario) => {
+    setSavedScenario({ id: result.scenario.id, name: result.scenario.name, versionId: result.version.id, versionNumber: result.version.version_number });
+    setSavedSnapshot(JSON.stringify(saved));
+    void queryClient.invalidateQueries({ queryKey: SAVED_SCENARIOS_QUERY_KEY });
+  };
+
+  const handleSave = async () => {
+    if (!scenario || saving || optimizing) return;
+    if (!savedScenario) {
+      setSaveError(null);
+      setSaveDialogOpen(true);
+      return;
+    }
+    const snapshot = scenario;
+    setSaving(true);
+    try {
+      const result = await saveScenarioVersion(savedScenario.id, snapshot);
+      applySaveResult(result, snapshot);
+      setToast(result.created ? `Saved ${result.scenario.name} · version ${result.version.version_number}` : `No changes since version ${result.version.version_number}`);
+    } catch (error) {
+      showErrorToast(error instanceof Error ? error.message : 'The scenario could not be saved');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleSaveAsNew = async (name: string) => {
+    if (!scenario || saving) return;
+    const snapshot = scenario;
+    setSaving(true);
+    setSaveError(null);
+    try {
+      const result = await saveNewScenario(name, snapshot, importedFilename);
+      applySaveResult(result, snapshot);
+      setSaveDialogOpen(false);
+      setToast(`Saved ${result.scenario.name} · version 1`);
+    } catch (error) {
+      setSaveError(error instanceof Error ? error.message : 'The scenario could not be saved');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const hasUnsavedChanges = Boolean(scenario && savedScenario && savedSnapshot !== JSON.stringify(scenario));
+  const scenarioStatus = !scenario ? 'Scenario' : !savedScenario ? 'Scenario · not saved' : hasUnsavedChanges ? `Version ${savedScenario.versionNumber} · unsaved changes` : `Saved · version ${savedScenario.versionNumber}`;
 
   const runOptimization = async () => {
     if (optimizing || !scenario) return;
@@ -415,6 +482,8 @@ function App() {
     setDataManager(null);
     setEntityDialog(null);
     setImportedFilename(null);
+    setSavedScenario(null);
+    setSavedSnapshot(null);
     setOptimizationStage('Ready to optimize');
     setProgress(0);
     setActiveJobId(null);
@@ -548,10 +617,10 @@ function App() {
               <button className="icon-button mobile-menu-button" type="button" onClick={() => setMobileSidebarOpen(true)} aria-label="Open scenario navigation">
                 <Menu size={19} />
               </button>
-              <button className="scenario-selector" type="button" onClick={() => setScenarioDialog('templates')} disabled={optimizing} aria-haspopup="dialog" title="Choose scenario">
+              <button className="scenario-selector" type="button" onClick={() => setScenarioDialog('library')} disabled={optimizing} aria-haspopup="dialog" title="Choose scenario">
                 <span>
-                  <small>Scenario</small>
-                  <strong>{scenario ? `${scenario.name} · ${new Date(`${scenario.planning_date}T00:00:00`).toLocaleDateString(undefined, { day: '2-digit', month: 'short' })}` : 'Choose a scenario'}</strong>
+                  <small>{scenarioStatus}</small>
+                  <strong>{scenario ? `${savedScenario?.name || scenario.name} · ${new Date(`${scenario.planning_date}T00:00:00`).toLocaleDateString(undefined, { day: '2-digit', month: 'short' })}` : 'Choose a scenario'}</strong>
                 </span>
                 <ChevronDown size={15} />
               </button>
@@ -562,8 +631,8 @@ function App() {
             </div>
 
             <div className="header-actions">
-              {scenario && <><button className="icon-button hide-compact" type="button" onClick={() => setToast('Scenario draft saved locally')} aria-label="Save scenario">
-                <Save size={17} />
+              {scenario && <><button className={`icon-button hide-compact save-button ${hasUnsavedChanges ? 'has-changes' : ''}`} type="button" onClick={() => void handleSave()} disabled={saving || optimizing} aria-label={savedScenario ? 'Save new version' : 'Save scenario'} title={savedScenario ? `Save as version ${savedScenario.versionNumber + 1} of ${savedScenario.name}` : 'Save to My scenarios'}>
+                {saving ? <LoaderCircle className="spin" size={17} /> : <Save size={17} />}
               </button>
               <button className="button button-primary" type="button" onClick={runOptimization} disabled={optimizing}>
                 {optimizing ? <LoaderCircle className="spin" size={17} /> : <Sparkles size={17} />}
@@ -693,14 +762,15 @@ function App() {
             setToast('Allowed depots applied. Optimize again to calculate routes.');
           }} onClose={() => setDataManager(null)} onAdd={() => setEntityDialog(dataManager)} onToast={setToast} />
       )}
-      {scenarioDialog && <ScenarioDialog initialSource={scenarioDialog} onClose={() => setScenarioDialog(null)} onImported={handleScenarioChosen} />}
+      {scenarioDialog && <ScenarioDialog initialSource={scenarioDialog} current={savedScenario} onClose={() => setScenarioDialog(null)} onImported={handleScenarioChosen} onOpened={handleSavedScenarioOpened} onRenamed={(id, name) => setSavedScenario((value) => value && value.id === id ? { ...value, name } : value)} />}
+      {saveDialogOpen && scenario && <SaveScenarioDialog defaultName={scenario.name} saving={saving} error={saveError} onCancel={() => setSaveDialogOpen(false)} onSave={(name) => void handleSaveAsNew(name)} />}
       {entityDialog && <EntityDialog kind={entityDialog} onClose={() => setEntityDialog(null)} onSaved={(message) => { setEntityDialog(null); setToast(message); }} />}
       <SettingsModal isOpen={settingsOpen} onClose={() => setSettingsOpen(false)} theme={theme} setTheme={setTheme} lang={lang} setLang={setLang} />
 
-      {toast && (
-        <div className="toast" role="status">
-          <span><CheckCircle2 size={20} /></span>
-          <div><strong>Success</strong><p>{toast}</p></div>
+      {toastState && (
+        <div className={`toast ${toastState.tone === 'error' ? 'is-error' : ''}`} role={toastState.tone === 'error' ? 'alert' : 'status'}>
+          <span>{toastState.tone === 'error' ? <AlertTriangle size={20} /> : <CheckCircle2 size={20} />}</span>
+          <div><strong>{toastState.tone === 'error' ? 'Something went wrong' : 'Success'}</strong><p>{toastState.message}</p></div>
           <button type="button" onClick={() => setToast(null)} aria-label="Dismiss notification"><X size={15} /></button>
         </div>
       )}
@@ -1358,7 +1428,7 @@ function EntityDialog({ kind, onClose, onSaved }: { kind: DataKind; onClose: () 
   );
 }
 
-type ScenarioSource = 'templates' | 'upload';
+type ScenarioSource = 'library' | 'templates' | 'upload';
 
 const REQUIRED_SHEETS = [
   { label: 'Scenario', icon: Settings2 },
@@ -1369,10 +1439,13 @@ const REQUIRED_SHEETS = [
   { label: 'Objective & Solver', icon: Gauge },
 ];
 
-function ScenarioDialog({ initialSource, onClose, onImported }: {
+function ScenarioDialog({ initialSource, current, onClose, onImported, onOpened, onRenamed }: {
   initialSource: ScenarioSource;
+  current: OpenSavedScenario | null;
   onClose: () => void;
   onImported: (report: ValidationResponse, filename: string) => void;
+  onOpened: (opened: OpenedScenarioVersion) => void;
+  onRenamed: (scenarioId: string, name: string) => void;
 }) {
   const [source, setSource] = useState<ScenarioSource>(initialSource);
   const templatesQuery = useQuery({ queryKey: ['vrp-templates'], queryFn: listTemplates, staleTime: Infinity });
@@ -1381,7 +1454,9 @@ function ScenarioDialog({ initialSource, onClose, onImported }: {
   const selectedTemplate = templates.find((template) => template.id === selectedTemplateId) || templates[0] || null;
   const [file, setFile] = useState<File | null>(null);
   const [dragging, setDragging] = useState(false);
-  const [working, setWorking] = useState(false);
+  const [importWorking, setImportWorking] = useState(false);
+  const [libraryBusy, setLibraryBusy] = useState(false);
+  const working = importWorking || libraryBusy;
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -1398,7 +1473,7 @@ function ScenarioDialog({ initialSource, onClose, onImported }: {
 
   const confirm = async () => {
     if (working) return;
-    setWorking(true);
+    setImportWorking(true);
     setError(null);
     try {
       if (source === 'templates') {
@@ -1411,7 +1486,7 @@ function ScenarioDialog({ initialSource, onClose, onImported }: {
     } catch (importError) {
       setError(importError instanceof Error ? importError.message : 'Scenario import failed');
     } finally {
-      setWorking(false);
+      setImportWorking(false);
     }
   };
 
@@ -1437,11 +1512,16 @@ function ScenarioDialog({ initialSource, onClose, onImported }: {
         </header>
 
         <div className="scenario-source-tabs" role="tablist" aria-label="Scenario source">
+          <button type="button" role="tab" aria-selected={source === 'library'} className={source === 'library' ? 'is-active' : ''} onClick={() => { setSource('library'); setError(null); }} disabled={working}><FolderOpen size={15} /> My scenarios</button>
           <button type="button" role="tab" aria-selected={source === 'templates'} className={source === 'templates' ? 'is-active' : ''} onClick={() => { setSource('templates'); setError(null); }}><LayoutTemplate size={15} /> Operartis templates</button>
           <button type="button" role="tab" aria-selected={source === 'upload'} className={source === 'upload' ? 'is-active' : ''} onClick={() => { setSource('upload'); setError(null); }}><Upload size={15} /> Upload your own file</button>
         </div>
 
-        {source === 'templates' ? (
+        {source === 'library' ? (
+          <div className="scenario-dialog-body">
+            <ScenarioLibraryPane current={current} onOpened={onOpened} onRenamed={onRenamed} onChooseTemplate={() => setSource('templates')} onBusyChange={setLibraryBusy} />
+          </div>
+        ) : source === 'templates' ? (
           <div className="scenario-dialog-body">
             <p className="scenario-dialog-hint">Sample scenarios for demos and quick testing. Download one to use its layout for your own data.</p>
             {templatesQuery.isLoading && <div className="scenario-template-status" role="status"><LoaderCircle className="spin" size={18} /> Loading templates…</div>}
@@ -1490,12 +1570,12 @@ function ScenarioDialog({ initialSource, onClose, onImported }: {
         {error && <p className="import-error" role="alert"><AlertTriangle size={16} /> {error}</p>}
 
         <footer>
-          <span className="scenario-dialog-note">Your current scenario changes only when you confirm.</span>
-          <button className="button button-quiet" type="button" onClick={onClose} disabled={working}>Cancel</button>
-          <button className="button button-primary" type="button" onClick={() => void confirm()} disabled={!canConfirm}>
-            {working ? <LoaderCircle className="spin" size={16} /> : <ShieldCheck size={16} />}
-            {working ? 'Validating' : source === 'templates' ? 'Use template' : 'Validate & import'}
-          </button>
+          <span className="scenario-dialog-note">{source === 'library' ? 'Private to your account · up to 50 scenarios.' : 'Your current scenario changes only when you confirm.'}</span>
+          <button className="button button-quiet" type="button" onClick={onClose} disabled={working}>{source === 'library' ? 'Close' : 'Cancel'}</button>
+          {source !== 'library' && <button className="button button-primary" type="button" onClick={() => void confirm()} disabled={!canConfirm}>
+            {importWorking ? <LoaderCircle className="spin" size={16} /> : <ShieldCheck size={16} />}
+            {importWorking ? 'Validating' : source === 'templates' ? 'Use template' : 'Validate & import'}
+          </button>}
         </footer>
       </div>
     </div>

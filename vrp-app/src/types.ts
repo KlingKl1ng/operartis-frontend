@@ -185,6 +185,47 @@ export interface ScenarioTemplate {
   counts: { depots: number; customers: number; vehicle_types: number; vehicles: number };
 }
 
+export interface SavedScenarioVersion {
+  id: string;
+  version_number: number;
+  created_at: string;
+  byte_size: number;
+  summary: {
+    scenario_name?: string;
+    planning_date?: string;
+    currency?: string;
+    counts?: { depots: number; customers: number; vehicle_types: number; vehicles: number };
+  };
+}
+
+export interface SavedScenario {
+  id: string;
+  name: string;
+  source_filename: string | null;
+  created_at: string;
+  updated_at: string;
+  version_count: number;
+  latest_version: SavedScenarioVersion | null;
+  versions: SavedScenarioVersion[];
+}
+
+export interface SavedScenarioList {
+  scenarios: SavedScenario[];
+  limits: { scenarios: number; library_bytes: number };
+}
+
+export interface SaveScenarioResult {
+  scenario: SavedScenario;
+  version: SavedScenarioVersion;
+  created: boolean;
+}
+
+export interface OpenedScenarioVersion {
+  scenario: SavedScenario;
+  version: SavedScenarioVersion;
+  report: ValidationResponse;
+}
+
 export interface ValidationResponse {
   valid: boolean;
   schema_version: string;

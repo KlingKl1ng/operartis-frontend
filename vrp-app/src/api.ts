@@ -1,4 +1,4 @@
-import type { ScenarioTemplate, SolveAccepted, ValidationResponse, VrpJobStatus, VrpScenario, VrpSolution } from './types';
+import type { OpenedScenarioVersion, SavedScenario, SavedScenarioList, SaveScenarioResult, ScenarioTemplate, SolveAccepted, ValidationResponse, VrpJobStatus, VrpScenario, VrpSolution } from './types';
 
 const unsafeMethods = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
 const localDevelopment = ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname);
@@ -153,4 +153,42 @@ export async function waitForJob(
     });
   }
   throw new DOMException('Optimization cancelled', 'AbortError');
+}
+
+const jsonHeaders = { 'Content-Type': 'application/json' };
+
+export function listSavedScenarios(): Promise<SavedScenarioList> {
+  return request<SavedScenarioList>('/vrp/saved-scenarios');
+}
+
+export function saveNewScenario(name: string, scenario: VrpScenario, sourceFilename: string | null): Promise<SaveScenarioResult> {
+  return request<SaveScenarioResult>('/vrp/saved-scenarios', {
+    method: 'POST',
+    headers: jsonHeaders,
+    body: JSON.stringify({ name, scenario, source_filename: sourceFilename }),
+  });
+}
+
+export function saveScenarioVersion(scenarioId: string, scenario: VrpScenario): Promise<SaveScenarioResult> {
+  return request<SaveScenarioResult>(`/vrp/saved-scenarios/${encodeURIComponent(scenarioId)}/versions`, {
+    method: 'POST',
+    headers: jsonHeaders,
+    body: JSON.stringify({ scenario }),
+  });
+}
+
+export function openScenarioVersion(scenarioId: string, versionId: string): Promise<OpenedScenarioVersion> {
+  return request<OpenedScenarioVersion>(`/vrp/saved-scenarios/${encodeURIComponent(scenarioId)}/versions/${encodeURIComponent(versionId)}`);
+}
+
+export function renameSavedScenario(scenarioId: string, name: string): Promise<SavedScenario> {
+  return request<SavedScenario>(`/vrp/saved-scenarios/${encodeURIComponent(scenarioId)}`, {
+    method: 'PATCH',
+    headers: jsonHeaders,
+    body: JSON.stringify({ name }),
+  });
+}
+
+export function deleteSavedScenario(scenarioId: string): Promise<{ deleted: boolean; id: string }> {
+  return request(`/vrp/saved-scenarios/${encodeURIComponent(scenarioId)}`, { method: 'DELETE' });
 }

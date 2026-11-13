@@ -625,9 +625,9 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 .import-dialog footer { justify-content: flex-end; gap: 7px; padding: 13px 20px; border-top: 1px solid var(--border); }
 
 /* Choose scenario dialog: templates or upload. */
-.scenario-dialog { width: min(640px, 94vw); display: flex; flex-direction: column; }
+.scenario-dialog { width: min(760px, 94vw); display: flex; flex-direction: column; }
 .scenario-dialog header small { font-size: 9px; text-transform: none; }
-.scenario-source-tabs { display: grid; grid-template-columns: repeat(2, 1fr); gap: 3px; margin: 16px 20px 0; padding: 3px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface-muted); }
+.scenario-source-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; margin: 16px 20px 0; padding: 3px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface-muted); }
 .scenario-source-tabs button { min-height: 34px; display: flex; align-items: center; justify-content: center; gap: 6px; border: 0; border-radius: 7px; background: transparent; color: var(--muted); font-size: 11px; font-weight: 750; cursor: pointer; }
 .scenario-source-tabs button.is-active { background: var(--surface); color: var(--text); box-shadow: 0 2px 7px rgba(15, 23, 42, 0.08); }
 .scenario-source-tabs button.is-active svg { color: var(--brand-gold-deep); }
@@ -656,6 +656,59 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 .dark .text-link { color: #fbbf24; }
 .scenario-dialog footer { align-items: center; }
 .scenario-dialog-note { margin-right: auto; color: var(--muted); font-size: 10px; }
+.scenario-source-tabs button:disabled { cursor: default; opacity: 0.6; }
+
+/* My scenarios: saved scenario list and version history. */
+.scenario-library { display: grid; grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr); gap: 14px; padding: 16px 20px 14px; }
+.scenario-library-list { display: grid; align-content: start; gap: 7px; max-height: 340px; margin: 0; padding: 0; overflow: auto; list-style: none; }
+.scenario-library-item { position: relative; border: 1px solid var(--border); border-radius: 11px; background: var(--bg-soft); }
+.scenario-library-item:hover { border-color: var(--border-strong); }
+.scenario-library-item.is-selected { border-color: var(--brand-gold); background: rgba(245, 158, 11, 0.06); box-shadow: 0 0 0 1px var(--brand-gold) inset; }
+.scenario-library-select { width: 100%; display: grid; gap: 3px; padding: 11px 64px 11px 12px; border: 0; border-radius: 11px; background: transparent; color: var(--text); text-align: left; cursor: pointer; }
+.scenario-library-select strong { display: flex; align-items: center; gap: 6px; overflow: hidden; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+.scenario-library-select small { overflow: hidden; color: var(--muted); font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+.scenario-library-badge { padding: 1px 6px; border-radius: 99px; background: rgba(16, 185, 129, 0.14); color: #047857; font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; }
+.dark .scenario-library-badge { color: #6ee7b7; }
+.scenario-library-actions { position: absolute; top: 8px; right: 8px; display: flex; gap: 4px; }
+.scenario-library-actions button { min-width: 26px; height: 26px; display: grid; place-items: center; padding: 0 6px; border: 1px solid var(--border); border-radius: 7px; background: var(--surface); color: var(--text-soft); font-size: 10px; font-weight: 700; cursor: pointer; }
+.scenario-library-actions button:hover { border-color: var(--border-strong); color: var(--text); }
+.scenario-library-actions button.is-danger { border-color: rgba(225, 29, 72, 0.4); background: rgba(225, 29, 72, 0.1); color: #be123c; }
+.dark .scenario-library-actions button.is-danger { color: #fda4af; }
+.scenario-library-rename { display: flex; gap: 5px; padding: 8px; }
+.scenario-library-rename input { flex: 1; min-width: 0; height: 30px; padding: 0 9px; border: 1px solid var(--brand-gold); border-radius: 8px; background: var(--surface); color: var(--text); font: inherit; font-size: 12px; }
+.scenario-library-rename button { width: 30px; height: 30px; display: grid; place-items: center; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text-soft); cursor: pointer; }
+.scenario-library-versions { display: grid; align-content: start; gap: 8px; max-height: 340px; overflow: auto; }
+.scenario-version-card { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 11px 12px; border: 1px solid var(--border); border-radius: 11px; background: var(--surface); }
+.scenario-version-card.is-open { border-color: rgba(16, 185, 129, 0.45); }
+.scenario-version-card > div { display: grid; gap: 3px; min-width: 0; }
+.scenario-version-card strong { display: flex; align-items: center; gap: 6px; font-size: 12px; }
+.scenario-version-card small { color: var(--muted); font-size: 10px; }
+.scenario-version-card .button { flex: 0 0 auto; min-height: 32px; padding: 0 12px; font-size: 11px; }
+.scenario-library-error { grid-column: 1 / -1; margin: 0; }
+.scenario-library-status { margin: 24px 20px; }
+.scenario-library-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; min-height: 290px; padding: 24px 40px; color: var(--muted); text-align: center; }
+.scenario-library-empty strong { color: var(--text); font-size: 13px; }
+.scenario-library-empty span { max-width: 360px; font-size: 11px; line-height: 1.5; }
+.scenario-library-empty svg { vertical-align: -2px; }
+.scenario-library-empty .button { margin-top: 6px; }
+
+/* Save scenario dialog. */
+.save-scenario-dialog { width: min(460px, 94vw); }
+.save-scenario-dialog header small { font-size: 9px; text-transform: none; }
+.save-scenario-field { display: grid; gap: 6px; padding: 18px 20px; }
+.save-scenario-field span { color: var(--muted); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
+.save-scenario-field input { height: 38px; padding: 0 11px; border: 1px solid var(--border-strong); border-radius: 9px; background: var(--surface); color: var(--text); font: inherit; font-size: 13px; }
+.save-scenario-field input:focus { outline: 2px solid var(--brand-gold); outline-offset: 1px; }
+.save-scenario-dialog .import-error { margin: 0 20px 14px; }
+
+/* Save button: a dot marks unsaved changes to a saved scenario. */
+.save-button { position: relative; }
+.save-button.has-changes::after { content: ''; position: absolute; top: 6px; right: 6px; width: 7px; height: 7px; border: 2px solid var(--surface); border-radius: 50%; background: var(--brand-gold); }
+
+@media (max-width: 640px) {
+  .scenario-library { grid-template-columns: 1fr; }
+  .scenario-source-tabs button { font-size: 10px; }
+}
 
 .settings-layer { z-index: 140; }
 .settings-backdrop { position: absolute; inset: 0; border: 0; background: transparent; cursor: default; }
@@ -697,6 +750,10 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 .toast p { margin: 0; color: #475569; font-size: 8px; line-height: 1.45; }
 .toast button { width: 25px; height: 25px; display: grid; place-items: center; border: 0; border-radius: 7px; background: transparent; color: #64748b; cursor: pointer; }
 .toast button:hover { background: #f1f5f9; color: #0f172a; }
+.toast.is-error { border-color: #fecdd3; color: #881337; }
+.toast.is-error > span { background: #e11d48; }
+.dark .toast.is-error { border-color: rgba(225, 29, 72, 0.35); background: #1f0a12; color: #ffe4e6; }
+.dark .toast.is-error p { color: #fecdd3; }
 .dark .toast p { color: #a7f3d0; }
 .dark .toast button { color: #a7f3d0; }
 .dark .toast button:hover { background: rgba(167, 243, 208, 0.1); color: #ecfdf5; }
