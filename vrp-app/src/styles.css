@@ -380,6 +380,13 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 .dark .legend-toggle { border-left-color: rgba(148, 163, 184, 0.2); }
 .dark .legend-toggle:hover { background: rgba(148, 163, 184, 0.12); color: #fbbf24; }
 .dark .legend-route { background: #94a3b8; }
+/* MapLibre's attribution control (ⓘ, expands to the credits) on the same navy surface;
+   a ring instead of a border keeps its 24px round shape. The icon is a black SVG background,
+   so it is inverted to light slate on a transparent button. */
+.dark .maplibregl-ctrl-attrib { background: rgba(16, 24, 39, 0.94); color: #cbd5e1; box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.2), 0 10px 28px rgba(2, 6, 23, 0.45); }
+.dark .maplibregl-ctrl-attrib a { color: #cbd5e1; }
+.dark .maplibregl-ctrl-attrib a:hover { color: #fbbf24; }
+.dark .maplibregl-ctrl-attrib-button { background-color: transparent !important; filter: invert(0.82); }
 
 .route-inspector { min-height: 0; display: flex; flex-direction: column; background: var(--surface); }
 .inspector-header { min-height: 64px; justify-content: space-between; padding: 12px 14px 8px 16px; }
