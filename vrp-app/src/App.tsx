@@ -267,6 +267,7 @@ function App() {
   const [progress, setProgress] = useState(0);
   const [activeJobId, setActiveJobId] = useState<string | null>(null);
   const [completedJobId, setCompletedJobId] = useState<string | null>(null);
+  const [solvedAt, setSolvedAt] = useState<Date | null>(null);
   const [toastState, setToastState] = useState<{ message: string; tone: 'success' | 'error' } | null>(null);
   const setToast = useCallback((message: string | null) => setToastState(message ? { message, tone: 'success' } : null), []);
   const showErrorToast = useCallback((message: string) => setToastState({ message, tone: 'error' }), []);
@@ -346,6 +347,7 @@ function App() {
     if (opened.plan && opened.report.valid) {
       setSolution(opened.plan.solution);
       setCompletedJobId(opened.plan.job_id);
+      setSolvedAt(new Date(opened.plan.created_at));
       setSolvedSnapshot(snapshot);
       setProgress(100);
       setOptimizationStage('Saved plan');
@@ -428,6 +430,20 @@ function App() {
   const saveState = !savedScenario ? 'Not saved' : hasUnsavedChanges ? `Version ${savedScenario.versionNumber} · unsaved changes` : `Saved · version ${savedScenario.versionNumber}`;
   const scenarioDisplayName = savedScenario?.name || scenario?.name || importedFilename || 'Scenario';
   const planningDateLabel = scenario ? new Date(`${scenario.planning_date}T00:00:00`).toLocaleDateString(undefined, { day: '2-digit', month: 'short' }) : '';
+  const scenarioJson = useMemo(() => scenario ? JSON.stringify(scenario) : null, [scenario]);
+  const blockingErrors = validation && !validation.valid ? validation.errors.length : 0;
+  const planStatus: { tone: 'running' | 'ok' | 'warning' | 'error' | 'idle'; text: string } = optimizing
+    ? { tone: 'running', text: optimizationStage }
+    : blockingErrors
+      ? { tone: 'error', text: `Fix ${blockingErrors} blocking error${blockingErrors === 1 ? '' : 's'} first` }
+      : solution
+        ? solution.verification.passed
+          ? { tone: 'ok', text: `Plan up to date${solvedAt ? ` · solved ${solvedAt.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}` : ''}` }
+          : { tone: 'error', text: 'Plan failed verification' }
+        : solvedSnapshot && solvedSnapshot !== scenarioJson
+          ? { tone: 'warning', text: 'Data changed · optimize again' }
+          : { tone: 'idle', text: 'No plan yet' };
+  const optimizeLabel = solution ? 'Re-optimize' : 'Optimize plan';
   const savedScenariosQuery = useQuery({ queryKey: SAVED_SCENARIOS_QUERY_KEY, queryFn: listSavedScenarios });
   // Start in My scenarios once there is something saved there; otherwise templates are the useful first step.
   const chooseScenarioSource: ScenarioSource = savedScenariosQuery.data?.scenarios.length ? 'library' : 'templates';
@@ -475,6 +491,7 @@ function App() {
       if (controller.signal.aborted) return;
       setSolution(result);
       setCompletedJobId(accepted.job_id);
+      setSolvedAt(new Date());
       const solvedJson = JSON.stringify(report.normalized_scenario);
       setSolvedSnapshot(solvedJson);
       if (result.verification.passed && savedScenario && savedSnapshot === solvedJson) {
@@ -636,27 +653,27 @@ function App() {
                 </button>
               </div>
 
-              <div className="sidebar-actions">
-                <span className="sidebar-section-label">Action</span>
-                <div className="sidebar-action-box">
-                  <button className="sidebar-action is-run" type="button" onClick={runOptimization} disabled={optimizing} title={optimizing ? 'Optimizing' : 'Optimize'} aria-label={optimizing ? 'Optimizing' : 'Optimize'}>
+              </>}
+            </div>
+
+            {scenario && (
+              <div className="sidebar-run">
+                <div className={`sidebar-run-status is-${planStatus.tone}`} role="status" aria-live="polite">
+                  <i aria-hidden="true" />
+                  <span>{planStatus.text}</span>
+                </div>
+                <div className="sidebar-run-buttons">
+                  <button className="sidebar-run-primary" type="button" onClick={runOptimization} disabled={optimizing} title={optimizing ? optimizationStage : optimizeLabel} aria-label={optimizing ? `Optimizing, ${progress}%` : optimizeLabel}>
                     {optimizing ? <LoaderCircle className="spin" size={16} /> : <Sparkles size={16} />}
-                    <span>{optimizing ? 'Optimizing' : 'Optimize'}</span>
+                    <span>{optimizing ? `Optimizing · ${progress}%` : optimizeLabel}</span>
                   </button>
-                  <button className="sidebar-action is-export" type="button" onClick={() => void handleExport('xlsx')} disabled={!completedJobId} title={completedJobId ? 'Export plan' : 'Optimize first to export a plan'} aria-label="Export plan">
+                  <button className="sidebar-run-secondary" type="button" onClick={() => void handleExport('xlsx')} disabled={!completedJobId || optimizing} title={completedJobId ? 'Export plan as Excel' : 'Optimize first to export a plan'} aria-label="Export plan">
                     <Download size={16} />
                     <span>Export</span>
                   </button>
                 </div>
               </div>
-              </>}
-              <div className="sidebar-reset">
-                <button type="button" className="sidebar-reset-button" onClick={handleReset}>
-                  <Trash2 size={16} />
-                  Reset
-                </button>
-              </div>
-            </div>
+            )}
 
             <div className="sidebar-bottom">
               <div className="sidebar-bottom-copy">
@@ -727,7 +744,7 @@ function App() {
                 <span className="eyebrow">Solution</span>
                 <h2>Route plan</h2>
               </div>
-              <button className="icon-button" type="button" aria-label="Solution actions"><MoreHorizontal size={18} /></button>
+              <SolutionMenu canExport={Boolean(completedJobId) && !optimizing} onExport={(format) => void handleExport(format)} onReset={handleReset} />
             </div>
 
             <div className="segmented-tabs" role="tablist" aria-label="Solution views">
@@ -822,6 +839,56 @@ function App() {
       )}
     </div>
     </VrpRuntimeContext.Provider>
+  );
+}
+
+function SolutionMenu({ canExport, onExport, onReset }: { canExport: boolean; onExport: (format: 'json' | 'geojson') => void; onReset: () => void }) {
+  const [open, setOpen] = useState(false);
+  const [confirmReset, setConfirmReset] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const close = () => { setOpen(false); setConfirmReset(false); };
+    const onPointer = (event: PointerEvent) => { if (!rootRef.current?.contains(event.target as Node)) close(); };
+    const onKey = (event: KeyboardEvent) => { if (event.key === 'Escape') close(); };
+    document.addEventListener('pointerdown', onPointer);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('pointerdown', onPointer);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
+
+  const choose = (action: () => void) => { setOpen(false); setConfirmReset(false); action(); };
+
+  return (
+    <div className="solution-menu" ref={rootRef}>
+      <button className="icon-button" type="button" aria-label="Solution actions" aria-haspopup="menu" aria-expanded={open} onClick={() => { setOpen((value) => !value); setConfirmReset(false); }}>
+        <MoreHorizontal size={18} />
+      </button>
+      {open && (
+        <div className="solution-menu-panel" role="menu">
+          <button type="button" role="menuitem" disabled={!canExport} onClick={() => choose(() => onExport('json'))}>
+            <Download size={15} aria-hidden="true" /> Export as JSON
+          </button>
+          <button type="button" role="menuitem" disabled={!canExport} onClick={() => choose(() => onExport('geojson'))}>
+            <Download size={15} aria-hidden="true" /> Export as GeoJSON
+          </button>
+          <hr />
+          {confirmReset ? (
+            <button type="button" role="menuitem" className="is-danger is-confirm" onClick={() => choose(onReset)} autoFocus>
+              <Trash2 size={15} aria-hidden="true" /> Confirm reset
+            </button>
+          ) : (
+            <button type="button" role="menuitem" className="is-danger" onClick={() => setConfirmReset(true)}>
+              <Trash2 size={15} aria-hidden="true" /> Reset scenario
+            </button>
+          )}
+          {confirmReset && <p className="solution-menu-note">Clears the data and plan on screen. Saved versions are kept.</p>}
+        </div>
+      )}
+    </div>
   );
 }
 
