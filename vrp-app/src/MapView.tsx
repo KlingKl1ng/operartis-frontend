@@ -37,6 +37,49 @@ const lightStyle: StyleSpecification = {
 
 const basemapStyle = (dark: boolean) => (dark ? darkStyleUrl : lightStyle);
 
+// OpenFreeMap's dark style is neutral black; shift its base colours to the app's navy
+// (--sidebar #0c1422, --surface #101827) so the map sits in the panels. Roads keep their contrast.
+const NAVY_BASE = '#0c1422';
+const DARK_BASEMAP_TINT: [layer: string, property: string, value: string][] = [
+  ['background', 'background-color', NAVY_BASE],
+  ['water', 'fill-color', '#13213a'],
+  ['waterway', 'line-color', '#13213a'],
+  ['landuse_residential', 'fill-color', '#0f1829'],
+  ['landcover_wood', 'fill-color', '#121c2c'],
+  ['landuse_park', 'fill-color', '#121c2c'],
+  ['landcover_ice_shelf', 'fill-color', NAVY_BASE],
+  ['landcover_glacier', 'fill-color', '#0a111d'],
+  ['building', 'fill-color', '#0a111d'],
+  ['building', 'fill-outline-color', '#16223a'],
+  ['aeroway-area', 'fill-color', '#0a111d'],
+  ['aeroway-runway', 'line-color', '#0a111d'],
+  ['aeroway-taxiway', 'line-color', '#1a2538'],
+  ['road_area_pier', 'fill-color', NAVY_BASE],
+  ['road_pier', 'line-color', NAVY_BASE],
+  ['highway_path', 'line-color', '#16223a'],
+  ['highway_minor', 'line-color', '#1a2538'],
+  ['highway_major_inner', 'line-color', '#111b2b'],
+  ['highway_major_subtle', 'line-color', '#273349'],
+  ['highway_motorway_subtle', 'line-color', '#1a2538'],
+  ['railway', 'line-color', '#1f2a3d'],
+  ['railway_minor', 'line-color', '#1f2a3d'],
+  ['railway_transit', 'line-color', '#1f2a3d'],
+  ['railway_dashline', 'line-color', NAVY_BASE],
+  ['railway_minor_dashline', 'line-color', NAVY_BASE],
+  ['railway_transit_dashline', 'line-color', NAVY_BASE],
+  ['water_name', 'text-halo-color', NAVY_BASE],
+  ['highway_name_other', 'text-halo-color', NAVY_BASE],
+];
+
+function tintDarkBasemap(map: MapLibreMap) {
+  DARK_BASEMAP_TINT.forEach(([layer, property, value]) => {
+    if (map.getLayer(layer)) map.setPaintProperty(layer, property, value);
+  });
+  map.getStyle().layers
+    .filter((layer) => layer.id.startsWith('place_'))
+    .forEach((layer) => map.setPaintProperty(layer.id, 'text-halo-color', 'rgba(12, 20, 34, 0.75)'));
+}
+
 const routeFeature = (routes: Route[], routeId: string) => {
   const route = routes.find((item) => item.id === routeId)!;
   return {
@@ -356,6 +399,7 @@ export default function MapView({ customers, depots, routes, selectedRouteId, on
     // Route, stop and depot layers sit on top of the basemap. Switching the basemap
     // (light/dark) replaces the whole style, so they are added again on every style load.
     const addOverlay = () => {
+      if (styleDarkRef.current) tintDarkBasemap(map);
       registerPointImages(map, customers, routes, darkRef.current);
       routes.forEach((route) => {
         map.addSource(`route-${route.id}`, { type: 'geojson', data: routeFeature(routes, route.id) });
