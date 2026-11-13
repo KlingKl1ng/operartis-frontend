@@ -47,6 +47,7 @@ import { attachVersionPlan, cancelJob, downloadJobExport, downloadTemplate, impo
 import { CurrentScenarioStrip, SAVED_SCENARIOS_QUERY_KEY, ScenarioLibraryPane, type CurrentScenarioSave, type OpenSavedScenario } from './ScenarioLibrary';
 import type { Customer, DataKind, Depot, InspectorTab, OpenedScenarioVersion, Route, SaveScenarioResult, ScenarioTemplate, ValidationResponse, Vehicle, VehicleType, VrpScenario, VrpSolution, VrpViewData } from './types';
 import { buildViewData } from './view-model';
+import { applyTableEdits, isEditableColumn, rowEditErrors } from './scenario-edits';
 import { SettingsModal } from './SettingsModal';
 import operartisLogo from '../../operartis-logo.svg';
 import operartisWatermark from '../../fulllogo_transparent_nobuffer.png';
@@ -778,27 +779,30 @@ function App() {
 
       {dataManager && (
         <DataManager kind={dataManager} enabledDepotIds={enabledDepotIds} allowedDepotChoices={allowedDepotChoices}
-          onApplyDepots={async (selected, choices) => {
-            if (!scenario || optimizing) throw new Error('Wait for optimization to finish before changing depots.');
+          onApply={async (selected, choices, original, edited) => {
+            if (!scenario || optimizing) throw new Error('Wait for optimization to finish before changing scenario data.');
             if (!selected.length) throw new Error('Select at least one depot.');
-            const customers = scenario.customers.map(customer => {
+            const withEdits = applyTableEdits(scenario, original, edited);
+            const customers = withEdits.customers.map(customer => {
               const choice = choices[customer.id];
               const allowed = choice === 'Unassigned' ? selected : choice.split(',').map(id => id.trim());
               if (!allowed.length || allowed.some(id => !selected.includes(id))) throw new Error(`${customer.id}: choose an available Allowed Depot or Unassigned.`);
               return { ...customer, compatible_depot_ids: choice === 'Unassigned' && selected.length === scenario.depots.length ? null : allowed };
             });
-            const report = await validateScenario({ ...scenario, customers });
+            const candidate = { ...withEdits, customers };
+            setEnabledDepotIds(selected);
+            setAllowedDepotChoices(choices);
+            if (JSON.stringify(candidate) === JSON.stringify(scenario)) return;
+            const report = await validateScenario(candidate);
             if (!report.valid) throw new Error(report.errors.map(issue => `${issue.entity_id || 'Scenario'}: ${issue.message}`).join(' · '));
             setScenario(report.normalized_scenario);
             setValidation(report);
-            setEnabledDepotIds(selected);
-            setAllowedDepotChoices(choices);
             setSolution(null);
             setCompletedJobId(null);
             setSelectedRouteId(null);
             setSelectedCustomerId(null);
             setInspectorTab('summary');
-            setToast('Allowed depots applied. Optimize again to calculate routes.');
+            setToast('Scenario data updated. Optimize again to calculate routes.');
           }} onClose={() => setDataManager(null)} onAdd={() => setEntityDialog(dataManager)} onToast={setToast} />
       )}
       {scenarioDialog && <ScenarioDialog initialSource={scenarioDialog} current={savedScenario} save={scenario ? { defaultName: scenario.name, saved: savedScenario, hasUnsavedChanges, saving, error: saveError, onSaveVersion: () => void handleSaveVersion(), onSaveNew: (name) => void handleSaveAsNew(name) } : null} onClose={() => { setScenarioDialog(null); setSaveError(null); }} onImported={handleScenarioChosen} onOpened={handleSavedScenarioOpened} onRenamed={(id, name) => setSavedScenario((value) => value && value.id === id ? { ...value, name } : value)} onDeleted={handleSavedScenarioDeleted} />}
@@ -1121,7 +1125,7 @@ function createScenarioTables(viewData: VrpViewData): ScenarioTables {
   };
 }
 
-function DataManager({ kind, onClose, onAdd, onToast, enabledDepotIds, allowedDepotChoices, onApplyDepots }: { kind: DataKind; onClose: () => void; onAdd: () => void; onToast: (message: string) => void; enabledDepotIds: string[] | null; allowedDepotChoices: Record<string, string> | null; onApplyDepots: (selected: string[], choices: Record<string, string>) => Promise<void> }) {
+function DataManager({ kind, onClose, onAdd, onToast, enabledDepotIds, allowedDepotChoices, onApply }: { kind: DataKind; onClose: () => void; onAdd: () => void; onToast: (message: string) => void; enabledDepotIds: string[] | null; allowedDepotChoices: Record<string, string> | null; onApply: (selected: string[], choices: Record<string, string>, original: ScenarioTables, edited: ScenarioTables) => Promise<void> }) {
   const { viewData, scenario } = useVrpRuntime();
   const dataNav = useMemo(() => createDataNav(viewData), [viewData]);
   const initialTables = useMemo(() => {
@@ -1161,6 +1165,7 @@ function DataManager({ kind, onClose, onAdd, onToast, enabledDepotIds, allowedDe
   const title = dataNav.find((item) => item.kind === activeKind)!.label;
   const rows = tables[activeKind];
   const columns = Object.keys(rows[0] || {});
+  const firstEditableColumn = columns.find((column) => isEditableColumn(activeKind, column) && column !== 'Allowed Depot');
   const activeSortKey = columns.includes(sortKey) ? sortKey : (columns[0] || '');
   const visibleRows = useMemo(() => {
     const filtered = rows
@@ -1273,6 +1278,12 @@ function DataManager({ kind, onClose, onAdd, onToast, enabledDepotIds, allowedDe
       onToast('Complete all fields before applying this row');
       return;
     }
+    const problems = rowEditErrors(activeKind, committedTables[activeKind].find((item) => item.ID === row.ID), row);
+    if (problems.length) {
+      setApplyError(`${row.ID}: ${problems.join(' · ')}`);
+      return;
+    }
+    setApplyError(null);
     setEditingRow(null);
     setEditingRowSnapshot(null);
   };
@@ -1311,10 +1322,10 @@ function DataManager({ kind, onClose, onAdd, onToast, enabledDepotIds, allowedDe
     setSaving(true);
     setApplyError(null);
     try {
-      await onApplyDepots(availableDepots.map(row => row.ID), Object.fromEntries(tables.customers.map(row => [row.ID, row['Allowed Depot']])));
+      await onApply(availableDepots.map(row => row.ID), Object.fromEntries(tables.customers.map(row => [row.ID, row['Allowed Depot']])), committedTables, tables);
       onClose();
     } catch (error) {
-      setApplyError(error instanceof Error ? error.message : 'Could not apply allowed depots.');
+      setApplyError(error instanceof Error ? error.message : 'Could not apply the scenario data.');
     } finally { setSaving(false); }
   };
 
@@ -1322,7 +1333,7 @@ function DataManager({ kind, onClose, onAdd, onToast, enabledDepotIds, allowedDe
     <div className="modal-layer" role="presentation">
       <div className="data-manager" role="dialog" aria-modal="true" aria-label={`Manage ${title}`}>
         <header className="data-manager-header">
-          <div><span className="eyebrow">Scenario data</span><h2>Manage operational inputs</h2><p>Select available depots, then choose each customer's Allowed Depot. Unassigned lets the solver choose among selected depots.</p></div>
+          <div><span className="eyebrow">Scenario data</span><h2>Manage operational inputs</h2><p>Edit values, select available depots, and choose each customer's Allowed Depot. Unassigned lets the solver choose among selected depots.</p></div>
           <button className="icon-button" type="button" onClick={discardAndClose} disabled={saving} aria-label="Close data manager"><X size={19} /></button>
         </header>
         <div className="data-manager-tabs">
@@ -1379,7 +1390,7 @@ function DataManager({ kind, onClose, onAdd, onToast, enabledDepotIds, allowedDe
                       aria-label={`Select ${row.ID || `row ${index + 1}`}`}
                     />
                   </td>
-                  {columns.map((column, columnIndex) => (
+                  {columns.map((column) => (
                     <td key={column} className={column === 'ID' ? 'is-id' : undefined}>
                       {editingRow === index && activeKind === 'customers' && column === 'Allowed Depot' ? (
                         <select className="allowed-depot-select" value={isAvailableChoice(row[column]) ? row[column] : '__unavailable'} disabled={saving} aria-label={`Allowed Depot for ${row.ID}`} aria-invalid={!isAvailableChoice(row[column])} onChange={event => updateCell(index, column, event.target.value)}>
@@ -1388,9 +1399,9 @@ function DataManager({ kind, onClose, onAdd, onToast, enabledDepotIds, allowedDe
                           {availableDepots.map(depot => <option key={depot.ID} value={depot.ID}>{depot.ID}</option>)}
                           {row[column].includes(',') && isAvailableChoice(row[column]) && <option value={row[column]}>{row[column]} (imported restriction)</option>}
                         </select>
-                      ) : editingRow === index ? (
+                      ) : editingRow === index && isEditableColumn(activeKind, column) ? (
                         <input
-                          data-row={columnIndex === 0 ? String(index) : undefined}
+                          data-row={column === firstEditableColumn ? String(index) : undefined}
                           value={row[column]}
                           aria-label={`Edit ${column} for ${row.ID || `row ${index + 1}`}`}
                           onChange={(event) => updateCell(index, column, event.target.value)}
