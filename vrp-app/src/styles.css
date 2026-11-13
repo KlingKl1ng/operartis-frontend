@@ -446,6 +446,10 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 .route-stop-copy strong { overflow: hidden; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
 .route-stop-copy small { overflow: hidden; color: var(--muted); font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
 .route-stop-load { color: var(--text-soft); font: 600 10px 'Roboto Mono', monospace; }
+.route-stop-detail { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px 8px; margin: 4px 0 6px; padding: 8px 10px; border-left: 3px solid var(--route-color); border-radius: 0 8px 8px 0; background: var(--surface); }
+.route-stop-detail div { min-width: 0; }
+.route-stop-detail dt { color: var(--muted); font-size: 9px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+.route-stop-detail dd { margin: 2px 0 0; overflow: hidden; font: 600 11px 'Roboto Mono', monospace; text-overflow: ellipsis; white-space: nowrap; }
 .route-off-plan { grid-template-columns: 1fr auto; border-color: var(--border); background: var(--bg-soft); }
 .route-off-plan-status { padding: 3px 7px; border-radius: 999px; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; background: var(--surface-muted); color: var(--muted); }
 .route-off-plan-status.is-unserved { background: rgba(245, 158, 11, 0.14); color: var(--brand-gold-deep); }
