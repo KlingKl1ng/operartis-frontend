@@ -337,6 +337,12 @@ export interface VrpSolution {
     runtime_seconds: number;
     matrix: Record<string, unknown>;
     configuration: Record<string, unknown>;
+    /** Which search engine produced the plan; `engine_fallback` says why the heuristic took over. */
+    engine?: 'pyvrp' | 'heuristic';
+    engine_fallback?: string;
+    /** True when the time limit cut the search short; the plan is still verified. */
+    stopped_by_time_limit?: boolean;
+    time_limited_phases?: string[];
   };
   summary: {
     customers_total: number;
