@@ -67,6 +67,8 @@ export interface TripVisit {
   departure: string;
   arrivalMinute: number;
   departureMinute: number;
+  waitingMinutes: number;
+  delivered: number;
 }
 
 export interface Route {

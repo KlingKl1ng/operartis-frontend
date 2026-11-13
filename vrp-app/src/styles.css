@@ -370,7 +370,6 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 .objective-row i { grid-column: 1 / -1; height: 4px; overflow: hidden; border-radius: 99px; background: var(--surface-muted); }
 .objective-row b { display: block; height: 100%; border-radius: inherit; background: var(--brand-gold); }
 .route-color-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--route-color); box-shadow: 0 0 0 4px color-mix(in srgb, var(--route-color) 12%, transparent); }
-.selected-route-card { border-color: color-mix(in srgb, var(--route-color) 42%, var(--border)); }
 .route-kpis { justify-content: space-between; }
 .route-kpis span { display: flex; flex-direction: column; gap: 3px; }
 .route-kpis strong { font: 650 13px 'Roboto Mono', monospace; }
@@ -393,11 +392,15 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 .selection-card-head small, .selection-card-head span { color: var(--muted); font-size: 10px; }
 .selection-card-head strong { font-size: 15px; line-height: 1.25; }
 .selection-card-head span { font-family: 'Roboto Mono', monospace; }
+.selection-card-close { width: 30px; height: 30px; margin-left: auto; align-self: flex-start; }
 .detail-list { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 0; }
 .detail-list div { padding: 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); }
 .detail-list dt { color: var(--muted); font-size: 10px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
 .detail-list dd { margin: 4px 0 0; font: 600 12px 'Roboto Mono', monospace; }
 .feasible-banner { display: flex; align-items: center; gap: 7px; margin-top: 10px; padding: 9px 10px; border-radius: 8px; background: rgba(16, 185, 129, 0.1); color: #059669; font-size: 11px; font-weight: 700; }
+.feasible-banner.is-neutral { background: var(--surface-muted); color: var(--muted); }
+.feasible-banner.is-warning { background: rgba(245, 158, 11, 0.12); color: var(--brand-gold-deep); }
+.dark .feasible-banner.is-warning { color: #fbbf24; }
 .inspector-stack > .button-full { min-height: 42px; font-size: 13px; }
 
 .route-list { display: grid; gap: 8px; }
@@ -420,6 +423,33 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 .route-card-all > span:nth-child(2) { display: flex; flex-direction: column; gap: 3px; }
 .route-card-all strong { font-size: 12px; }
 .route-card-all small { color: var(--muted); font-size: 10px; line-height: 1.35; }
+
+/* Expandable route: the card plus its trips and stops. */
+.route-item { display: grid; border-radius: 10px; }
+.route-item.is-expanded { border: 1px solid color-mix(in srgb, var(--route-color) 42%, var(--border)); background: color-mix(in srgb, var(--route-color) 4%, var(--bg-soft)); }
+.route-item.is-expanded > .route-card { border-color: transparent; border-radius: 10px 10px 0 0; background: transparent; }
+.route-chevron { transition: transform .15s; }
+.route-item.is-expanded .route-chevron { transform: rotate(180deg); }
+.route-stops { display: grid; gap: 8px; padding: 0 10px 10px; }
+.route-item-kpis { padding: 2px 4px 2px 2px; }
+.route-trip { border-top: 1px dashed var(--border); padding-top: 8px; }
+.route-trip-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 2px 8px; margin: 0 2px 6px; }
+.route-trip-head strong { font-size: 11px; }
+.route-trip-head span { color: var(--muted); font: 500 10px 'Roboto Mono', monospace; }
+.route-trip ol { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.route-stop, .route-off-plan { width: 100%; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 9px; padding: 7px 8px; border: 1px solid transparent; border-radius: 8px; background: var(--surface); color: var(--text); text-align: left; cursor: pointer; }
+.route-stop:hover, .route-off-plan:hover { border-color: var(--border-strong); }
+.route-stop.is-match { border-color: var(--brand-gold); background: rgba(245, 158, 11, 0.08); }
+.route-stop.is-selected { border-color: var(--route-color); box-shadow: inset 3px 0 0 var(--route-color); }
+.route-stop-number { display: grid; width: 22px; height: 22px; place-items: center; border-radius: 50%; background: var(--route-color); color: #fff; font: 700 10px 'Roboto Mono', monospace; }
+.route-stop-copy { display: flex; min-width: 0; flex-direction: column; gap: 2px; }
+.route-stop-copy strong { overflow: hidden; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+.route-stop-copy small { overflow: hidden; color: var(--muted); font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+.route-stop-load { color: var(--text-soft); font: 600 10px 'Roboto Mono', monospace; }
+.route-off-plan { grid-template-columns: 1fr auto; border-color: var(--border); background: var(--bg-soft); }
+.route-off-plan-status { padding: 3px 7px; border-radius: 999px; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; background: var(--surface-muted); color: var(--muted); }
+.route-off-plan-status.is-unserved { background: rgba(245, 158, 11, 0.14); color: var(--brand-gold-deep); }
+.dark .route-off-plan-status.is-unserved { color: #fbbf24; }
 
 .validation-score-card { display: flex; align-items: center; gap: 13px; padding: 14px; border: 1px solid rgba(16, 185, 129, 0.22); border-radius: 11px; background: linear-gradient(145deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.02)); }
 .score-ring { display: flex; width: 64px; height: 64px; flex: 0 0 auto; align-items: baseline; justify-content: center; padding-top: 17px; border: 4px solid #10b981; border-radius: 50%; }

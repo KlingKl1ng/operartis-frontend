@@ -45,7 +45,7 @@ import {
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { attachVersionPlan, cancelJob, downloadJobExport, downloadTemplate, importScenarioFile, importTemplate, listSavedScenarios, listTemplates, saveNewScenario, saveScenarioVersion, submitSolve, validateScenario, waitForJob } from './api';
 import { CurrentScenarioStrip, SAVED_SCENARIOS_QUERY_KEY, ScenarioLibraryPane, type CurrentScenarioSave, type OpenSavedScenario } from './ScenarioLibrary';
-import type { Customer, DataKind, Depot, InspectorTab, OpenedScenarioVersion, Route, SaveScenarioResult, ScenarioTemplate, ValidationResponse, Vehicle, VehicleType, VrpScenario, VrpSolution, VrpViewData } from './types';
+import type { Customer, DataKind, Depot, InspectorTab, OpenedScenarioVersion, Route, SaveScenarioResult, ScenarioTemplate, Trip, TripVisit, ValidationResponse, Vehicle, VehicleType, VrpScenario, VrpSolution, VrpViewData } from './types';
 import { buildViewData } from './view-model';
 import { applyTableEdits, isEditableColumn, rowEditErrors } from './scenario-edits';
 import { SettingsModal } from './SettingsModal';
@@ -283,7 +283,6 @@ function App() {
     ? viewData.depots
     : viewData.depots.filter(depot => enabledDepotIds.includes(depot.id)),
   [viewData.depots, enabledDepotIds]);
-  const selectedRoute = viewData.routes.find((route) => route.id === selectedRouteId) || null;
   const selectedCustomer = viewData.customers.find((customer) => customer.id === selectedCustomerId) || null;
   const blockingErrors = validation?.errors.length || 0;
   const warningCount = (validation?.warnings.length || 0) + (solution?.verification.warnings.length || 0) + (solution?.unserved.length || 0);
@@ -738,10 +737,10 @@ function App() {
 
             <div className="inspector-content scroller">
               {inspectorTab === 'summary' && (
-                <SummaryPanel selectedRoute={selectedRoute} selectedCustomer={selectedCustomer} onOpenRoutes={() => setInspectorTab('routes')} />
+                <SummaryPanel selectedCustomer={selectedCustomer} onOpenRoute={handleSelectRoute} onClearCustomer={() => setSelectedCustomerId(null)} />
               )}
               {inspectorTab === 'routes' && (
-                <RoutesPanel selectedRouteId={selectedRouteId} onSelectRoute={handleSelectRoute} />
+                <RoutesPanel selectedRouteId={selectedRouteId} selectedCustomerId={selectedCustomerId} onSelectRoute={handleSelectRoute} onSelectCustomer={handleSelectCustomer} />
               )}
               {inspectorTab === 'validation' && <ValidationPanel />}
             </div>
@@ -824,12 +823,12 @@ function App() {
   );
 }
 
-function SummaryPanel({ selectedRoute, selectedCustomer, onOpenRoutes }: {
-  selectedRoute: Route | null;
+function SummaryPanel({ selectedCustomer, onOpenRoute, onClearCustomer }: {
   selectedCustomer: Customer | null;
-  onOpenRoutes: () => void;
+  onOpenRoute: (routeId: string) => void;
+  onClearCustomer: () => void;
 }) {
-  const { scenario, solution } = useVrpRuntime();
+  const { scenario, solution, viewData } = useVrpRuntime();
   const summary = solution?.summary;
   const excludedCount = scenario.customers.filter((customer) => customer.enabled === false).length;
   const plannedCount = scenario.customers.length - excludedCount;
@@ -848,22 +847,40 @@ function SummaryPanel({ selectedRoute, selectedCustomer, onOpenRoutes }: {
   const reusedVehicles = solution?.vehicles.filter((vehicle) => vehicle.trips.length > 1).length || 0;
 
   if (selectedCustomer) {
+    const status = customerPlanStatus(selectedCustomer.id, scenario, solution, viewData);
+    const planned = status.kind === 'planned' ? status : null;
+    const vehicle = planned ? viewData.vehicles.find((item) => item.id === planned.trip.vehicleId) : null;
     return (
       <div className="inspector-stack">
         <div className="selection-card">
           <div className="selection-card-head">
             <span className="selection-icon"><MapPin size={20} /></span>
             <div><small>Selected customer</small><strong>{selectedCustomer.name}</strong><span>{selectedCustomer.id}</span></div>
+            <button className="icon-button selection-card-close" type="button" onClick={onClearCustomer} aria-label="Back to plan summary"><X size={16} /></button>
           </div>
           <dl className="detail-list">
             <div><dt>Time window</dt><dd>{selectedCustomer.timeWindow}</dd></div>
             <div><dt>Demand</dt><dd>{selectedCustomer.demand} {scenario.demand_unit}</dd></div>
             <div><dt>Service</dt><dd>{selectedCustomer.serviceMinutes} min</dd></div>
-            <div><dt>Assigned depot</dt><dd>{selectedCustomer.depotId}</dd></div>
+            {planned ? (
+              <>
+                <div><dt>Route</dt><dd>{planned.route?.id || '—'} · {vehicle?.plate || planned.trip.vehicleId}</dd></div>
+                <div><dt>Trip · stop</dt><dd>{planned.trip.label} · stop {planned.stopNumber}</dd></div>
+                <div><dt>Depot</dt><dd>{planned.trip.depotId}</dd></div>
+                <div><dt>Arrival</dt><dd>{planned.visit.arrival}</dd></div>
+                <div><dt>Departure</dt><dd>{planned.visit.departure}</dd></div>
+                <div><dt>Waiting</dt><dd>{planned.visit.waitingMinutes ? `${planned.visit.waitingMinutes} min` : 'None'}</dd></div>
+              </>
+            ) : (
+              <div><dt>Allowed depot</dt><dd>{scenario.customers.find((item) => item.id === selectedCustomer.id)?.compatible_depot_ids?.join(', ') || 'Any selected'}</dd></div>
+            )}
           </dl>
-          <div className="feasible-banner"><CheckCircle2 size={16} /> {selectedCustomer.routeId ? 'Scheduled by verified plan' : 'Awaiting optimization'}</div>
+          {status.kind === 'planned' && <div className="feasible-banner"><CheckCircle2 size={16} /> {solution?.verification.passed ? 'Scheduled by verified plan' : 'Scheduled'}</div>}
+          {status.kind === 'excluded' && <div className="feasible-banner is-neutral"><Info size={16} /> Excluded from plan · tick it in Customers to plan it</div>}
+          {status.kind === 'unserved' && <div className="feasible-banner is-warning"><AlertTriangle size={16} /> Not served · {status.reason}</div>}
+          {status.kind === 'pending' && <div className="feasible-banner is-neutral"><Info size={16} /> Awaiting optimization</div>}
         </div>
-        <button className="button button-quiet button-full" type="button" onClick={onOpenRoutes}><RouteIcon size={18} /> View assigned route</button>
+        {planned?.route && <button className="button button-quiet button-full" type="button" onClick={() => onOpenRoute(planned.route!.id)}><RouteIcon size={18} /> View route {planned.route.id}</button>}
       </div>
     );
   }
@@ -884,17 +901,10 @@ function SummaryPanel({ selectedRoute, selectedCustomer, onOpenRoutes }: {
         <div className="objective-row"><span>Working time</span><strong>{currency.format(objectiveParts[2])}</strong><i><b style={{ width: `${objectiveParts[2] / objectiveTotal * 100}%` }} /></i></div>
       </div>
 
-      {selectedRoute ? (
-        <div className="inspector-card selected-route-card" style={{ '--route-color': selectedRoute.color } as CSSProperties}>
-          <div className="card-heading"><span><i className="route-color-dot" /> {selectedRoute.label}</span><button type="button" onClick={onOpenRoutes}>Details <ChevronRight size={14} /></button></div>
-          <div className="route-kpis"><span><strong>{selectedRoute.stops}</strong><small>stops</small></span><span><strong>{selectedRoute.distanceKm} km</strong><small>distance</small></span><span><strong>{selectedRoute.duration}</strong><small>duration</small></span></div>
-        </div>
-      ) : (
-        <div className="inspector-card coverage-card">
-          <div className="card-heading"><span><Warehouse size={17} /> Depot workload</span><button type="button">Balanced</button></div>
-          <div className="depot-workload">{depotWorkload.map((item) => <span key={item.depot.id}><b>{item.depot.id}</b><i><em style={{ width: `${item.stops / maximumStops * 100}%` }} /></i><small>{item.stops} stops · {item.vehicles} vehicles</small></span>)}</div>
-        </div>
-      )}
+      <div className="inspector-card coverage-card">
+        <div className="card-heading"><span><Warehouse size={17} /> Depot workload</span></div>
+        <div className="depot-workload">{depotWorkload.map((item) => <span key={item.depot.id}><b>{item.depot.id}</b><i><em style={{ width: `${item.stops / maximumStops * 100}%` }} /></i><small>{item.stops} stops · {item.vehicles} vehicles</small></span>)}</div>
+      </div>
 
       <div className="inspector-card carbon-card">
         <span className="carbon-icon"><Zap size={18} /></span>
@@ -915,34 +925,129 @@ function MetricCard({ icon: Icon, label, value, meta, accent }: { icon: typeof M
   );
 }
 
-function RoutesPanel({ selectedRouteId, onSelectRoute }: { selectedRouteId: string | null; onSelectRoute: (routeId: string | null) => void }) {
-  const { scenario, viewData } = useVrpRuntime();
-  const { routes, vehicles } = viewData;
+type CustomerPlanStatus =
+  | { kind: 'planned'; route: Route | undefined; trip: Trip; visit: TripVisit; stopNumber: number }
+  | { kind: 'excluded' }
+  | { kind: 'unserved'; reason: string }
+  | { kind: 'pending' };
+
+/** Where a customer ended up in the current plan. */
+function customerPlanStatus(customerId: string, scenario: VrpScenario, solution: VrpSolution | null, viewData: VrpViewData): CustomerPlanStatus {
+  if (scenario.customers.find((item) => item.id === customerId)?.enabled === false) return { kind: 'excluded' };
+  for (const trip of viewData.trips) {
+    const index = trip.visits.findIndex((visit) => visit.customerId === customerId);
+    if (index >= 0) {
+      const route = viewData.routes.find((item) => item.vehicleId === trip.vehicleId);
+      return { kind: 'planned', route, trip, visit: trip.visits[index], stopNumber: index + 1 };
+    }
+  }
+  const unserved = solution?.unserved.find((item) => item.customer_id === customerId);
+  if (unserved) return { kind: 'unserved', reason: unserved.reason_code.replaceAll('_', ' ') };
+  return { kind: 'pending' };
+}
+
+function RoutesPanel({ selectedRouteId, selectedCustomerId, onSelectRoute, onSelectCustomer }: {
+  selectedRouteId: string | null;
+  selectedCustomerId: string | null;
+  onSelectRoute: (routeId: string | null) => void;
+  onSelectCustomer: (customerId: string) => void;
+}) {
+  const { scenario, solution, viewData } = useVrpRuntime();
+  const { routes, vehicles, trips, customers } = viewData;
+  const [query, setQuery] = useState('');
   const currency = new Intl.NumberFormat(undefined, { style: 'currency', currency: scenario.currency, maximumFractionDigits: 0 });
   const tripCount = routes.reduce((total, route) => total + route.trips, 0);
   const stopCount = routes.reduce((total, route) => total + route.stops, 0);
+  const needle = query.trim().toLowerCase();
+  const customerById = new Map(customers.map((customer) => [customer.id, customer]));
+  const customerMatches = (customerId: string) => Boolean(needle) && (customerId.toLowerCase().includes(needle) || Boolean(customerById.get(customerId)?.name.toLowerCase().includes(needle)));
+  const visibleRoutes = routes.flatMap((route) => {
+    const vehicle = vehicles.find((item) => item.id === route.vehicleId);
+    const routeTrips = trips.filter((trip) => trip.vehicleId === route.vehicleId);
+    const matchedStops = new Set(routeTrips.flatMap((trip) => trip.customerIds.filter(customerMatches)));
+    const routeMatches = !needle || [route.id, route.label, route.vehicleId, vehicle?.plate || ''].some((value) => value.toLowerCase().includes(needle));
+    return routeMatches || matchedStops.size ? [{ route, vehicle, routeTrips, matchedStops }] : [];
+  });
+  const listRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    // Bring the first matching stop into view; it can sit far down an expanded route.
+    if (!needle) return;
+    listRef.current?.querySelector('.route-stop.is-match, .route-off-plan')?.scrollIntoView({ block: 'nearest' });
+  }, [needle]);
+  // Customers the search finds that are not on any route: excluded, not served, or not planned yet.
+  const offRouteMatches = needle ? customers.filter((customer) => customerMatches(customer.id) && !trips.some((trip) => trip.customerIds.includes(customer.id))) : [];
+
   return (
-    <div className="route-list">
+    <div className="route-list" ref={listRef}>
       <div className="route-list-tools">
-        <label><Search size={16} /><input placeholder="Find route or vehicle" /></label>
-        <button type="button" aria-label="Filter routes"><ListFilter size={17} /></button>
+        <label><Search size={16} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Find route, vehicle or customer" aria-label="Find route, vehicle or customer" /></label>
+        {query && <button type="button" onClick={() => setQuery('')} aria-label="Clear search"><X size={16} /></button>}
       </div>
-      <button className={`route-card route-card-all ${selectedRouteId === null ? 'is-selected' : ''}`} type="button" onClick={() => onSelectRoute(null)}>
-        <span className="route-overview-icon"><LayoutDashboard size={18} /></span>
-        <span><strong>All vehicle routes</strong><small>{routes.length} vehicles · {tripCount} trips · {stopCount} stops</small></span>
-        <ChevronRight size={16} />
-      </button>
-      {routes.map((route) => {
-        const vehicle = vehicles.find((item) => item.id === route.vehicleId);
+      {!needle && (
+        <button className={`route-card route-card-all ${selectedRouteId === null ? 'is-selected' : ''}`} type="button" onClick={() => onSelectRoute(null)}>
+          <span className="route-overview-icon"><LayoutDashboard size={18} /></span>
+          <span><strong>All vehicle routes</strong><small>{routes.length} vehicles · {tripCount} trips · {stopCount} stops</small></span>
+          <ChevronRight size={16} />
+        </button>
+      )}
+      {visibleRoutes.map(({ route, vehicle, routeTrips, matchedStops }) => {
+        const expanded = selectedRouteId === route.id || matchedStops.size > 0;
         return (
-          <button key={route.id} className={`route-card ${selectedRouteId === route.id ? 'is-selected' : ''}`} type="button" onClick={() => onSelectRoute(route.id)} style={{ '--route-color': route.color } as CSSProperties}>
-            <span className="route-number"><i />{route.id.replace('R-', '')}</span>
-            <span className="route-card-copy"><strong>{vehicle?.plate || route.vehicleId}</strong><small>{route.label} · {route.trips} {route.trips === 1 ? 'trip' : 'trips'}</small><em>{route.stops} stops · {route.distanceKm} km · {route.duration}</em></span>
-            <span className="route-cost">{currency.format(route.cost)}<ChevronRight size={15} /></span>
+          <div key={route.id} className={`route-item ${expanded ? 'is-expanded' : ''}`} style={{ '--route-color': route.color } as CSSProperties}>
+            <button className={`route-card ${selectedRouteId === route.id ? 'is-selected' : ''}`} type="button" aria-expanded={expanded} onClick={() => onSelectRoute(selectedRouteId === route.id ? null : route.id)}>
+              <span className="route-number"><i />{route.id.replace('R-', '')}</span>
+              <span className="route-card-copy"><strong>{vehicle?.plate || route.vehicleId}</strong><small>{route.label}{expanded ? '' : ` · ${route.trips} ${route.trips === 1 ? 'trip' : 'trips'}`}</small>{!expanded && <em>{route.stops} stops · {route.distanceKm.toFixed(1)} km · {route.duration}</em>}</span>
+              <span className="route-cost">{currency.format(route.cost)}<ChevronDown size={15} className="route-chevron" /></span>
+            </button>
+            {expanded && (
+              <div className="route-stops">
+                <div className="route-kpis route-item-kpis">
+                  <span><strong>{route.stops}</strong><small>stops</small></span>
+                  <span><strong>{route.distanceKm.toFixed(1)} km</strong><small>distance</small></span>
+                  <span><strong>{route.duration}</strong><small>duration</small></span>
+                  <span><strong>{route.trips}</strong><small>{route.trips === 1 ? 'trip' : 'trips'}</small></span>
+                </div>
+                {routeTrips.map((trip) => (
+                  <section key={trip.id} className="route-trip" aria-label={`${trip.label} of ${vehicle?.plate || route.vehicleId}`}>
+                    <div className="route-trip-head">
+                      <strong>{trip.label}</strong>
+                      <span>{trip.depotId} · {trip.start}–{trip.end} · {trip.load}/{trip.capacity} {scenario.demand_unit}</span>
+                    </div>
+                    <ol>
+                      {trip.visits.map((visit, index) => {
+                        const customer = customerById.get(visit.customerId);
+                        return (
+                          <li key={visit.customerId}>
+                            <button type="button" className={`route-stop ${matchedStops.has(visit.customerId) ? 'is-match' : ''} ${selectedCustomerId === visit.customerId ? 'is-selected' : ''}`} onClick={() => onSelectCustomer(visit.customerId)}>
+                              <span className="route-stop-number">{index + 1}</span>
+                              <span className="route-stop-copy">
+                                <strong>{customer?.name || visit.customerId}</strong>
+                                <small>{visit.customerId} · arrives {visit.arrival}{visit.waitingMinutes ? ` · waits ${visit.waitingMinutes} min` : ''}</small>
+                              </span>
+                              <span className="route-stop-load">{visit.delivered}</span>
+                            </button>
+                          </li>
+                        );
+                      })}
+                    </ol>
+                  </section>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      })}
+      {offRouteMatches.map((customer) => {
+        const status = customerPlanStatus(customer.id, scenario, solution, viewData);
+        return (
+          <button key={customer.id} type="button" className="route-off-plan" onClick={() => onSelectCustomer(customer.id)}>
+            <span className="route-stop-copy"><strong>{customer.name}</strong><small>{customer.id}</small></span>
+            <span className={`route-off-plan-status is-${status.kind}`}>{status.kind === 'excluded' ? 'Excluded from plan' : status.kind === 'unserved' ? 'Not served' : 'Not planned yet'}</span>
           </button>
         );
       })}
-      {!routes.length && <div className="inspector-card"><strong>No solved routes yet</strong><p>Validate the scenario and run Optimize to create a route plan.</p></div>}
+      {needle && !visibleRoutes.length && !offRouteMatches.length && <div className="inspector-card"><strong>No matches</strong><p>No route, vehicle or customer matches “{query.trim()}”.</p></div>}
+      {!routes.length && !needle && <div className="inspector-card"><strong>No solved routes yet</strong><p>Validate the scenario and run Optimize to create a route plan.</p></div>}
     </div>
   );
 }
@@ -1524,7 +1629,7 @@ function CustomerDialog({ existingIds, depotIds, onClose, onAdd }: { existingIds
     const row = {
       ID: id, Customer: form.name.trim(), Coordinates: `${form.latitude.trim()}, ${form.longitude.trim()}`,
       'Allowed Depot': form.depot, Demand: form.demand.trim(), 'Time window': `${form.start}–${form.end}`,
-      Service: `${form.service.trim() || '0'} min`, Route: 'Unassigned',
+      Service: `${form.service.trim() || '0'} min`,
     };
     const problems = rowEditErrors('customers', undefined, row);
     if (problems.length) { setError(problems.join(' · ')); return; }
@@ -1719,9 +1824,9 @@ function singular(kind: DataKind) {
 
 function getDataRows(kind: DataKind, viewData: VrpViewData): Array<Record<string, string>> {
   if (kind === 'depots') return viewData.depots.map((item) => ({ ID: item.id, Name: item.name, 'Operating window': item.window, Reload: `${item.reloadMinutes} min`, Fleet: String(item.vehicles), Coordinates: `${item.coordinate[1].toFixed(4)}, ${item.coordinate[0].toFixed(4)}` }));
-  if (kind === 'customers') return viewData.customers.map((item) => ({ ID: item.id, Customer: item.name, Coordinates: `${item.coordinate[1].toFixed(4)}, ${item.coordinate[0].toFixed(4)}`, 'Allowed Depot': 'Unassigned', Demand: String(item.demand), 'Time window': item.timeWindow, Service: `${item.serviceMinutes} min`, Route: item.routeId || 'Unassigned' }));
+  if (kind === 'customers') return viewData.customers.map((item) => ({ ID: item.id, Customer: item.name, Coordinates: `${item.coordinate[1].toFixed(4)}, ${item.coordinate[0].toFixed(4)}`, 'Allowed Depot': 'Unassigned', Demand: String(item.demand), 'Time window': item.timeWindow, Service: `${item.serviceMinutes} min` }));
   if (kind === 'vehicleTypes') return viewData.vehicleTypes.map((item) => ({ ID: item.id, Type: item.name, Capacity: String(item.capacity), 'Fixed cost': String(item.fixedCost), 'Distance cost': String(item.distanceCost), Profile: item.profile }));
-  return viewData.vehicles.map((item) => ({ ID: item.id, Plate: item.plate, Type: item.typeId, 'Home depot': item.depotId, Shift: item.shift, Trips: String(item.trips), Utilization: `${item.utilization}%` }));
+  return viewData.vehicles.map((item) => ({ ID: item.id, Plate: item.plate, Type: item.typeId, 'Home depot': item.depotId, Shift: item.shift }));
 }
 
 export default App;

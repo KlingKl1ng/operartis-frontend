@@ -166,6 +166,8 @@ export function buildViewData(
           departure: formatClock(stop.departure_time),
           arrivalMinute: Math.round(stop.arrival_time / 60),
           departureMinute: Math.round(stop.departure_time / 60),
+          waitingMinutes: Math.round(stop.waiting_seconds / 60),
+          delivered: stop.delivered_demand,
         })),
         distanceKm: Math.round(solutionTrip.distance_meters) / 1000,
         load: solutionTrip.load,
@@ -221,15 +223,19 @@ export function buildViewData(
   }
 
   const solvedVehicleById = new Map(vehicles.map((vehicle) => [vehicle.id, vehicle]));
-  const allVehicles = scenario.vehicles.map((vehicle) => solvedVehicleById.get(vehicle.id) || {
-    id: vehicle.id,
-    plate: vehicle.name || vehicle.id,
-    typeId: vehicle.vehicle_type_id,
-    depotId: vehicle.home_depot_id,
-    shift: formatWindow(vehicle.shift_window),
-    trips: 0,
-    utilization: 0,
-    routeId: '',
+  // Input fields always come from the scenario; only plan figures come from the solution.
+  const allVehicles = scenario.vehicles.map((vehicle) => {
+    const solved = solvedVehicleById.get(vehicle.id);
+    return {
+      id: vehicle.id,
+      plate: vehicle.name || vehicle.id,
+      typeId: vehicle.vehicle_type_id,
+      depotId: vehicle.home_depot_id,
+      shift: formatWindow(vehicle.shift_window),
+      trips: solved?.trips || 0,
+      utilization: solved?.utilization || 0,
+      routeId: solved?.routeId || '',
+    };
   });
 
   return { depots, customers, vehicleTypes, vehicles: allVehicles, routes, trips, validationItems };
