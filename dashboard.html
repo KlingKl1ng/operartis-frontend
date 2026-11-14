@@ -1906,6 +1906,23 @@
             z-index: 1;
         }
         td { color: var(--text-table); font-size: 13px; }
+        /* Sortable headers: every sortable header shows a faint up-down arrow
+           so it is clear the column can be sorted; hovering brightens it, and
+           the sorted column becomes a gold-tinted pill with a direction arrow. Negative margins keep
+           the label aligned with the column text while the pill has padding. */
+        .sortable-th-button { display: inline-flex; align-items: center; gap: 5px; max-width: calc(100% + 16px); margin: -4px -8px; padding: 4px 8px; border: 1px solid transparent; border-radius: 999px; background: transparent; color: inherit; font: inherit; font-weight: inherit; text-transform: inherit; letter-spacing: inherit; text-align: left; white-space: nowrap; cursor: pointer; transition: background-color .15s var(--ease), border-color .15s var(--ease), color .15s var(--ease); }
+        .sortable-th-button > span:first-child { overflow: hidden; text-overflow: ellipsis; }
+        .sortable-th-button:hover { background: rgba(148, 163, 184, .1); color: var(--text); filter: none; }
+        .sortable-th-button:active:not(:disabled) { transform: none; }
+        .sortable-th-button:focus-visible { outline: 2px solid rgba(245, 158, 11, .55); outline-offset: 1px; }
+        .sortable-th-indicator { display: inline-flex; flex: none; width: 1.2em; opacity: .4; color: inherit; transition: opacity .15s var(--ease); }
+        .sortable-th-indicator svg { display: block; width: 1.2em; height: 1.2em; }
+        .sortable-th-button:hover .sortable-th-indicator,
+        .sortable-th-button:focus-visible .sortable-th-indicator { opacity: .85; }
+        th[aria-sort="ascending"] .sortable-th-button,
+        th[aria-sort="descending"] .sortable-th-button { border-color: rgba(245, 158, 11, .35); background: rgba(245, 158, 11, .14); color: var(--text-pill-accent); }
+        th[aria-sort="ascending"] .sortable-th-indicator,
+        th[aria-sort="descending"] .sortable-th-indicator { opacity: 1; }
         tbody tr { transition: background .15s var(--ease); }
         tbody tr:hover td { background: rgba(148, 163, 184, .06); }
         tr:last-child td { border-bottom: 0; }
@@ -3005,7 +3022,7 @@
                                                 <th data-i18n="table.module">Module</th>
                                                 <th data-i18n="table.created">Created</th>
                                                 <th data-i18n="table.expires">Expires</th>
-                                                <th data-i18n="table.action">Action</th>
+                                                <th data-i18n="table.action" data-sortable="false">Action</th>
                                             </tr>
                                         </thead>
                                     </table>
@@ -3208,7 +3225,7 @@
                                                 <th data-i18n="table.last_used">Last used</th>
                                                 <th data-i18n="table.expires">Expires</th>
                                                 <th data-i18n="table.status">Status</th>
-                                                <th data-i18n="table.actions">Actions</th>
+                                                <th data-i18n="table.actions" data-sortable="false">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody id="api-keys-body"></tbody>
@@ -3394,7 +3411,7 @@
                                         <th data-i18n="table.status">Status</th>
                                         <th data-i18n="table.created">Created</th>
                                         <th data-i18n="table.last_login">Last Login</th>
-                                        <th data-i18n="table.actions">Actions</th>
+                                        <th data-i18n="table.actions" data-sortable="false">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody id="admin-users-body"></tbody>
@@ -3480,7 +3497,7 @@
                                         <th data-i18n="table.created">Created</th>
                                         <th data-i18n="table.expires">Expires</th>
                                         <th data-i18n="table.invited_by">Invited By</th>
-                                        <th data-i18n="table.actions">Actions</th>
+                                        <th data-i18n="table.actions" data-sortable="false">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody id="admin-invites-body"></tbody>
@@ -3960,6 +3977,156 @@
 
         function formatDate(value) {
             return value ? displayFormat().dateTime(value, { timeZone: state.user?.timezone }) : '-';
+        }
+
+        // A table cell showing a formatted date, carrying the raw timestamp so
+        // the column sorts by time rather than by the localized text.
+        function dateCell(value, emptyText) {
+            const time = parseBackendDate(value)?.getTime?.();
+            return el('td', {
+                text: value ? formatDate(value) : (emptyText ?? '-'),
+                dataset: { sortValue: Number.isFinite(time) ? String(time) : '' },
+            });
+        }
+
+        // A table cell showing a formatted number, sorting by the raw number.
+        function numberCell(value, text) {
+            const number = Number(value || 0);
+            return el('td', { text: text ?? formatNumber(number), dataset: { sortValue: String(number) } });
+        }
+
+        /*
+         * Sortable dashboard tables.
+         * Clicking a column header sorts the rows ascending, then descending,
+         * then back to the order the dashboard rendered them in. The choice is
+         * kept when a table re-renders (refresh, filter, language change).
+         * Cells sort by data-sort-value when present (dates, numbers), by the
+         * selected option for dropdowns, and otherwise by their visible text.
+         * Columns marked data-sortable="false" (Actions) are left alone.
+         */
+        const SORT_ICONS = {
+            none: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="8 9 12 5 16 9"/><polyline points="8 15 12 19 16 15"/></svg>',
+            ascending: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="18 15 12 9 6 15"/></svg>',
+            descending: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>',
+        };
+
+        function sortCellValue(row, column) {
+            const cell = row.cells[column];
+            if (!cell) return '';
+            if (cell.dataset.sortValue !== undefined) return cell.dataset.sortValue;
+            const select = cell.querySelector('select');
+            if (select) return select.selectedOptions[0]?.textContent.trim() || '';
+            const content = cell.querySelector('.responsive-cell-value') || cell;
+            const text = content.textContent.replace(/\s+/g, ' ').trim();
+            return text === '-' ? '' : text;
+        }
+
+        function compareSortValues(left, right, direction, collator) {
+            // Blank values always go last, whichever way the column is sorted.
+            if (left === '' || right === '') return left === right ? 0 : left === '' ? 1 : -1;
+            const leftNumber = Number(left);
+            const rightNumber = Number(right);
+            const result = Number.isFinite(leftNumber) && Number.isFinite(rightNumber)
+                ? leftNumber - rightNumber
+                : collator.compare(left, right);
+            return direction === 'descending' ? -result : result;
+        }
+
+        function makeTableSortable(headTable, tbody) {
+            const headers = Array.from(headTable.tHead?.rows[0]?.cells || []);
+            // The sorted column is kept as its header, not a number: some
+            // headers (the API key Owner column) are hidden and have no cell,
+            // so the cell index is counted over the visible headers only.
+            const sorting = { header: null, direction: 'none' };
+
+            function cellIndex(th) {
+                return headers.filter(header => !header.classList.contains('hidden')).indexOf(th);
+            }
+            let applying = false;
+
+            function dataRows() {
+                return Array.from(tbody.rows).filter(row => !row.querySelector('td.empty'));
+            }
+
+            function rememberRenderOrder() {
+                // Rows the dashboard just rendered get their position recorded
+                // so a third click can restore the original order.
+                let next = 0;
+                Array.from(tbody.rows).forEach(row => {
+                    if (row.dataset.renderOrder === undefined) row.dataset.renderOrder = String(next);
+                    next = Math.max(next, Number(row.dataset.renderOrder) + 1);
+                });
+            }
+
+            function apply() {
+                applying = true;
+                rememberRenderOrder();
+                const rows = dataRows();
+                if (rows.length > 1) {
+                    const collator = new Intl.Collator(document.documentElement.lang || undefined, { numeric: true, sensitivity: 'base' });
+                    const column = sorting.header ? cellIndex(sorting.header) : -1;
+                    rows.sort((a, b) => {
+                        const byOrder = Number(a.dataset.renderOrder) - Number(b.dataset.renderOrder);
+                        if (column < 0) return byOrder;
+                        return compareSortValues(sortCellValue(a, column), sortCellValue(b, column), sorting.direction, collator) || byOrder;
+                    });
+                    tbody.append(...rows);
+                }
+                headers.forEach(th => {
+                    if (th.dataset.sortable === 'false') return;
+                    const state = th === sorting.header ? sorting.direction : 'none';
+                    th.setAttribute('aria-sort', state);
+                    const indicator = th.querySelector('.sortable-th-indicator');
+                    if (indicator) indicator.innerHTML = SORT_ICONS[state];
+                });
+                observer.takeRecords();
+                applying = false;
+            }
+
+            headers.forEach(th => {
+                if (th.dataset.sortable === 'false' || th.querySelector('.sortable-th-button')) return;
+                // Move the translatable label into the button so language
+                // changes update the text without removing the button.
+                const label = el('span', { text: th.textContent.trim() });
+                if (th.dataset.i18n) {
+                    label.dataset.i18n = th.dataset.i18n;
+                    delete th.dataset.i18n;
+                }
+                const button = el('button', { class: 'sortable-th-button', type: 'button' }, [
+                    label,
+                    el('span', { class: 'sortable-th-indicator' }),
+                ]);
+                button.addEventListener('click', () => {
+                    if (sorting.header !== th) {
+                        sorting.header = th;
+                        sorting.direction = 'ascending';
+                    } else if (sorting.direction === 'ascending') {
+                        sorting.direction = 'descending';
+                    } else {
+                        sorting.header = null;
+                        sorting.direction = 'none';
+                    }
+                    apply();
+                });
+                th.replaceChildren(button);
+            });
+
+            const observer = new MutationObserver(() => {
+                if (!applying) apply();
+            });
+            observer.observe(tbody, { childList: true });
+            apply();
+        }
+
+        function initSortableTables() {
+            document.querySelectorAll('#dashboard-app table').forEach(table => {
+                if (!table.tHead) return;
+                const splitWrap = table.closest('.split-table-wrap');
+                const tbody = splitWrap
+                    ? splitWrap.querySelector('.split-table-body tbody')
+                    : table.tBodies[0];
+                if (tbody) makeTableSortable(table, tbody);
+            });
         }
 
         function formatBytes(bytes) {
@@ -4765,18 +4932,18 @@
             const cells = compact ? [
                 el('td', { text: moduleLabel(job.module) }),
                 el('td', {}, [badge(job.status)]),
-                el('td', { text: `${formatNumber(job.progress || 0)}%` }),
+                numberCell(job.progress, `${formatNumber(job.progress || 0)}%`),
                 el('td', { text: job.input_filename || '-' }),
-                el('td', { text: formatDate(job.created_at) }),
-                el('td', { text: formatDate(job.expires_at) }),
+                dateCell(job.created_at),
+                dateCell(job.expires_at),
             ] : [
                 el('td', { text: moduleLabel(job.module) }),
                 el('td', { text: job.job_type || '-' }),
                 el('td', {}, [badge(job.status)]),
-                el('td', { text: `${formatNumber(job.progress || 0)}%` }),
+                numberCell(job.progress, `${formatNumber(job.progress || 0)}%`),
                 el('td', { text: job.input_filename || '-' }),
-                el('td', { text: formatNumber(job.artifact_count || 0) }),
-                el('td', { text: formatDate(job.updated_at) }),
+                numberCell(job.artifact_count),
+                dateCell(job.updated_at),
             ];
             return el('tr', {}, cells);
         }
@@ -4857,7 +5024,7 @@
                             el('span', { text: job.input_filename || dt('sections.notifications.no_input') }),
                         ]),
                     ]),
-                    el('td', { text: formatDate(job.updated_at || job.created_at) }),
+                    dateCell(job.updated_at || job.created_at),
                 ]),
             }));
             const systemItems = systemNotifications().map(notification => {
@@ -4875,7 +5042,7 @@
                                 el('span', { text: copy.body || '-' }),
                             ]),
                         ]),
-                        el('td', { text: formatDate(notification.created_at) }),
+                        dateCell(notification.created_at),
                     ]),
                 };
             });
@@ -5102,8 +5269,8 @@
                 tbody.appendChild(el('tr', {}, [
                     el('td', {}, [el('strong', { text: artifact.filename }), el('div', { class: 'metric-note', text: formatBytes(artifact.byte_size) })]),
                     el('td', { text: moduleLabel(artifact.module) }),
-                    el('td', { text: formatDate(artifact.created_at) }),
-                    el('td', { text: formatDate(artifact.expires_at) }),
+                    dateCell(artifact.created_at),
+                    dateCell(artifact.expires_at),
                     el('td', {}, [el('button', { class: 'download-btn', type: 'button', dataset: { artifactId: artifact.id }, text: dt('actions.download') })]),
                 ]));
                 list.appendChild(el('article', { class: 'artifact-card' }, [
@@ -5227,8 +5394,8 @@
                     ]),
                     el('td', {}, [role]),
                     el('td', {}, [status]),
-                    el('td', { text: formatDate(user.created_at) }),
-                    el('td', { text: formatDate(user.last_login_at) }),
+                    dateCell(user.created_at),
+                    dateCell(user.last_login_at),
                     el('td', {}, [
                         el('div', { class: 'row-actions' }, [
                             saveButton,
@@ -5275,8 +5442,8 @@
                     el('td', { text: invite.email }),
                     el('td', {}, [badge(invite.role, 'role')]),
                     el('td', {}, [badge(invite.status)]),
-                    el('td', { text: formatDate(invite.created_at) }),
-                    el('td', { text: formatDate(invite.expires_at) }),
+                    dateCell(invite.created_at),
+                    dateCell(invite.expires_at),
                     el('td', { text: invite.invited_by_email || '-' }),
                     el('td', {}, [actions]),
                 ]));
@@ -5354,8 +5521,8 @@
                     }
                     cells.push(
                         el('td', {}, [el('span', { class: 'api-key-prefix', text: key.prefix || '-' })]),
-                        el('td', { text: key.last_used_at ? formatDate(key.last_used_at) : dt('table.never') }),
-                        el('td', { text: key.expires_at ? formatDate(key.expires_at) : dt('sections.security.expiry_never') }),
+                        dateCell(key.last_used_at, dt('table.never')),
+                        dateCell(key.expires_at, dt('sections.security.expiry_never')),
                         el('td', {}, [badge(apiKeyStatus(key))]),
                         el('td', {}, [actions]),
                     );
@@ -5369,7 +5536,7 @@
             }
             apiJobs.slice(0, 20).forEach(job => {
                 jobsBody.appendChild(el('tr', {}, [
-                    el('td', { text: formatDate(job.created_at) }),
+                    dateCell(job.created_at),
                     el('td', {}, [badge(job.status)]),
                     el('td', { text: moduleLabel(job.module) }),
                     el('td', { text: apiKeyLabel(job) }),
@@ -5412,10 +5579,10 @@
                     el('td', { text: jobSourceLabel(job.source) }),
                     el('td', { text: job.user_email || '-' }),
                     el('td', {}, [badge(job.status)]),
-                    el('td', { text: `${formatNumber(job.progress || 0)}%` }),
+                    numberCell(job.progress, `${formatNumber(job.progress || 0)}%`),
                     el('td', { text: job.input_filename || '-' }),
-                    el('td', { text: formatDate(job.created_at) }),
-                    el('td', { text: formatDate(job.expires_at) }),
+                    dateCell(job.created_at),
+                    dateCell(job.expires_at),
                 ]);
                 tbody.appendChild(addResponsiveCellLabels(row, ['module', 'type', 'source', 'user', 'status', 'progress', 'file', 'created', 'expires']));
             });
@@ -5435,7 +5602,7 @@
                     el('td', {}, [badge(event.event_type, 'audit')]),
                     el('td', { text: event.user_email || '-' }),
                     el('td', { text: event.details ? JSON.stringify(event.details) : '-' }),
-                    el('td', { text: formatDate(event.created_at) }),
+                    dateCell(event.created_at),
                 ]);
                 tbody.appendChild(addResponsiveCellLabels(row, ['event', 'user', 'details', 'created']));
             });
@@ -5989,6 +6156,7 @@
             app.classList.remove('is-admin');
             accessPanel.classList.remove('hidden');
         });
+        initSortableTables();
         setSection(String(window.location.hash || '#overview').replace('#', ''));
         setSidebarCollapsed(sidebarCollapsed);
         syncDashboardI18n();
