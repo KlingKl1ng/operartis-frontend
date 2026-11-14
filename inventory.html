@@ -1291,6 +1291,12 @@
                 loadDataPrompt: 'Load data and click Simulate',
                 optimizing: 'OPTIMIZING...',
                 simulating: 'SIMULATING...',
+                batchQueued: 'Waiting in queue · position {0}',
+                batchStarting: 'Starting…',
+                batchProgress: '{0} of {1} SKUs',
+                batchCancelling: 'Cancelling…',
+                batchCancel: 'Cancel',
+                batchCancelled: 'Optimization cancelled',
 
                 // Metrics
                 alphaFull: 'α (Full)',
@@ -1537,6 +1543,12 @@
                 loadDataPrompt: 'Tải dữ liệu và nhấn Mô phỏng',
                 optimizing: 'ĐANG TỐI ƯU...',
                 simulating: 'ĐANG MÔ PHỎNG...',
+                batchQueued: 'Đang chờ trong hàng đợi · vị trí {0}',
+                batchStarting: 'Đang bắt đầu…',
+                batchProgress: '{0} / {1} SKU',
+                batchCancelling: 'Đang hủy…',
+                batchCancel: 'Hủy',
+                batchCancelled: 'Đã hủy tối ưu hóa',
 
                 // Metrics
                 alphaFull: 'α (Toàn bộ)',
@@ -1761,6 +1773,12 @@
                 loadDataPrompt: 'Daten laden und Simulation starten',
                 optimizing: 'OPTIMIERUNG...',
                 simulating: 'SIMULATION...',
+                batchQueued: 'In der Warteschlange · Position {0}',
+                batchStarting: 'Wird gestartet…',
+                batchProgress: '{0} von {1} SKUs',
+                batchCancelling: 'Wird abgebrochen…',
+                batchCancel: 'Abbrechen',
+                batchCancelled: 'Optimierung abgebrochen',
                 alphaFull: 'α (Gesamt)',
                 betaFull: 'β (Gesamt)',
                 alphaSteady: 'α (Stationär)',
@@ -3795,6 +3813,9 @@
 
             // Optimization State
             const [isOptimizing, setIsOptimizing] = useState(false);
+            // Progress of a queued "Optimize All" batch: { status, position, completed, total }
+            const [batchProgress, setBatchProgress] = useState(null);
+            const batchJobRef = useRef(null);
             const [isReloading, setIsReloading] = useState(false); // Quick single simulation reload
             const [optimizationResults, setOptimizationResults] = useState({}); // { sku: PolicyOptimizationResult }
 
@@ -4821,6 +4842,62 @@
                 }
             };
 
+            // Follow a queued batch until it ends. The server runs it in the background;
+            // this polls its status. Returns the results, or null if it was cancelled.
+            const waitForBatch = async (accepted) => {
+                const readError = async (response) => (await response.json().catch(() => ({}))).detail || 'Batch optimization failed';
+                let status = accepted;
+                let polls = 0;
+                let failedPolls = 0;
+                batchJobRef.current = accepted.job_id;
+                try {
+                    while (true) {
+                        setBatchProgress({
+                            status: status.status,
+                            position: status.position || 0,
+                            completed: status.completed_skus || 0,
+                            total: status.total_skus || 0
+                        });
+                        if (status.status === 'completed') break;
+                        if (status.status === 'canceled') return null;
+                        if (status.status === 'failed') throw new Error(status.error || 'Batch optimization failed');
+
+                        // Check quickly at first (small batches finish in seconds), then once a second.
+                        await new Promise(resolve => setTimeout(resolve, polls < 6 ? 400 : 1000));
+                        polls += 1;
+                        try {
+                            const poll = await fetch(`${apiUrl}/inventory/batch-status/${accepted.job_id}`);
+                            if (poll.status >= 500) throw new Error(await readError(poll));
+                            if (!poll.ok) { failedPolls = Infinity; throw new Error(await readError(poll)); }
+                            status = await poll.json();
+                            failedPolls = 0;
+                        } catch (error) {
+                            // The batch keeps running on the server, so ride out a brief connection problem.
+                            failedPolls += 1;
+                            if (failedPolls > 5) throw error;
+                        }
+                    }
+                    const result = await fetch(`${apiUrl}/inventory/batch-result/${accepted.job_id}`);
+                    if (!result.ok) throw new Error(await readError(result));
+                    return await result.json();
+                } finally {
+                    batchJobRef.current = null;
+                }
+            };
+
+            // Cancel the running "Optimize All" batch. The status poll picks up the change.
+            const cancelBatch = async () => {
+                const jobId = batchJobRef.current;
+                if (!jobId) return;
+                try {
+                    const response = await fetch(`${apiUrl}/inventory/batch-cancel/${jobId}`, { method: 'POST' });
+                    if (!response.ok) throw new Error((await response.json().catch(() => ({}))).detail || 'Cancel failed');
+                    setBatchProgress(prev => prev && { ...prev, status: 'cancel_requested' });
+                } catch (error) {
+                    showToast(error.message, 'error');
+                }
+            };
+
             // Run Optimization for ALL SKUs (Parallel via Backend)
             const runAllOptimizations = async () => {
                 try {
@@ -4906,7 +4983,7 @@
                         }
                     }
 
-                    // Call batch optimization endpoint
+                    // Queue the batch: the server accepts it at once and runs it in the background
                     const response = await fetch(`${apiUrl}/inventory/optimize-batch`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -4917,11 +4994,15 @@
                     });
 
                     if (!response.ok) {
-                        const error = await response.json();
+                        const error = await response.json().catch(() => ({}));
                         throw new Error(error.detail || 'Batch optimization failed');
                     }
 
-                    const batchResult = await response.json();
+                    const batchResult = await waitForBatch(await response.json());
+                    if (!batchResult) {
+                        showToast(t('batchCancelled'), 'warning');
+                        return;
+                    }
                     if (batchResult.job_id) setLatestInventoryJobId(batchResult.job_id);
                     console.log(`Batch optimization complete: ${batchResult.successful}/${batchResult.total_skus} successful (${batchResult.workers_used} workers)`);
 
@@ -5008,6 +5089,7 @@
                     showToast(`Optimization failed: ${error.message}`, 'error');
                 } finally {
                     setIsOptimizing(false);
+                    setBatchProgress(null);
                 }
             };
 
@@ -6151,6 +6233,36 @@
                                     <h2 className={`text-2xl font-black uppercase tracking-widest text-transparent bg-clip-text animate-pulse ${isOptimizing ? 'bg-gradient-to-r from-brand-gold to-brand-dark' : 'bg-gradient-to-r from-emerald-500 to-teal-500'}`}>
                                         {isOptimizing ? t('optimizing') : t('simulating')}
                                     </h2>
+                                    {isOptimizing && batchProgress && (
+                                        <div className="mt-6 w-64 max-w-full flex flex-col items-center gap-3" role="status" aria-live="polite">
+                                            <p className="text-sm font-medium text-slate-500 dark:text-slate-400 font-mono tabular-nums">
+                                                {batchProgress.status === 'queued'
+                                                    ? t('batchQueued').replace('{0}', t.format.number(Math.max(1, batchProgress.position), 0, 0))
+                                                    : batchProgress.status === 'cancel_requested'
+                                                        ? t('batchCancelling')
+                                                        : batchProgress.completed > 0 || batchProgress.status === 'completed'
+                                                            ? t('batchProgress')
+                                                                .replace('{0}', t.format.number(batchProgress.completed, 0, 0))
+                                                                .replace('{1}', t.format.number(batchProgress.total, 0, 0))
+                                                            : t('batchStarting')}
+                                            </p>
+                                            <div className="w-full h-1.5 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
+                                                <div
+                                                    className="h-full rounded-full bg-brand-gold transition-all duration-500"
+                                                    style={{ width: `${batchProgress.total > 0 ? Math.round(100 * batchProgress.completed / batchProgress.total) : 0}%` }}
+                                                ></div>
+                                            </div>
+                                            {batchProgress.status !== 'completed' && (
+                                                <button
+                                                    onClick={cancelBatch}
+                                                    disabled={batchProgress.status === 'cancel_requested'}
+                                                    className="mt-1 px-4 py-1.5 text-xs font-bold rounded-lg border border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:text-rose-500 hover:border-rose-300 dark:hover:border-rose-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                                >
+                                                    {t('batchCancel')}
+                                                </button>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
                             ) : viewMode === 'summary' && hasAllResults ? (
                                 <SummaryDashboard
