@@ -1,9 +1,8 @@
 import { useEffect, useState, type ReactNode } from 'react';
-import { ChevronLeft, ChevronRight, CircleCheck, Lock, Plus, Trash2, Upload } from 'lucide-react';
-import { SectionLabel, Segmented } from '../../../app-shared/ui';
-import { leadTimeProbabilitySum, leadTimeValuesValid, REVIEW_PERIODS, SAFETY_FACTOR, SERVICE_LEVEL } from '../domain/params';
-import { targetReached } from '../domain/summary';
-import type { LeadTimeConfig, LeadTimeType, OptimizationResult, Params, SimulationMode } from '../domain/types';
+import { Lock, LockOpen, Plus, Trash2, Upload } from 'lucide-react';
+import { SectionLabel } from '../../../app-shared/ui';
+import { leadTimeProbabilitySum, leadTimeValuesValid, REVIEW_PERIODS, SERVICE_LEVEL } from '../domain/params';
+import type { LeadTimeConfig, LeadTimeType, Params } from '../domain/types';
 import type { TextKey, Translator } from '../i18n';
 import { label as upper } from './Label';
 
@@ -69,12 +68,30 @@ export function NumberField({
   );
 }
 
-function Field({ label, locked, lockedLabel, children }: { label: string; locked?: boolean; lockedLabel?: string; children: ReactNode }) {
+/**
+ * How a value that comes from the file is shown: 'file' on the overview, where it
+ * differs per product; 'locked' or 'open' for the one product whose tab is showing.
+ */
+type FileLock = 'file' | 'locked' | 'open' | undefined;
+
+function LockMark({ lock, t }: { lock: FileLock; t: Translator }) {
+  if (!lock) return null;
+  return lock === 'open'
+    ? <LockOpen size={10} className="inv-lock-open" aria-label={t('fromFile')} />
+    : <Lock size={10} aria-label={t(lock === 'file' ? 'fromFile' : 'locked')} />;
+}
+
+/** Stands in for a value that the file gives per product. */
+function FromFile({ t }: { t: Translator }) {
+  return <input className="ops-input" value={t('fromFile')} disabled readOnly />;
+}
+
+function Field({ label, lock, t, children }: { label: string; lock?: FileLock; t?: Translator; children: ReactNode }) {
   return (
     <label className="ops-field">
       <span>
         {upper(label)}
-        {locked && <Lock size={10} aria-label={lockedLabel} />}
+        {t && <LockMark lock={lock} t={t} />}
       </span>
       {children}
     </label>
@@ -89,7 +106,8 @@ const LEAD_TIME_TYPES: Array<{ type: LeadTimeType; label: TextKey }> = [
   { type: 'uniform', label: 'discreteUniform' },
 ];
 
-function LeadTimeEditor({ config, onChange, disabled, t }: { config: LeadTimeConfig; onChange: (config: LeadTimeConfig) => void; disabled: boolean; t: Translator }) {
+function LeadTimeEditor({ config, onChange, lock, t }: { config: LeadTimeConfig; onChange: (config: LeadTimeConfig) => void; lock: FileLock; t: Translator }) {
+  const disabled = lock === 'locked';
   const set = (patch: Partial<LeadTimeConfig>) => onChange({ ...config, ...patch });
   const expected = config.type === 'binomial'
     ? config.binomialN * config.binomialP
@@ -103,19 +121,26 @@ function LeadTimeEditor({ config, onChange, disabled, t }: { config: LeadTimeCon
     <div className="inv-leadtime">
       <div className="ops-field-label">
         {t('leadTime')}
-        {disabled && <Lock size={10} aria-label={t('locked')} />}
+        <LockMark lock={lock} t={t} />
       </div>
-      <Field label={t('type')}>
-        <select className="ops-select" value={config.type} disabled={disabled} onChange={(event) => set({ type: event.target.value as LeadTimeType })}>
-          {LEAD_TIME_TYPES.map((item) => <option key={item.type} value={item.type}>{t(item.label)}</option>)}
-        </select>
-      </Field>
-
-      {config.type === 'deterministic' && (
-        <Field label={t('valueDays')}>
-          <NumberField value={config.deterministicValue} min={1} integer disabled={disabled} onCommit={(deterministicValue) => set({ deterministicValue })} />
+      {/* A type that needs one number shares its row with it. */}
+      <div className={config.type === 'deterministic' || config.type === 'poisson' ? 'inv-grid-2' : undefined}>
+        <Field label={t('type')}>
+          <select className="ops-select" value={config.type} disabled={disabled} onChange={(event) => set({ type: event.target.value as LeadTimeType })}>
+            {LEAD_TIME_TYPES.map((item) => <option key={item.type} value={item.type}>{t(item.label)}</option>)}
+          </select>
         </Field>
-      )}
+        {config.type === 'deterministic' && (
+          <Field label={t('valueDays')}>
+            <NumberField value={config.deterministicValue} min={1} integer disabled={disabled} onCommit={(deterministicValue) => set({ deterministicValue })} />
+          </Field>
+        )}
+        {config.type === 'poisson' && (
+          <Field label="λ">
+            <NumberField value={config.poissonLambda} min={0.1} step={0.5} disabled={disabled} onCommit={(poissonLambda) => set({ poissonLambda })} />
+          </Field>
+        )}
+      </div>
 
       {config.type === 'value' && (
         <div className="inv-value-list">
@@ -164,12 +189,6 @@ function LeadTimeEditor({ config, onChange, disabled, t }: { config: LeadTimeCon
             </span>
           </div>
         </div>
-      )}
-
-      {config.type === 'poisson' && (
-        <Field label="λ">
-          <NumberField value={config.poissonLambda} min={0.1} step={0.5} disabled={disabled} onCommit={(poissonLambda) => set({ poissonLambda })} />
-        </Field>
       )}
 
       {config.type === 'binomial' && (
@@ -238,6 +257,8 @@ function Slider({
 
 const REVIEW_LABEL: Record<number, TextKey> = { 1: 'daily', 7: 'weekly', 14: 'biWeekly', 30: 'monthly' };
 
+type FieldFlags = { initialStock: boolean; leadTime: boolean; reviewPeriod: boolean; moq: boolean; serviceLevel: boolean };
+
 export interface SidebarProps {
   t: Translator;
   filename: string | null;
@@ -245,37 +266,46 @@ export interface SidebarProps {
   forecastDays: number;
   onUpload: () => void;
   busy: boolean;
-  mode: SimulationMode;
-  onModeChange: (mode: SimulationMode) => void;
-  skus: string[];
-  currentSku: string | null;
-  onSelectSku: (sku: string) => void;
+  hasFile: boolean;
+  /** The product whose parameters are shown; null means the values for all products. */
+  product: string | null;
   params: Params;
   onParamsChange: (patch: Partial<Params>) => void;
-  locked: { initialStock: boolean; leadTime: boolean; reviewPeriod: boolean; moq: boolean; serviceLevel: boolean };
-  result: OptimizationResult | null;
+  /** The parameters the uploaded file gives; they differ per product. */
+  fileFields: FieldFlags;
+  /** Those of them that are locked until the user unlocks a product. */
+  lockedFields: FieldFlags;
+  /** The product's file values were unlocked for editing. */
+  unlocked: boolean;
+  /** The product runs with values of its own. */
+  edited: boolean;
+  onUnlock: () => void;
+  onDiscardChanges: () => void;
 }
 
 export function Sidebar(props: SidebarProps) {
-  const { t, params, locked, mode, skus, currentSku, result } = props;
-  const anyLocked = Object.values(locked).some(Boolean);
-  const index = currentSku ? skus.indexOf(currentSku) : -1;
-  const step = (direction: number) => {
-    if (!skus.length || index < 0) return;
-    props.onSelectSku(skus[(index + direction + skus.length) % skus.length]);
-  };
+  const { t, params, fileFields, unlocked, edited, product } = props;
+  const anyFromFile = Object.values(fileFields).some(Boolean);
+  const anyLocked = (Object.keys(fileFields) as Array<keyof FieldFlags>).some((field) => fileFields[field] && props.lockedFields[field]);
+  const lock = (field: keyof FieldFlags): FileLock => (
+    !fileFields[field] ? undefined : !product ? 'file' : props.lockedFields[field] && !unlocked ? 'locked' : 'open'
+  );
+  const fixed = (field: keyof FieldFlags) => lock(field) === 'locked' || lock(field) === 'file';
+  const perProduct = (field: keyof FieldFlags) => lock(field) === 'file';
 
   return (
     <>
       <section>
         <SectionLabel>{t('dataSource')}</SectionLabel>
-        <div className="inv-source-card">
+        <div className={`inv-source-card ${props.filename ? 'is-loaded' : ''}`}>
           {props.filename ? (
             <>
-              <strong title={props.filename}>{props.filename}</strong>
-              <span className="inv-source-meta">
-                {t.format.number(props.productCount, 0, 0)} {t('products')} · {t.format.number(props.forecastDays, 0, 0)} {t('days')}
-              </span>
+              <div className="inv-source-file">
+                <strong title={props.filename}>{props.filename}</strong>
+                <span className="inv-source-meta">
+                  {t.format.number(props.productCount, 0, 0)} {t('products')} · {t.format.number(props.forecastDays, 0, 0)} {t('days')}
+                </span>
+              </div>
               <button className="inv-source-action" type="button" onClick={props.onUpload} disabled={props.busy} title={t('uploadAnother')} aria-label={t('uploadAnother')}>
                 <Upload size={14} />
               </button>
@@ -289,120 +319,93 @@ export function Sidebar(props: SidebarProps) {
         </div>
       </section>
 
-      <section>
-        <SectionLabel>{t('interface')}</SectionLabel>
-        <Segmented
-          value={mode}
-          onChange={props.onModeChange}
-          disabled={props.busy}
-          options={[{ value: 'optimize', label: t('optimizeMode') }, { value: 'whatif', label: t('whatIfMode') }]}
-        />
-        <p className="inv-hint">{t(mode === 'optimize' ? 'optimizeModeDesc' : 'whatIfModeDesc')}</p>
-      </section>
-
-      {skus.length > 1 && (
-        <section>
-          <SectionLabel>{t('skuNavigator')}</SectionLabel>
-          <div className="inv-product-picker">
-            <button className="ops-icon-button" type="button" onClick={() => step(-1)} aria-label={t('previousProduct')} title={t('previousProduct')}><ChevronLeft size={16} /></button>
-            <select className="ops-select" value={currentSku || ''} onChange={(event) => props.onSelectSku(event.target.value)} aria-label={t('product')}>
-              {skus.map((sku) => <option key={sku} value={sku}>{sku}</option>)}
-            </select>
-            <button className="ops-icon-button" type="button" onClick={() => step(1)} aria-label={t('nextProduct')} title={t('nextProduct')}><ChevronRight size={16} /></button>
-          </div>
-          <p className="inv-hint is-centered">{t('productOf', t.format.number(index + 1, 0, 0), t.format.number(skus.length, 0, 0))}</p>
-        </section>
-      )}
-
-      <section>
+      {/* Remounted per product so a half-typed number never carries over to another product. */}
+      <section key={product ?? ''}>
         <SectionLabel>{t('parameters')}</SectionLabel>
+        {props.hasFile && props.productCount > 1 && (
+          <div className={`inv-scope ${product ? 'is-product' : ''}`}>
+            <span>{t('appliesTo')}</span>
+            <strong title={product ?? undefined}>{product ?? t('allProducts')}</strong>
+          </div>
+        )}
         <div className="inv-policy-pill">{t('stochasticPolicy')}</div>
+
+        {!product && anyFromFile && (
+          <div className="inv-lock-hint">
+            <Lock size={12} />
+            <span>{t('fileValuesHint')}</span>
+          </div>
+        )}
+        {product && (anyLocked || edited) && (
+          <div className={`inv-lock-hint ${unlocked || edited ? 'is-open' : ''}`}>
+            {unlocked || !anyLocked ? <LockOpen size={12} /> : <Lock size={12} />}
+            <span>{t(unlocked ? 'unlockedHint' : anyLocked ? 'lockedHint' : 'editedHint')}</span>
+            {anyLocked && !unlocked && (
+              <button className="ops-button is-quiet is-small" type="button" onClick={props.onUnlock} title={t('unlockValuesHint')}>{t('unlockValues')}</button>
+            )}
+            {(unlocked || edited) && (
+              <button className="ops-button is-quiet is-small" type="button" onClick={props.onDiscardChanges} title={t('discardChangesHint')}>{t('discardChanges')}</button>
+            )}
+          </div>
+        )}
+
         <div className="inv-grid-2">
-          <Field label={t('initialStock')} locked={locked.initialStock} lockedLabel={t('locked')}>
-            <NumberField value={params.initialStock} min={0} disabled={locked.initialStock} onCommit={(initialStock) => props.onParamsChange({ initialStock })} />
+          <Field label={t('initialStock')} lock={lock('initialStock')} t={t}>
+            {perProduct('initialStock')
+              ? <FromFile t={t} />
+              : <NumberField value={params.initialStock} min={0} disabled={fixed('initialStock')} onCommit={(initialStock) => props.onParamsChange({ initialStock })} />}
           </Field>
-          <Field label={t('minOrderQty')} locked={locked.moq} lockedLabel={t('locked')}>
-            <NumberField value={params.moqValue} min={0} disabled={locked.moq} onCommit={(moqValue) => props.onParamsChange({ moqValue })} />
+          <Field label={t('minOrderQty')} lock={lock('moq')} t={t}>
+            {perProduct('moq')
+              ? <FromFile t={t} />
+              : <NumberField value={params.moqValue} min={0} disabled={fixed('moq')} onCommit={(moqValue) => props.onParamsChange({ moqValue })} />}
           </Field>
         </div>
 
-        <LeadTimeEditor config={params.leadTimeConfig} disabled={locked.leadTime} t={t} onChange={(leadTimeConfig) => props.onParamsChange({ leadTimeConfig })} />
+        {perProduct('leadTime') ? (
+          <div className="inv-leadtime">
+            <div className="ops-field-label">
+              {t('leadTime')}
+              <LockMark lock="file" t={t} />
+            </div>
+            <FromFile t={t} />
+          </div>
+        ) : (
+          <LeadTimeEditor config={params.leadTimeConfig} lock={lock('leadTime')} t={t} onChange={(leadTimeConfig) => props.onParamsChange({ leadTimeConfig })} />
+        )}
 
-        <Field label={t('reviewPeriod')} locked={locked.reviewPeriod} lockedLabel={t('locked')}>
-          <select className="ops-select" value={params.reviewPeriod} disabled={locked.reviewPeriod} onChange={(event) => props.onParamsChange({ reviewPeriod: parseInt(event.target.value, 10) })}>
-            {/* A period read from the file that is not one of the four choices is still shown. */}
-            {[...new Set([...REVIEW_PERIODS, params.reviewPeriod])].sort((a, b) => a - b).map((days) => (
-              <option key={days} value={days}>{REVIEW_LABEL[days] ? t(REVIEW_LABEL[days]) : `${t.format.number(days, 0, 0)} ${t('days')}`}</option>
-            ))}
-          </select>
+        <Field label={t('reviewPeriod')} lock={lock('reviewPeriod')} t={t}>
+          {perProduct('reviewPeriod') ? <FromFile t={t} /> : (
+            <select className="ops-select" value={params.reviewPeriod} disabled={fixed('reviewPeriod')} onChange={(event) => props.onParamsChange({ reviewPeriod: parseInt(event.target.value, 10) })}>
+              {/* A period read from the file that is not one of the four choices is still shown. */}
+              {[...new Set([...REVIEW_PERIODS, params.reviewPeriod])].sort((a, b) => a - b).map((days) => (
+                <option key={days} value={days}>{REVIEW_LABEL[days] ? t(REVIEW_LABEL[days]) : `${t.format.number(days, 0, 0)} ${t('days')}`}</option>
+              ))}
+            </select>
+          )}
         </Field>
 
         <div className="ops-field">
           <span>
             {upper(t('targetServiceLevel'))}
-            {locked.serviceLevel && <Lock size={10} aria-label={t('locked')} />}
-            <b className="inv-field-value">{t.format.fixed(params.serviceLevel * 100, 1)}%</b>
+            <LockMark lock={lock('serviceLevel')} t={t} />
+            {!perProduct('serviceLevel') && <b className="inv-field-value">{t.format.fixed(params.serviceLevel * 100, 1)}%</b>}
           </span>
-          <Slider
-            value={Math.round(params.serviceLevel * 1000) / 10}
-            min={SERVICE_LEVEL.min}
-            max={SERVICE_LEVEL.max}
-            step={SERVICE_LEVEL.step}
-            presets={SERVICE_LEVEL.presets}
-            format={(value) => `${t.format.number(value, 0, 1)}%`}
-            disabled={locked.serviceLevel}
-            ariaLabel={t('targetServiceLevel')}
-            onChange={(value) => props.onParamsChange({ serviceLevel: value / 100 })}
-          />
-        </div>
-
-        {mode === 'whatif' && (
-          <div className="ops-field">
-            <span>
-              {t('safetyFactor')}
-              <b className="inv-field-value">{t.format.fixed(params.safetyFactor, 1)}×</b>
-            </span>
+          {perProduct('serviceLevel') ? <FromFile t={t} /> : (
             <Slider
-              value={params.safetyFactor}
-              min={SAFETY_FACTOR.min}
-              max={SAFETY_FACTOR.max}
-              step={SAFETY_FACTOR.step}
-              presets={SAFETY_FACTOR.presets}
-              format={(value) => `${t.format.number(value, 0, 1)}×`}
-              ariaLabel={t('safetyFactor')}
-              onChange={(safetyFactor) => props.onParamsChange({ safetyFactor })}
+              value={Math.round(params.serviceLevel * 1000) / 10}
+              min={SERVICE_LEVEL.min}
+              max={SERVICE_LEVEL.max}
+              step={SERVICE_LEVEL.step}
+              presets={SERVICE_LEVEL.presets}
+              format={(value) => `${t.format.number(value, 0, 1)}%`}
+              disabled={fixed('serviceLevel')}
+              ariaLabel={t('targetServiceLevel')}
+              onChange={(value) => props.onParamsChange({ serviceLevel: value / 100 })}
             />
-          </div>
-        )}
-
-        {anyLocked && <p className="inv-hint inv-lock-hint"><Lock size={11} /> {t('lockedHint')}</p>}
+          )}
+        </div>
       </section>
-
-      {mode === 'optimize' && result && (
-        <section>
-          <SectionLabel>{t('result')}</SectionLabel>
-          <div className="inv-result-card">
-            <div className="inv-result-title">
-              <CircleCheck size={15} />
-              {t(result.convergenceAchieved ? 'optimalPolicyFound' : 'bestPolicyFound')}
-            </div>
-            <dl>
-              <div><dt>{t('targetAlpha')}</dt><dd>{t.format.number(result.targetAlpha * 100, 0, 2)}%</dd></div>
-              <div>
-                <dt>{t('achievedAlpha')}</dt>
-                <dd className={targetReached(result) ? 'is-good' : 'is-warn'}>{t.format.fixed(result.achievedAlpha * 100, 1)}%</dd>
-              </div>
-              <div><dt>{t('achievedBeta')}</dt><dd>{t.format.fixed(result.achievedBeta * 100, 1)}%</dd></div>
-              <div className="is-divided"><dt>{t('safetyFactor')}</dt><dd>{t.format.fixed(result.optimalSafetyFactor, 2)}×</dd></div>
-              <div><dt>{t('avgReorderPoint')}</dt><dd>{t.format.fixed(result.avgSt, 1)}</dd></div>
-              <div><dt>{t('avgOrderUpTo')}</dt><dd>{t.format.fixed(result.avgST, 1)}</dd></div>
-              {result.mcAvgInventory != null && <div><dt>{t('avgInv')}</dt><dd>{t.format.number(result.mcAvgInventory, 0, 0)}</dd></div>}
-              {result.mcAvgStockoutDays != null && <div><dt>{t('avgStockoutDays')}</dt><dd>{t.format.fixed(result.mcAvgStockoutDays, 1)}</dd></div>}
-            </dl>
-            <p>{t('foundInIterations', t.format.number(result.iterationsUsed, 0, 0))}</p>
-          </div>
-        </section>
-      )}
     </>
   );
 }

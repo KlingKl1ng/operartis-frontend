@@ -25,8 +25,6 @@ export interface Params {
   reviewPeriod: number;
   /** Target cycle service level as a fraction, 0.95 = 95 %. */
   serviceLevel: number;
-  /** Multiplier on forecast uncertainty; only used in What-If mode. */
-  safetyFactor: number;
   /** Minimum order quantity; 0 means none. */
   moqValue: number;
 }
@@ -46,7 +44,8 @@ export interface FileSkuParams {
   leadTime: number | null;
   leadTimeStd: number;
   reviewPeriod: number | null;
-  moqValue: number;
+  /** null when the file gives none, so the value for all products applies. */
+  moqValue: number | null;
   serviceLevel: number | null;
 }
 
@@ -166,21 +165,6 @@ export interface SimResult {
   metrics: TimelineMetrics | null;
 }
 
-export interface Spread {
-  mean: number;
-  p5: number;
-  p95: number;
-}
-
-export interface MonteCarloResult {
-  jobId?: string | null;
-  numRuns: number;
-  alpha: Spread;
-  beta: Spread;
-  avgInventory: Spread;
-  stockoutDays: Spread;
-}
-
 export interface OptimizationResult {
   jobId?: string | null;
   skuId: string;
@@ -198,5 +182,3 @@ export interface OptimizationResult {
   timeline?: TimelineDay[];
   metrics: TimelineMetrics | null;
 }
-
-export type SimulationMode = 'optimize' | 'whatif';

@@ -1,6 +1,6 @@
 // Request bodies for the inventory engine (backend/inventory_engine.py).
 import { MONTE_CARLO_RUNS, OPTIMIZER } from './params';
-import type { ForecastPoint, LeadTimeConfig, MonteCarloResult, OptimizationResult, Params, SimResult, SimulationMode } from './types';
+import type { ForecastPoint, LeadTimeConfig, OptimizationResult, Params, SimResult } from './types';
 
 export interface ApiLeadTimeConfig {
   type: LeadTimeConfig['type'];
@@ -87,21 +87,14 @@ function baseRequest(sku: string, forecast: ForecastPoint[], params: Params, fil
   };
 }
 
-/** Body for simulate-timeline and simulate-monte-carlo. */
-export function simulationRequest(sku: string, forecast: ForecastPoint[], params: Params, filename: string | null): SimulationRequest {
-  const body: SimulationRequest = { ...baseRequest(sku, forecast, params, filename), safety_factor: params.safetyFactor || 1.0 };
+/** Body for simulate-timeline: one run with the safety factor the optimizer found. */
+export function simulationRequest(sku: string, forecast: ForecastPoint[], params: Params, safetyFactor: number, filename: string | null): SimulationRequest {
+  const body: SimulationRequest = { ...baseRequest(sku, forecast, params, filename), safety_factor: safetyFactor || 1.0 };
   if (params.moqValue > 0) body.min_order_qty = params.moqValue;
   return body;
 }
 
-/** Body for optimize-policy. */
-export function optimizationRequest(sku: string, forecast: ForecastPoint[], params: Params, filename: string | null): OptimizationRequest {
-  const body: OptimizationRequest = { ...baseRequest(sku, forecast, params, filename), ...OPTIMIZER };
-  if (params.moqValue > 0) body.min_order_qty = params.moqValue;
-  return body;
-}
-
-/** Body for optimize-batch: one optimization request per product. */
+/** Body for optimize-batch: one optimization request per product. Every run goes through it, also a single product. */
 export function batchRequest(
   products: Array<{ sku: string; forecast: ForecastPoint[]; params: Params }>,
   filename: string | null,
@@ -124,16 +117,13 @@ export function exportRequest(input: {
   paramsFor: (sku: string) => Params;
   forecasts: Record<string, ForecastPoint[]>;
   simResults: Record<string, SimResult>;
-  mcResults: Record<string, MonteCarloResult>;
   optimizationResults: Record<string, OptimizationResult>;
   sourceJobId: string | null;
   filename: string | null;
-  mode: SimulationMode;
   language: string;
 }) {
   const skuResults = input.skus.map((sku) => {
     const sim = input.simResults[sku];
-    const mc = input.mcResults[sku];
     const optimum = input.optimizationResults[sku];
     const params = input.paramsFor(sku);
     const leadTime = params.leadTimeConfig;
@@ -153,7 +143,7 @@ export function exportRequest(input: {
       },
       review_period: params.reviewPeriod,
       target_service_level: params.serviceLevel,
-      safety_factor: optimum?.optimalSafetyFactor ?? params.safetyFactor,
+      safety_factor: optimum?.optimalSafetyFactor ?? 1.0,
       min_order_qty: params.moqValue,
       // The optimizer's 500-run result takes precedence over the single run on screen.
       achieved_alpha: optimum?.achievedAlpha ?? sim?.metrics?.alpha ?? 0,
@@ -161,14 +151,14 @@ export function exportRequest(input: {
       avg_inventory: sim?.metrics?.avgInventory ?? 0,
       total_stockouts: sim?.metrics?.totalStockouts ?? 0,
       total_days: sim?.metrics?.totalDays ?? timeline?.length ?? 0,
-      mc_alpha_mean: optimum?.achievedAlpha ?? mc?.alpha?.mean ?? null,
-      mc_alpha_p5: mc?.alpha?.p5 ?? null,
-      mc_alpha_p95: mc?.alpha?.p95 ?? null,
-      mc_beta_mean: optimum?.achievedBeta ?? mc?.beta?.mean ?? null,
-      mc_beta_p5: mc?.beta?.p5 ?? null,
-      mc_beta_p95: mc?.beta?.p95 ?? null,
-      mc_avg_inventory_mean: optimum?.mcAvgInventory ?? mc?.avgInventory?.mean ?? null,
-      mc_stockout_days_mean: optimum?.mcAvgStockoutDays ?? mc?.stockoutDays?.mean ?? null,
+      mc_alpha_mean: optimum?.achievedAlpha ?? null,
+      mc_alpha_p5: null,
+      mc_alpha_p95: null,
+      mc_beta_mean: optimum?.achievedBeta ?? null,
+      mc_beta_p5: null,
+      mc_beta_p95: null,
+      mc_avg_inventory_mean: optimum?.mcAvgInventory ?? null,
+      mc_stockout_days_mean: optimum?.mcAvgStockoutDays ?? null,
       alpha_steady: sim?.metrics?.alpha_steady ?? null,
       beta_steady: sim?.metrics?.beta_steady ?? null,
       warmup_days: sim?.metrics?.warmup_days ?? null,
@@ -203,7 +193,8 @@ export function exportRequest(input: {
     source_job_id: input.sourceJobId,
     input_filename: input.filename || 'Inventory_Data',
     sku_results: skuResults,
-    simulation_mode: input.mode,
+    // The report still names its mode; this page only optimizes.
+    simulation_mode: 'optimize',
     num_monte_carlo_runs: MONTE_CARLO_RUNS,
     language: input.language,
   };

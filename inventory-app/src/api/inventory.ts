@@ -1,8 +1,7 @@
 // Calls to the inventory engine and the shapes it answers with.
 import { createApi, ApiError, sleep } from '../../../app-shared/api';
-import { MONTE_CARLO_RUNS } from '../domain/params';
-import type { BatchRequest, OptimizationRequest, SimulationRequest } from '../domain/requests';
-import type { MonteCarloResult, OptimizationResult, OrderInfo, SimResult, TimelineDay, TimelineMetrics } from '../domain/types';
+import type { BatchRequest, SimulationRequest } from '../domain/requests';
+import type { OptimizationResult, OrderInfo, SimResult, TimelineDay, TimelineMetrics } from '../domain/types';
 
 const api = createApi('/inventory');
 
@@ -129,28 +128,6 @@ export function mapOptimization(result: ApiOptimization): OptimizationResult {
 export async function simulateTimeline(body: SimulationRequest): Promise<SimResult> {
   const result = await api.post<{ job_id?: string | null; timeline: ApiTimelineEntry[]; metrics: ApiMetrics }>('/inventory/simulate-timeline', body);
   return { jobId: result.job_id, timeline: mapTimeline(result.timeline), metrics: mapMetrics(result.metrics) };
-}
-
-/** Many simulated runs, for service-level figures with a range. */
-export async function simulateMonteCarlo(body: SimulationRequest): Promise<MonteCarloResult> {
-  type Spread = { mean: number; p5: number; p95: number };
-  const result = await api.post<{ job_id?: string | null; num_runs: number; alpha: Spread; beta: Spread; avg_inventory: Spread; stockout_days: Spread }>(
-    `/inventory/simulate-monte-carlo?num_runs=${MONTE_CARLO_RUNS}`,
-    body,
-  );
-  return {
-    jobId: result.job_id,
-    numRuns: result.num_runs,
-    alpha: result.alpha,
-    beta: result.beta,
-    avgInventory: result.avg_inventory,
-    stockoutDays: result.stockout_days,
-  };
-}
-
-/** Find the policy that reaches the target service level for one product. */
-export async function optimizePolicy(body: OptimizationRequest): Promise<OptimizationResult> {
-  return mapOptimization(await api.post<ApiOptimization>('/inventory/optimize-policy', body));
 }
 
 // ---------- Batches (optimize every product; runs in the server's queue) ----------

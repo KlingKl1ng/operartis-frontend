@@ -91,7 +91,7 @@ function fileParams(row: Row, mapping: Mapping): FileSkuParams {
     leadTime: read(mapping.lead_time_mean),
     leadTimeStd: read(mapping.lead_time_std) ?? 0,
     reviewPeriod: read(mapping.review_period),
-    moqValue: read(mapping.min_order_qty) ?? 0,
+    moqValue: read(mapping.min_order_qty),
     // 95 and 0.95 both mean 95 %.
     serviceLevel: serviceLevel != null ? (serviceLevel > 1 ? serviceLevel / 100 : serviceLevel) : null,
   };

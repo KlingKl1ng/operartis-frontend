@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Area, Bar, CartesianGrid, ComposedChart, Line, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
-import { ChevronLeft, ChevronRight, Pause, Play, RefreshCw, SkipBack, StepForward, TriangleAlert } from 'lucide-react';
+import { CircleCheck, Pause, Play, RefreshCw, SkipBack, StepForward, TriangleAlert } from 'lucide-react';
 import { Segmented } from '../../../app-shared/ui';
-import { singleRunBand } from '../domain/summary';
-import type { SimResult, TimelineDay } from '../domain/types';
+import { chartScale } from '../domain/chartScale';
+import { MONTE_CARLO_RUNS } from '../domain/params';
+import { targetReached } from '../domain/summary';
+import type { OptimizationResult, SimResult, TimelineDay } from '../domain/types';
 import type { TextKey, Translator } from '../i18n';
 import { label as upper } from './Label';
 
@@ -47,6 +49,9 @@ function LiveChart({ timeline, currentDay, dark, t }: { timeline: TimelineDay[];
     stockout: day.stockoutEvent ? day.invAfterDemand : null,
   } : { date: day.date, s_t_future: day.s_t, S_t_future: day.S_t })), [timeline, currentDay]);
 
+  // From the whole run, not the days played so far: the lines must not move during playback.
+  const scale = useMemo(() => chartScale(timeline), [timeline]);
+
   const toggle = (key: SeriesKey) => setPicked((current) => {
     const next = new Set(current);
     if (next.has(key)) next.delete(key);
@@ -56,7 +61,7 @@ function LiveChart({ timeline, currentDay, dark, t }: { timeline: TimelineDay[];
 
   return (
     <div className="inv-chart">
-      <div className="inv-legend" role="group" aria-label={t('liveInventorySimulation')}>
+      <div className="inv-legend" role="group" aria-label={t('inventorySimulation')}>
         {LEGEND.map((item) => (
           <button key={item.key} type="button" className={picked.has(item.key) ? 'is-picked' : picked.size ? 'is-faded' : ''} aria-pressed={picked.has(item.key)} onClick={() => toggle(item.key)}>
             <i className={`inv-swatch is-${item.shape}`} style={{ color: colors[item.color] }} aria-hidden="true" />
@@ -67,7 +72,7 @@ function LiveChart({ timeline, currentDay, dark, t }: { timeline: TimelineDay[];
       </div>
       <div className="inv-chart-plot">
         <ResponsiveContainer width="100%" height="100%">
-          <ComposedChart data={data} margin={{ top: 16, right: 16, left: 0, bottom: 0 }}>
+          <ComposedChart data={data} margin={{ top: 16, right: 30, left: 0, bottom: 0 }}>
             <defs>
               <linearGradient id="inv-on-hand-fill" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor={colors.inventory} stopOpacity={0.28} />
@@ -76,7 +81,7 @@ function LiveChart({ timeline, currentDay, dark, t }: { timeline: TimelineDay[];
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke={colors.grid} strokeOpacity={0.6} />
             <XAxis dataKey="date" tickFormatter={(value) => t.format.date(value)} tick={{ fontSize: 10, fill: colors.axis }} minTickGap={50} axisLine={false} tickLine={false} />
-            <YAxis tickFormatter={(value) => t.format.number(value, 0, 0)} tick={{ fontSize: 10, fill: colors.axis }} axisLine={false} tickLine={false} width={52} />
+            <YAxis domain={scale.domain} ticks={scale.ticks} interval={0} tickFormatter={(value) => t.format.number(value, 0, 0)} tick={{ fontSize: 10, fill: colors.axis }} axisLine={false} tickLine={false} width={52} />
             <ReferenceLine y={0} stroke={colors.axis} strokeWidth={1} />
             <Tooltip
               isAnimationActive={false}
@@ -136,7 +141,8 @@ function DayTiles({ day, t }: { day: TimelineDay; t: Translator }) {
       </div>
       <div className="inv-tile">
         <span>{t('demand')}</span>
-        <strong>−{whole(day.actualDemand)}</strong>
+        {/* Leaves stock, so it carries a minus sign; a day without demand shows a plain 0. */}
+        <strong>{Math.round(day.actualDemand) > 0 ? `−${whole(day.actualDemand)}` : whole(0)}</strong>
       </div>
       <div className={`inv-tile ${day.arrivedQty > 0 ? 'is-arrival' : 'is-idle'}`}>
         <span>{t('arrived')}</span>
@@ -223,17 +229,50 @@ const SPEEDS = [{ ms: 1000, label: '0.5' }, { ms: 500, label: '1' }, { ms: 200, 
 export interface ProductViewProps {
   t: Translator;
   dark: boolean;
-  sku: string;
-  canStep: boolean;
-  onStep: (direction: number) => void;
+  /** One simulated run, shown day by day. */
   result: SimResult | null;
+  /** What the optimizer found for the product: averages over all its runs. */
+  policy: OptimizationResult | null;
   running: boolean;
+  /** Why the engine could not optimize it in its last run. */
+  failure?: string;
   onReload: () => void;
   reloading: boolean;
 }
 
-/** One product: today's figures, the run as a chart or table, and playback. */
-export function ProductView({ t, dark, sku, canStep, onStep, result, running, onReload, reloading }: ProductViewProps) {
+/** The policy the optimizer found, with its service levels averaged over all runs. */
+function PolicyCard({ policy, t }: { policy: OptimizationResult; t: Translator }) {
+  // Two rows of four: what the policy achieves, then the policy itself and the stock it holds.
+  const figures: Array<{ label: TextKey; value: string; level?: 'good' | 'warn' }> = [
+    { label: 'targetAlpha', value: `${t.format.number(policy.targetAlpha * 100, 0, 2)}%` },
+    { label: 'achievedAlpha', value: `${t.format.fixed(policy.achievedAlpha * 100, 1)}%`, level: targetReached(policy) ? 'good' : 'warn' },
+    { label: 'achievedBeta', value: `${t.format.fixed(policy.achievedBeta * 100, 1)}%` },
+    { label: 'avgStockoutDays', value: policy.mcAvgStockoutDays != null ? t.format.fixed(policy.mcAvgStockoutDays, 1) : '—' },
+    { label: 'safetyFactor', value: `${t.format.fixed(policy.optimalSafetyFactor, 2)}×` },
+    { label: 'avgReorderPoint', value: t.format.fixed(policy.avgSt, 1) },
+    { label: 'avgOrderUpTo', value: t.format.fixed(policy.avgST, 1) },
+    { label: 'avgInv', value: policy.mcAvgInventory != null ? t.format.number(policy.mcAvgInventory, 0, 0) : '—' },
+  ];
+  return (
+    <section className="inv-policy ops-card" aria-label={t('policy')} title={t('avgOfRuns', t.format.number(MONTE_CARLO_RUNS, 0, 0))}>
+      <div className="inv-policy-head">
+        <strong><CircleCheck size={14} aria-hidden="true" />{t(policy.convergenceAchieved ? 'optimalPolicyFound' : 'bestPolicyFound')}</strong>
+      </div>
+      {/* Labels keep their case: (s) and (S) are different things. */}
+      <dl>
+        {figures.map((figure) => (
+          <div key={figure.label}>
+            <dt>{t(figure.label)}</dt>
+            <dd className={figure.level ? `is-${figure.level}` : undefined}>{figure.value}</dd>
+          </div>
+        ))}
+      </dl>
+    </section>
+  );
+}
+
+/** One product: the policy found, today's figures, the run as a chart or table, and playback. */
+export function ProductView({ t, dark, result, policy, running, failure, onReload, reloading }: ProductViewProps) {
   const [currentDay, setCurrentDay] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [speed, setSpeed] = useState(200);
@@ -261,21 +300,12 @@ export function ProductView({ t, dark, sku, canStep, onStep, result, running, on
     return () => window.clearInterval(timer);
   }, [playing, speed, days]);
 
-  const heading = (
-    <div className="inv-product-name">
-      {canStep && <button className="ops-icon-button inv-small-icon" type="button" onClick={() => onStep(-1)} aria-label={t('previousProduct')}><ChevronLeft size={14} /></button>}
-      <h2 title={sku}>{sku}</h2>
-      {canStep && <button className="ops-icon-button inv-small-icon" type="button" onClick={() => onStep(1)} aria-label={t('nextProduct')}><ChevronRight size={14} /></button>}
-    </div>
-  );
-
   if (!timeline || days === 0) {
     return (
       <div className="inv-product">
-        <div className="inv-product-head">{heading}</div>
         <div className="inv-product-empty ops-card">
-          <strong>{running ? t('statusSimulating') : t('readyToSimulate')}</strong>
-          {!running && <p>{t('loadDataPrompt')}</p>}
+          <strong>{running ? t('running') : failure ? t('productFailed') : t('readyToSimulate')}</strong>
+          {!running && <p>{failure ?? t('loadDataPrompt')}</p>}
         </div>
       </div>
     );
@@ -283,41 +313,36 @@ export function ProductView({ t, dark, sku, canStep, onStep, result, running, on
 
   const day = timeline[Math.min(currentDay, days - 1)];
   const metrics = result?.metrics;
-  const share = (label: TextKey, value: number | null | undefined) => (value == null ? null : (
+  const share = (label: string, value: number | null | undefined) => (value == null ? null : (
     <div key={label}>
-      <span>{upper(t(label))}</span>
-      <strong><i className={`inv-dot is-${singleRunBand(value)}`} aria-hidden="true" />{t.format.fixed(value * 100, 1)}%</strong>
+      <span>{upper(label)}:</span>
+      <strong>{t.format.fixed(value * 100, 1)}%</strong>
     </div>
   ));
 
   return (
     <div className="inv-product">
-      <div className="inv-product-head">
-        {heading}
-        <span className="inv-product-date">{t.format.date(day.date)} · <b>{t('day')} {t.format.number(currentDay + 1, 0, 0)}</b></span>
-        {metrics && (
-          <div className="inv-run-metrics">
-            {share('alphaFull', metrics.alpha)}
-            {share('betaFull', metrics.beta)}
-            {share('alphaSteady', metrics.alpha_steady)}
-            {share('betaSteady', metrics.beta_steady)}
-            <div><span>{t('avgInv')}</span><strong>{t.format.number(metrics.avgInventory, 0, 0)}</strong></div>
-          </div>
-        )}
-      </div>
+      {policy && <PolicyCard policy={policy} t={t} />}
 
-      {Boolean(metrics?.warmup_stockout_days) && (
-        <p className="inv-warning"><TriangleAlert size={13} /> {t('warmupStockoutWarning', metrics!.warmup_stockout_days!, metrics!.warmup_days || 21)}</p>
-      )}
-
-      <DayTiles day={day} t={t} />
-
+      {/* Everything in this card describes the one simulated run that is played back. */}
       <div className="inv-run-card ops-card">
         <div className="inv-run-card-head">
-          <h3>{t(view === 'chart' ? 'liveInventorySimulation' : 'statisticalLiveTable')}</h3>
-          <span>{t.format.number(days, 0, 0)} {t('periods')}</span>
+          <h3>{t(view === 'chart' ? 'inventorySimulation' : 'inventorySimulationStats')}</h3>
+          {metrics && (
+            <div className="inv-run-metrics" title={metrics.warmup_days == null ? t('thisRunHint') : `${t('thisRunHint')}. ${t('warmupExcluded', metrics.warmup_days)}`}>
+              {/* Figures of this run; after the warm-up, as the optimizer and the policy card count them. */}
+              {share('Alpha', metrics.alpha_steady)}
+              {share('Beta', metrics.beta_steady)}
+              <div><span>{t('avgInv')}:</span><strong>{t.format.number(metrics.avgInventory, 0, 0)}</strong></div>
+              {Boolean(metrics.warmup_stockout_days) && (
+                <p className="inv-warning"><TriangleAlert size={13} /> {t('warmupStockoutWarning', metrics.warmup_stockout_days!, metrics.warmup_days || 21)}</p>
+              )}
+            </div>
+          )}
           <Segmented value={view} onChange={setView} options={[{ value: 'chart', label: t('chart') }, { value: 'table', label: t('table') }]} ariaLabel={t('view')} />
         </div>
+        {/* The day the playback bar points at. */}
+        <DayTiles day={day} t={t} />
         {view === 'chart'
           ? <LiveChart timeline={timeline} currentDay={currentDay} dark={dark} t={t} />
           : <StatTable timeline={timeline} currentDay={currentDay} t={t} />}
@@ -333,7 +358,10 @@ export function ProductView({ t, dark, sku, canStep, onStep, result, running, on
         </button>
         <button className="ops-icon-button" type="button" onClick={() => setCurrentDay((value) => Math.min(value + 1, days - 1))} disabled={currentDay >= days - 1} title={t('stepForward')} aria-label={t('stepForward')}><StepForward size={15} /></button>
         <input type="range" min={0} max={Math.max(1, days - 1)} value={currentDay} disabled={days < 2} aria-label={t('day')} onChange={(event) => setCurrentDay(parseInt(event.target.value, 10))} />
-        <span className="inv-playback-day">{t('day')} {t.format.number(currentDay + 1, 0, 0)} / {t.format.number(days, 0, 0)}</span>
+        {/* As wide as the label gets on the last day (the font is monospaced), so the slider keeps its length while playing. */}
+        <span className="inv-playback-day" style={{ minWidth: `${`${t.format.date(day.date)} · ${t('day')} ${t.format.number(days, 0, 0)} / ${t.format.number(days, 0, 0)}`.length + 1}ch` }}>
+          {t.format.date(day.date)} · <b>{t('day')} {t.format.number(currentDay + 1, 0, 0)}</b> / {t.format.number(days, 0, 0)}
+        </span>
         <label className="inv-playback-speed">
           <span>{t('speed')}</span>
           <select className="ops-select" value={speed} onChange={(event) => setSpeed(parseInt(event.target.value, 10))}>

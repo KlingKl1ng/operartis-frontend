@@ -10,7 +10,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_PARAMS, resolveSkuParams, withFileParams } from '../domain/params';
+import { DEFAULT_PARAMS, resolveSkuParams } from '../domain/params';
 import { batchRequest } from '../domain/requests';
 import type { Mapping } from '../domain/types';
 import { autoMapping } from './mapping';
@@ -30,11 +30,10 @@ export function readEndToEnd(path: string, adjust: (mapping: Mapping) => Mapping
   const proposed = autoMapping(headers, metadata);
   const mapping = adjust(proposed.mapping);
   const parsed = parseFile(data, mapping, { today: new Date(2026, 2, 1) });
-  // As on the page: the sidebar takes the first product's file values, and that product is selected.
-  const sidebar = withFileParams(DEFAULT_PARAMS, parsed.skuParams[parsed.skus[0]]);
-  const manual = { [parsed.skus[0]]: sidebar };
+  // As on the page right after loading: file values over the defaults, nothing changed by hand.
+  const sources = { defaults: DEFAULT_PARAMS, overrides: {}, file: parsed.skuParams };
   const request = batchRequest(
-    parsed.skus.map((sku) => ({ sku, forecast: parsed.grouped[sku], params: resolveSkuParams(sku, { sidebar, manual, file: parsed.skuParams }) })),
+    parsed.skus.map((sku) => ({ sku, forecast: parsed.grouped[sku], params: resolveSkuParams(sku, sources) })),
     basename(path),
   );
   return { headers, metadata, mapping, locks: proposed.locks, skus: parsed.skus, request };

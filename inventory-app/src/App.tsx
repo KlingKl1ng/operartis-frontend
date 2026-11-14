@@ -1,21 +1,22 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { FileDown, LayoutList, Play, RotateCcw, Search, Upload, X } from 'lucide-react';
+import { LayoutList, Search, Upload, X } from 'lucide-react';
 import { SettingsModal } from '../../app-shared/SettingsModal';
 import { AppShell, EmptyWatermark } from '../../app-shared/Shell';
 import { useLang, useStoredFlag, useTheme } from '../../app-shared/hooks';
 import { Toast, type ToastKind, type ToastMessage } from '../../app-shared/ui';
 import {
-  cancelBatch, exportReport, optimizePolicy, simulateMonteCarlo, simulateTimeline, submitBatch, waitForBatch,
+  cancelBatch, exportReport, simulateTimeline, submitBatch, waitForBatch,
   type BatchProgress,
 } from './api/inventory';
+import { ActionsMenu } from './components/ActionsMenu';
 import { MappingDialog } from './components/MappingDialog';
-import { KpiBar, Overview, type OverviewProduct } from './components/Overview';
+import { KpiBar, Overview, type OverviewProduct, type ProductStatus } from './components/Overview';
 import { Sidebar } from './components/Sidebar';
-import { DEFAULT_PARAMS, leadTimeValuesValid, lockedFields, resolveSkuParams, withFileParams } from './domain/params';
-import { batchRequest, exportRequest, optimizationRequest, simulationRequest } from './domain/requests';
+import { DEFAULT_PARAMS, fileGivenFields, hasOwnValues, leadTimeValuesValid, lockedFields, resolveSkuParams } from './domain/params';
+import { batchRequest, exportRequest, simulationRequest } from './domain/requests';
 import { summaryRow, type SummaryRow } from './domain/summary';
 import type {
-  FileMetadata, FileSkuParams, ForecastPoint, LockState, Mapping, MonteCarloResult, OptimizationResult, Params, SimResult, SimulationMode,
+  FileMetadata, FileSkuParams, ForecastPoint, LockState, Mapping, OptimizationResult, Params, SimResult,
 } from './domain/types';
 import { useTranslator } from './i18n';
 import { autoMapping } from './parsing/mapping';
@@ -58,31 +59,33 @@ export default function App() {
   const [fileParams, setFileParams] = useState<Record<string, FileSkuParams>>({});
   const [locks, setLocks] = useState<LockState>({});
 
-  // Parameters: the sidebar shows `params`; `manualParams` remembers them per product once it was selected.
-  const [params, setParams] = useState<Params>(DEFAULT_PARAMS);
-  const [manualParams, setManualParams] = useState<Record<string, Params>>({});
-  const [currentSku, setCurrentSku] = useState<string | null>(null);
-  const [mode, setMode] = useState<SimulationMode>('optimize');
+  // Parameters: `defaults` are the values for all products; `overrides` hold what was changed for single products.
+  const [defaults, setDefaults] = useState<Params>(DEFAULT_PARAMS);
+  const [overrides, setOverrides] = useState<Record<string, Partial<Params>>>({});
+  // Products whose file values the user unlocked for editing.
+  const [unlocked, setUnlocked] = useState<Record<string, boolean>>({});
+  // Products ticked in the overview: the ones the next run from there optimizes.
+  const [selected, setSelected] = useState<string[]>([]);
 
-  // Results.
+  // Results: the optimizer's figures per product, and one simulated run each for the day-by-day chart.
   const [simResults, setSimResults] = useState<Record<string, SimResult>>({});
-  const [mcResults, setMcResults] = useState<Record<string, MonteCarloResult>>({});
   const [optimizationResults, setOptimizationResults] = useState<Record<string, OptimizationResult>>({});
   const [failures, setFailures] = useState<Record<string, string>>({});
   const [latestJobId, setLatestJobId] = useState<string | null>(null);
 
   // Work in progress.
-  const [optimizing, setOptimizing] = useState(false);
-  const [simulating, setSimulating] = useState(false);
+  const [runningSkus, setRunningSkus] = useState<string[]>([]);
   const [reloading, setReloading] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [batch, setBatch] = useState<BatchProgress | null>(null);
   const batchJob = useRef<string | null>(null);
-  const busy = optimizing || simulating;
+  const busy = runningSkus.length > 0;
 
   // Result tabs: the overview plus one tab per opened product.
   const [openTabs, setOpenTabs] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<string>(OVERVIEW);
+  /** The product whose tab is showing; null on the overview. The sidebar and the run button act on it. */
+  const productTab = activeTab !== OVERVIEW && skus.includes(activeTab) ? activeTab : null;
 
   useEffect(() => {
     const open = () => setSettingsOpen(true);
@@ -90,32 +93,31 @@ export default function App() {
     return () => window.removeEventListener('operartis:open-settings', open);
   }, []);
 
-  const failed = useCallback((titleKey: 'simulationFailed' | 'optimizationFailed' | 'reloadFailed' | 'exportError' | 'fileReadError' | 'fileParseError', error: unknown) => {
+  const failed = useCallback((titleKey: 'optimizationFailed' | 'reloadFailed' | 'exportError' | 'fileReadError' | 'fileParseError', error: unknown) => {
     const message = error instanceof Error ? error.message : String(error);
     notify('error', t(titleKey), /Failed to fetch|NetworkError|Load failed/i.test(message) ? t('connectionFailed') : message);
   }, [notify, t]);
 
   // ---------- Parameters ----------
 
+  const fileFields = useMemo(() => fileGivenFields(fileParams), [fileParams]);
+  const sources = useMemo(() => ({ defaults, overrides, file: fileParams }), [defaults, overrides, fileParams]);
+  const paramsFor = useCallback((sku: string) => resolveSkuParams(sku, sources), [sources]);
+
+  /** A change in the sidebar: for the product whose tab is showing, otherwise for all products. */
   const updateParams = (patch: Partial<Params>) => {
-    const next = { ...params, ...patch };
-    setParams(next);
-    if (currentSku) setManualParams((current) => ({ ...current, [currentSku]: next }));
+    if (productTab) setOverrides((current) => ({ ...current, [productTab]: { ...current[productTab], ...patch } }));
+    else setDefaults((current) => ({ ...current, ...patch }));
   };
 
-  /** Make a product the selected one: the sidebar shows its parameters. */
-  const selectSku = (sku: string) => {
-    if (sku === currentSku) return;
-    const next = manualParams[sku] ?? withFileParams(params, fileParams[sku]);
-    setManualParams((current) => ({ ...current, ...(currentSku ? { [currentSku]: params } : {}), [sku]: next }));
-    setParams(next);
-    setCurrentSku(sku);
+  /** Drop what was changed for the showing product and lock its file values again. */
+  const discardProductChanges = () => {
+    if (!productTab) return;
+    setOverrides(({ [productTab]: _own, ...rest }) => rest);
+    setUnlocked(({ [productTab]: _open, ...rest }) => rest);
   };
-
-  const paramsFor = (sku: string) => (sku === currentSku ? params : resolveSkuParams(sku, { sidebar: params, manual: manualParams, file: fileParams }));
 
   const openProduct = (sku: string) => {
-    selectSku(sku);
     setOpenTabs((tabs) => (tabs.includes(sku) ? tabs : [...tabs, sku]));
     setActiveTab(sku);
     setMobileOpen(false);
@@ -126,10 +128,8 @@ export default function App() {
     if (activeTab === sku) setActiveTab(OVERVIEW);
   };
 
-  const stepProduct = (direction: number) => {
-    if (!currentSku || skus.length < 2) return;
-    stepTo(skus[(skus.indexOf(currentSku) + direction + skus.length) % skus.length]);
-  };
+  const toggleSelected = (sku: string) => setSelected((current) => (current.includes(sku) ? current.filter((item) => item !== sku) : [...current, sku]));
+  const toggleAllSelected = () => setSelected((current) => (current.length === skus.length ? [] : skus));
 
   // ---------- File ----------
 
@@ -156,6 +156,16 @@ export default function App() {
     }
   };
 
+  /** Everything that belongs to one file: what the user changed, ticked and ran. */
+  const clearFileState = () => {
+    setOverrides({});
+    setUnlocked({});
+    setSimResults({});
+    setOptimizationResults({});
+    setFailures({});
+    setLatestJobId(null);
+  };
+
   const onMappingConfirmed = async (mapping: Mapping, chosenLocks: LockState) => {
     if (!pending) return;
     const { file, data } = pending;
@@ -167,94 +177,72 @@ export default function App() {
         notify('error', t('noValidDataFound'));
         return;
       }
-      const first = parsed.skus[0];
-      // The sidebar takes the first product's values from the file; nothing is carried over from the previous file.
-      const sidebar = withFileParams(params, parsed.skuParams[first]);
+      // The values for all products stay as set; nothing else is carried over from the previous file.
+      clearFileState();
       setFilename(file.name);
       setSkus(parsed.skus);
       setForecasts(parsed.grouped);
       setFileParams(parsed.skuParams);
       setLocks(chosenLocks);
-      setParams(sidebar);
-      setManualParams({ [first]: sidebar });
-      setCurrentSku(first);
-      setSimResults({});
-      setMcResults({});
-      setOptimizationResults({});
-      setFailures({});
-      setLatestJobId(null);
-      setOpenTabs(parsed.skus.length === 1 ? [first] : []);
-      setActiveTab(parsed.skus.length === 1 ? first : OVERVIEW);
+      setSelected(parsed.skus);
+      // A file with a single product has no overview; its tab is the page.
+      setOpenTabs(parsed.skus.length === 1 ? parsed.skus : []);
+      setActiveTab(parsed.skus.length === 1 ? parsed.skus[0] : OVERVIEW);
     } catch (error) {
       failed('fileParseError', error);
     }
   };
 
   const resetAll = () => {
+    clearFileState();
     setFilename(null);
     setSkus([]);
     setForecasts({});
     setFileParams({});
     setLocks({});
-    setParams(DEFAULT_PARAMS);
-    setManualParams({});
-    setCurrentSku(null);
-    setSimResults({});
-    setMcResults({});
-    setOptimizationResults({});
-    setFailures({});
-    setLatestJobId(null);
+    setDefaults(DEFAULT_PARAMS);
+    setSelected([]);
     setOpenTabs([]);
     setActiveTab(OVERVIEW);
   };
 
   // ---------- Runs ----------
 
-  const leadTimeOk = () => {
-    if (leadTimeValuesValid(params.leadTimeConfig)) return true;
-    notify('warning', t('valueListInvalid'));
-    return false;
-  };
+  /** What the run button optimizes: the showing product, or the products ticked in the overview. */
+  const runTargets = useMemo(() => {
+    if (productTab) return forecasts[productTab] ? [productTab] : [];
+    const ticked = new Set(selected);
+    return skus.filter((sku) => ticked.has(sku) && forecasts[sku]);
+  }, [productTab, selected, skus, forecasts]);
 
-  /** Optimize the selected product. */
+  /** Optimize the run targets as one batch in the server's queue. Other products keep their results. */
   const runOptimization = async () => {
-    if (!currentSku || !forecasts[currentSku] || !leadTimeOk()) return;
-    const sku = currentSku;
-    setOptimizing(true);
-    try {
-      const result = await optimizePolicy(optimizationRequest(sku, forecasts[sku], params, filename));
-      if (result.jobId) setLatestJobId(result.jobId);
-      setOptimizationResults((current) => ({ ...current, [sku]: result }));
-      setFailures(({ [sku]: _cleared, ...rest }) => rest);
-      if (result.timeline) setSimResults((current) => ({ ...current, [sku]: { skuId: result.skuId, timeline: result.timeline!, metrics: result.metrics } }));
-      openProduct(sku);
-    } catch (error) {
-      failed('optimizationFailed', error);
-    } finally {
-      setOptimizing(false);
+    const targets = runTargets;
+    if (!targets.length || busy) return;
+    if (targets.some((sku) => !leadTimeValuesValid(paramsFor(sku).leadTimeConfig))) {
+      notify('warning', t('valueListInvalid'));
+      return;
     }
-  };
-
-  /** Optimize every product as one batch in the server's queue. */
-  const runAllOptimizations = async () => {
-    if (!leadTimeOk()) return;
-    setOptimizing(true);
+    setRunningSkus(targets);
     try {
-      const products = skus.filter((sku) => forecasts[sku]).map((sku) => ({ sku, forecast: forecasts[sku], params: paramsFor(sku) }));
-      const accepted = await submitBatch(batchRequest(products, filename));
+      const accepted = await submitBatch(batchRequest(targets.map((sku) => ({ sku, forecast: forecasts[sku], params: paramsFor(sku) })), filename));
       batchJob.current = accepted.job_id;
       const outcome = await waitForBatch(accepted, setBatch);
       if (!outcome) {
         notify('warning', t('batchCancelled'));
         return;
       }
+      const ran = new Set(targets);
+      const others = <T,>(record: Record<string, T>) => Object.fromEntries(Object.entries(record).filter(([sku]) => !ran.has(sku)));
       setLatestJobId(outcome.jobId);
-      setOptimizationResults(outcome.results);
-      setSimResults(Object.fromEntries(Object.entries(outcome.results)
-        .filter(([, result]) => result.timeline)
-        .map(([sku, result]) => [sku, { skuId: result.skuId, timeline: result.timeline!, metrics: result.metrics }])));
-      setFailures(outcome.failures);
-      setActiveTab(OVERVIEW);
+      setOptimizationResults((current) => ({ ...others(current), ...outcome.results }));
+      setSimResults((current) => ({
+        ...others(current),
+        ...Object.fromEntries(Object.entries(outcome.results)
+          .filter(([, result]) => result.timeline)
+          .map(([sku, result]) => [sku, { skuId: result.skuId, timeline: result.timeline!, metrics: result.metrics }])),
+      }));
+      setFailures((current) => ({ ...others(current), ...outcome.failures }));
       const failedCount = Object.keys(outcome.failures).length;
       if (failedCount) notify('warning', t('productsFailed', t.format.number(failedCount, 0, 0), t.format.number(outcome.totalSkus, 0, 0)));
     } catch (error) {
@@ -262,7 +250,7 @@ export default function App() {
     } finally {
       batchJob.current = null;
       setBatch(null);
-      setOptimizing(false);
+      setRunningSkus([]);
     }
   };
 
@@ -276,62 +264,15 @@ export default function App() {
     }
   };
 
-  /** What-If for the selected product: one run for the chart, then many runs for the figures. */
-  const runSimulation = async () => {
-    if (!currentSku || !forecasts[currentSku] || !leadTimeOk()) return;
-    const sku = currentSku;
-    const body = simulationRequest(sku, forecasts[sku], params, filename);
-    setSimulating(true);
-    try {
-      const result = await simulateTimeline(body);
-      if (result.jobId) setLatestJobId(result.jobId);
-      setSimResults((current) => ({ ...current, [sku]: result }));
-      openProduct(sku);
-      const monteCarlo = await simulateMonteCarlo(body);
-      if (monteCarlo.jobId) setLatestJobId(monteCarlo.jobId);
-      setMcResults((current) => ({ ...current, [sku]: monteCarlo }));
-    } catch (error) {
-      failed('simulationFailed', error);
-    } finally {
-      setSimulating(false);
-    }
-  };
-
-  /** What-If for every product, one after another. */
-  const runAllSimulations = async () => {
-    if (!leadTimeOk()) return;
-    setSimulating(true);
-    try {
-      const bodies = skus.filter((sku) => forecasts[sku]).map((sku) => simulationRequest(sku, forecasts[sku], paramsFor(sku), filename));
-      const timelines: Record<string, SimResult> = {};
-      for (const body of bodies) {
-        timelines[body.sku_id] = await simulateTimeline(body);
-        if (timelines[body.sku_id].jobId) setLatestJobId(timelines[body.sku_id].jobId!);
-      }
-      setSimResults(timelines);
-      setActiveTab(OVERVIEW);
-      const monteCarlo: Record<string, MonteCarloResult> = {};
-      for (const body of bodies) {
-        monteCarlo[body.sku_id] = await simulateMonteCarlo(body);
-        if (monteCarlo[body.sku_id].jobId) setLatestJobId(monteCarlo[body.sku_id].jobId!);
-      }
-      setMcResults(monteCarlo);
-    } catch (error) {
-      failed('simulationFailed', error);
-    } finally {
-      setSimulating(false);
-    }
-  };
-
-  /** A fresh single run of the selected product with new random demand. */
+  /** A fresh single run of the showing product with new random demand. */
   const reload = async () => {
-    if (!currentSku || !forecasts[currentSku]) return;
-    const sku = currentSku;
-    // In Optimize mode the run uses the safety factor the optimizer found.
-    const optimum = mode === 'optimize' ? optimizationResults[sku] : undefined;
+    const optimum = productTab ? optimizationResults[productTab] : undefined;
+    if (!productTab || !forecasts[productTab] || !optimum) return;
+    const sku = productTab;
     setReloading(true);
     try {
-      const result = await simulateTimeline(simulationRequest(sku, forecasts[sku], optimum ? { ...params, safetyFactor: optimum.optimalSafetyFactor } : params, filename));
+      // The run uses the safety factor the optimizer found.
+      const result = await simulateTimeline(simulationRequest(sku, forecasts[sku], paramsFor(sku), optimum.optimalSafetyFactor, filename));
       if (result.jobId) setLatestJobId(result.jobId);
       setSimResults((current) => ({ ...current, [sku]: result }));
     } catch (error) {
@@ -349,7 +290,7 @@ export default function App() {
     }
     setExporting(true);
     try {
-      await exportReport(exportRequest({ skus, paramsFor, forecasts, simResults, mcResults, optimizationResults, sourceJobId: latestJobId, filename, mode, language: lang }));
+      await exportReport(exportRequest({ skus, paramsFor, forecasts, simResults, optimizationResults, sourceJobId: latestJobId, filename, language: lang }));
       notify('success', t('exportSuccess'));
     } catch (error) {
       failed('exportError', error);
@@ -360,21 +301,23 @@ export default function App() {
 
   // ---------- What is shown ----------
 
-  const products: OverviewProduct[] = useMemo(() => skus.map((sku) => ({
-    sku,
-    forecastDays: forecasts[sku]?.length || 0,
-    row: summaryRow(sku, mode, simResults[sku], mcResults[sku], optimizationResults[sku]),
-    failure: failures[sku],
-  })), [skus, forecasts, mode, simResults, mcResults, optimizationResults, failures]);
+  const products: OverviewProduct[] = useMemo(() => {
+    const running = new Set(runningSkus);
+    return skus.map((sku) => {
+      // A product that is running again shows no figures from its previous run.
+      const row = running.has(sku) ? null : summaryRow(sku, simResults[sku], optimizationResults[sku]);
+      const status: ProductStatus = running.has(sku) ? 'running' : failures[sku] ? 'failed' : row ? 'optimized' : 'notRun';
+      return { sku, forecastDays: forecasts[sku]?.length || 0, status, row, failure: running.has(sku) ? undefined : failures[sku], edited: hasOwnValues(sku, sources) };
+    });
+  }, [skus, forecasts, simResults, optimizationResults, failures, runningSkus, sources]);
   const summaryRows = products.map((product) => product.row).filter((row): row is SummaryRow => row !== null);
   const hasResults = Object.keys(simResults).length > 0;
   const hasFile = skus.length > 0;
-  const locked = lockedFields(mode, hasFile, locks);
   const environment = environmentLabel();
-  const runOne = mode === 'optimize' ? runOptimization : runSimulation;
-  const runAll = mode === 'optimize' ? runAllOptimizations : runAllSimulations;
-  const runAllLabel = `${t(mode === 'optimize' ? 'optimizeAll' : 'simulateAll')} (${t.format.number(skus.length, 0, 0)})`;
-  const productTab = activeTab !== OVERVIEW && skus.includes(activeTab) ? activeTab : null;
+  const runLabel = productTab ? t('optimizeProduct') : hasFile ? t('optimizeSelected', t.format.number(runTargets.length, 0, 0)) : t('optimize');
+  const runDisabled = busy || runTargets.length === 0;
+  const runHint = hasFile && !productTab && runTargets.length === 0 ? t('selectRequired') : runLabel;
+  const forecastDays = productTab ? forecasts[productTab]?.length || 0 : skus.reduce((most, sku) => Math.max(most, forecasts[sku]?.length || 0), 0);
 
   const statusText = batch
     ? batch.status === 'queued'
@@ -384,11 +327,9 @@ export default function App() {
         : batch.total
           ? t('batchProgress', t.format.number(batch.completed, 0, 0), t.format.number(batch.total, 0, 0))
           : t('batchStarting')
-    : optimizing
+    : busy
       ? t('searchingOptimal')
-      : simulating
-        ? t('runningMonteCarlo')
-        : null;
+      : null;
 
   return (
     <>
@@ -424,48 +365,33 @@ export default function App() {
             t={t}
             filename={filename}
             productCount={skus.length}
-            forecastDays={currentSku ? forecasts[currentSku]?.length || 0 : 0}
+            forecastDays={forecastDays}
             onUpload={chooseFile}
             busy={busy}
-            mode={mode}
-            onModeChange={setMode}
-            skus={skus}
-            currentSku={currentSku}
-            onSelectSku={(sku) => (productTab ? stepTo(sku) : selectSku(sku))}
-            params={params}
+            hasFile={hasFile}
+            product={productTab}
+            params={productTab ? paramsFor(productTab) : defaults}
             onParamsChange={updateParams}
-            locked={locked}
-            result={currentSku ? optimizationResults[currentSku] || null : null}
+            fileFields={fileFields}
+            lockedFields={lockedFields(hasFile, locks)}
+            unlocked={Boolean(productTab && unlocked[productTab])}
+            edited={Boolean(productTab && hasOwnValues(productTab, sources))}
+            onUnlock={() => productTab && setUnlocked((current) => ({ ...current, [productTab]: true }))}
+            onDiscardChanges={discardProductChanges}
           />
         )}
         sidebarFooter={(
-          <>
-            <button className="ops-button is-primary is-full" type="button" onClick={runOne} disabled={!currentSku || busy}>
-              {mode === 'optimize' ? <Search size={14} /> : <Play size={14} />}
-              {busy ? t(mode === 'optimize' ? 'optimizing' : 'simulating') : t(mode === 'optimize' ? 'findOptimalPolicy' : 'runSimulation')}
-            </button>
-            {skus.length > 1 && (
-              <button className="ops-button is-quiet is-full" type="button" onClick={runAll} disabled={busy}>{runAllLabel}</button>
-            )}
-            <div className="inv-footer-row">
-              <button className="ops-button is-export is-small" type="button" onClick={exportResults} disabled={!hasResults || exporting || busy}>
-                <FileDown size={14} /> {t(exporting ? 'exporting' : 'exportReport')}
-              </button>
-              <button className="ops-button is-danger-quiet is-small" type="button" onClick={resetAll} disabled={busy || !hasFile} title={t('resetAll')}>
-                <RotateCcw size={14} /> {t('resetAll')}
-              </button>
-            </div>
-          </>
+          <button className="ops-button is-primary is-full" type="button" onClick={runOptimization} disabled={runDisabled} title={runHint}>
+            <Search size={14} />
+            {busy ? t('optimizing') : runLabel}
+          </button>
         )}
         rail={(
           <>
             <button className="ops-rail-button" type="button" onClick={chooseFile} disabled={busy} title={t('uploadInputData')} aria-label={t('uploadInputData')}><Upload size={18} /></button>
-            <button className="ops-rail-button is-primary" type="button" onClick={runOne} disabled={!currentSku || busy} title={t(mode === 'optimize' ? 'findOptimalPolicy' : 'runSimulation')} aria-label={t(mode === 'optimize' ? 'findOptimalPolicy' : 'runSimulation')}>
-              {mode === 'optimize' ? <Search size={18} /> : <Play size={18} />}
+            <button className="ops-rail-button is-primary" type="button" onClick={runOptimization} disabled={runDisabled} title={runHint} aria-label={runHint}>
+              <Search size={18} />
             </button>
-            {skus.length > 1 && <button className="ops-rail-button" type="button" onClick={runAll} disabled={busy} title={runAllLabel} aria-label={runAllLabel}><LayoutList size={18} /></button>}
-            <button className="ops-rail-button" type="button" onClick={exportResults} disabled={!hasResults || exporting || busy} title={t('exportReport')} aria-label={t('exportReport')}><FileDown size={18} /></button>
-            <button className="ops-rail-button" type="button" onClick={resetAll} disabled={busy || !hasFile} title={t('resetAll')} aria-label={t('resetAll')}><RotateCcw size={18} /></button>
           </>
         )}
         belowHeader={(
@@ -483,18 +409,21 @@ export default function App() {
               </div>
             )}
             {hasFile && (
-              <div className="inv-tabs" role="tablist">
-                {skus.length > 1 && (
-                  <button type="button" role="tab" aria-selected={activeTab === OVERVIEW} className={activeTab === OVERVIEW ? 'is-active' : ''} onClick={() => setActiveTab(OVERVIEW)}>
-                    <LayoutList size={14} /> {t('overview')}
-                  </button>
-                )}
-                {openTabs.map((sku) => (
-                  <span key={sku} className={`inv-tab ${activeTab === sku ? 'is-active' : ''}`}>
-                    <button type="button" role="tab" aria-selected={activeTab === sku} onClick={() => openProduct(sku)} title={sku}>{sku}</button>
-                    {skus.length > 1 && <button type="button" className="inv-tab-close" onClick={() => closeTab(sku)} aria-label={`${t('closeTab')}: ${sku}`}><X size={12} /></button>}
-                  </span>
-                ))}
+              <div className="inv-tab-row">
+                <div className="inv-tabs" role="tablist">
+                  {skus.length > 1 && (
+                    <button type="button" role="tab" aria-selected={activeTab === OVERVIEW} className={activeTab === OVERVIEW ? 'is-active' : ''} onClick={() => setActiveTab(OVERVIEW)}>
+                      <LayoutList size={14} /> {t('overview')}
+                    </button>
+                  )}
+                  {openTabs.map((sku) => (
+                    <span key={sku} className={`inv-tab ${activeTab === sku ? 'is-active' : ''}`}>
+                      <button type="button" role="tab" aria-selected={activeTab === sku} onClick={() => openProduct(sku)} title={sku}>{sku}</button>
+                      {skus.length > 1 && <button type="button" className="inv-tab-close" onClick={() => closeTab(sku)} aria-label={`${t('closeTab')}: ${sku}`}><X size={12} /></button>}
+                    </span>
+                  ))}
+                </div>
+                <ActionsMenu canExport={hasResults && !busy} exporting={exporting} canReset={!busy} onExport={exportResults} onReset={resetAll} t={t} />
               </div>
             )}
             {hasFile && activeTab === OVERVIEW && <KpiBar rows={summaryRows} t={t} />}
@@ -509,17 +438,16 @@ export default function App() {
             key={productTab}
             t={t}
             dark={dark}
-            sku={productTab}
-            canStep={skus.length > 1}
-            onStep={stepProduct}
             result={simResults[productTab] || null}
-            running={busy}
+            policy={optimizationResults[productTab] || null}
+            running={runningSkus.includes(productTab)}
+            failure={failures[productTab]}
             onReload={reload}
             reloading={reloading}
           />
           </Suspense>
         ) : (
-          <Overview products={products} onOpen={openProduct} t={t} />
+          <Overview products={products} selected={selected} onToggle={toggleSelected} onToggleAll={toggleAllSelected} onOpen={openProduct} t={t} />
         )}
       </AppShell>
 
@@ -539,14 +467,4 @@ export default function App() {
     </>
   );
 
-  /**
-   * Move a showing product tab to another product. The product replaces the
-   * one in the tab, unless it already has a tab of its own, which is shown instead.
-   */
-  function stepTo(sku: string) {
-    if (!currentSku || sku === currentSku) return;
-    selectSku(sku);
-    setOpenTabs((tabs) => (tabs.includes(sku) ? tabs : tabs.map((tab) => (tab === currentSku ? sku : tab))));
-    setActiveTab(sku);
-  }
 }

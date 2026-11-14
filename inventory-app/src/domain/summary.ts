@@ -1,12 +1,10 @@
 // What the overview shows per product, and the colour bands used across the module.
-import type { MonteCarloResult, OptimizationResult, SimResult, SimulationMode } from './types';
+import type { OptimizationResult, SimResult } from './types';
 
 export type Level = 'good' | 'warn' | 'bad';
 
 /** Service level in the overview: 95 % and above is good, 90 % and above acceptable. */
 export const serviceLevelBand = (alpha: number): Level => (alpha >= 0.95 ? 'good' : alpha >= 0.9 ? 'warn' : 'bad');
-/** A single simulated run in the product view is judged more leniently: 90 % / 70 %. */
-export const singleRunBand = (value: number): Level => (value >= 0.9 ? 'good' : value >= 0.7 ? 'warn' : 'bad');
 /** Fewer than half a stockout day on average counts as rare. */
 export const stockoutsAreRare = (days: number) => days < 0.5;
 /** The optimizer may land up to two points under the target and still count as reached. */
@@ -18,52 +16,19 @@ export interface SummaryRow {
   beta: number;
   avgInventory: number;
   stockouts: number;
-  safetyFactor?: number;
-  /** 5th–95th percentile over the Monte Carlo runs, when a separate Monte Carlo was run. */
-  alphaRange?: { low: number; high: number };
-  betaRange?: { low: number; high: number };
-  inventoryRange?: { low: number; high: number };
-  stockoutRange?: { low: number; high: number };
-  hasMonteCarlo: boolean;
-  isOptimized: boolean;
+  safetyFactor: number;
 }
 
-export function summaryRow(
-  sku: string,
-  mode: SimulationMode,
-  sim: SimResult | undefined,
-  mc: MonteCarloResult | undefined,
-  optimum: OptimizationResult | undefined,
-): SummaryRow | null {
-  if (!sim && !optimum) return null;
-  if (mode === 'optimize' && optimum) {
-    return {
-      sku,
-      alpha: optimum.achievedAlpha,
-      beta: optimum.achievedBeta,
-      avgInventory: optimum.mcAvgInventory || sim?.metrics?.avgInventory || 0,
-      stockouts: optimum.mcAvgStockoutDays || sim?.metrics?.totalStockouts || 0,
-      safetyFactor: optimum.optimalSafetyFactor,
-      hasMonteCarlo: false,
-      isOptimized: true,
-    };
-  }
-  if (!sim?.metrics) return null;
-  if (!mc) {
-    return { sku, alpha: sim.metrics.alpha, beta: sim.metrics.beta, avgInventory: sim.metrics.avgInventory, stockouts: sim.metrics.totalStockouts, hasMonteCarlo: false, isOptimized: false };
-  }
+/** A product's overview figures: the optimizer's averages over its simulation runs. */
+export function summaryRow(sku: string, sim: SimResult | undefined, optimum: OptimizationResult | undefined): SummaryRow | null {
+  if (!optimum) return null;
   return {
     sku,
-    alpha: mc.alpha.mean,
-    beta: mc.beta.mean,
-    avgInventory: mc.avgInventory.mean,
-    stockouts: mc.stockoutDays.mean,
-    alphaRange: { low: mc.alpha.p5, high: mc.alpha.p95 },
-    betaRange: { low: mc.beta.p5, high: mc.beta.p95 },
-    inventoryRange: { low: mc.avgInventory.p5, high: mc.avgInventory.p95 },
-    stockoutRange: { low: mc.stockoutDays.p5, high: mc.stockoutDays.p95 },
-    hasMonteCarlo: true,
-    isOptimized: false,
+    alpha: optimum.achievedAlpha,
+    beta: optimum.achievedBeta,
+    avgInventory: optimum.mcAvgInventory || sim?.metrics?.avgInventory || 0,
+    stockouts: optimum.mcAvgStockoutDays || sim?.metrics?.totalStockouts || 0,
+    safetyFactor: optimum.optimalSafetyFactor,
   };
 }
 
