@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { chartScale } from './chartScale';
+import { bandLabelFit, chartScale } from './chartScale';
 import type { TimelineDay } from './types';
 
 const day = (values: Partial<TimelineDay>): TimelineDay => ({
@@ -29,5 +29,21 @@ describe('chartScale', () => {
   it('copes with an empty or all-zero run', () => {
     expect(chartScale([]).domain).toEqual([0, 0.2]);
     expect(chartScale([day({})]).ticks[0]).toBe(0);
+  });
+});
+
+describe('bandLabelFit', () => {
+  it('writes the name across a band that is wide enough', () => {
+    expect(bandLabelFit(60, 200, 45)).toBe('across');
+  });
+
+  it('turns the name along a band that is narrower than the text', () => {
+    expect(bandLabelFit(54, 200, 45)).toBe('along');
+    expect(bandLabelFit(13, 200, 45)).toBe('along');
+  });
+
+  it('leaves the name out of a sliver, or of a band too short for it', () => {
+    expect(bandLabelFit(12, 200, 45)).toBe('none');
+    expect(bandLabelFit(20, 50, 45)).toBe('none');
   });
 });

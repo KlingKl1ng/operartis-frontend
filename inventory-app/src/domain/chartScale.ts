@@ -34,3 +34,14 @@ export function chartScale(timeline: TimelineDay[]): ChartScale {
   for (let tick = Math.ceil(bottom / step) * step; tick <= top + step / 1000; tick += step) ticks.push(Math.round(tick * 1000) / 1000 || 0);
   return { domain: [bottom, top], ticks };
 }
+
+/**
+ * How a band's name is drawn so it stays inside the band: across the top when
+ * it fits, turned to run along the band when the band is narrower than the
+ * text, and left out when the band is only a sliver.
+ */
+export function bandLabelFit(bandWidth: number, bandHeight: number, textWidth: number): 'across' | 'along' | 'none' {
+  if (bandWidth >= textWidth + 10) return 'across';
+  if (bandWidth >= 13 && bandHeight >= textWidth + 10) return 'along';
+  return 'none';
+}

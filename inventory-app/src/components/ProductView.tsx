@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Area, Bar, CartesianGrid, ComposedChart, Line, ReferenceArea, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { CircleCheck, Pause, Play, RefreshCw, SkipBack, StepForward, TriangleAlert } from 'lucide-react';
 import { Segmented } from '../../../app-shared/ui';
-import { chartScale } from '../domain/chartScale';
+import { bandLabelFit, chartScale } from '../domain/chartScale';
 import { MONTE_CARLO_RUNS } from '../domain/params';
 import { targetReached } from '../domain/summary';
 import type { OptimizationResult, SimResult, TimelineDay } from '../domain/types';
@@ -15,6 +15,30 @@ const SERIES = {
   light: { inventoryPosition: '#2a78d6', s_t: '#eb6834', arrival: '#1baf7a', inventory: '#eda100', S_t: '#6250d6', demand: '#94a3b8', shortage: '#dc2626', grid: '#e2e8f0', axis: '#64748b', surface: '#ffffff' },
   dark: { inventoryPosition: '#3987e5', s_t: '#d95926', arrival: '#199e70', inventory: '#c98500', S_t: '#9085e9', demand: '#64748b', shortage: '#f87171', grid: '#334155', axis: '#94a3b8', surface: '#0f172a' },
 } as const;
+
+let ruler: CanvasRenderingContext2D | null | undefined;
+/** The drawn width of a chart label (9 px, bold). */
+function labelWidth(text: string): number {
+  if (ruler === undefined) ruler = typeof document === 'undefined' ? null : document.createElement('canvas').getContext('2d');
+  if (!ruler) return text.length * 6;
+  ruler.font = "700 9px Inter, 'Segoe UI', sans-serif";
+  return ruler.measureText(text).width;
+}
+
+/** The warm-up band's name, kept inside the band whatever its width. */
+function warmupLabel(text: string, fill: string, surface: string) {
+  return ({ viewBox }: { viewBox?: { x?: number; y?: number; width?: number; height?: number } }) => {
+    const { x = 0, y = 0, width = 0, height = 0 } = viewBox ?? {};
+    const fit = bandLabelFit(width, height, labelWidth(text));
+    if (fit === 'none') return null;
+    // An outline in the surface colour keeps the text readable where a line crosses it.
+    const style = { fill, fontSize: 9, fontWeight: 700, stroke: surface, strokeWidth: 3, strokeLinejoin: 'round' as const, paintOrder: 'stroke' };
+    if (fit === 'across') return <text x={x + 5} y={y + 13} {...style}>{text}</text>;
+    // Along the band: starts under the top edge and reads upwards.
+    const centre = x + width / 2;
+    return <text x={centre} y={y + 6} textAnchor="end" dominantBaseline="central" transform={`rotate(-90 ${centre} ${y + 6})`} {...style}>{text}</text>;
+  };
+}
 
 type SeriesKey = 'inventory' | 'inventoryPosition' | 'S_t' | 's_t' | 'demand' | 'arrival' | 'backlogNeg';
 
@@ -92,7 +116,7 @@ function LiveChart({ timeline, currentDay, warmupDays, dark, t }: { timeline: Ti
                 fill={colors.axis}
                 fillOpacity={0.12}
                 stroke="none"
-                label={{ value: t('warmup').toUpperCase(), position: 'insideTopLeft', fontSize: 9, fontWeight: 700, fill: colors.axis }}
+                label={warmupLabel(t('warmup').toUpperCase(), colors.axis, colors.surface)}
               />
             )}
             <Tooltip
