@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Area, Bar, CartesianGrid, ComposedChart, Line, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { Area, Bar, CartesianGrid, ComposedChart, Line, ReferenceArea, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { CircleCheck, Pause, Play, RefreshCw, SkipBack, StepForward, TriangleAlert } from 'lucide-react';
 import { Segmented } from '../../../app-shared/ui';
 import { chartScale } from '../domain/chartScale';
@@ -29,7 +29,7 @@ const LEGEND: Array<{ key: SeriesKey; label: TextKey; color: keyof typeof SERIES
 ];
 
 /** The simulated days up to "now", with the policy levels of the days still to come shown faintly. */
-function LiveChart({ timeline, currentDay, dark, t }: { timeline: TimelineDay[]; currentDay: number; dark: boolean; t: Translator }) {
+function LiveChart({ timeline, currentDay, warmupDays, dark, t }: { timeline: TimelineDay[]; currentDay: number; warmupDays: number; dark: boolean; t: Translator }) {
   const [picked, setPicked] = useState<Set<SeriesKey>>(new Set());
   const colors = dark ? SERIES.dark : SERIES.light;
   const shown = (key: SeriesKey) => picked.size === 0 || picked.has(key);
@@ -38,6 +38,7 @@ function LiveChart({ timeline, currentDay, dark, t }: { timeline: TimelineDay[];
   const data = useMemo(() => timeline.map((day, index) => (index <= currentDay ? {
     date: day.date,
     isReviewDay: day.isReviewDay,
+    warmup: index < warmupDays,
     inventory: day.invAfterDemand,
     inventoryPosition: day.inventoryPosition,
     s_t: day.s_t,
@@ -47,7 +48,7 @@ function LiveChart({ timeline, currentDay, dark, t }: { timeline: TimelineDay[];
     // Unfilled demand is drawn below the zero line.
     backlogNeg: day.backlog > 0 ? -day.backlog : null,
     stockout: day.stockoutEvent ? day.invAfterDemand : null,
-  } : { date: day.date, s_t_future: day.s_t, S_t_future: day.S_t })), [timeline, currentDay]);
+  } : { date: day.date, s_t_future: day.s_t, S_t_future: day.S_t })), [timeline, currentDay, warmupDays]);
 
   // From the whole run, not the days played so far: the lines must not move during playback.
   const scale = useMemo(() => chartScale(timeline), [timeline]);
@@ -68,7 +69,7 @@ function LiveChart({ timeline, currentDay, dark, t }: { timeline: TimelineDay[];
             {t(item.label)}
           </button>
         ))}
-        <span className="inv-legend-note"><i className="inv-swatch is-dot" style={{ color: colors.shortage }} aria-hidden="true" />{t('stockoutQuestion').replace('?', '')}</span>
+        <span className="inv-legend-note"><i className="inv-swatch is-dot" style={{ color: colors.shortage }} aria-hidden="true" />{t('stockoutLabel')}</span>
       </div>
       <div className="inv-chart-plot">
         <ResponsiveContainer width="100%" height="100%">
@@ -83,12 +84,23 @@ function LiveChart({ timeline, currentDay, dark, t }: { timeline: TimelineDay[];
             <XAxis dataKey="date" tickFormatter={(value) => t.format.date(value)} tick={{ fontSize: 10, fill: colors.axis }} minTickGap={50} axisLine={false} tickLine={false} />
             <YAxis domain={scale.domain} ticks={scale.ticks} interval={0} tickFormatter={(value) => t.format.number(value, 0, 0)} tick={{ fontSize: 10, fill: colors.axis }} axisLine={false} tickLine={false} width={52} />
             <ReferenceLine y={0} stroke={colors.axis} strokeWidth={1} />
+            {/* The first days are not counted in Alpha and Beta: stockouts here come from the starting stock, not the policy. */}
+            {warmupDays > 0 && timeline.length > 0 && (
+              <ReferenceArea
+                x1={timeline[0].date}
+                x2={timeline[Math.min(warmupDays, timeline.length) - 1].date}
+                fill={colors.axis}
+                fillOpacity={0.12}
+                stroke="none"
+                label={{ value: t('warmup').toUpperCase(), position: 'insideTopLeft', fontSize: 9, fontWeight: 700, fill: colors.axis }}
+              />
+            )}
             <Tooltip
               isAnimationActive={false}
               cursor={{ stroke: colors.axis, strokeDasharray: '3 3' }}
               content={({ active, payload, label }) => {
                 if (!active || !payload?.length) return null;
-                const point = payload[0]?.payload as { isReviewDay?: boolean; stockout?: number | null };
+                const point = payload[0]?.payload as { isReviewDay?: boolean; warmup?: boolean; stockout?: number | null };
                 const rows = payload.filter((entry) => entry.value != null && entry.dataKey !== 'stockout' && !String(entry.dataKey).endsWith('_future'));
                 return (
                   <div className="inv-tooltip">
@@ -97,6 +109,7 @@ function LiveChart({ timeline, currentDay, dark, t }: { timeline: TimelineDay[];
                       {point?.isReviewDay && <span className="ops-pill is-gold">{t('reviewDay')}</span>}
                     </strong>
                     {point?.stockout != null && <p className="inv-tooltip-alert"><TriangleAlert size={12} /> {t('stockout')}</p>}
+                    {point?.warmup && <p className="inv-tooltip-note">{t('warmupNotCounted')}</p>}
                     {rows.map((entry) => (
                       <p key={String(entry.dataKey)}>
                         <i style={{ background: entry.color }} />
@@ -170,7 +183,7 @@ const COLUMN_WIDTH = 92;
 const LABEL_WIDTH = 168;
 
 /** Every day of the run as a column; the current day stays in view. */
-function StatTable({ timeline, currentDay, t }: { timeline: TimelineDay[]; currentDay: number; t: Translator }) {
+function StatTable({ timeline, currentDay, warmupDays, t }: { timeline: TimelineDay[]; currentDay: number; warmupDays: number; t: Translator }) {
   const scroller = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const element = scroller.current;
@@ -185,14 +198,14 @@ function StatTable({ timeline, currentDay, t }: { timeline: TimelineDay[]; curre
     { label: 'reorderPoint', cell: (day) => whole(day.s_t) },
     { label: 'orderUpTo', cell: (day) => whole(day.S_t) },
     { label: 'demand', cell: (day) => whole(day.actualDemand) },
-    { label: 'orderPlaced', cell: (day) => (day.orderPlaced ? `✓ ${whole(day.orderPlaced.qty ?? day.orderPlaced.quantity)}` : '—'), flag: (day) => (day.orderPlaced ? 'is-good' : '') },
+    { label: 'orderPlaced', cell: (day) => (day.orderPlaced ? whole(day.orderPlaced.qty ?? day.orderPlaced.quantity) : '—'), flag: (day) => (day.orderPlaced ? 'is-good' : '') },
     { label: 'arrivedOrders', cell: (day) => positive(day.arrivedQty), flag: (day) => (day.arrivedQty > 0 ? 'is-good' : '') },
     { label: 'invPosition', cell: (day) => whole(day.inventoryPosition) },
     { label: 'onHand', cell: (day) => whole(day.invAfterDemand) },
     { label: 'inTransit', cell: (day) => positive(day.inTransit) },
     { label: 'backlog', cell: (day) => positive(day.backlog), flag: (day) => (day.backlog > 0 ? 'is-bad' : '') },
-    { label: 'stockoutQuestion', cell: (day) => (day.stockoutEvent ? `⚠ ${t('yes')}` : '—'), flag: (day) => (day.stockoutEvent ? 'is-bad' : '') },
-    { label: 'reviewDayQuestion', cell: (day) => (day.isReviewDay ? `● ${t('yes')}` : '—'), flag: (day) => (day.isReviewDay ? 'is-gold' : '') },
+    { label: 'stockoutLabel', cell: (day) => (day.stockoutEvent ? t('yes') : '—'), flag: (day) => (day.stockoutEvent ? 'is-bad' : '') },
+    { label: 'reviewDay', cell: (day) => (day.isReviewDay ? t('yes') : '—'), flag: (day) => (day.isReviewDay ? 'is-gold' : '') },
   ];
 
   return (
@@ -202,7 +215,11 @@ function StatTable({ timeline, currentDay, t }: { timeline: TimelineDay[]; curre
           <tr>
             <th>{t('parameterDate')}</th>
             {timeline.map((day, index) => (
-              <th key={index} className={index === currentDay ? 'is-now' : index < currentDay ? 'is-past' : ''}>
+              <th
+                key={index}
+                className={`${index === currentDay ? 'is-now' : index < currentDay ? 'is-past' : ''} ${index < warmupDays ? 'is-warmup' : ''}`}
+                title={index < warmupDays ? t('warmupNotCounted') : undefined}
+              >
                 <span>{t('day')} {index + 1}</span>
                 {t.format.date(day.date)}
               </th>
@@ -276,7 +293,7 @@ export function ProductView({ t, dark, result, policy, running, failure, onReloa
   const [currentDay, setCurrentDay] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [speed, setSpeed] = useState(200);
-  const [view, setView] = useState<'chart' | 'table'>('chart');
+  const [view, setView] = useState<'chart' | 'table'>('table');
   const timeline = result?.timeline;
   const days = timeline?.length || 0;
 
@@ -313,6 +330,8 @@ export function ProductView({ t, dark, result, policy, running, failure, onReloa
 
   const day = timeline[Math.min(currentDay, days - 1)];
   const metrics = result?.metrics;
+  // Days at the start that Alpha and Beta leave out.
+  const warmupDays = metrics?.warmup_days ?? 0;
   const share = (label: string, value: number | null | undefined) => (value == null ? null : (
     <div key={label}>
       <span>{upper(label)}:</span>
@@ -334,18 +353,15 @@ export function ProductView({ t, dark, result, policy, running, failure, onReloa
               {share('Alpha', metrics.alpha_steady)}
               {share('Beta', metrics.beta_steady)}
               <div><span>{t('avgInv')}:</span><strong>{t.format.number(metrics.avgInventory, 0, 0)}</strong></div>
-              {Boolean(metrics.warmup_stockout_days) && (
-                <p className="inv-warning"><TriangleAlert size={13} /> {t('warmupStockoutWarning', metrics.warmup_stockout_days!, metrics.warmup_days || 21)}</p>
-              )}
             </div>
           )}
-          <Segmented value={view} onChange={setView} options={[{ value: 'chart', label: t('chart') }, { value: 'table', label: t('table') }]} ariaLabel={t('view')} />
+          <Segmented value={view} onChange={setView} options={[{ value: 'table', label: t('table') }, { value: 'chart', label: t('chart') }]} ariaLabel={t('view')} />
         </div>
         {/* The day the playback bar points at. */}
         <DayTiles day={day} t={t} />
         {view === 'chart'
-          ? <LiveChart timeline={timeline} currentDay={currentDay} dark={dark} t={t} />
-          : <StatTable timeline={timeline} currentDay={currentDay} t={t} />}
+          ? <LiveChart timeline={timeline} currentDay={currentDay} warmupDays={warmupDays} dark={dark} t={t} />
+          : <StatTable timeline={timeline} currentDay={currentDay} warmupDays={warmupDays} t={t} />}
       </div>
 
       <div className="inv-playback ops-card">

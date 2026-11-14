@@ -157,7 +157,6 @@
 .inv-product { display: flex; flex: 1; flex-direction: column; gap: 8px; min-height: 0; }
 /* The run's figures sit in the card heading, between the title and the Chart/Table switch. */
 .inv-run-metrics { display: flex; flex: 1 1 0; flex-wrap: wrap; align-items: center; gap: 2px 16px; min-width: 0; margin-left: 8px; }
-.inv-run-metrics .inv-warning { margin: 0; font-size: 11px; }
 .inv-run-metrics > div { display: flex; align-items: baseline; gap: 5px; }
 .inv-run-metrics span { color: var(--muted); font-size: 10px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; white-space: nowrap; }
 .inv-run-metrics strong { display: flex; align-items: center; color: var(--text); font-family: var(--font-mono); font-size: 12px; font-weight: 600; }
@@ -170,7 +169,6 @@
 .inv-policy dd { margin: 0; color: var(--text); font-family: var(--font-mono); font-size: 14px; font-weight: 600; }
 .inv-policy dd.is-good { color: var(--good); }
 .inv-policy dd.is-warn { color: var(--warn); }
-.inv-warning { display: flex; align-items: center; gap: 6px; margin: 0 0 0 auto; color: var(--warn); font-size: 12px; }
 .inv-product-empty { display: grid; flex: 1; place-content: center; gap: 4px; min-height: 200px; color: var(--muted); text-align: center; }
 .inv-product-empty strong { color: var(--text-soft); font-size: 14px; }
 .inv-product-empty p { margin: 0; font-size: 12px; }
@@ -217,6 +215,7 @@
 .inv-tooltip p i { width: 8px; height: 8px; flex: 0 0 auto; border-radius: 2px; }
 .inv-tooltip p b { margin-left: auto; color: var(--text); font-family: var(--font-mono); font-weight: 600; }
 .inv-tooltip-alert { color: var(--bad) !important; font-weight: 700; }
+.inv-tooltip-note { font-style: italic; }
 
 .inv-stat-scroll { flex: 1; min-height: 0; overflow: auto; }
 .inv-stat-table { border-collapse: separate; border-spacing: 0; font-size: 12px; }
@@ -226,6 +225,8 @@
 .inv-stat-table thead th span { display: block; font-size: 9px; text-transform: uppercase; }
 .inv-stat-table thead th.is-past { color: var(--muted); }
 .inv-stat-table thead th.is-now { background: var(--brand-gold); color: #fff; }
+/* Warm-up days, hatched like the shaded band on the chart: not counted in Alpha and Beta. */
+.inv-stat-table thead th.is-warmup:not(.is-now) { background-image: repeating-linear-gradient(135deg, transparent 0 5px, rgba(148, 163, 184, 0.14) 5px 10px); }
 .inv-stat-table th:first-child { position: sticky; left: 0; z-index: 3; min-width: 168px; border-right-color: var(--border); background: var(--surface-muted); color: var(--text-soft); font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 700; text-align: left; }
 .inv-stat-table thead th:first-child { z-index: 4; }
 .inv-stat-table td { color: var(--text-soft); font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
