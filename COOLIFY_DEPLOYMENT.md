@@ -56,6 +56,24 @@ These `.coolify/` helper files are intentionally listed in `.dockerignore` so th
 
 The current CSP is intentionally temporary/relaxed because the static frontend still uses inline scripts and runtime Babel. After the future React/Vite rebuild, remove `'unsafe-inline'` and `'unsafe-eval'`.
 
+## Module apps built with Vite
+
+The inventory module is a TypeScript + React app. Its source is in `inventory-app/` (shared frame code in `app-shared/`) and its built files are committed in `inventory/`, so the Static site still needs no build command.
+
+After changing the source, run from `frontend/`:
+
+```bash
+pnpm install
+pnpm test:inventory
+pnpm build:inventory
+```
+
+and commit the updated `inventory/` folder together with the source.
+
+- The built page is served at `/inventory/`. While `inventory.html` still exists, `/inventory` (no trailing slash) serves that old page.
+- The Nginx configurations in `.coolify/` deny requests to `node_modules`, `inventory-app`, `app-shared`, `package.json` and the pnpm files; paste the updated configuration into Coolify when deploying this change.
+- Local development: `pnpm dev:inventory` (http://127.0.0.1:4176/inventory/, needs the backend on port 8000). `pnpm preview:inventory` serves the built files on port 4177.
+
 ## Root Page
 
 `index.html` is the single source for the Operartis terminal / landing experience at `/`.

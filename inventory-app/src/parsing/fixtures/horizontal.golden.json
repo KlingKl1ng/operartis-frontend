@@ -1,0 +1,320 @@
+{
+ "headers": [
+  "SKU_ID",
+  "Start_Date",
+  "P50_D1",
+  "P50_D2",
+  "P50_D3",
+  "P50_D4",
+  "P50_D5",
+  "P50_D6",
+  "P50_D7",
+  "P50_D8",
+  "P90_D1",
+  "P90_D2",
+  "P90_D3",
+  "P90_D4",
+  "P90_D5",
+  "P90_D6",
+  "P90_D7",
+  "P90_D8",
+  "Initial_Stock",
+  "Lead_Time_Mean",
+  "Review_Period",
+  "Min_Order_Qty",
+  "Target_Service_Level"
+ ],
+ "metadata": {},
+ "mapping": {
+  "format": "horizontal",
+  "sku_id": "SKU_ID",
+  "p50_columns": [
+   "P50_D1",
+   "P50_D2",
+   "P50_D3",
+   "P50_D4",
+   "P50_D5",
+   "P50_D6",
+   "P50_D7",
+   "P50_D8"
+  ],
+  "p90_columns": [
+   "P90_D1",
+   "P90_D2",
+   "P90_D3",
+   "P90_D4",
+   "P90_D5",
+   "P90_D6",
+   "P90_D7",
+   "P90_D8"
+  ],
+  "start_date": "Start_Date",
+  "initial_stock": "Initial_Stock",
+  "lead_time_mean": "Lead_Time_Mean",
+  "lead_time_std": "",
+  "review_period": "Review_Period",
+  "min_order_qty": "Min_Order_Qty",
+  "target_service_level": "Target_Service_Level"
+ },
+ "locks": {
+  "initial_stock": true,
+  "lead_time_mean": true,
+  "lead_time_std": false,
+  "review_period": true,
+  "min_order_qty": true,
+  "target_service_level": true
+ },
+ "skus": [
+  "FAST-A",
+  "SLOW-B",
+  "NEW-C"
+ ],
+ "request": {
+  "input_filename": "horizontal.xlsx",
+  "sku_params": [
+   {
+    "sku_id": "FAST-A",
+    "input_filename": "horizontal.xlsx",
+    "initial_stock": 500,
+    "lead_time_config": {
+     "type": "deterministic",
+     "deterministic_value": 14,
+     "values": null,
+     "poisson_lambda": 14,
+     "binomial_n": 20,
+     "binomial_p": 0.7,
+     "uniform_min": 7,
+     "uniform_max": 21
+    },
+    "lead_time_days": 14,
+    "lead_time_std": 0,
+    "review_period": 7,
+    "target_service_level": 0.95,
+    "forecast_data": [
+     {
+      "date": "2026-02-26",
+      "p50": 100,
+      "p90": 128,
+      "resid_std": null,
+      "horizon_index": null
+     },
+     {
+      "date": "2026-02-27",
+      "p50": 101.5,
+      "p90": 130,
+      "resid_std": null,
+      "horizon_index": null
+     },
+     {
+      "date": "2026-02-28",
+      "p50": 103,
+      "p90": 132,
+      "resid_std": null,
+      "horizon_index": null
+     },
+     {
+      "date": "2026-03-01",
+      "p50": 104.5,
+      "p90": 134,
+      "resid_std": null,
+      "horizon_index": null
+     },
+     {
+      "date": "2026-03-02",
+      "p50": 106,
+      "p90": 136,
+      "resid_std": null,
+      "horizon_index": null
+     },
+     {
+      "date": "2026-03-03",
+      "p50": 107.5,
+      "p90": 138,
+      "resid_std": null,
+      "horizon_index": null
+     },
+     {
+      "date": "2026-03-04",
+      "p50": 109,
+      "p90": 141.70000000000002,
+      "resid_std": null,
+      "horizon_index": null
+     },
+     {
+      "date": "2026-03-05",
+      "p50": 110.5,
+      "p90": 142,
+      "resid_std": null,
+      "horizon_index": null
+     }
+    ],
+    "min_order_qty": null,
+    "tolerance": 0.01,
+    "max_iterations": 15,
+    "num_simulation_runs": 500
+   },
+   {
+    "sku_id": "SLOW-B",
+    "input_filename": "horizontal.xlsx",
+    "initial_stock": 120,
+    "lead_time_config": {
+     "type": "deterministic",
+     "deterministic_value": 21,
+     "values": null,
+     "poisson_lambda": 14,
+     "binomial_n": 20,
+     "binomial_p": 0.7,
+     "uniform_min": 7,
+     "uniform_max": 21
+    },
+    "lead_time_days": 21,
+    "lead_time_std": 0,
+    "review_period": 14,
+    "target_service_level": 0.9,
+    "forecast_data": [
+     {
+      "date": "2026-02-26",
+      "p50": 19,
+      "p90": 25,
+      "resid_std": null,
+      "horizon_index": null
+     },
+     {
+      "date": "2026-02-27",
+      "p50": 20.5,
+      "p90": 27,
+      "resid_std": null,
+      "horizon_index": null
+     },
+     {
+      "date": "2026-02-28",
+      "p50": 22,
+      "p90": 29,
+      "resid_std": null,
+      "horizon_index": null
+     },
+     {
+      "date": "2026-03-01",
+      "p50": 23.5,
+      "p90": 31,
+      "resid_std": null,
+      "horizon_index": null
+     },
+     {
+      "date": "2026-03-02",
+      "p50": 25,
+      "p90": 33,
+      "resid_std": null,
+      "horizon_index": null
+     },
+     {
+      "date": "2026-03-03",
+      "p50": 26.5,
+      "p90": 35,
+      "resid_std": null,
+      "horizon_index": null
+     },
+     {
+      "date": "2026-03-04",
+      "p50": 28,
+      "p90": 36.4,
+      "resid_std": null,
+      "horizon_index": null
+     },
+     {
+      "date": "2026-03-05",
+      "p50": 29.5,
+      "p90": 39,
+      "resid_std": null,
+      "horizon_index": null
+     }
+    ],
+    "min_order_qty": 25,
+    "tolerance": 0.01,
+    "max_iterations": 15,
+    "num_simulation_runs": 500
+   },
+   {
+    "sku_id": "NEW-C",
+    "input_filename": "horizontal.xlsx",
+    "initial_stock": 150,
+    "lead_time_config": {
+     "type": "deterministic",
+     "deterministic_value": 7,
+     "values": null,
+     "poisson_lambda": 14,
+     "binomial_n": 20,
+     "binomial_p": 0.7,
+     "uniform_min": 7,
+     "uniform_max": 21
+    },
+    "lead_time_days": 7,
+    "lead_time_std": 0,
+    "review_period": 1,
+    "target_service_level": 0.99,
+    "forecast_data": [
+     {
+      "date": "2026-02-26",
+      "p50": 42,
+      "p90": 62,
+      "resid_std": null,
+      "horizon_index": null
+     },
+     {
+      "date": "2026-02-27",
+      "p50": 43.5,
+      "p90": 64,
+      "resid_std": null,
+      "horizon_index": null
+     },
+     {
+      "date": "2026-02-28",
+      "p50": 45,
+      "p90": 66,
+      "resid_std": null,
+      "horizon_index": null
+     },
+     {
+      "date": "2026-03-01",
+      "p50": 46.5,
+      "p90": 68,
+      "resid_std": null,
+      "horizon_index": null
+     },
+     {
+      "date": "2026-03-02",
+      "p50": 48,
+      "p90": 70,
+      "resid_std": null,
+      "horizon_index": null
+     },
+     {
+      "date": "2026-03-03",
+      "p50": 49.5,
+      "p90": 72,
+      "resid_std": null,
+      "horizon_index": null
+     },
+     {
+      "date": "2026-03-04",
+      "p50": 51,
+      "p90": 66.3,
+      "resid_std": null,
+      "horizon_index": null
+     },
+     {
+      "date": "2026-03-05",
+      "p50": 52.5,
+      "p90": 76,
+      "resid_std": null,
+      "horizon_index": null
+     }
+    ],
+    "min_order_qty": 10,
+    "tolerance": 0.01,
+    "max_iterations": 15,
+    "num_simulation_runs": 500
+   }
+  ]
+ }
+}
