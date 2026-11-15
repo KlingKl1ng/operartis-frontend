@@ -1272,14 +1272,16 @@
             color: rgb(148 163 184);
         }
 
-        /* Static amber → gold → orange → yellow sheen — equal spans; readable on light & dark */
+        /* Brushed-gold amber: deep amber -> light gold highlight just past the middle -> back to amber.
+           One hue family (no orange or brown), so it reads as metal rather than as a rainbow. */
         .opus-sheen {
             background-image: linear-gradient(
                 90deg,
-                #92400e 0%,
-                #c2410c 33.333%,
-                #d97706 66.667%,
-                #ca8a04 100%
+                #b45309 0%,
+                #d97706 36%,
+                #f59e0b 54%,
+                #d97706 72%,
+                #92400e 100%
             );
             background-size: 100% 100%;
             background-repeat: no-repeat;
@@ -1291,10 +1293,11 @@
         .dark .opus-sheen {
             background-image: linear-gradient(
                 90deg,
-                #b45309 0%,
-                #f59e0b 33.333%,
-                #ea580c 66.667%,
-                #fde68a 100%
+                #f59e0b 0%,
+                #fcd34d 38%,
+                #fef3c7 54%,
+                #fbbf24 70%,
+                #d97706 100%
             );
         }
 
@@ -1358,13 +1361,40 @@
             animation: heroPipelinePulse 1.8s ease-in-out infinite;
         }
 
+        button.hero-aps-pipeline-step {
+            cursor: pointer;
+        }
+
+        button.hero-aps-pipeline-step:not(.hero-aps-pipeline-step-active):hover {
+            border-color: rgba(245, 158, 11, 0.45);
+        }
+
+        button.hero-aps-pipeline-step:focus-visible {
+            outline: 2px solid rgba(245, 158, 11, 0.75);
+            outline-offset: 2px;
+        }
+
+        /* Time left on the current step */
+        .hero-step-timer {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1;
+            height: 2px;
+            background: linear-gradient(90deg, #b45309, #f59e0b);
+            transform-origin: left center;
+            animation: pf2-timer 2.2s linear both;
+        }
+
         .hero-console-cursor {
             animation: heroConsoleCursor 1s steps(1) infinite;
         }
 
         @media (prefers-reduced-motion: reduce) {
             .hero-aps-pipeline-step-active,
-            .hero-console-cursor {
+            .hero-console-cursor,
+            .hero-step-timer {
                 animation: none;
             }
         }
@@ -8487,7 +8517,7 @@
                                 </div>
 
                                 <div className={`i4l2-layer ${apsVisible ? '' : 'is-off'}`} aria-hidden={!apsVisible}>
-                                    <h3 className="text-xl md:text-[1.6rem] font-black tracking-tight leading-tight"><span className="opus-sheen inline-block pb-[0.14em] -mb-[0.14em]">{ui.i4l_phase_aps_title}</span></h3>
+                                    <h3 className="text-xl md:text-[1.6rem] font-black tracking-tight leading-tight text-slate-900 dark:text-white">{ui.i4l_phase_aps_title}</h3>
                                     <p className="mt-3 text-sm md:text-base leading-relaxed text-slate-600 dark:text-slate-400">{ui.i4l_phase_aps_desc}</p>
                                     <div className="i4l2-card i4l2-card--aps mt-5">
                                         <div className="flex items-center gap-3">
@@ -8756,6 +8786,8 @@
             );
         };
 
+        const HERO_STEP_MS = 2200;
+
         const HeroSection = ({ content, onExplore, onWhy }) => {
             const [videoOpen, setVideoOpen] = React.useState(false);
             // Console tabs — each tab simulates one APS pipeline (production / logistics)
@@ -8776,6 +8808,10 @@
                 }
             ].filter(pl => pl.tab && pl.steps.length), [content]);
             const [flow, setFlow] = useState({ tab: 0, idx: 0 });
+            const [flowCycle, setFlowCycle] = useState(0);
+            const [flowPlaying, setFlowPlaying] = useState(() => {
+                try { return !window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return true; }
+            });
             const tabPinnedRef = useRef(false);
             const activeTabIdx = Math.min(flow.tab, Math.max(pipelines.length - 1, 0));
             const activePipeline = pipelines[activeTabIdx] || { steps: [], events: [] };
@@ -8785,6 +8821,13 @@
             const selectTab = (i) => {
                 tabPinnedRef.current = true;
                 setFlow({ tab: i, idx: 0 });
+                setFlowCycle(c => c + 1);
+            };
+            // Picking a step jumps to it and restarts its timer; the run then continues from there
+            const selectStep = (i) => {
+                tabPinnedRef.current = true;
+                setFlow(prev => ({ tab: Math.min(prev.tab, Math.max(pipelines.length - 1, 0)), idx: i }));
+                setFlowCycle(c => c + 1);
             };
             const titleRef = useRef(null);
 
@@ -8821,10 +8864,8 @@
             }, [content.ui.header_title_1, content.ui.header_title_2]);
 
             useEffect(() => {
-                if (!pipelines.length) return undefined;
-                const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-                if (prefersReducedMotion) return undefined;
-                const timer = setInterval(() => {
+                if (!pipelines.length || !flowPlaying) return undefined;
+                const timer = setTimeout(() => {
                     setFlow(prev => {
                         const tab = Math.min(prev.tab, pipelines.length - 1);
                         const count = pipelines[tab].steps.length;
@@ -8832,9 +8873,9 @@
                         // Finished a run: loop this tab if the visitor chose it, otherwise show the next pipeline
                         return { tab: tabPinnedRef.current ? tab : (tab + 1) % pipelines.length, idx: 0 };
                     });
-                }, 1550);
-                return () => clearInterval(timer);
-            }, [pipelines]);
+                }, HERO_STEP_MS);
+                return () => clearTimeout(timer);
+            }, [pipelines, flow, flowCycle, flowPlaying]);
 
             const flowProgress = pipelineSteps.length > 1
                 ? ((activeFlowIdx + 1) / pipelineSteps.length) * 100
@@ -8905,9 +8946,23 @@
                                         </button>
                                     ))}
                                 </div>
-                                <span className="shrink-0 max-[359px]:hidden font-mono text-[10px] font-bold tabular-nums text-slate-400 dark:text-slate-500">
-                                    <span className="text-brand-gold">{String(activeFlowIdx + 1).padStart(2, '0')}</span> / {String(pipelineSteps.length).padStart(2, '0')}
-                                </span>
+                                <div className="shrink-0 flex items-center gap-3">
+                                    <span className="max-[359px]:hidden font-mono text-[10px] font-bold tabular-nums text-slate-400 dark:text-slate-500">
+                                        <span className="text-brand-gold">{String(activeFlowIdx + 1).padStart(2, '0')}</span> / {String(pipelineSteps.length).padStart(2, '0')}
+                                    </span>
+                                    <button
+                                        type="button"
+                                        onClick={() => { setFlowPlaying(on => !on); setFlowCycle(c => c + 1); }}
+                                        aria-pressed={flowPlaying}
+                                        aria-label={flowPlaying ? content.ui.proof_autoplay_pause : content.ui.proof_autoplay_play}
+                                        title={flowPlaying ? content.ui.proof_autoplay_pause : content.ui.proof_autoplay_play}
+                                        className="sc2-play"
+                                    >
+                                        {flowPlaying
+                                            ? <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1"></rect><rect x="14" y="5" width="4" height="14" rx="1"></rect></svg>
+                                            : <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"></path></svg>}
+                                    </button>
+                                </div>
                             </div>
                             <div className="p-4 sm:p-6 space-y-4" role="tabpanel">
                                 <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 truncate">{activePipeline.label}</p>
@@ -8922,16 +8977,23 @@
                                         const isActive = i === activeFlowIdx;
                                         const isDone = i < activeFlowIdx;
                                         return (
-                                            <div
+                                            <button
+                                                type="button"
                                                 key={`${activePipeline.id}-${step}`}
-                                                className={`hero-aps-pipeline-step rounded-xl border px-2 sm:px-2.5 py-2 min-h-[3.6rem] md:min-h-[4.25rem] transition-colors duration-500 ${isActive ? 'hero-aps-pipeline-step-active border-brand-gold/60 bg-brand-gold/10 text-brand-gold' : isDone ? 'border-brand-gold/25 bg-brand-gold/5 text-slate-700 dark:text-slate-200' : 'border-slate-200/70 dark:border-white/5 bg-slate-50/60 dark:bg-slate-800/35 text-slate-500 dark:text-slate-400'}`}
+                                                onClick={() => selectStep(i)}
+                                                aria-current={isActive ? 'step' : undefined}
+                                                aria-label={`${String(i + 1).padStart(2, '0')} ${step}`}
+                                                className={`hero-aps-pipeline-step text-left w-full rounded-xl border px-2 sm:px-2.5 py-2 min-h-[3.6rem] md:min-h-[4.25rem] transition-colors duration-500 ${isActive ? 'hero-aps-pipeline-step-active border-brand-gold/60 bg-brand-gold/10 text-brand-gold' : isDone ? 'border-brand-gold/25 bg-brand-gold/5 text-slate-700 dark:text-slate-200' : 'border-slate-200/70 dark:border-white/5 bg-slate-50/60 dark:bg-slate-800/35 text-slate-500 dark:text-slate-400'}`}
                                             >
                                                 <div className="relative z-[1] flex items-center justify-between gap-2 mb-1">
                                                     <span className="text-[10px] font-mono font-bold tabular-nums opacity-70">{String(i + 1).padStart(2, '0')}</span>
                                                     <span className={`h-1.5 w-1.5 rounded-full ${isActive ? 'bg-brand-gold' : isDone ? 'bg-emerald-400' : 'bg-slate-300 dark:bg-slate-600'}`}></span>
                                                 </div>
                                                 <div className="relative z-[1] text-[10px] font-bold uppercase tracking-normal sm:tracking-wide leading-snug">{step}</div>
-                                            </div>
+                                                {isActive && flowPlaying && (
+                                                    <span key={`${activeTabIdx}-${i}-${flowCycle}`} className="hero-step-timer" style={{ animationDuration: `${HERO_STEP_MS}ms` }} aria-hidden="true"></span>
+                                                )}
+                                            </button>
                                         );
                                     })}
                                 </div>
@@ -8997,7 +9059,8 @@
         const MetricsBand = ({ content, stats }) => (
             <div>
                 <SectionHeading align="center" eyebrow={content.ui.metrics_eyebrow} title={content.ui.metrics_title} />
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-y-10">
+                {/* Same translucent glass as the other section panels */}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-y-10 rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white/45 dark:bg-slate-900/35 backdrop-blur-sm px-2 sm:px-4 py-8 md:py-10">
                     {stats.map((s, i) => (
                         <div key={i} className="lp3-stat text-center">
                             <div className="text-5xl md:text-6xl font-black font-mono tabular-nums text-transparent bg-clip-text bg-gradient-to-br from-brand-gold to-brand-dark">{s.value}</div>
