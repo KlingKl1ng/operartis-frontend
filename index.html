@@ -5138,9 +5138,6 @@
                     stat_horizons: "Planning Horizons",
                     stat_blocks: "Module Blocks",
                     stat_engines: "Optimization Engines",
-                    journey_eyebrow: "How the APS matrix fits together",
-                    journey_title: "From strategy to the shop floor",
-                    journey_desc: "Every Operartis module maps to a planning horizon — connecting long-range network design down to real-time execution in one continuous decision chain.",
                     platform_eyebrow: "The APS Platform",
                     platform_title: "The APS matrix: every planning decision in one platform",
                     platform_desc: "Four planning horizons, from long-range network design to daily routing. Gold blocks are live today; the others are on the roadmap.",
@@ -5532,9 +5529,6 @@
                     stat_horizons: "Khung Hoạch Định",
                     stat_blocks: "Khối Chức Năng",
                     stat_engines: "Công Cụ Tối Ưu",
-                    journey_eyebrow: "Cách ma trận APS kết nối",
-                    journey_title: "Từ chiến lược tổng thể đến sản xuất chi tiết",
-                    journey_desc: "Mỗi mô-đun Operartis tương ứng với một khung hoạch định — kết nối từ thiết kế mạng lưới dài hạn đến thực thi thời gian thực trong một chuỗi quyết định liền mạch.",
                     platform_eyebrow: "Nền Tảng APS",
                     platform_title: "Ma trận APS: mọi quyết định hoạch định trên một nền tảng",
                     platform_desc: "Bốn tầm hoạch định, từ thiết kế mạng lưới dài hạn đến định tuyến hằng ngày. Các khối màu vàng đã hoạt động; các khối còn lại nằm trong lộ trình.",
@@ -5926,9 +5920,6 @@
                     stat_horizons: "Planungshorizonte",
                     stat_blocks: "Funktionsblöcke",
                     stat_engines: "Optimierungs-Engines",
-                    journey_eyebrow: "Wie die Matrix zusammenpasst",
-                    journey_title: "Von der Strategie bis zum Shopfloor",
-                    journey_desc: "Jedes Operartis-Modul ist einem Planungshorizont zugeordnet — von der langfristigen Netzwerkplanung bis zur Echtzeit-Ausführung in einer durchgängigen Entscheidungskette.",
                     platform_eyebrow: "Die APS-Plattform",
                     platform_title: "Die APS-Matrix: jede Planungsentscheidung auf einer Plattform",
                     platform_desc: "Vier Planungshorizonte, vom langfristigen Netzwerkdesign bis zur täglichen Tourenplanung. Goldene Blöcke sind heute verfügbar, die übrigen stehen auf der Roadmap.",
@@ -8477,43 +8468,6 @@
             );
         };
 
-        // Journey strip — connected horizon timeline (INFORM/Zentio process narrative)
-        const JourneyStrip = ({ content, horizons, onNav }) => {
-            const [selectedIdx, setSelectedIdx] = useState(-1);
-
-            return (
-                <div>
-                    <SectionHeading eyebrow={content.ui.journey_eyebrow} title={content.ui.journey_title} desc={content.ui.journey_desc} />
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        {horizons.map((h, i) => {
-                            const isSelected = i === selectedIdx;
-                            return (
-                                <button
-                                    key={h.id}
-                                    type="button"
-                                    onClick={() => {
-                                        setSelectedIdx(i);
-                                        onNav(h.id);
-                                    }}
-                                    className={`group relative z-10 text-left rounded-2xl border p-5 bg-white/90 dark:bg-slate-900/70 backdrop-blur-md transition-all duration-300 ease-out hover:-translate-y-1.5 hover:scale-[1.02] hover:border-brand-gold/55 hover:ring-2 hover:ring-brand-gold/25 hover:shadow-xl hover:shadow-brand-gold/10 ${isSelected ? 'border-brand-gold/50 ring-2 ring-brand-gold/20 shadow-lg shadow-brand-gold/5' : 'border-slate-200/80 dark:border-white/5'}`}
-                                    aria-pressed={isSelected}
-                                >
-                                    <div className="flex items-center gap-3 mb-3">
-                                        <span className={`flex h-9 w-9 items-center justify-center rounded-full font-mono font-bold text-sm shrink-0 transition-all duration-300 ${isSelected ? 'bg-brand-gold text-white shadow-md shadow-brand-gold/30' : 'bg-brand-gold/10 text-brand-gold group-hover:bg-brand-gold group-hover:text-white group-hover:shadow-md group-hover:shadow-brand-gold/25'}`}>{i + 1}</span>
-                                        <span className="text-[10px] font-mono uppercase tracking-wider text-slate-600 dark:text-slate-400 transition-colors duration-300 group-hover:text-slate-800 dark:group-hover:text-slate-300">{h.subtitle}</span>
-                                    </div>
-                                    <h3 className={`font-bold text-sm mb-1 transition-colors duration-300 ${isSelected ? 'text-brand-gold dark:text-amber-400' : 'text-slate-900 dark:text-white group-hover:text-brand-gold dark:group-hover:text-amber-400'}`}>{h.title}</h3>
-                                    <span className="text-[10px] font-bold uppercase tracking-wider text-brand-gold/80 transition-colors duration-300 group-hover:text-brand-gold">
-                                        {h.blocks.length} {h.blocks.length === 1 ? (content.ui.module || content.ui.modules) : content.ui.modules}
-                                    </span>
-                                </button>
-                            );
-                        })}
-                    </div>
-                </div>
-            );
-        };
-
         const ChevronDownIcon = ({ className = '' }) => (
             <svg className={className} xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <polyline points="6 9 12 15 18 9" />
@@ -10311,7 +10265,6 @@
                 scrollToNavItem(id);
             }, [scrollToNavItem]);
 
-            const scrollToHorizon = useCallback((id) => scrollToNavItem(id), [scrollToNavItem]);
             const scrollToAbout = useCallback(() => scrollToNavItem('about'), [scrollToNavItem]);
 
             const didHashScrollRef = useRef(false);
@@ -10675,11 +10628,11 @@
                                 <Reveal delay={100}><AnalyticsMaturitySection content={content} /></Reveal>
                             </div>
 
-                            <div id="matrix-fit" className="opus-scroll-target mt-8 md:mt-12">
-                                <Reveal><JourneyStrip content={content} horizons={content.matrix} onNav={scrollToHorizon} /></Reveal>
-                            </div>
-
-                            <div id="platform" className="opus-scroll-target mt-24 md:mt-32">
+                            {/* "matrix-fit" is the target of the hero's Explore button and the footer's APS-System link; it now is the stage itself */}
+                            {/* The spacing sits on an outer wrapper so a scroll to the target lands on the stage, not on the gap above it */}
+                            <div className="mt-24 md:mt-32">
+                            <div id="matrix-fit" className="opus-scroll-target">
+                            <div id="platform" className="opus-scroll-target">
                                 <MatrixStage
                                     head={(
                                         <div className="lp3-photo-band lp3-photo-band--factory lp3-matrix-head flex items-end min-h-[15rem] md:min-h-[22rem] px-6 py-8 sm:px-10 md:px-14 md:py-12">
@@ -10699,6 +10652,8 @@
                                         />
                                     ))}
                                 </MatrixStage>
+                            </div>
+                            </div>
                             </div>
 
                             <div id="or-process" className="opus-scroll-target mt-16 md:mt-24">
