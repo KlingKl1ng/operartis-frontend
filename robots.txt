@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /accept-invite
+Disallow: /reset-password
+
+Sitemap: https://operartis.io/sitemap.xml

@@ -5,8 +5,43 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Operartis | An Optimization System For The Entire Supply Chain</title>
+    <meta name="description" content="Operartis is an APS optimization platform that transforms ERP and MES data into actionable plans across the supply chain.">
+    <link rel="canonical" href="https://operartis.io/">
+    <meta name="theme-color" content="#020617">
 
-    <link rel="icon" type="image/png" href="./icononly_transparent_quadratic.png">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Operartis">
+    <meta property="og:url" content="https://operartis.io/">
+    <meta property="og:title" content="Operartis | An Optimization System For The Entire Supply Chain">
+    <meta property="og:description" content="An APS optimization platform that transforms ERP and MES data into actionable plans across the supply chain.">
+    <meta property="og:image" content="https://operartis.io/assets/og-image.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="vi_VN">
+    <meta property="og:locale:alternate" content="de_DE">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Operartis | An Optimization System For The Entire Supply Chain">
+    <meta name="twitter:description" content="An APS optimization platform that transforms ERP and MES data into actionable plans across the supply chain.">
+    <meta name="twitter:image" content="https://operartis.io/assets/og-image.jpg">
+
+    <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="./favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
+    <link rel="manifest" href="./site.webmanifest">
+
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "Operartis",
+        "url": "https://operartis.io/",
+        "logo": "https://operartis.io/android-chrome-512x512.png",
+        "slogan": "Optimizing today, Growing tomorrow.",
+        "description": "An APS optimization platform that transforms ERP and MES data into actionable plans across the supply chain.",
+        "email": "info@operartis.io"
+    }
+    </script>
 
     <script src="./vendor/tailwindcss-3.4.17.js"></script>
     <script>
@@ -46,7 +81,7 @@
     <script src="./operartis-api.js?v=20260910-stable-csrf"></script>
     <script src="./operartis-auth-ui.js?v=20260623-display-name"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=Roboto+Mono:wght@400;500&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Roboto+Mono:wght@400;500&display=swap');
 
         body {
             font-family: 'Inter', sans-serif;
@@ -2326,13 +2361,13 @@
             isolation: isolate;
             background:
                 linear-gradient(160deg, rgba(255, 255, 255, 0.1) 0%, rgba(248, 250, 252, 0.04) 45%, rgba(241, 245, 249, 0.08) 100%),
-                url('./assets/proof-map-bg-day.jpg') center / cover no-repeat;
+                url('./assets/hero-map-day.jpg') center / cover no-repeat;
         }
 
         .dark .proof-vrp-earth-frame {
             background:
                 linear-gradient(160deg, rgba(2, 6, 23, 0.68) 0%, rgba(15, 23, 42, 0.5) 48%, rgba(2, 6, 23, 0.66) 100%),
-                url('./assets/proof-map-bg-night.jpg') center / cover no-repeat;
+                url('./assets/hero-map-night.jpg') center / cover no-repeat;
         }
 
         .proof-vrp-earth-frame::before {
@@ -4170,12 +4205,19 @@
     <script src="./vendor/react-17.0.2.production.min.js"></script>
     <script src="./vendor/react-dom-17.0.2.production.min.js"></script>
     <script src="./vendor/babel-standalone-7.26.10.min.js"></script>
-    <script src="./vendor/lucide-current.min.js"></script>
     <script src="./operartis-logo-mark.js?v=20260815-mobile-scroll-intro"></script>
 </head>
 
 <body class="bg-white dark:bg-[#020617] text-slate-800 dark:text-slate-100 transition-colors duration-500">
 
+    <noscript>
+        <div style="max-width:40rem;margin:0 auto;padding:4rem 1.5rem;font-family:system-ui,sans-serif;line-height:1.6;color:#e2e8f0;background:#020617;min-height:100vh">
+            <h1 style="font-size:2rem;line-height:1.2;margin:0 0 1rem;color:#fff">Operartis — Advanced Planning &amp; Scheduling System</h1>
+            <p>Operartis is an APS optimization platform that transforms ERP and MES data into actionable plans across the supply chain: demand forecasting, inventory optimization, production planning and logistics.</p>
+            <p>This site needs JavaScript to display the full experience. Please enable JavaScript, or contact us at <a href="mailto:info@operartis.io" style="color:#f59e0b">info@operartis.io</a>.</p>
+            <p><a href="/contact" style="color:#f59e0b">Contact Operartis</a></p>
+        </div>
+    </noscript>
     <div id="root" class="h-screen w-screen overflow-hidden flex flex-col"></div>
 
     <script type="text/babel">
@@ -4539,6 +4581,10 @@
                     footer_platform: "Platform",
                     footer_solutions: "Solutions",
                     footer_legal: "Legal",
+                    footer_rights: "All rights reserved.",
+                    nav_open: "Open navigation",
+                    nav_close: "Close navigation",
+                    nav_account_menu: "Account menu",
                     footer_company: "Company",
                     footer_modules: "APS Modules",
                     cta_explore: "Explore the Platform",
@@ -4620,7 +4666,7 @@
                     platform_title: "Functional module block",
                     nav_supply_chain: "Supply Chain",
                     nav_industry_40: "Industry 4.0",
-                    nav_platform: "Plattform",
+                    nav_platform: "Platform",
                     nav_mathematical_foundation: "Mathematical Foundation",
                     nav_aps: "APS",
                     nav_solutions: "Solutions",
@@ -4920,6 +4966,10 @@
                     footer_platform: "Nền tảng",
                     footer_solutions: "Giải pháp",
                     footer_legal: "Pháp lý",
+                    footer_rights: "Bảo lưu mọi quyền.",
+                    nav_open: "Mở menu điều hướng",
+                    nav_close: "Đóng menu điều hướng",
+                    nav_account_menu: "Menu tài khoản",
                     footer_company: "Công ty",
                     footer_modules: "Mô-đun APS",
                     cta_explore: "Khám Phá Nền Tảng",
@@ -5301,6 +5351,10 @@
                     footer_platform: "Plattform",
                     footer_solutions: "Lösungen",
                     footer_legal: "Rechtliches",
+                    footer_rights: "Alle Rechte vorbehalten.",
+                    nav_open: "Navigation öffnen",
+                    nav_close: "Navigation schließen",
+                    nav_account_menu: "Kontomenü",
                     footer_company: "Unternehmen",
                     footer_modules: "APS-Module",
                     cta_explore: "Plattform entdecken",
@@ -8504,7 +8558,7 @@
                     <button
                         type="button"
                         className="absolute inset-0 bg-slate-950/55 backdrop-blur-sm"
-                        aria-label="Close navigation"
+                        aria-label={content.ui.nav_close}
                         onClick={onClose}
                     />
                     <div className="mobile-nav-panel absolute inset-x-2 bottom-2 rounded-2xl border border-white/50 dark:border-white/10 bg-white/95 dark:bg-[#0f172a]/95 shadow-2xl backdrop-blur-xl overflow-hidden">
@@ -8515,7 +8569,7 @@
                             <button
                                 type="button"
                                 onClick={onClose}
-                                aria-label="Close navigation"
+                                aria-label={content.ui.nav_close}
                                 className="shrink-0 rounded-full p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
                             >
                                 <CloseIcon />
@@ -9539,7 +9593,7 @@
 
                         <div className="opus-site-footer-divider mt-8 md:mt-10 pt-5 md:pt-6 border-t">
                             <p className="text-xs text-slate-400 dark:text-slate-500 text-center">
-                                © {year} Operartis Analytics. All rights reserved.
+                                © {year} Operartis Analytics. {ui.footer_rights}
                             </p>
                         </div>
                     </div>
@@ -9929,7 +9983,7 @@
                                     type="button"
                                     onClick={() => setMobileNavOpen(true)}
                                     aria-expanded={mobileNavOpen}
-                                    aria-label="Open navigation"
+                                    aria-label={content.ui.nav_open}
                                     className="header-util-btn h-8 w-8 p-0"
                                 >
                                     <span className="header-util-icon" aria-hidden="true"><MenuIcon /></span>
@@ -9995,7 +10049,7 @@
                                 {accountMenuOpen && (
                                     <div
                                         role="menu"
-                                        aria-label="Account menu"
+                                        aria-label={content.ui.nav_account_menu}
                                         className="index-account-menu"
                                     >
                                         {authUser && (
