@@ -2806,6 +2806,223 @@
             font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
         }
 
+        /* Supply chain block: stage panel under the flow diagram */
+        .sc2-panel {
+            position: relative;
+            border-top: 1px solid rgba(148, 163, 184, 0.32);
+            background: linear-gradient(180deg, rgba(245, 158, 11, 0.08), rgba(245, 158, 11, 0.02) 60%, transparent);
+        }
+
+        .dark .sc2-panel {
+            border-top-color: rgba(255, 255, 255, 0.08);
+            background: linear-gradient(180deg, rgba(245, 158, 11, 0.065), rgba(245, 158, 11, 0.015) 60%, transparent);
+        }
+
+        .sc2-timer {
+            position: absolute;
+            left: 0;
+            top: -1px;
+            z-index: 2;
+            height: 2px;
+            width: 100%;
+            background: linear-gradient(90deg, #b45309, #f59e0b);
+            transform-origin: left center;
+            animation: pf2-timer 6s linear both;
+        }
+
+        .sc2-col {
+            min-width: 0;
+            padding: 1.1rem 1rem 1.25rem;
+        }
+
+        .sc2-col--mods {
+            border-top: 1px solid rgba(148, 163, 184, 0.24);
+        }
+
+        .dark .sc2-col--mods { border-top-color: rgba(255, 255, 255, 0.07); }
+
+        @media (min-width: 768px) {
+            .sc2-col { padding: 1.4rem 1.5rem 1.5rem; }
+
+            .sc2-col--mods {
+                border-top: 0;
+                border-left: 1px solid rgba(148, 163, 184, 0.24);
+            }
+
+            .dark .sc2-col--mods { border-left-color: rgba(255, 255, 255, 0.07); }
+        }
+
+        .sc2-kicker {
+            display: flex;
+            min-height: 1.75rem;
+            align-items: center;
+            gap: 0.5rem;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: #64748b;
+        }
+
+        .dark .sc2-kicker { color: #94a3b8; }
+        .sc2-kicker b { color: #b45309; font-size: 12px; letter-spacing: 0.06em; }
+        .dark .sc2-kicker b { color: #f59e0b; }
+
+        .sc2-stack {
+            display: grid;
+            min-width: 0;
+            align-content: start;
+        }
+
+        .sc2-layer {
+            grid-area: 1 / 1;
+            min-width: 0;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .sc2-layer.is-off {
+            opacity: 0;
+            transform: translateY(8px);
+            pointer-events: none;
+        }
+
+        .sc2-play {
+            display: flex;
+            width: 1.75rem;
+            height: 1.75rem;
+            flex: none;
+            align-items: center;
+            justify-content: center;
+            border-radius: 9999px;
+            border: 1px solid rgba(148, 163, 184, 0.45);
+            color: #64748b;
+            transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+        }
+
+        .sc2-play::after {
+            content: '';
+            position: absolute;
+            inset: -8px;
+        }
+
+        .sc2-play { position: relative; }
+        .dark .sc2-play { border-color: rgba(255, 255, 255, 0.14); color: #94a3b8; }
+
+        .sc2-play:hover {
+            border-color: rgba(217, 119, 6, 0.7);
+            background: rgba(245, 158, 11, 0.12);
+            color: #b45309;
+        }
+
+        .dark .sc2-play:hover { color: #f59e0b; }
+
+        .sc2-play:focus-visible,
+        a.sc2-mod:focus-visible {
+            outline: 2px solid rgba(245, 158, 11, 0.75);
+            outline-offset: 2px;
+        }
+
+        .sc2-mod {
+            display: flex;
+            min-width: 0;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.5rem 0.65rem;
+            border-radius: 0.75rem;
+            border: 1px dashed rgba(100, 116, 139, 0.45);
+            text-decoration: none;
+            transition: border-color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
+        }
+
+        .dark .sc2-mod { border-color: rgba(148, 163, 184, 0.28); }
+
+        .sc2-mod--live {
+            border-style: solid;
+            border-color: rgba(217, 119, 6, 0.5);
+            background: rgba(245, 158, 11, 0.13);
+        }
+
+        .dark .sc2-mod--live {
+            border-color: rgba(245, 158, 11, 0.42);
+            background: rgba(245, 158, 11, 0.1);
+        }
+
+        a.sc2-mod:hover {
+            border-color: #d97706;
+            transform: translateY(-1px);
+        }
+
+        .sc2-mod-icon {
+            display: flex;
+            width: 1.75rem;
+            height: 1.75rem;
+            flex: none;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.5rem;
+            background: rgba(148, 163, 184, 0.18);
+            color: #64748b;
+        }
+
+        .dark .sc2-mod-icon { background: rgba(148, 163, 184, 0.12); color: #94a3b8; }
+        .sc2-mod--live .sc2-mod-icon { background: rgba(245, 158, 11, 0.24); color: #b45309; }
+        .dark .sc2-mod--live .sc2-mod-icon { background: rgba(245, 158, 11, 0.18); color: #fbbf24; }
+        .sc2-mod-icon svg { width: 15px; height: 15px; }
+
+        .sc2-mod-name {
+            display: block;
+            font-size: 12.5px;
+            font-weight: 700;
+            line-height: 1.25;
+            color: #475569;
+        }
+
+        .dark .sc2-mod-name { color: #cbd5e1; }
+        .sc2-mod--live .sc2-mod-name { color: #1e293b; }
+        .dark .sc2-mod--live .sc2-mod-name { color: #f8fafc; }
+
+        .sc2-mod-status {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            margin-top: 2px;
+            font-size: 9.5px;
+            font-weight: 700;
+            letter-spacing: 0.09em;
+            text-transform: uppercase;
+            color: #64748b;
+        }
+
+        .dark .sc2-mod-status { color: #94a3b8; }
+        .sc2-mod--live .sc2-mod-status { color: #047857; }
+        .dark .sc2-mod--live .sc2-mod-status { color: #34d399; }
+
+        .sc2-mod-status i {
+            width: 6px;
+            height: 6px;
+            flex: none;
+            border-radius: 9999px;
+            background: #10b981;
+        }
+
+        .sc2-mod-arrow {
+            flex: none;
+            color: #64748b;
+            opacity: 0.6;
+            transition: transform 0.2s ease, opacity 0.2s ease;
+        }
+
+        .dark .sc2-mod-arrow { color: #94a3b8; }
+        .sc2-mod--live .sc2-mod-arrow { color: #b45309; }
+        .dark .sc2-mod--live .sc2-mod-arrow { color: #fbbf24; }
+        a.sc2-mod:hover .sc2-mod-arrow { opacity: 1; transform: translateX(2px); }
+
+        @media (prefers-reduced-motion: reduce) {
+            .sc2-timer { animation: none; transform: none; }
+            .sc2-layer { transition: none; }
+        }
+
         /* ERP · APS · MES integration loop */
         @keyframes i4l-gap-pulse {
             0%, 100% { opacity: 0.45; }
@@ -5492,6 +5709,10 @@
                     sc_title: "Operartis Provides Optimization Solutions For The Entire Supply Chain",
                     sc_live: "Live flow",
                     sc_demand_label: "Demand",
+                    sc_direct_label: "Direct delivery",
+                    sc_stage: "Stage",
+                    sc_modules_title: "Operartis at this stage",
+                    sc_catalogue_link: "See the full module catalogue",
                     sc_steps: [
                         { id: 'procurement', label: 'Procurement', tag: 'Source', desc: 'Strategic sourcing, supplier selection, purchase orders, inbound quality checks, and raw-material staging before production.' },
                         { id: 'production', label: 'Production', tag: 'Make', desc: 'Factory planning, MRP/MPS, MES scheduling, assembly lines, quality control, and finished-goods output.' },
@@ -5885,6 +6106,10 @@
                     sc_title: "Operartis cung cấp giải pháp tối ưu cho toàn bộ chuỗi cung ứng",
                     sc_live: "Luồng trực tiếp",
                     sc_demand_label: "Nhu cầu",
+                    sc_direct_label: "Giao thẳng",
+                    sc_stage: "Công đoạn",
+                    sc_modules_title: "Operartis tại công đoạn này",
+                    sc_catalogue_link: "Xem toàn bộ danh mục module",
                     sc_steps: [
                         { id: 'procurement', label: 'Mua hàng', tag: 'Nguồn', desc: 'Tìm nguồn cung, lựa chọn nhà cung cấp, đặt hàng, kiểm tra chất lượng đầu vào và chuẩn bị nguyên liệu trước sản xuất.' },
                         { id: 'production', label: 'Sản xuất', tag: 'Sản xuất', desc: 'Hoạch định nhà máy, MRP/MPS, lịch xưởng, dây chuyền lắp ráp, kiểm soát chất lượng và thành phẩm.' },
@@ -6278,6 +6503,10 @@
                     sc_title: "Operartis liefert Optimierungslösungen für die gesamte Lieferkette",
                     sc_live: "Live-Fluss",
                     sc_demand_label: "Nachfrage",
+                    sc_direct_label: "Direktlieferung",
+                    sc_stage: "Stufe",
+                    sc_modules_title: "Operartis in dieser Stufe",
+                    sc_catalogue_link: "Zum gesamten Modulkatalog",
                     sc_steps: [
                         { id: 'procurement', label: 'Beschaffung', tag: 'Bezug', desc: 'Strategischer Einkauf, Lieferantenauswahl, Bestellungen, Wareneingangsprüfung und Materialbereitstellung vor der Produktion.' },
                         { id: 'production', label: 'Produktion', tag: 'Fertigung', desc: 'Werkplanung, MRP/MPS, Feinplanung, Montagelinien, Qualitätskontrolle und Fertigwarenausgang.' },
@@ -6941,7 +7170,18 @@
             );
         };
 
-        const SCSkipRouteLayer = ({ skipRoutes, trackW, trackH }) => {
+        // Which catalogue modules plan each stage of the chain (step id -> module ids)
+        const SC_STAGE_MODULES = {
+            procurement: ['inventory', 'abc', 'forecaster'],
+            production: ['aggregated_planning', 'cap_main_planning', 'clsp', 'scheduling_prob'],
+            transport: ['vrp', 'long_haul', 'short_haul', 'shortest_path'],
+            distribution: ['inventory', 'warehouse_loc', 'hub_loc'],
+            stores: ['forecaster', 'inventory', 'atp'],
+            customers: ['advanced_forecaster', 'short_haul', 'queuing_sim'],
+        };
+        const SC_STAGE_MS = 6000;
+
+        const SCSkipRouteLayer = ({ skipRoutes, trackW, trackH, label }) => {
             if (!skipRoutes?.length || !trackW || !trackH) return null;
             const stroke = SC_ROUTE_STROKE;
             const strokeWidth = SC_ROUTE_STROKE_WIDTH;
@@ -6952,6 +7192,7 @@
                 viewMinY = Math.min(viewMinY, route.routeY - 10, route.y1, route.y2);
             });
             const viewHeight = trackH - viewMinY;
+            const topRoute = skipRoutes.reduce((top, route) => (route.routeY < top.routeY ? route : top), skipRoutes[0]);
 
             return (
                 <svg
@@ -6984,16 +7225,30 @@
                             </g>
                         );
                     })}
+                    {label && (
+                        <text x={(topRoute.x1 + topRoute.x2) / 2} y={topRoute.routeY - 8} textAnchor="middle" className="sc-demand-loop-label" fill={stroke}>
+                            {label}
+                        </text>
+                    )}
                 </svg>
             );
         };
 
-        const SupplyChainFlow = ({ content }) => {
+        const SupplyChainFlow = ({ content, onOpenCatalogue }) => {
             const steps = content.ui.sc_steps;
+            const ui = content.ui;
             const [activeIdx, setActiveIdx] = useState(0);
+            const [cycle, setCycle] = useState(0);
+            const [autoPlay, setAutoPlay] = useState(true);
             const [connectorGeom, setConnectorGeom] = useState(null);
             const flowTrackRef = useRef(null);
             const gridRef = useRef(null);
+
+            // Picking a stage also restarts its timer
+            const selectStage = (idx) => {
+                setActiveIdx(idx);
+                setCycle(c => c + 1);
+            };
 
             const measureConnectors = () => {
                 const track = flowTrackRef.current;
@@ -7073,11 +7328,12 @@
             };
 
             useEffect(() => {
-                const timer = setInterval(() => {
+                if (!autoPlay) return undefined;
+                const timer = setTimeout(() => {
                     setActiveIdx(prev => (prev + 1) % steps.length);
-                }, 3800);
-                return () => clearInterval(timer);
-            }, [steps.length]);
+                }, SC_STAGE_MS);
+                return () => clearTimeout(timer);
+            }, [activeIdx, cycle, autoPlay, steps.length]);
 
             useLayoutEffect(() => {
                 measureConnectors();
@@ -7109,24 +7365,28 @@
             const trackW = connectorGeom?.trackW || 0;
             const trackH = connectorGeom?.trackH || 0;
 
-            const activeStep = steps[activeIdx];
-            const ActiveStepIcon = SC_STEP_ICONS[activeIdx];
+            const pad2 = (n) => String(n).padStart(2, '0');
+            const stageModules = (stepId) => (SC_STAGE_MODULES[stepId] || []).map((id) => {
+                const staticData = MODULE_STATIC_DATA[id] || { icon: <ActivityIcon />, status: 'planned' };
+                const textData = (content.registry && content.registry[id]) || { name: id };
+                return { id, icon: staticData.icon, live: staticData.status === 'live', name: textData.name, post: DECISION_POSTS[id] || null };
+            });
+            const openCatalogue = (event) => {
+                if (typeof onOpenCatalogue !== 'function') return;
+                event.preventDefault();
+                onOpenCatalogue();
+            };
 
             return (
                 <section
-                    className="relative rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-gradient-to-b from-white/55 via-white/35 to-white/20 dark:from-slate-900/55 dark:via-slate-900/35 dark:to-slate-900/20 backdrop-blur-xl shadow-sm"
-                    aria-label={content.ui.sc_title}
+                    className="relative overflow-hidden rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white/45 dark:bg-slate-900/35 backdrop-blur-sm"
+                    aria-label={ui.sc_title}
                 >
-                    <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-2xl">
-                        <div className="absolute -top-8 left-1/4 w-64 h-32 bg-brand-gold/6 rounded-full blur-3xl" />
-                        <div className="absolute -top-6 right-1/4 w-48 h-24 bg-amber-500/4 rounded-full blur-3xl" />
-                    </div>
-
-                    <div className="w-full px-4 sm:px-5 md:px-6 py-4 md:py-5 relative">
-                        <div className="relative sc-flow-scroll -mx-1 px-1 pb-3">
-                            <div className="relative w-full pt-6 md:pt-14 pb-6 md:pb-16 overflow-visible" ref={flowTrackRef}>
+                    <div className="relative px-4 sm:px-5 md:px-6 pt-4 md:pt-7">
+                        <div className="relative sc-flow-scroll -mx-1 px-1">
+                            <div className="relative w-full pt-2 md:pt-16 pb-4 md:pb-12 overflow-visible" ref={flowTrackRef}>
                                 <div className="hidden md:contents">
-                                    <SCSkipRouteLayer skipRoutes={skipRoutes} trackW={trackW} trackH={trackH} />
+                                    <SCSkipRouteLayer skipRoutes={skipRoutes} trackW={trackW} trackH={trackH} label={ui.sc_direct_label} />
                                     <SCDemandLoopLayer route={demandLoop} trackW={trackW} label={content.ui.sc_demand_label} />
 
                                     <div className="absolute inset-0 pointer-events-none z-[5]" aria-hidden="true">
@@ -7153,7 +7413,7 @@
                                                 key={step.id}
                                                 type="button"
                                                 data-sc-node
-                                                onClick={() => setActiveIdx(idx)}
+                                                onClick={() => selectStage(idx)}
                                                 className={`group relative flex flex-col items-center text-center rounded-xl md:rounded-2xl p-1.5 sm:p-2 md:p-3 pb-2 md:pb-3 transition-all duration-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold/60 ${isActive ? 'opacity-100' : 'hover:opacity-100 opacity-90'}`}
                                                 aria-pressed={isActive}
                                                 aria-label={step.label}
@@ -7180,26 +7440,100 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                        <div className="mt-4 md:mt-5 min-h-[4.8125rem] md:min-h-[5.5rem] rounded-xl border border-transparent ring-1 ring-brand-gold/15 dark:ring-white/10 sc-detail-glass px-4 py-3 md:px-5 md:py-4 flex gap-3 md:gap-4 items-start transition-all duration-500">
-                            <div className="shrink-0 flex h-9 w-9 items-center justify-center rounded-lg sc-node-glass sc-node-glass-active text-brand-gold">
-                                <ActiveStepIcon />
-                            </div>
-                            <div className="min-w-0 flex-1">
-                                <div className="flex flex-wrap items-center gap-2 mb-1">
-                                    <span className="text-xs md:text-sm font-bold text-slate-800 dark:text-slate-100">{activeStep.label}</span>
-                                    <span className="text-[9px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border text-brand-gold border-brand-gold/25 bg-brand-gold/8">{activeStep.tag}</span>
-                                    <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500">{String(activeIdx + 1).padStart(2, '0')} / {String(steps.length).padStart(2, '0')}</span>
+                    <div className="sc2-panel">
+                        {autoPlay && <span key={`${activeIdx}-${cycle}`} className="sc2-timer" aria-hidden="true"></span>}
+                        <div className="grid md:grid-cols-[minmax(0,1.08fr)_minmax(0,1fr)]">
+                            <div className="sc2-col">
+                                <p className="sc2-kicker">
+                                    <span>{ui.sc_stage}</span>
+                                    <b>{pad2(activeIdx + 1)}</b>
+                                    <span>/ {pad2(steps.length)}</span>
+                                    <span className="ml-auto flex items-center gap-1" aria-hidden="true">
+                                        {steps.map((_, idx) => (
+                                            <span
+                                                key={idx}
+                                                className={`h-1.5 rounded-full transition-all duration-500 ${idx === activeIdx ? 'w-5 bg-brand-gold' : idx < activeIdx ? 'w-1.5 bg-brand-gold/40' : 'w-1.5 bg-slate-300 dark:bg-slate-700'}`}
+                                            />
+                                        ))}
+                                    </span>
+                                </p>
+                                <div className="sc2-stack mt-3">
+                                    {steps.map((step, idx) => {
+                                        const Icon = SC_STEP_ICONS[idx];
+                                        const isOn = idx === activeIdx;
+                                        return (
+                                            <div key={step.id} className={`sc2-layer flex items-start gap-3.5 md:gap-4${isOn ? '' : ' is-off'}`} aria-hidden={!isOn}>
+                                                <span className="shrink-0 flex h-11 w-11 items-center justify-center rounded-xl sc-node-glass sc-node-glass-active text-brand-gold">
+                                                    <Icon />
+                                                </span>
+                                                <div className="min-w-0">
+                                                    <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
+                                                        <h3 className="text-lg md:text-xl font-black tracking-tight text-slate-900 dark:text-white">{step.label}</h3>
+                                                        <span className="text-[9px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border text-amber-700 dark:text-brand-gold border-brand-gold/30 bg-brand-gold/10">{step.tag}</span>
+                                                    </div>
+                                                    <p className="mt-1.5 text-sm leading-relaxed text-slate-600 dark:text-slate-300">{step.desc}</p>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
                                 </div>
-                                <p className="text-xs md:text-sm text-slate-600 dark:text-slate-400 leading-relaxed min-h-[2.5rem] md:min-h-[3rem]">{activeStep.desc}</p>
                             </div>
-                            <div className="hidden sm:flex shrink-0 items-center gap-1 self-center">
-                                {steps.map((_, idx) => (
-                                    <span
-                                        key={idx}
-                                        className={`h-1.5 rounded-full transition-all duration-500 ${idx === activeIdx ? 'w-5 bg-brand-gold' : idx < activeIdx ? 'w-1.5 bg-brand-gold/40' : 'w-1.5 bg-slate-300 dark:bg-slate-700'}`}
-                                    />
-                                ))}
+
+                            <div className="sc2-col sc2-col--mods">
+                                <p className="sc2-kicker">
+                                    <span>{ui.sc_modules_title}</span>
+                                    <button
+                                        type="button"
+                                        onClick={() => setAutoPlay(on => !on)}
+                                        aria-pressed={autoPlay}
+                                        aria-label={autoPlay ? ui.proof_autoplay_pause : ui.proof_autoplay_play}
+                                        title={autoPlay ? ui.proof_autoplay_pause : ui.proof_autoplay_play}
+                                        className="sc2-play ml-auto"
+                                    >
+                                        {autoPlay
+                                            ? <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1"></rect><rect x="14" y="5" width="4" height="14" rx="1"></rect></svg>
+                                            : <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"></path></svg>}
+                                    </button>
+                                </p>
+                                <div className="sc2-stack mt-3">
+                                    {steps.map((step, idx) => {
+                                        const isOn = idx === activeIdx;
+                                        return (
+                                            <div key={step.id} className={`sc2-layer grid grid-cols-1 sm:grid-cols-2 gap-2 content-start${isOn ? '' : ' is-off'}`} aria-hidden={!isOn}>
+                                                {stageModules(step.id).map((mod) => {
+                                                    const Tile = mod.post ? 'a' : 'div';
+                                                    return (
+                                                        <Tile
+                                                            key={mod.id}
+                                                            href={mod.post || undefined}
+                                                            tabIndex={mod.post && !isOn ? -1 : undefined}
+                                                            className={`sc2-mod${mod.live ? ' sc2-mod--live' : ''}`}
+                                                        >
+                                                            <span className="sc2-mod-icon" aria-hidden="true">{mod.icon}</span>
+                                                            <span className="min-w-0 flex-1">
+                                                                <span className="sc2-mod-name">{mod.name}</span>
+                                                                <span className="sc2-mod-status">{mod.live && <i></i>}{mod.live ? ui.badge_live : ui.badge_roadmap}</span>
+                                                            </span>
+                                                            {mod.post && (
+                                                                <svg className="sc2-mod-arrow" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path></svg>
+                                                            )}
+                                                        </Tile>
+                                                    );
+                                                })}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                                <a
+                                    href="#matrix-fit"
+                                    onClick={openCatalogue}
+                                    className="mt-3.5 inline-flex items-center gap-1.5 text-xs font-bold text-amber-700 dark:text-brand-gold hover:underline underline-offset-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold/60 rounded"
+                                >
+                                    {ui.sc_catalogue_link}
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path></svg>
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -10918,7 +11252,7 @@
 
                             <div id="supply-chain" className="opus-scroll-target mt-24 md:mt-32">
                                 <Reveal><SectionHeading eyebrow={content.ui.sc_eyebrow} title={content.ui.sc_title} /></Reveal>
-                                <Reveal delay={100}><SupplyChainFlow content={content} /></Reveal>
+                                <Reveal delay={100}><SupplyChainFlow content={content} onOpenCatalogue={() => scrollToId('matrix-fit')} /></Reveal>
                             </div>
 
                             <div className="mt-24 md:mt-32">
