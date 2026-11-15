@@ -4956,7 +4956,7 @@
             box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
         }
 
-        .lp3-block-shot span {
+        .lp3-block-shot > span {
             position: absolute;
             inset: 0;
             background-repeat: no-repeat;
@@ -4964,7 +4964,7 @@
             transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        .group:hover .lp3-block-shot span { transform: scale(1.05); }
+        .group:hover .lp3-block-shot > span { transform: scale(1.05); }
 
         @media (min-width: 640px) {
             .lp3-block-shot { min-height: 11.5rem; }
@@ -4972,9 +4972,241 @@
 
         @media (prefers-reduced-motion: reduce) {
             .lp3-live-badge i { animation: none; }
-            .lp3-block-shot span,
+            .lp3-block-shot > span,
             .lp3-matrix-rail::after { transition: none; }
-            .group:hover .lp3-block-shot span { transform: none; }
+            .group:hover .lp3-block-shot > span { transform: none; }
+        }
+
+        /* Animated forecasting preview inside the demand block: history -> model -> forecast */
+        .lp3-block-shot--anim {
+            background: #ffffff;
+        }
+
+        .dark .lp3-block-shot--anim {
+            background: #0b1222;
+        }
+
+        .fcp {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            background:
+                radial-gradient(ellipse 80% 60% at 85% 100%, rgba(245, 158, 11, 0.1), transparent 70%),
+                linear-gradient(180deg, #ffffff, #f8fafc);
+        }
+
+        .dark .fcp {
+            background:
+                radial-gradient(ellipse 80% 60% at 85% 100%, rgba(245, 158, 11, 0.12), transparent 70%),
+                linear-gradient(180deg, #0f172a, #0b1222);
+        }
+
+        .fcp-steps {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 6px;
+            padding: 11px 12px 0;
+        }
+
+        .fcp-step {
+            position: relative;
+            display: flex;
+            min-width: 0;
+            align-items: baseline;
+            gap: 4px;
+            padding-bottom: 6px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            white-space: nowrap;
+            color: #94a3b8;
+            transition: color 0.3s ease;
+        }
+
+        .dark .fcp-step { color: #64748b; }
+
+        .fcp-step span {
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .fcp-step::after,
+        .fcp-step::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 2px;
+            border-radius: 2px;
+        }
+
+        .fcp-step::after { background: rgba(148, 163, 184, 0.28); }
+        .dark .fcp-step::after { background: rgba(148, 163, 184, 0.16); }
+
+        .fcp-step::before {
+            z-index: 1;
+            background: linear-gradient(90deg, #b45309, #f59e0b);
+            transform: scaleX(0);
+            transform-origin: left center;
+        }
+
+        .fcp-step.is-done::before { transform: scaleX(1); }
+
+        .fcp-step.is-active::before {
+            transform: scaleX(1);
+            transition: transform var(--fcp-dur, 2s) linear;
+        }
+
+        .fcp-step.is-active,
+        .fcp-step.is-done { color: #b45309; }
+
+        .dark .fcp-step.is-active,
+        .dark .fcp-step.is-done { color: #fbbf24; }
+
+        .fcp-chart {
+            position: relative;
+            flex: 1;
+            min-height: 0;
+        }
+
+        .fcp-chart svg {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+        }
+
+        .fcp-scene { transition: opacity 0.4s ease; }
+
+        .fcp[data-phase="out"] .fcp-scene,
+        .fcp[data-phase="reset"] .fcp-scene { opacity: 0; }
+
+        .fcp[data-phase="reset"] *,
+        .fcp[data-phase="reset"] *::before,
+        .fcp[data-phase="reset"] *::after { transition: none !important; }
+
+        .fcp-axis { stroke: rgba(148, 163, 184, 0.45); stroke-width: 1; }
+        .dark .fcp-axis { stroke: rgba(148, 163, 184, 0.22); }
+
+        .fcp-bar {
+            fill: #94a3b8;
+            transform-box: fill-box;
+            transform-origin: 50% 100%;
+            transform: scaleY(0);
+            transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1), fill 0.6s ease;
+        }
+
+        .dark .fcp-bar { fill: #64748b; }
+
+        .fcp:not([data-phase="reset"]) .fcp-bar { transform: scaleY(1); }
+
+        .fcp[data-phase="model"] .fcp-bar,
+        .fcp[data-phase="forecast"] .fcp-bar,
+        .fcp[data-phase="out"] .fcp-bar { fill: #cbd5e1; }
+
+        .dark .fcp[data-phase="model"] .fcp-bar,
+        .dark .fcp[data-phase="forecast"] .fcp-bar,
+        .dark .fcp[data-phase="out"] .fcp-bar { fill: #334155; }
+
+        .fcp-fit,
+        .fcp-line {
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-dasharray: 1 1;
+            stroke-dashoffset: 1;
+            /* hidden until drawn: an undrawn round-capped dash still paints a dot at the path's end */
+            opacity: 0;
+        }
+
+        .fcp-fit {
+            stroke: #334155;
+            stroke-width: 2;
+            transition: stroke-dashoffset 1.6s cubic-bezier(0.65, 0, 0.35, 1), opacity 0.15s linear;
+        }
+
+        .dark .fcp-fit { stroke: #e2e8f0; }
+
+        .fcp-line {
+            stroke: #d97706;
+            stroke-width: 2.4;
+            transition: stroke-dashoffset 1.5s cubic-bezier(0.16, 1, 0.3, 1) 0.35s, opacity 0.15s linear 0.35s;
+        }
+
+        .dark .fcp-line { stroke: #f59e0b; }
+
+        .fcp[data-phase="model"] .fcp-fit,
+        .fcp[data-phase="forecast"] .fcp-fit,
+        .fcp[data-phase="out"] .fcp-fit,
+        .fcp[data-phase="forecast"] .fcp-line,
+        .fcp[data-phase="out"] .fcp-line { stroke-dashoffset: 0; opacity: 1; }
+
+        .fcp-band {
+            fill: rgba(245, 158, 11, 0.2);
+            transform-box: fill-box;
+            transform-origin: 0% 50%;
+            transform: scaleX(0);
+            transition: transform 1.5s cubic-bezier(0.16, 1, 0.3, 1) 0.35s;
+        }
+
+        .dark .fcp-band { fill: rgba(245, 158, 11, 0.18); }
+
+        .fcp-future,
+        .fcp-today,
+        .fcp-tip {
+            opacity: 0;
+            transition: opacity 0.45s ease;
+        }
+
+        .fcp-future { fill: rgba(245, 158, 11, 0.07); }
+        .fcp-today line { stroke: #d97706; stroke-width: 1; stroke-dasharray: 3 3; }
+        .dark .fcp-today line { stroke: #f59e0b; }
+
+        .fcp-today text {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            fill: #b45309;
+        }
+
+        .dark .fcp-today text { fill: #fbbf24; }
+
+        .fcp-tip circle { fill: #d97706; }
+        .dark .fcp-tip circle { fill: #f59e0b; }
+        .fcp-tip .fcp-ring { fill: none; stroke: #f59e0b; stroke-width: 1.5; transform-box: fill-box; transform-origin: center; }
+
+        .fcp[data-phase="forecast"] .fcp-band,
+        .fcp[data-phase="out"] .fcp-band { transform: scaleX(1); }
+
+        .fcp[data-phase="forecast"] .fcp-future,
+        .fcp[data-phase="forecast"] .fcp-today,
+        .fcp[data-phase="out"] .fcp-future,
+        .fcp[data-phase="out"] .fcp-today { opacity: 1; }
+
+        .fcp[data-phase="forecast"] .fcp-tip,
+        .fcp[data-phase="out"] .fcp-tip {
+            opacity: 1;
+            transition-delay: 1.5s;
+        }
+
+        @keyframes fcp-ring {
+            0% { transform: scale(0.6); opacity: 0.9; }
+            100% { transform: scale(2.4); opacity: 0; }
+        }
+
+        .fcp[data-phase="forecast"] .fcp-ring { animation: fcp-ring 1.4s ease-out 1.6s infinite; }
+
+        @media (prefers-reduced-motion: reduce) {
+            .fcp *,
+            .fcp *::before,
+            .fcp *::after { transition: none !important; animation: none !important; }
         }
 
         /* Intro video pop-up */
@@ -5657,6 +5889,10 @@
                     platform_desc: "Four planning horizons, from long-range network design to daily routing. Gold blocks are live today; the others are on the roadmap.",
                     badge_live: "Live",
                     badge_roadmap: "On the roadmap",
+                    fcp_data: "History",
+                    fcp_model: "Model",
+                    fcp_forecast: "Forecast",
+                    fcp_today: "Today",
                     nav_supply_chain: "Supply Chain",
                     nav_industry_40: "Industry 4.0",
                     nav_platform: "Platform",
@@ -6054,6 +6290,10 @@
                     platform_desc: "Bốn tầm hoạch định, từ thiết kế mạng lưới dài hạn đến định tuyến hằng ngày. Các khối màu vàng đã hoạt động; các khối còn lại nằm trong lộ trình.",
                     badge_live: "Đang hoạt động",
                     badge_roadmap: "Trong lộ trình",
+                    fcp_data: "Dữ liệu",
+                    fcp_model: "Mô hình",
+                    fcp_forecast: "Dự báo",
+                    fcp_today: "Hôm nay",
                     nav_supply_chain: "Chuỗi cung ứng",
                     nav_industry_40: "Công nghiệp 4.0",
                     nav_platform: "Nền tảng",
@@ -6451,6 +6691,10 @@
                     platform_desc: "Vier Planungshorizonte, vom langfristigen Netzwerkdesign bis zur täglichen Tourenplanung. Goldene Blöcke sind heute verfügbar, die übrigen stehen auf der Roadmap.",
                     badge_live: "Live",
                     badge_roadmap: "Auf der Roadmap",
+                    fcp_data: "Historie",
+                    fcp_model: "Modell",
+                    fcp_forecast: "Prognose",
+                    fcp_today: "Heute",
                     nav_supply_chain: "Lieferkette",
                     nav_industry_40: "Industry 4.0",
                     nav_platform: "Plattform",
@@ -6681,13 +6925,155 @@
         };
 
         // ModulaBlock — glass app tile with Quick View overlay
-        // Product screenshots shown inside live blocks (the same images as the posts), with the chart area in view
+        // Previews inside live blocks: an animated forecasting sketch for demand, product screenshots elsewhere
         const BLOCK_SHOTS = {
-            forecaster: { file: 'blog-forecaster-charts.png', pos: '72% 38%' },
+            forecaster: { animated: true },
             inventory: { file: 'blog-inventory-simulation.png', pos: '74% 70%' },
         };
         const blockHasLive = (block) => (Array.isArray(block && block.subModules) ? block.subModules : [])
             .some(id => (MODULE_STATIC_DATA[id] || {}).status === 'live');
+
+        // Animated preview for the demand block: demand history -> a model learns the pattern -> forecast with an uncertainty band
+        const FCP_DATA = (() => {
+            const noise = [2.1, -3.4, 1.2, 4.0, -1.8, -2.6, 3.1, 0.4, -3.9, 2.7, -0.8, 1.9, -2.2, 3.6, -1.1, -3.0, 2.4, 0.9, -2.7, 1.5, 3.3, -1.6, -0.5, 2.2];
+            const level = (t) => 24 + 1.05 * t + 8.5 * Math.sin((2 * Math.PI * (t - 2)) / 12);
+            return {
+                history: noise.map((e, t) => level(t) + e),
+                fit: noise.map((_, t) => level(t)),
+                future: Array.from({ length: 9 }, (_, k) => ({ mid: level(24 + k), half: 2.5 + 1.25 * (k + 1) })),
+            };
+        })();
+        const FCP_ORDER = ['reset', 'data', 'model', 'forecast', 'out'];
+        const FCP_MS = { reset: 120, data: 2300, model: 2100, forecast: 3900, out: 450 };
+
+        // Smooth curve through points (Catmull-Rom as cubic Béziers)
+        const fcpSmooth = (pts) => pts.map((p, i) => {
+            if (i === 0) return `M${p[0].toFixed(1)},${p[1].toFixed(1)}`;
+            const p0 = pts[i - 2] || pts[i - 1];
+            const p1 = pts[i - 1];
+            const p3 = pts[i + 1] || p;
+            const c1 = [p1[0] + (p[0] - p0[0]) / 6, p1[1] + (p[1] - p0[1]) / 6];
+            const c2 = [p[0] - (p3[0] - p1[0]) / 6, p[1] - (p3[1] - p1[1]) / 6];
+            return `C${c1[0].toFixed(1)},${c1[1].toFixed(1)} ${c2[0].toFixed(1)},${c2[1].toFixed(1)} ${p[0].toFixed(1)},${p[1].toFixed(1)}`;
+        }).join(' ');
+
+        const ForecastPreview = ({ ui }) => {
+            const rootRef = useRef(null);
+            const chartRef = useRef(null);
+            const [size, setSize] = useState(null);
+            const [phase, setPhase] = useState('reset');
+            const [running, setRunning] = useState(false);
+            const reduced = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+            useLayoutEffect(() => {
+                const el = chartRef.current;
+                if (!el) return undefined;
+                const measure = () => {
+                    const r = el.getBoundingClientRect();
+                    if (r.width && r.height) setSize(prev => (prev && Math.abs(prev.w - r.width) < 0.5 && Math.abs(prev.h - r.height) < 0.5 ? prev : { w: r.width, h: r.height }));
+                };
+                measure();
+                if (typeof ResizeObserver === 'undefined') {
+                    window.addEventListener('resize', measure);
+                    return () => window.removeEventListener('resize', measure);
+                }
+                const ro = new ResizeObserver(measure);
+                ro.observe(el);
+                return () => ro.disconnect();
+            }, []);
+
+            // Play only while the block is on screen
+            useEffect(() => {
+                if (reduced) { setPhase('forecast'); return undefined; }
+                const el = rootRef.current;
+                if (!el || typeof IntersectionObserver === 'undefined') { setRunning(true); return undefined; }
+                const io = new IntersectionObserver(([entry]) => setRunning(entry.isIntersecting), { threshold: 0.25 });
+                io.observe(el);
+                return () => io.disconnect();
+            }, [reduced]);
+
+            useEffect(() => {
+                if (reduced || !running) return undefined;
+                const timer = setTimeout(() => {
+                    setPhase(prev => FCP_ORDER[(FCP_ORDER.indexOf(prev) + 1) % FCP_ORDER.length]);
+                }, FCP_MS[phase]);
+                return () => clearTimeout(timer);
+            }, [phase, running, reduced]);
+
+            const steps = [['data', ui.fcp_data], ['model', ui.fcp_model], ['forecast', ui.fcp_forecast]];
+            const current = phase === 'out' ? 3 : steps.findIndex(([key]) => key === phase);
+
+            let scene = null;
+            if (size) {
+                const { w, h } = size;
+                const { history, fit, future } = FCP_DATA;
+                const padL = 12, padR = 14, padT = 24, padB = 12;
+                const slots = history.length + future.length;
+                const slotW = (w - padL - padR) / slots;
+                const yMax = Math.max(...future.map(f => f.mid + f.half), ...history) * 1.06;
+                const baseY = h - padB;
+                const x = (t) => padL + slotW * (t + 0.5);
+                const y = (v) => padT + (1 - v / yMax) * (baseY - padT);
+                const barW = Math.max(2, slotW * 0.62);
+                const last = history.length - 1;
+                const todayX = (x(last) + x(last + 1)) / 2;
+                const fitPts = fit.map((v, t) => [x(t), y(v)]);
+                const linePts = [[x(last), y(fit[last])], ...future.map((f, k) => [x(last + 1 + k), y(f.mid)])];
+                const upper = [[x(last), y(fit[last])], ...future.map((f, k) => [x(last + 1 + k), y(f.mid + f.half)])];
+                const lower = [[x(last), y(fit[last])], ...future.map((f, k) => [x(last + 1 + k), y(f.mid - f.half)])];
+                const bandPath = `${fcpSmooth(upper)} L${lower[lower.length - 1][0].toFixed(1)},${lower[lower.length - 1][1].toFixed(1)} ${fcpSmooth(lower.slice().reverse()).replace(/^M[^C]*/, '')} Z`;
+                const tip = linePts[linePts.length - 1];
+
+                scene = (
+                    <svg viewBox={`0 0 ${w} ${h}`} width={w} height={h} aria-hidden="true">
+                        <g className="fcp-scene">
+                            <rect className="fcp-future" x={todayX} y={padT - 6} width={Math.max(0, w - padR + 6 - todayX)} height={baseY - padT + 6} rx="4" />
+                            <line className="fcp-axis" x1={padL - 4} y1={baseY} x2={w - padR + 4} y2={baseY} />
+                            {history.map((v, t) => (
+                                <rect
+                                    key={t}
+                                    className="fcp-bar"
+                                    x={x(t) - barW / 2}
+                                    y={y(v)}
+                                    width={barW}
+                                    height={Math.max(0, baseY - y(v))}
+                                    rx={Math.min(1.5, barW / 3)}
+                                    style={{ transitionDelay: `${t * 45}ms` }}
+                                />
+                            ))}
+                            <path className="fcp-band" d={bandPath} />
+                            <path className="fcp-fit" d={fcpSmooth(fitPts)} pathLength="1" />
+                            <path className="fcp-line" d={fcpSmooth(linePts)} pathLength="1" />
+                            <g className="fcp-today">
+                                <line x1={todayX} y1={padT - 6} x2={todayX} y2={baseY} />
+                                <text x={todayX} y={padT - 11} textAnchor="middle">{ui.fcp_today}</text>
+                            </g>
+                            <g className="fcp-tip">
+                                <circle className="fcp-ring" cx={tip[0]} cy={tip[1]} r="4" />
+                                <circle cx={tip[0]} cy={tip[1]} r="3" />
+                            </g>
+                        </g>
+                    </svg>
+                );
+            }
+
+            return (
+                <div className="fcp" data-phase={phase} ref={rootRef}>
+                    <div className="fcp-steps">
+                        {steps.map(([key, label], i) => (
+                            <span
+                                key={key}
+                                className={`fcp-step${i === current ? ' is-active' : ''}${i < current ? ' is-done' : ''}`}
+                                style={{ '--fcp-dur': `${FCP_MS[key]}ms` }}
+                            >
+                                <b>{i + 1}</b><span>{label}</span>
+                            </span>
+                        ))}
+                    </div>
+                    <div className="fcp-chart" ref={chartRef}>{scene}</div>
+                </div>
+            );
+        };
 
         const ModulaBlock = ({ block, blockId, content, onClick, activeQuickViewBlockId, onQuickViewActive }) => {
             const quickViewScrollRef = useRef(null);
@@ -6942,8 +7328,10 @@
                         </div>
 
                         {shot && (
-                            <div className="card-visible-content lp3-block-shot mt-4 sm:mt-0 sm:w-[46%] shrink-0" aria-hidden="true">
-                                <span style={{ backgroundImage: `url('./assets/${shot.file}')`, backgroundPosition: shot.pos }}></span>
+                            <div className={`card-visible-content lp3-block-shot${shot.animated ? ' lp3-block-shot--anim' : ''} mt-4 sm:mt-0 sm:w-[46%] shrink-0`} aria-hidden="true">
+                                {shot.animated
+                                    ? <ForecastPreview ui={content.ui} />
+                                    : <span style={{ backgroundImage: `url('./assets/${shot.file}')`, backgroundPosition: shot.pos }}></span>}
                             </div>
                         )}
                     </div>
