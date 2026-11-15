@@ -3143,9 +3143,10 @@
             width: 100%;
         }
 
+        /* Sits behind the bars (z-index 2), so the trend line never crosses a column */
         .aa-maturity-arrow-svg {
             pointer-events: none;
-            z-index: 3;
+            z-index: 1;
         }
 
         .aa-maturity-arrow-line {
@@ -4068,6 +4069,228 @@
             }
         }
 
+        /* ---- APS matrix stage: the module catalogue as one framed object ---- */
+        .lp3-matrix-stage {
+            position: relative;
+            border-radius: 1.75rem;
+            border: 1px solid rgba(217, 119, 6, 0.38);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(255, 251, 235, 0.92));
+            box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.1), 0 50px 120px -60px rgba(180, 83, 9, 0.5);
+        }
+
+        .dark .lp3-matrix-stage {
+            border-color: rgba(245, 158, 11, 0.3);
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.94), rgba(2, 6, 23, 0.92));
+            box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.08), 0 60px 140px -70px rgba(245, 158, 11, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+
+        /* The photo banner becomes the stage's header */
+        .lp3-photo-band.lp3-matrix-head {
+            border-width: 0 0 1px;
+            border-color: rgba(245, 158, 11, 0.3);
+            border-radius: calc(1.75rem - 1px) calc(1.75rem - 1px) 0 0;
+            box-shadow: none;
+        }
+
+        .lp3-matrix-body {
+            position: relative;
+            padding: 2.5rem 1.25rem;
+        }
+
+        .lp3-matrix-rail,
+        .lp3-rail-node {
+            display: none;
+        }
+
+        @media (min-width: 640px) {
+            .lp3-matrix-body { padding: 3rem 2rem; }
+        }
+
+        @media (min-width: 1024px) {
+            .lp3-matrix-body { padding: 4rem 2.5rem 4rem 5.5rem; }
+
+            /* Horizon rail: fills as the reader scrolls from strategic down to cross-functional */
+            .lp3-matrix-rail {
+                display: block;
+                position: absolute;
+                left: 2.6rem;
+                top: calc(4rem + 20px);
+                bottom: 4rem;
+                width: 2px;
+                border-radius: 2px;
+                background: rgba(148, 163, 184, 0.35);
+            }
+
+            .dark .lp3-matrix-rail { background: rgba(255, 255, 255, 0.12); }
+
+            .lp3-matrix-rail::after {
+                content: '';
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: var(--rail-fill, 0px);
+                max-height: 100%;
+                border-radius: 2px;
+                background: linear-gradient(180deg, #f59e0b, #d97706);
+                box-shadow: 0 0 10px rgba(245, 158, 11, 0.55);
+                transition: height 0.12s linear;
+            }
+
+            .lp3-rail-node {
+                display: flex;
+                position: absolute;
+                left: calc(-2.9rem - 19px);
+                top: 0;
+                z-index: 1;
+                width: 40px;
+                height: 40px;
+                align-items: center;
+                justify-content: center;
+                border-radius: 9999px;
+                border: 2px solid rgba(148, 163, 184, 0.55);
+                background: #ffffff;
+                color: #64748b;
+                font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+                font-weight: 900;
+                transition: background-color 0.35s ease, border-color 0.35s ease, color 0.35s ease, box-shadow 0.35s ease;
+            }
+
+            .dark .lp3-rail-node {
+                border-color: rgba(255, 255, 255, 0.2);
+                background: #0b1224;
+                color: #94a3b8;
+            }
+
+            .lp3-rail-node.is-lit,
+            .dark .lp3-rail-node.is-lit {
+                border-color: #f59e0b;
+                background: #f59e0b;
+                color: #ffffff;
+                box-shadow: 0 0 0 6px rgba(245, 158, 11, 0.16), 0 0 24px rgba(245, 158, 11, 0.5);
+            }
+        }
+
+        /* Module chips, live and roadmap badges */
+        .lp3-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+            padding: 0.2rem 0.55rem;
+            border-radius: 9999px;
+            border: 1px solid rgba(148, 163, 184, 0.45);
+            background: rgba(255, 255, 255, 0.65);
+            color: #475569;
+            font-size: 11px;
+            font-weight: 600;
+            line-height: 1.35;
+        }
+
+        .dark .lp3-chip {
+            border-color: rgba(255, 255, 255, 0.1);
+            background: rgba(15, 23, 42, 0.55);
+            color: #94a3b8;
+        }
+
+        .lp3-chip--live {
+            border-color: rgba(217, 119, 6, 0.55);
+            background: rgba(245, 158, 11, 0.16);
+            color: #92400e;
+        }
+
+        .dark .lp3-chip--live {
+            border-color: rgba(245, 158, 11, 0.5);
+            background: rgba(245, 158, 11, 0.14);
+            color: #fcd34d;
+        }
+
+        .lp3-live-badge,
+        .lp3-roadmap-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 9999px;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .lp3-live-badge {
+            background: #059669;
+            color: #ffffff;
+            box-shadow: 0 4px 14px rgba(5, 150, 105, 0.35);
+        }
+
+        .lp3-roadmap-badge {
+            border: 1px dashed rgba(100, 116, 139, 0.6);
+            color: #64748b;
+        }
+
+        .dark .lp3-roadmap-badge {
+            border-color: rgba(148, 163, 184, 0.4);
+            color: #94a3b8;
+        }
+
+        @keyframes lp3-live-pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7); }
+            70%, 100% { box-shadow: 0 0 0 6px rgba(255, 255, 255, 0); }
+        }
+
+        .lp3-live-badge i,
+        .lp3-chip--live i {
+            width: 6px;
+            height: 6px;
+            flex: none;
+            border-radius: 9999px;
+        }
+
+        .lp3-live-badge i {
+            background: #ffffff;
+            animation: lp3-live-pulse 1.8s ease-out infinite;
+        }
+
+        .lp3-chip--live i { background: #10b981; }
+
+        /* Product screenshot inside a live block */
+        .lp3-block-shot {
+            position: relative;
+            min-height: 9.5rem;
+            overflow: hidden;
+            border-radius: 0.875rem;
+            border: 1px solid rgba(217, 119, 6, 0.4);
+            background: #f8fafc;
+            box-shadow: 0 14px 34px rgba(15, 23, 42, 0.18);
+        }
+
+        .dark .lp3-block-shot {
+            border-color: rgba(245, 158, 11, 0.35);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .lp3-block-shot span {
+            position: absolute;
+            inset: 0;
+            background-repeat: no-repeat;
+            background-size: 185%;
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .group:hover .lp3-block-shot span { transform: scale(1.05); }
+
+        @media (min-width: 640px) {
+            .lp3-block-shot { min-height: 11.5rem; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .lp3-live-badge i { animation: none; }
+            .lp3-block-shot span,
+            .lp3-matrix-rail::after { transition: none; }
+            .group:hover .lp3-block-shot span { transform: none; }
+        }
+
         /* Intro video pop-up */
         @keyframes lp3-video-fade { from { opacity: 0; } to { opacity: 1; } }
         @keyframes lp3-video-rise { from { opacity: 0; transform: translateY(18px) scale(0.98); } to { opacity: 1; transform: none; } }
@@ -4227,6 +4450,10 @@
             background-color: #020617;
             background-size: cover;
             background-repeat: no-repeat;
+            /* Size the photo and its dark overlay to the border box. Sized to the padding box, the photo
+               (which overflows it) painted under the border while the overlay stopped short of it,
+               leaving a bright uncovered line along two edges. */
+            background-origin: border-box;
             box-shadow: 0 30px 80px -40px rgba(2, 6, 23, 0.9), inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
         }
 
@@ -4739,7 +4966,10 @@
                     journey_title: "From strategy to the shop floor",
                     journey_desc: "Every Operartis module maps to a planning horizon — connecting long-range network design down to real-time execution in one continuous decision chain.",
                     platform_eyebrow: "The APS Platform",
-                    platform_title: "Functional module block",
+                    platform_title: "The APS matrix: every planning decision in one platform",
+                    platform_desc: "Four planning horizons, from long-range network design to daily routing. Gold blocks are live today; the others are on the roadmap.",
+                    badge_live: "Live",
+                    badge_roadmap: "On the roadmap",
                     nav_supply_chain: "Supply Chain",
                     nav_industry_40: "Industry 4.0",
                     nav_platform: "Platform",
@@ -5128,7 +5358,10 @@
                     journey_title: "Từ chiến lược tổng thể đến sản xuất chi tiết",
                     journey_desc: "Mỗi mô-đun Operartis tương ứng với một khung hoạch định — kết nối từ thiết kế mạng lưới dài hạn đến thực thi thời gian thực trong một chuỗi quyết định liền mạch.",
                     platform_eyebrow: "Nền Tảng APS",
-                    platform_title: "Khối chức năng",
+                    platform_title: "Ma trận APS: mọi quyết định hoạch định trên một nền tảng",
+                    platform_desc: "Bốn tầm hoạch định, từ thiết kế mạng lưới dài hạn đến định tuyến hằng ngày. Các khối màu vàng đã hoạt động; các khối còn lại nằm trong lộ trình.",
+                    badge_live: "Đang hoạt động",
+                    badge_roadmap: "Trong lộ trình",
                     nav_supply_chain: "Chuỗi cung ứng",
                     nav_industry_40: "Công nghiệp 4.0",
                     nav_platform: "Nền tảng",
@@ -5517,7 +5750,10 @@
                     journey_title: "Von der Strategie bis zum Shopfloor",
                     journey_desc: "Jedes Operartis-Modul ist einem Planungshorizont zugeordnet — von der langfristigen Netzwerkplanung bis zur Echtzeit-Ausführung in einer durchgängigen Entscheidungskette.",
                     platform_eyebrow: "Die APS-Plattform",
-                    platform_title: "Funktionsmodul auswählen",
+                    platform_title: "Die APS-Matrix: jede Planungsentscheidung auf einer Plattform",
+                    platform_desc: "Vier Planungshorizonte, vom langfristigen Netzwerkdesign bis zur täglichen Tourenplanung. Goldene Blöcke sind heute verfügbar, die übrigen stehen auf der Roadmap.",
+                    badge_live: "Live",
+                    badge_roadmap: "Auf der Roadmap",
                     nav_supply_chain: "Lieferkette",
                     nav_industry_40: "Industry 4.0",
                     nav_platform: "Plattform",
@@ -5744,6 +5980,14 @@
         };
 
         // ModulaBlock — glass app tile with Quick View overlay
+        // Product screenshots shown inside live blocks (the same images as the posts), with the chart area in view
+        const BLOCK_SHOTS = {
+            forecaster: { file: 'blog-forecaster-charts.png', pos: '72% 38%' },
+            inventory: { file: 'blog-inventory-simulation.png', pos: '74% 70%' },
+        };
+        const blockHasLive = (block) => (Array.isArray(block && block.subModules) ? block.subModules : [])
+            .some(id => (MODULE_STATIC_DATA[id] || {}).status === 'live');
+
         const ModulaBlock = ({ block, blockId, content, onClick, activeQuickViewBlockId, onQuickViewActive }) => {
             const quickViewScrollRef = useRef(null);
             const touchRef = useRef({
@@ -5792,6 +6036,8 @@
 
             const hasLiveModule = subModulesList.some(m => m.status === 'live');
             const liveModules = subModulesList.filter(m => m.status === 'live');
+            const shotId = hasLiveModule ? subModules.find(id => BLOCK_SHOTS[id]) : null;
+            const shot = shotId ? BLOCK_SHOTS[shotId] : null;
 
             const isTouchUi = () => window.matchMedia('(hover: none), (pointer: coarse)').matches;
 
@@ -5900,23 +6146,22 @@
                     role="button"
                     tabIndex={0}
                     className={`
-                        relative group flex flex-col justify-between p-5 rounded-2xl border border-transparent
+                        relative group flex flex-col justify-between p-5 rounded-2xl border ${hasLiveModule ? 'border-transparent' : 'border-dashed border-slate-300 dark:border-white/15'}
                         ${hasLiveModule
-                            ? 'bg-gradient-to-br from-brand-gold/5 to-brand-dark/10 shadow-[0_8px_28px_rgba(245,158,11,0.24),0_2px_14px_rgba(180,83,9,0.14),inset_0_1px_0_0_rgba(255,255,255,0.2)] dark:shadow-[0_8px_32px_rgba(245,158,11,0.1),inset_0_1px_0_0_rgba(255,255,255,0.2)] ring-1 ring-brand-gold/20 hover:shadow-[0_18px_44px_rgba(245,158,11,0.34),0_6px_22px_rgba(180,83,9,0.2),inset_0_1px_0_0_rgba(255,255,255,0.55)] dark:hover:shadow-[0_20px_40px_rgba(0,0,0,0.4),inset_0_1px_0_0_rgba(255,255,255,0.5)]'
-                            : 'bg-gradient-to-br from-white/20 to-white/5 dark:from-slate-800/30 dark:to-slate-900/10 shadow-[0_8px_32px_rgba(0,0,0,0.2),inset_0_1px_0_0_rgba(255,255,255,0.15)] hover:from-white/30 hover:to-white/10 dark:hover:from-slate-800/50 dark:hover:to-slate-900/30 ring-1 ring-white/30 dark:ring-white/5 hover:shadow-[0_20px_40px_rgba(0,0,0,0.4),inset_0_1px_0_0_rgba(255,255,255,0.5)]'}
+                            ? 'bg-gradient-to-br from-brand-gold/5 to-brand-dark/10 shadow-[0_8px_28px_rgba(245,158,11,0.24),0_2px_14px_rgba(180,83,9,0.14),inset_0_1px_0_0_rgba(255,255,255,0.2)] dark:shadow-[0_8px_32px_rgba(245,158,11,0.1),inset_0_1px_0_0_rgba(255,255,255,0.2)] ring-1 ring-brand-gold/50 dark:ring-brand-gold/40 hover:shadow-[0_18px_44px_rgba(245,158,11,0.34),0_6px_22px_rgba(180,83,9,0.2),inset_0_1px_0_0_rgba(255,255,255,0.55)] dark:hover:shadow-[0_20px_40px_rgba(0,0,0,0.4),inset_0_1px_0_0_rgba(255,255,255,0.5)]'
+                            : 'bg-gradient-to-br from-white/20 to-white/5 dark:from-slate-800/30 dark:to-slate-900/10 shadow-[0_8px_32px_rgba(0,0,0,0.2),inset_0_1px_0_0_rgba(255,255,255,0.15)] hover:from-white/30 hover:to-white/10 dark:hover:from-slate-800/50 dark:hover:to-slate-900/30 hover:shadow-[0_20px_40px_rgba(0,0,0,0.4),inset_0_1px_0_0_rgba(255,255,255,0.5)]'}
                         backdrop-blur-xl cursor-pointer overflow-hidden touch-open-card
                         ${mobileQuickView ? 'touch-quickview-active' : ''}
                         transition-all duration-500 ease-out
-                        hover:-translate-y-2 hover:scale-[1.02] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold/60
+                        hover:-translate-y-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold/60
                         h-full min-h-[132px] sm:min-h-[140px] appearance-3d
                     `}
                 >
                     <div className="absolute inset-0 bg-gradient-to-br from-brand-gold/0 via-transparent to-transparent opacity-0 group-hover:opacity-10 transition-duration-500"></div>
 
-                    <div className="quick-view-overlay absolute inset-0 z-20 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md p-5 min-h-0
-                                    opacity-0 group-hover:opacity-100 transition-all duration-300 ease-out
-                                    flex flex-col transform translate-y-4 group-hover:translate-y-0
-                                    ring-1 ring-slate-200/80 dark:ring-white/10">
+                    {/* Touch-only quick view (shown by the .touch-quickview-active rules). With a mouse, the module chips on the card already show this list. */}
+                    <div className="quick-view-overlay hidden absolute inset-0 z-20 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md p-5 min-h-0
+                                    flex-col ring-1 ring-slate-200/80 dark:ring-white/10">
                         <div className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-3 uppercase tracking-wider border-b border-slate-200 dark:border-slate-700 pb-2 flex justify-between items-center">
                             <span>{content?.ui?.quick_view || "Quick View"}</span>
                             <span className="text-[10px] bg-brand-gold/20 text-brand-gold px-1.5 py-0.5 rounded">{subModulesList.length}</span>
@@ -5949,56 +6194,57 @@
                         </button>
                     </div>
 
-                    <div className="card-visible-content relative z-10 transition-all duration-300 group-hover:opacity-10 group-hover:blur-[2px]">
-                        {hasLiveModule ? (
-                            <>
+                    <div className={`relative z-10 flex h-full flex-col ${shot ? 'sm:flex-row sm:items-stretch sm:gap-6' : ''}`}>
+                        <div className="flex min-w-0 flex-1 flex-col justify-between">
+                            <div className="card-visible-content transition-all duration-300">
                                 <div className="flex items-start justify-between gap-3 mb-3">
-                                    <div className="p-2.5 rounded-xl bg-brand-gold/30 text-brand-dark dark:bg-brand-gold/20 dark:text-brand-gold ring-2 ring-brand-gold/40 dark:ring-brand-gold/25 shadow-sm [&_svg]:w-5 [&_svg]:h-5">
+                                    <div className={hasLiveModule
+                                        ? 'p-2.5 rounded-xl bg-brand-gold/30 text-brand-dark dark:bg-brand-gold/20 dark:text-brand-gold ring-2 ring-brand-gold/40 dark:ring-brand-gold/25 shadow-sm [&_svg]:w-5 [&_svg]:h-5'
+                                        : 'p-2 rounded-md bg-slate-100 dark:bg-slate-700/50 text-slate-400'}>
                                         {block.icon || <SystemIcon />}
                                     </div>
-                                    <div className="flex flex-col items-end gap-1.5 shrink-0">
+                                    <div className="flex flex-wrap items-center justify-end gap-1.5">
+                                        <span className={hasLiveModule ? 'lp3-live-badge' : 'lp3-roadmap-badge'}>
+                                            {hasLiveModule && <i aria-hidden="true"></i>}
+                                            {hasLiveModule ? (content?.ui?.badge_live || 'Live') : (content?.ui?.badge_roadmap || 'On the roadmap')}
+                                        </span>
                                         {subModulesList.length > 0 && (
-                                            <span className="text-[10px] px-2 py-0.5 rounded-full font-mono font-bold bg-white/80 dark:bg-brand-gold/20 text-brand-dark dark:text-brand-gold border border-brand-gold/30 dark:border-transparent">
-                                                {liveModules.length}/{subModulesList.length} {subModulesList.length === 1 ? (content?.ui?.module || "Module") : (content?.ui?.modules || "Modules")}
+                                            <span className={`text-[10px] px-2 py-0.5 rounded-full font-mono font-bold ${hasLiveModule ? 'bg-white/80 dark:bg-brand-gold/20 text-brand-dark dark:text-brand-gold border border-brand-gold/30 dark:border-transparent' : 'bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-300'}`}>
+                                                {hasLiveModule ? `${liveModules.length}/${subModulesList.length}` : subModulesList.length} {subModulesList.length === 1 ? (content?.ui?.module || "Module") : (content?.ui?.modules || "Modules")}
                                             </span>
                                         )}
                                     </div>
                                 </div>
 
-                                <h3 className="text-base font-extrabold text-slate-900 dark:text-slate-100 leading-tight mb-1.5 group-hover:text-brand-gold transition-colors tracking-tight">
+                                <h3 className={`leading-tight mb-1.5 tracking-tight group-hover:text-brand-gold transition-colors ${hasLiveModule ? 'text-lg font-extrabold text-slate-900 dark:text-white' : 'text-base font-bold text-slate-800 dark:text-slate-100'}`}>
                                     {block.name}
                                 </h3>
-                                <p className="text-xs text-slate-700 dark:text-slate-400 font-medium leading-relaxed line-clamp-2">
+                                <p className={`text-xs leading-relaxed ${hasLiveModule ? 'text-slate-700 dark:text-slate-300 font-medium' : 'text-slate-500 dark:text-slate-400'}`}>
                                     {block.desc}
                                 </p>
-                            </>
-                        ) : (
-                            <>
-                                <div className="flex justify-between items-start mb-3">
-                                    <div className="p-2 rounded-md transition-colors bg-slate-100 dark:bg-slate-700/50 text-slate-400 group-hover:text-brand-gold">
-                                        {block.icon || <SystemIcon />}
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        {subModulesList.length > 0 && (
-                                            <span className="text-[10px] px-2 py-0.5 rounded-full font-mono bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-300">
-                                                {subModulesList.length} {subModulesList.length === 1 ? (content?.ui?.module || "Module") : (content?.ui?.modules || "Modules")}
-                                            </span>
-                                        )}
-                                    </div>
-                                </div>
 
-                                <h3 className="font-bold text-slate-800 dark:text-slate-100 leading-tight mb-2 group-hover:text-brand-gold transition-colors">
-                                    {block.name}
-                                </h3>
-                                <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">
-                                    {block.desc}
-                                </p>
-                            </>
+                                {subModulesList.length > 0 && (
+                                    <ul className="mt-3 flex flex-wrap gap-1.5">
+                                        {subModulesList.map(mod => (
+                                            <li key={mod.id} className={`lp3-chip ${mod.status === 'live' ? 'lp3-chip--live' : ''}`}>
+                                                {mod.status === 'live' && <i aria-hidden="true"></i>}
+                                                {mod.name}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
+                            </div>
+
+                            <div className={`card-footer-cta mt-4 flex items-center text-[10px] font-bold transition-opacity duration-300 uppercase tracking-wider ${hasLiveModule ? 'text-brand-dark dark:text-brand-gold gap-1.5' : 'text-slate-400'}`}>
+                                {content?.ui?.explore || "Explore"} <ArrowRightIcon />
+                            </div>
+                        </div>
+
+                        {shot && (
+                            <div className="card-visible-content lp3-block-shot mt-4 sm:mt-0 sm:w-[46%] shrink-0" aria-hidden="true">
+                                <span style={{ backgroundImage: `url('./assets/${shot.file}')`, backgroundPosition: shot.pos }}></span>
+                            </div>
                         )}
-                    </div>
-
-                    <div className={`card-footer-cta relative z-10 mt-4 flex items-center text-[10px] font-bold transition-opacity duration-300 group-hover:opacity-10 uppercase tracking-wider ${hasLiveModule ? 'text-brand-dark dark:text-brand-gold gap-1.5' : 'text-slate-400'}`}>
-                        {content?.ui?.explore || "Explore"} <ArrowRightIcon />
                     </div>
                 </div>
             );
@@ -8738,17 +8984,63 @@
             );
         };
 
+        // MatrixStage — frames the whole module catalogue as one object and drives the horizon rail.
+        // The rail fills, and each horizon number lights up, as the reader scrolls through the stage.
+        const MatrixStage = ({ head, children }) => {
+            const bodyRef = useRef(null);
+            useEffect(() => {
+                const body = bodyRef.current;
+                const scroller = body && body.closest('main');
+                if (!body || !scroller) return undefined;
+                let frame = 0;
+                const measure = () => {
+                    frame = 0;
+                    const rail = body.querySelector('.lp3-matrix-rail');
+                    const nodes = body.querySelectorAll('[data-rail-node]');
+                    if (!rail || !rail.offsetParent || !nodes.length) return;   // rail is hidden below the lg breakpoint
+                    const view = scroller.getBoundingClientRect();
+                    const probe = view.top + scroller.clientHeight * 0.45;
+                    const railRect = rail.getBoundingClientRect();
+                    const fill = Math.min(railRect.height, Math.max(0, probe - railRect.top));
+                    body.style.setProperty('--rail-fill', `${fill.toFixed(1)}px`);
+                    nodes.forEach(node => {
+                        const r = node.getBoundingClientRect();
+                        node.classList.toggle('is-lit', r.top + r.height / 2 <= probe);
+                    });
+                };
+                const onScroll = () => { if (!frame) frame = requestAnimationFrame(measure); };
+                measure();
+                scroller.addEventListener('scroll', onScroll, { passive: true });
+                window.addEventListener('resize', onScroll);
+                return () => {
+                    scroller.removeEventListener('scroll', onScroll);
+                    window.removeEventListener('resize', onScroll);
+                    if (frame) cancelAnimationFrame(frame);
+                };
+            }, []);
+            return (
+                <div className="lp3-matrix-stage">
+                    <Reveal>{head}</Reveal>
+                    <div ref={bodyRef} className="lp3-matrix-body">
+                        <span className="lp3-matrix-rail" aria-hidden="true"></span>
+                        {children}
+                    </div>
+                </div>
+            );
+        };
+
         // HorizonSection — editorial feature row (sticky info + module grid). APS matrix preserved.
         const HorizonSection = ({ horizon, content, onBlockClick, index, activeQuickViewBlockId, onQuickViewActive }) => (
-            <section id={`horizon-${horizon.id}`} className="opus-scroll-target mb-16 md:mb-24 last:mb-8">
+            <section id={`horizon-${horizon.id}`} className="relative opus-scroll-target mb-14 md:mb-20 last:mb-0">
+                <span className="lp3-rail-node" data-rail-node aria-hidden="true">{index + 1}</span>
                 <div className="grid lg:grid-cols-12 gap-6 lg:gap-10">
                     {/* Left editorial column */}
                     <div className="lg:col-span-4">
                         <div className="opus-sticky-info">
                             <Reveal>
                                 <div className="flex items-center gap-3 mb-4">
-                                    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-gold/10 text-brand-gold font-mono font-black">{index + 1}</span>
-                                    <span className="text-[10px] font-mono uppercase tracking-wider text-slate-600 dark:text-slate-400">{horizon.subtitle}</span>
+                                    <span className="flex lg:hidden h-10 w-10 items-center justify-center rounded-full bg-brand-gold/10 text-brand-gold font-mono font-black">{index + 1}</span>
+                                    <span className="text-[10px] font-mono uppercase tracking-wider text-slate-600 dark:text-slate-400 lg:h-10 lg:flex lg:items-center">{horizon.subtitle}</span>
                                 </div>
                                 <h2 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white tracking-tight mb-4">{horizon.title}</h2>
                                 <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed mb-5">{horizon.definition}</p>
@@ -8760,8 +9052,9 @@
                     {/* Right module grid */}
                     <div className="lg:col-span-8">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-5">
+                            {/* Live blocks are full-width features; a horizon with a live block, or a single block, lists its blocks one per row */}
                             {horizon.blocks.map((block, idx) => (
-                                <Reveal key={idx} delay={idx * 80}>
+                                <Reveal key={idx} delay={idx * 80} className={horizon.blocks.length === 1 || horizon.blocks.some(blockHasLive) ? 'sm:col-span-2' : ''}>
                                     <ModulaBlock
                                         block={block}
                                         blockId={`${horizon.id}-${idx}`}
@@ -9299,7 +9592,7 @@
                                         {arrowLine && (
                                             <svg className="aa-maturity-arrow-svg absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
                                                 <defs>
-                                                    <marker id="aa-maturity-arrowhead" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+                                                    <marker id="aa-maturity-arrowhead" markerWidth="8" markerHeight="8" refX="8" refY="4" orient="auto">
                                                         <path d="M0,0 L8,4 L0,8 Z" fill="#f59e0b" />
                                                     </marker>
                                                 </defs>
@@ -10295,25 +10588,25 @@
                             </div>
 
                             <div id="platform" className="opus-scroll-target mt-24 md:mt-32">
-                                <Reveal>
-                                    <div className="lp3-photo-band lp3-photo-band--factory rounded-3xl flex items-end min-h-[15rem] md:min-h-[22rem] px-6 py-8 sm:px-10 md:px-14 md:py-12 mb-10 md:mb-16">
-                                        <SectionHeading tone="dark" className="!mb-0" eyebrow={content.ui.platform_eyebrow} title={content.ui.platform_title} />
-                                    </div>
-                                </Reveal>
-                            </div>
-
-                            <div>
-                                {content.matrix.map((horizon, index) => (
-                                    <HorizonSection
-                                        key={horizon.id}
-                                        horizon={horizon}
-                                        content={content}
-                                        onBlockClick={handleBlockClick}
-                                        index={index}
-                                        activeQuickViewBlockId={activeQuickViewBlockId}
-                                        onQuickViewActive={setActiveQuickViewBlockId}
-                                    />
-                                ))}
+                                <MatrixStage
+                                    head={(
+                                        <div className="lp3-photo-band lp3-photo-band--factory lp3-matrix-head flex items-end min-h-[15rem] md:min-h-[22rem] px-6 py-8 sm:px-10 md:px-14 md:py-12">
+                                            <SectionHeading tone="dark" className="!mb-0" eyebrow={content.ui.platform_eyebrow} title={content.ui.platform_title} desc={content.ui.platform_desc} />
+                                        </div>
+                                    )}
+                                >
+                                    {content.matrix.map((horizon, index) => (
+                                        <HorizonSection
+                                            key={horizon.id}
+                                            horizon={horizon}
+                                            content={content}
+                                            onBlockClick={handleBlockClick}
+                                            index={index}
+                                            activeQuickViewBlockId={activeQuickViewBlockId}
+                                            onQuickViewActive={setActiveQuickViewBlockId}
+                                        />
+                                    ))}
+                                </MatrixStage>
                             </div>
 
                             <div id="or-process" className="opus-scroll-target mt-16 md:mt-24">
