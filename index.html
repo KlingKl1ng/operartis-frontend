@@ -4069,6 +4069,181 @@
             }
         }
 
+        /* ---- Analytics staircase explorer ---- */
+        .aa2-zone {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            z-index: 0;
+            display: flex;
+            width: 50%;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.1rem;
+            padding-top: 0.6rem;
+            text-align: center;
+        }
+
+        .aa2-zone--info {
+            left: 0;
+            background: linear-gradient(180deg, rgba(148, 163, 184, 0.16), rgba(148, 163, 184, 0));
+        }
+
+        .aa2-zone--models {
+            right: 0;
+            border-left: 1px dashed rgba(217, 119, 6, 0.6);
+            background: linear-gradient(180deg, rgba(245, 158, 11, 0.22), rgba(245, 158, 11, 0));
+        }
+
+        .aa2-zone-label {
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: #64748b;
+        }
+
+        .aa2-zone-sub {
+            font-size: 10px;
+            font-weight: 600;
+            color: #94a3b8;
+        }
+
+        .dark .aa2-zone-label { color: #94a3b8; }
+        .dark .aa2-zone-sub { color: #64748b; }
+        .aa2-zone--models .aa2-zone-label { color: #b45309; }
+        .aa2-zone--models .aa2-zone-sub { color: #d97706; }
+        .dark .aa2-zone--models .aa2-zone-label { color: #fbbf24; }
+        .dark .aa2-zone--models .aa2-zone-sub { color: #f59e0b; }
+
+        .aa2-step {
+            display: flex;
+            height: 100%;
+            width: 100%;
+            flex-direction: column;
+            justify-content: flex-end;
+            border-radius: 0.5rem 0.5rem 0 0;
+            cursor: pointer;
+        }
+
+        .aa2-step:focus-visible {
+            outline: 2px solid #f59e0b;
+            outline-offset: 3px;
+        }
+
+        /* Unselected bars are muted with a filter, not opacity, so they stay solid and hide the trend arrow behind them */
+        .aa2-bar {
+            position: relative;
+            filter: grayscale(0.6) brightness(1.12);
+            transition: height 0.45s cubic-bezier(0.16, 1, 0.3, 1), filter 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .dark .aa2-bar { filter: grayscale(0.65) brightness(0.62); }
+
+        .aa2-step:hover .aa2-bar { filter: grayscale(0.25) brightness(1.04); }
+        .dark .aa2-step:hover .aa2-bar { filter: grayscale(0.3) brightness(0.82); }
+
+        .aa2-step.is-active .aa2-bar,
+        .dark .aa2-step.is-active .aa2-bar {
+            filter: none;
+            box-shadow: 0 14px 34px -8px var(--aa-accent-bg);
+        }
+
+        .dark .aa2-step.is-active .aa2-bar {
+            box-shadow: 0 0 44px -6px var(--aa-accent-bg);
+        }
+
+        .aa2-step:not(.is-active) .aa2-bar-num { opacity: 0.75; }
+
+        .aa2-bar-num {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0.5rem;
+            text-align: center;
+            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--aa-accent-fg);
+        }
+
+        .aa2-step-label {
+            display: block;
+            text-align: center;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.01em;
+            line-height: 1.2;
+            text-transform: uppercase;
+            white-space: nowrap;
+            color: #94a3b8;
+            transition: color 0.3s ease;
+        }
+
+        .dark .aa2-step-label { color: #64748b; }
+        .aa2-step-label.is-active { color: #0f172a; }
+        .dark .aa2-step-label.is-active { color: #ffffff; }
+
+        @media (min-width: 1280px) {
+            .aa2-step-label { font-size: 11px; letter-spacing: 0.04em; }
+        }
+
+        .aa2-detail {
+            border-color: var(--aa-accent-border);
+            background: linear-gradient(160deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.28));
+            -webkit-backdrop-filter: blur(4px);
+            backdrop-filter: blur(4px);
+            box-shadow: 0 30px 70px -40px var(--aa-accent-bg);
+            transition: border-color 0.35s ease, box-shadow 0.35s ease;
+        }
+
+        .dark .aa2-detail {
+            background: linear-gradient(160deg, rgba(30, 41, 59, 0.38), rgba(15, 23, 42, 0.28));
+        }
+
+        .aa2-detail-num {
+            padding: 0.2rem 0.55rem;
+            border-radius: 0.4rem;
+            background: var(--aa-accent-bg);
+            color: var(--aa-accent-fg);
+            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .aa2-meter {
+            display: flex;
+            height: 0.65rem;
+            overflow: hidden;
+            border-radius: 9999px;
+            background: var(--aa-accent-bg);
+        }
+
+        .aa2-meter span {
+            display: block;
+            border-right: 2px solid rgba(255, 255, 255, 0.9);
+            background: #cbd5e1;
+            transition: width 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .dark .aa2-meter span {
+            border-right-color: #0f172a;
+            background: #475569;
+        }
+
+        @keyframes aa2-fade {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: none; }
+        }
+
+        .aa2-fade { animation: aa2-fade 0.35s ease both; }
+
+        @media (prefers-reduced-motion: reduce) {
+            .aa2-fade { animation: none; }
+            .aa2-bar,
+            .aa2-meter span { transition: none; }
+        }
+
         /* ---- APS matrix stage: the module catalogue as one framed object ---- */
         .lp3-matrix-stage {
             position: relative;
@@ -4819,6 +4994,8 @@
                     analytics_axis_complexity: "Problem Complexity",
                     analytics_band_information: "Information",
                     analytics_band_models: "Models & Optimization",
+                    analytics_zone_erp: "ERP reporting",
+                    analytics_zone_aps: "Operartis APS",
                     analytics_source_note: "Framework inspired by Gartner Analytics Evolvement models",
                     analytics_levels: [
                         { id: 'descriptive', name: 'Descriptive', chartName: 'Desc.', question: 'What happened?', desc: 'Summarize historical performance with dashboards, KPIs and standard reports.', focus: 'Visibility & record-keeping', band: 'information', operartis: 'Baseline visibility across ERP, inventory and production records.' },
@@ -5211,6 +5388,8 @@
                     analytics_axis_complexity: "Độ phức tạp Vấn đề",
                     analytics_band_information: "Thông tin",
                     analytics_band_models: "Mô hình & Tối ưu",
+                    analytics_zone_erp: "Báo cáo ERP",
+                    analytics_zone_aps: "Operartis APS",
                     analytics_source_note: "Khung tham chiếu theo mô hình Sự phát triển của Phân tích dữ liệu của Gartner",
                     analytics_levels: [
                         { id: 'descriptive', name: 'Mô tả', nameShort: 'Mô tả', chartName: 'Mô tả', question: 'Chuyện gì đã xảy ra?', questionShort: 'Đã xảy ra', desc: 'Nắm bắt lịch sử hiệu suất công việc, KPI và các báo cáo được chuẩn hoá.', focus: 'Hiển thị & ghi nhận', band: 'information', operartis: 'Tầm nhìn cơ bản trên dữ liệu ERP, tồn kho và sản xuất.' },
@@ -5603,6 +5782,8 @@
                     analytics_axis_complexity: "Problemkomplexität",
                     analytics_band_information: "Information",
                     analytics_band_models: "Modelle & Optimierung",
+                    analytics_zone_erp: "ERP-Reporting",
+                    analytics_zone_aps: "Operartis APS",
                     analytics_source_note: "Rahmenwerk inspiriert von Gartner Analytics-Reifegradmodellen",
                     analytics_levels: [
                         { id: 'descriptive', name: 'Deskriptiv', chartName: 'Deskr.', question: 'Was ist passiert?', desc: 'Historische Leistung mit Dashboards, KPIs und Standardberichten zusammenfassen.', focus: 'Transparenz & Dokumentation', band: 'information', operartis: 'Grundlegende Transparenz über ERP-, Bestands- und Produktionsdaten.' },
@@ -9453,11 +9634,18 @@
                 const x2 = headRect.left - chartRect.left;
                 const y2 = headRect.top - chartRect.top;
 
+                // Pixel coordinates: the SVG is drawn 1:1, so the arrowhead keeps its shape at any chart size
+                const len = Math.hypot(x2 - x1, y2 - y1) || 1;
+                const ux = (x2 - x1) / len, uy = (y2 - y1) / len;
+                const HEAD = 13, HALF = 5.5, GAP = 3;
+                const tipX = x2 - ux * GAP, tipY = y2 - uy * GAP;         // stop just short of the last bar
+                const baseX = tipX - ux * HEAD, baseY = tipY - uy * HEAD;
                 setArrowLine({
-                    x1: (x1 / chartRect.width) * 100,
-                    y1: (y1 / chartRect.height) * 100,
-                    x2: (x2 / chartRect.width) * 100,
-                    y2: (y2 / chartRect.height) * 100,
+                    w: chartRect.width,
+                    h: chartRect.height,
+                    x1, y1,
+                    x2: baseX, y2: baseY,                                 // the line ends where the head begins
+                    head: `${tipX},${tipY} ${baseX - uy * HALF},${baseY + ux * HALF} ${baseX + uy * HALF},${baseY - ux * HALF}`,
                 });
             }, []);
 
@@ -9482,56 +9670,9 @@
             const humanW = isAutoMode ? ANALYTICS_HUMAN_W_AUTO : ANALYTICS_HUMAN_W[activeIdx];
             const modelW = 100 - humanW;
             const levelTitleClass = ANALYTICS_LEVEL_META[activeIdx].titleClass;
-            const flowCardAccent = 'border bg-white/55 dark:bg-slate-800/50';
             const decisionTypeDetail = isAutoMode
-                ? (ui.analytics_prescriptive_auto_short || ui.analytics_prescriptive_auto)
+                ? (ui.analytics_prescriptive_auto || ui.analytics_prescriptive_auto_short)
                 : ((ui.analytics_decision_types || [])[activeIdx] || activeLevel.focus);
-
-            const flowStages = [
-                {
-                    key: 'analytics',
-                    label: ui.analytics_stage_analytics,
-                    title: activeLevel.name,
-                    detail: activeLevel.question,
-                    accent: flowCardAccent,
-                    titleClass: levelTitleClass,
-                },
-                {
-                    key: 'human',
-                    label: ui.analytics_human_input,
-                    title: ui.analytics_human_vs_model,
-                    detail: isAutoMode ? ui.analytics_model_driven : ui.analytics_human_vs_model,
-                    accent: flowCardAccent,
-                    titleClass: levelTitleClass,
-                    bar: true,
-                },
-                {
-                    key: 'decision',
-                    label: '',
-                    title: ui.analytics_decision_type,
-                    detail: decisionTypeDetail,
-                    accent: isAutoMode
-                        ? 'aa-flow-stage--muted border-slate-200/60 dark:border-slate-700/60 bg-slate-100/50 dark:bg-slate-800/30'
-                        : flowCardAccent,
-                    titleClass: isAutoMode ? 'text-slate-500 dark:text-slate-400' : levelTitleClass,
-                },
-                {
-                    key: 'action',
-                    label: '',
-                    title: ui.analytics_action,
-                    detail: activeLevel.focus,
-                    accent: flowCardAccent,
-                    titleClass: levelTitleClass,
-                },
-                {
-                    key: 'results',
-                    label: '',
-                    title: ui.analytics_results,
-                    detail: activeLevel.desc,
-                    accent: flowCardAccent,
-                    titleClass: levelTitleClass,
-                },
-            ];
 
             return (
                 <section
@@ -9543,196 +9684,150 @@
                         <div className="absolute bottom-0 left-1/4 w-64 h-32 bg-brand-gold/6 rounded-full blur-3xl" />
                     </div>
 
-                    <div className="w-full px-4 sm:px-5 md:px-6 py-5 md:py-6 relative">
-                        <div className="flex flex-wrap items-end justify-end gap-3 mb-4 md:mb-5">
-                            <p className="text-[10px] font-mono uppercase tracking-wider text-slate-400 dark:text-slate-500">{ui.analytics_source_note}</p>
-                        </div>
-
-                        {/* Maturity ladder — full width */}
-                        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 md:p-6 mb-4 md:mb-5 flex justify-center">
-                            <div className="flex items-stretch gap-1 md:gap-2 w-full max-w-[34rem] sm:max-w-[36rem] md:max-w-[38rem]">
-                                <div className="aa-maturity-axis-y-wrap shrink-0 w-6 md:w-8 h-52 md:h-60">
-                                    <span className="aa-maturity-axis-y text-[9px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">{ui.analytics_axis_value} →</span>
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                    <div ref={chartRef} className="aa-maturity-chart relative h-52 md:h-60 border-l border-b border-slate-300 dark:border-slate-600">
-                                        <div className="absolute top-3 left-0 right-0 z-[2] grid grid-cols-4 gap-2 sm:gap-3 px-3 sm:px-4 pointer-events-none">
-                                            <div className="relative h-4">
-                                                <span className="aa-band-label-info absolute right-0 top-0 translate-x-1/2 whitespace-nowrap text-[9px] font-bold uppercase tracking-wider">{ui.analytics_band_information}</span>
-                                            </div>
-                                            <div />
-                                            <div className="relative h-4">
-                                                <span className="absolute right-0 top-0 translate-x-1/2 whitespace-nowrap text-[9px] font-bold uppercase tracking-wider text-brand-gold">{ui.analytics_band_models}</span>
-                                            </div>
-                                            <div />
-                                        </div>
-                                        <div className="absolute inset-0 z-[2] grid grid-cols-4 items-stretch gap-1 sm:gap-2 md:gap-3 px-2 sm:px-3 md:px-4 pb-1 pt-8">
-                                            {levels.map((level, i) => {
-                                                const meta = ANALYTICS_LEVEL_META[i];
-                                                return (
-                                                    <div
-                                                        key={level.id}
-                                                        className="flex h-full flex-col items-center justify-end w-full min-w-0 max-w-none md:max-w-[5rem] mx-auto gap-1 sm:gap-2"
-                                                    >
-                                                        <div className="flex flex-1 w-full min-h-0 items-end">
-                                                            <div
-                                                                ref={i === 0 ? descriptiveBarRef : i === 3 ? prescriptiveBarRef : null}
-                                                                className={`aa-bar w-full rounded-t-md ${meta.barFlat}`}
-                                                                style={{ height: `${meta.barH}%` }}
-                                                            />
-                                                        </div>
-                                                        <span className="aa-maturity-bar-label shrink-0 text-[9px] md:text-[10px] font-bold uppercase tracking-[0.03em] md:tracking-wide text-slate-600 dark:text-slate-400" title={level.name}>
-                                                            <span className="md:hidden">{level.chartName || level.name}</span>
-                                                            <span className="hidden md:inline">{level.name}</span>
-                                                        </span>
-                                                    </div>
-                                                );
-                                            })}
-                                        </div>
-                                        {arrowLine && (
-                                            <svg className="aa-maturity-arrow-svg absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-                                                <defs>
-                                                    <marker id="aa-maturity-arrowhead" markerWidth="8" markerHeight="8" refX="8" refY="4" orient="auto">
-                                                        <path d="M0,0 L8,4 L0,8 Z" fill="#f59e0b" />
-                                                    </marker>
-                                                </defs>
-                                                <line
-                                                    className="aa-maturity-arrow-line"
-                                                    x1={arrowLine.x1}
-                                                    y1={arrowLine.y1}
-                                                    x2={arrowLine.x2}
-                                                    y2={arrowLine.y2}
-                                                    stroke="#f59e0b"
-                                                    strokeWidth="2"
-                                                    markerEnd="url(#aa-maturity-arrowhead)"
-                                                    vectorEffect="non-scaling-stroke"
-                                                />
-                                            </svg>
-                                        )}
+                    <div className="w-full px-4 sm:px-6 md:px-8 py-6 md:py-8 relative">
+                        <div className="grid lg:grid-cols-12 gap-5 md:gap-6 items-stretch">
+                            {/* Staircase — the four levels are the tabs */}
+                            <div className="lg:col-span-7 flex flex-col rounded-2xl border border-slate-200/80 dark:border-white/10 bg-white/45 dark:bg-slate-900/35 backdrop-blur-sm p-4 sm:p-5 md:p-6">
+                                <p className="mb-4 text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">{ui.analytics_tap_hint}</p>
+                                <div className="flex flex-1 items-stretch gap-1 md:gap-2">
+                                    <div className="aa-maturity-axis-y-wrap shrink-0 w-5 md:w-7">
+                                        <span className="aa-maturity-axis-y text-[9px] md:text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">{ui.analytics_axis_value} →</span>
                                     </div>
-                                    <p className="text-center mt-2">
-                                        <span className="text-[9px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">{ui.analytics_axis_complexity} →</span>
-                                    </p>
+                                    <div className="flex-1 min-w-0">
+                                        <div ref={chartRef} className="aa-maturity-chart relative h-64 md:h-80 border-l border-b border-slate-300 dark:border-slate-600" role="tablist" aria-label={ui.analytics_tap_hint}>
+                                            <div className="aa2-zone aa2-zone--info" aria-hidden="true">
+                                                <span className="aa2-zone-label">{ui.analytics_band_information}</span>
+                                                <span className="aa2-zone-sub">{ui.analytics_zone_erp}</span>
+                                            </div>
+                                            <div className="aa2-zone aa2-zone--models" aria-hidden="true">
+                                                <span className="aa2-zone-label">{ui.analytics_band_models}</span>
+                                                <span className="aa2-zone-sub">{ui.analytics_zone_aps}</span>
+                                            </div>
+                                            <div className="absolute inset-0 z-[2] grid grid-cols-4 items-stretch gap-2 sm:gap-3 md:gap-5 px-2 sm:px-4 md:px-6 pt-14">
+                                                {levels.map((level, i) => {
+                                                    const meta = ANALYTICS_LEVEL_META[i];
+                                                    const isLevelActive = activeIdx === i;
+                                                    return (
+                                                        <button
+                                                            key={level.id}
+                                                            type="button"
+                                                            role="tab"
+                                                            aria-selected={isLevelActive}
+                                                            aria-label={`${level.name}: ${level.question}`}
+                                                            onClick={() => setActiveIdx(i)}
+                                                            className={`aa2-step ${isLevelActive ? 'is-active' : ''}`}
+                                                        >
+                                                            <span className="flex flex-1 w-full min-h-0 items-end">
+                                                                <span
+                                                                    ref={i === 0 ? descriptiveBarRef : i === 3 ? prescriptiveBarRef : null}
+                                                                    className={`aa-bar aa2-bar block w-full rounded-t-lg ${meta.barFlat}`}
+                                                                    style={{ height: `${meta.barH}%` }}
+                                                                >
+                                                                    <span className="aa2-bar-num">{String(i + 1).padStart(2, '0')}</span>
+                                                                </span>
+                                                            </span>
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
+                                            {arrowLine && (
+                                                <svg className="aa-maturity-arrow-svg absolute inset-0 w-full h-full" viewBox={`0 0 ${arrowLine.w} ${arrowLine.h}`} aria-hidden="true">
+                                                    <line
+                                                        className="aa-maturity-arrow-line"
+                                                        x1={arrowLine.x1}
+                                                        y1={arrowLine.y1}
+                                                        x2={arrowLine.x2}
+                                                        y2={arrowLine.y2}
+                                                        stroke="#f59e0b"
+                                                        strokeWidth="2"
+                                                    />
+                                                    <polygon points={arrowLine.head} fill="#f59e0b" stroke="#f59e0b" strokeWidth="1" strokeLinejoin="round" />
+                                                </svg>
+                                            )}
+                                        </div>
+                                        <div className="grid grid-cols-4 gap-2 sm:gap-3 md:gap-5 px-2 sm:px-4 md:px-6 mt-2.5" aria-hidden="true">
+                                            {levels.map((level, i) => (
+                                                <span key={level.id} className={`aa2-step-label ${activeIdx === i ? 'is-active' : ''}`}>
+                                                    <span className="sm:hidden">{level.chartName || level.name}</span>
+                                                    <span className="hidden sm:inline">{level.name}</span>
+                                                </span>
+                                            ))}
+                                        </div>
+                                        <p className="mt-3 text-center text-[9px] md:text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">{ui.analytics_axis_complexity} →</p>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
 
-                        {/* From Data to Outcomes — split into readable sub-panels */}
-                        <div className="mb-8 md:mb-10 space-y-4 md:space-y-5">
-                            <div className="px-1">
-                                <h3 className="text-base md:text-lg font-bold text-slate-800 dark:text-slate-100 mb-1">{ui.analytics_pipeline_title}</h3>
-                                <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed max-w-3xl">{ui.analytics_pipeline_desc}</p>
-                            </div>
-
-                            {/* Sub-panel 1: Data foundation */}
-                            <div className="rounded-xl border border-slate-200/70 dark:border-slate-800/80 bg-white/50 dark:bg-slate-900/40 backdrop-blur-sm p-5 md:p-6">
-                                <h4 className="text-sm font-bold text-slate-800 dark:text-slate-100 mb-1">{ui.analytics_data_foundation}</h4>
-                                <p className="text-xs md:text-sm text-slate-600 dark:text-slate-400 leading-relaxed mb-5 max-w-2xl">{ui.analytics_data_foundation_desc}</p>
-                                <div className="grid sm:grid-cols-3 gap-3 md:gap-4">
+                                {/* Data foundation, as one line under the chart */}
+                                <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-dashed border-slate-200 pt-4 dark:border-slate-700">
+                                    <span className="mr-1 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">{ui.analytics_data_foundation}</span>
                                     {ui.analytics_sources.map((src, i) => {
                                         const Icon = ANALYTICS_SOURCE_ICONS[i];
                                         return (
-                                            <div key={i} className="rounded-xl border border-slate-200/80 dark:border-slate-700/80 bg-white/70 dark:bg-slate-900/60 px-4 py-4 md:py-5 flex flex-col items-center text-center gap-3">
-                                                <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300">
-                                                    <Icon />
-                                                </div>
-                                                <span className="text-xs font-bold uppercase tracking-wide text-slate-700 dark:text-slate-200 leading-snug">{src}</span>
-                                            </div>
+                                            <span key={i} className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-bold text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 [&_svg]:h-3.5 [&_svg]:w-3.5">
+                                                <Icon />{src}
+                                            </span>
                                         );
                                     })}
-                                </div>
-                                <div className="flex flex-col items-center gap-3 mt-6 pt-6 border-t border-dashed border-slate-200 dark:border-slate-700">
-                                    <span className="text-slate-400 text-lg" aria-hidden="true">↓</span>
-                                    <span className="inline-flex items-center px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide bg-sky-500/12 text-sky-800 dark:text-sky-200 border border-sky-500/25">{ui.analytics_raw_data}</span>
+                                    <span className="text-slate-400" aria-hidden="true">→</span>
+                                    <span className="inline-flex items-center rounded-full border border-sky-500/30 bg-sky-500/10 px-2.5 py-1 text-[11px] font-bold text-sky-800 dark:text-sky-200">{ui.analytics_raw_data}</span>
                                 </div>
                             </div>
 
-                            {/* Sub-panel 2: Active analytics flow */}
-                            <div className="rounded-xl border border-slate-200/70 dark:border-slate-800/80 bg-white/50 dark:bg-slate-900/40 backdrop-blur-sm p-4 md:p-6">
-                                <div className="mb-4 md:mb-5">
-                                    <h4 className="text-sm font-bold text-slate-800 dark:text-slate-100 mb-1">{ui.analytics_active_flow}</h4>
-                                    <p className="text-xs md:text-sm text-slate-600 dark:text-slate-400 leading-relaxed max-w-2xl">{ui.analytics_active_flow_desc}</p>
+                            {/* Detail of the selected level */}
+                            <div className={`lg:col-span-5 aa2-detail aa-flow-accent-${activeIdx} flex flex-col rounded-2xl border p-5 md:p-7`} role="tabpanel" aria-live="polite">
+                                <div key={`head-${activeIdx}`} className="aa2-fade">
+                                    <div className="flex items-center gap-3">
+                                        <span className="aa2-detail-num">{String(activeIdx + 1).padStart(2, '0')} / {String(levels.length).padStart(2, '0')}</span>
+                                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">{activeIdx < 2 ? ui.analytics_band_information : ui.analytics_band_models}</span>
+                                    </div>
+                                    <h3 className={`mt-4 text-2xl md:text-3xl font-black tracking-tight ${levelTitleClass}`}>{activeLevel.name}</h3>
+                                    <p className="mt-1 text-lg md:text-xl font-semibold leading-snug text-slate-800 dark:text-slate-100">{activeLevel.question}</p>
                                 </div>
 
-                                <div className="aa-chevron-track" role="tablist" aria-label={ui.analytics_tap_hint}>
-                                    {levels.map((level, i) => {
-                                        const meta = ANALYTICS_LEVEL_META[i];
-                                        const isLevelActive = activeIdx === i;
-                                        return (
+                                {isPrescriptive && (
+                                    <div className="mt-4 inline-flex self-start rounded-full border border-slate-300 p-0.5 dark:border-white/15">
+                                        {[['support', ui.analytics_prescriptive_support], ['auto', ui.analytics_prescriptive_auto]].map(([mode, label]) => (
                                             <button
-                                                key={level.id}
+                                                key={mode}
                                                 type="button"
-                                                role="tab"
-                                                aria-selected={isLevelActive}
-                                                onClick={() => setActiveIdx(i)}
-                                                className={`aa-chevron-seg ${isLevelActive ? `aa-chevron-seg-active ${meta.chevronActive}` : 'aa-chevron-seg-inactive'}`}
+                                                onClick={() => setPrescriptiveMode(mode)}
+                                                aria-pressed={prescriptiveMode === mode}
+                                                className={`rounded-full px-3 py-2 text-[11px] font-bold transition-colors ${prescriptiveMode === mode ? 'bg-brand-gold text-white' : 'text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white'}`}
                                             >
-                                                <p className="text-[10px] sm:text-[9px] font-bold uppercase tracking-normal sm:tracking-wider mb-0.5 truncate opacity-80">{level.name}</p>
-                                                <p className="text-xs md:text-sm font-bold leading-tight line-clamp-2">{level.question}</p>
+                                                {label}
                                             </button>
-                                        );
-                                    })}
+                                        ))}
+                                    </div>
+                                )}
+
+                                {/* Human vs model: the gold share grows with each level */}
+                                <div className="mt-6">
+                                    <div className="flex justify-between gap-3 text-[10px] font-bold uppercase tracking-wider">
+                                        <span className="text-slate-500 dark:text-slate-400">{ui.analytics_human_input} {humanW}%</span>
+                                        <span className={levelTitleClass}>{ui.analytics_model_driven} {modelW}%</span>
+                                    </div>
+                                    <div className="aa2-meter mt-2" aria-hidden="true"><span style={{ width: `${humanW}%` }}></span></div>
                                 </div>
 
-                                <div className={`aa-flow-stage-grid aa-flow-accent-${activeIdx}`}>
-                                    {flowStages.map((stage, stageIndex) => (
-                                        <div key={stage.key} className={`aa-flow-stage aa-flow-connector ${stage.key === 'results' ? 'aa-flow-stage-results' : ''} rounded-lg border py-3 pl-4 pr-3 md:py-4 md:pl-5 md:pr-4 ${stage.accent} aa-flow-stage-active`}>
-                                            <div className="aa-flow-stage-head">
-                                                <div className="min-w-0">
-                                                    <p className={`aa-flow-stage-title text-sm lg:text-base font-bold ${stage.titleClass}`}>{stage.title}</p>
-                                                </div>
-                                                <span className="aa-flow-stage-index" aria-hidden="true">{String(stageIndex + 1).padStart(2, '0')}</span>
-                                            </div>
-                                            <div className="aa-flow-stage-body">
-                                                {stage.bar ? (
-                                                    <div className="flex h-full flex-col">
-                                                        <div className="aa-human-meter shrink-0" aria-hidden="true">
-                                                            <div className="aa-human-bar aa-human-bar-fill h-full" style={{ width: `${humanW}%` }} />
-                                                            <div className="aa-human-meter-model" />
-                                                        </div>
-                                                        <div className="aa-flow-stage-bar-labels mt-2 grid grid-cols-2 gap-2 overflow-hidden">
-                                                            <span className="aa-human-label text-[9px] font-semibold uppercase tracking-wide leading-tight">{ui.analytics_human_input_short || ui.analytics_human_input} {humanW}%</span>
-                                                            <span className="text-[9px] font-semibold uppercase tracking-wide leading-tight text-slate-500 dark:text-slate-400 text-right">{ui.analytics_model_driven_short || ui.analytics_model_driven} {modelW}%</span>
-                                                        </div>
-                                                    </div>
-                                                ) : stage.key === 'analytics' && isPrescriptive ? (
-                                                    <>
-                                                        <p className="aa-flow-stage-detail text-xs text-slate-600 dark:text-slate-400 leading-relaxed line-clamp-3">{stage.detail}</p>
-                                                        <div className="aa-prescriptive-toggle mt-2 rounded-md border p-0.5 bg-white/90 dark:bg-slate-900/90 w-full">
-                                                            <button
-                                                                type="button"
-                                                                onClick={() => setPrescriptiveMode('support')}
-                                                                aria-label={ui.analytics_prescriptive_support}
-                                                                title={ui.analytics_prescriptive_support}
-                                                                className={`aa-prescriptive-toggle-button px-1.5 py-1 rounded text-[9px] font-bold uppercase tracking-wide leading-tight transition-colors ${prescriptiveMode === 'support' ? 'is-active' : 'text-slate-600 dark:text-slate-300'}`}
-                                                            >
-                                                                {ui.analytics_prescriptive_support_short || ui.analytics_prescriptive_support}
-                                                            </button>
-                                                            <button
-                                                                type="button"
-                                                                onClick={() => setPrescriptiveMode('auto')}
-                                                                aria-label={ui.analytics_prescriptive_auto}
-                                                                title={ui.analytics_prescriptive_auto}
-                                                                className={`aa-prescriptive-toggle-button px-1.5 py-1 rounded text-[9px] font-bold uppercase tracking-wide leading-tight transition-colors ${prescriptiveMode === 'auto' ? 'is-active' : 'text-slate-600 dark:text-slate-300'}`}
-                                                            >
-                                                                {ui.analytics_prescriptive_auto_short || ui.analytics_prescriptive_auto}
-                                                            </button>
-                                                        </div>
-                                                    </>
-                                                ) : (
-                                                    <p className="aa-flow-stage-detail text-xs text-slate-600 dark:text-slate-400 leading-relaxed line-clamp-3 md:line-clamp-4">{stage.detail}</p>
-                                                )}
-                                            </div>
+                                <dl key={`rows-${activeIdx}-${prescriptiveMode}`} className="aa2-fade mt-6 divide-y divide-slate-200/80 border-t border-slate-200/80 dark:divide-white/10 dark:border-white/10">
+                                    {[[ui.analytics_decision_type, decisionTypeDetail], [ui.analytics_action, activeLevel.focus], [ui.analytics_results, activeLevel.desc]].map(([term, detail], i) => (
+                                        <div key={i} className="grid grid-cols-[6.5rem_1fr] gap-3 py-3">
+                                            <dt className="pt-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">{term}</dt>
+                                            <dd className="text-sm leading-relaxed text-slate-700 dark:text-slate-300">{detail}</dd>
                                         </div>
                                     ))}
-                                </div>
+                                </dl>
                             </div>
                         </div>
 
-                        <div className="rounded-xl border border-brand-gold/30 bg-gradient-to-r from-brand-gold/8 via-transparent to-brand-gold/5 dark:from-brand-gold/12 px-5 py-4 md:px-6 md:py-5">
-                            <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 mb-2">{ui.analytics_operartis_title}</h3>
-                            <p className="text-xs md:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">{ui.analytics_operartis_desc}</p>
+                        <div className="mt-5 md:mt-6 flex flex-col gap-3 rounded-2xl border border-brand-gold/40 bg-gradient-to-r from-brand-gold/15 via-brand-gold/5 to-transparent px-5 py-4 sm:flex-row sm:items-center sm:gap-5 md:px-7 md:py-5">
+                            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-gold text-white [&_svg]:h-5 [&_svg]:w-5" aria-hidden="true"><ActivityIcon /></span>
+                            <div>
+                                <h3 className="text-sm md:text-base font-bold text-slate-900 dark:text-white">{ui.analytics_operartis_title}</h3>
+                                <p className="mt-1 text-xs md:text-sm leading-relaxed text-slate-600 dark:text-slate-300">{ui.analytics_operartis_desc}</p>
+                            </div>
                         </div>
+                        <p className="mt-4 text-right text-[10px] font-mono uppercase tracking-wider text-slate-400 dark:text-slate-500">{ui.analytics_source_note}</p>
                     </div>
                 </section>
             );
