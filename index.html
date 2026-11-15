@@ -5003,8 +5003,7 @@
         }
 
         .fcp-steps {
-            display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
+            display: flex;
             gap: 6px;
             padding: 11px 12px 0;
         }
@@ -5012,6 +5011,7 @@
         .fcp-step {
             position: relative;
             display: flex;
+            flex: 1 1 auto;
             min-width: 0;
             align-items: baseline;
             gap: 4px;
@@ -5195,6 +5195,101 @@
             opacity: 1;
             transition-delay: 1.5s;
         }
+
+        /* Inventory preview: demand, then the (s, S) policy, then the simulated stock level */
+        .ivp-dbar {
+            fill: #94a3b8;
+            transform-box: fill-box;
+            transform-origin: 50% 100%;
+            transform: scaleY(0);
+            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .dark .ivp-dbar { fill: #64748b; }
+        .fcp:not([data-phase="reset"]) .ivp-dbar { transform: scaleY(1); }
+
+        .ivp-rule {
+            transform-box: fill-box;
+            transform-origin: 0% 50%;
+            transform: scaleX(0);
+            transition: transform 0.9s cubic-bezier(0.65, 0, 0.35, 1);
+        }
+
+        .ivp-rule line { stroke-width: 1.4; stroke-dasharray: 4 3; }
+        .ivp-rule--s line { stroke: #d97706; }
+        .ivp-rule--S line { stroke: #6366f1; }
+        .dark .ivp-rule--s line { stroke: #f59e0b; }
+        .dark .ivp-rule--S line { stroke: #818cf8; }
+        .ivp-rule--S { transition-delay: 0.25s; }
+
+        .ivp-rule text {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 10px;
+            font-weight: 800;
+        }
+
+        .ivp-rule--s text { fill: #b45309; }
+        .ivp-rule--S text { fill: #4f46e5; }
+        .dark .ivp-rule--s text { fill: #fbbf24; }
+        .dark .ivp-rule--S text { fill: #a5b4fc; }
+
+        .fcp[data-phase="model"] .ivp-rule,
+        .fcp[data-phase="forecast"] .ivp-rule,
+        .fcp[data-phase="out"] .ivp-rule { transform: scaleX(1); }
+
+        .ivp-level {
+            fill: none;
+            stroke: #b45309;
+            stroke-width: 2;
+            stroke-linejoin: round;
+            stroke-linecap: round;
+            stroke-dasharray: 1 1;
+            stroke-dashoffset: 1;
+            opacity: 0;
+            transition: stroke-dashoffset var(--ivp-draw, 3s) linear, opacity 0.15s linear;
+        }
+
+        .dark .ivp-level { stroke: #fbbf24; }
+
+        .ivp-area {
+            fill: rgba(245, 158, 11, 0.14);
+            opacity: 0;
+            transition: opacity 0.6s ease var(--ivp-draw, 3s);
+        }
+
+        .ivp-order {
+            fill: #d97706;
+            stroke: #ffffff;
+            stroke-width: 1.5;
+            transform-box: fill-box;
+            transform-origin: center;
+            transform: scale(0);
+            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .dark .ivp-order { fill: #f59e0b; stroke: #0f172a; }
+
+        .ivp-arrive {
+            fill: #10b981;
+            transform-box: fill-box;
+            transform-origin: 50% 100%;
+            transform: scaleY(0);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .dark .ivp-arrive { fill: #34d399; }
+
+        .fcp[data-phase="forecast"] .ivp-level,
+        .fcp[data-phase="out"] .ivp-level { stroke-dashoffset: 0; opacity: 1; }
+
+        .fcp[data-phase="forecast"] .ivp-area,
+        .fcp[data-phase="out"] .ivp-area { opacity: 1; }
+
+        .fcp[data-phase="forecast"] .ivp-order,
+        .fcp[data-phase="out"] .ivp-order { transform: scale(1); }
+
+        .fcp[data-phase="forecast"] .ivp-arrive,
+        .fcp[data-phase="out"] .ivp-arrive { transform: scaleY(1); }
 
         @keyframes fcp-ring {
             0% { transform: scale(0.6); opacity: 0.9; }
@@ -5893,6 +5988,9 @@
                     fcp_model: "Model",
                     fcp_forecast: "Forecast",
                     fcp_today: "Today",
+                    ivp_data: "Demand",
+                    ivp_model: "Policy",
+                    ivp_forecast: "Simulate",
                     nav_supply_chain: "Supply Chain",
                     nav_industry_40: "Industry 4.0",
                     nav_platform: "Platform",
@@ -6294,6 +6392,9 @@
                     fcp_model: "Mô hình",
                     fcp_forecast: "Dự báo",
                     fcp_today: "Hôm nay",
+                    ivp_data: "Nhu cầu",
+                    ivp_model: "Chính sách",
+                    ivp_forecast: "Mô phỏng",
                     nav_supply_chain: "Chuỗi cung ứng",
                     nav_industry_40: "Công nghiệp 4.0",
                     nav_platform: "Nền tảng",
@@ -6695,6 +6796,9 @@
                     fcp_model: "Modell",
                     fcp_forecast: "Prognose",
                     fcp_today: "Heute",
+                    ivp_data: "Nachfrage",
+                    ivp_model: "Regel",
+                    ivp_forecast: "Simulation",
                     nav_supply_chain: "Lieferkette",
                     nav_industry_40: "Industry 4.0",
                     nav_platform: "Plattform",
@@ -6925,10 +7029,10 @@
         };
 
         // ModulaBlock — glass app tile with Quick View overlay
-        // Previews inside live blocks: an animated forecasting sketch for demand, product screenshots elsewhere
+        // Animated previews inside live blocks (a product screenshot still works: { file, pos })
         const BLOCK_SHOTS = {
-            forecaster: { animated: true },
-            inventory: { file: 'blog-inventory-simulation.png', pos: '74% 70%' },
+            forecaster: { animated: 'forecast' },
+            inventory: { animated: 'inventory' },
         };
         const blockHasLive = (block) => (Array.isArray(block && block.subModules) ? block.subModules : [])
             .some(id => (MODULE_STATIC_DATA[id] || {}).status === 'live');
@@ -6943,21 +7047,12 @@
                 future: Array.from({ length: 9 }, (_, k) => ({ mid: level(24 + k), half: 2.5 + 1.25 * (k + 1) })),
             };
         })();
-        const FCP_ORDER = ['reset', 'data', 'model', 'forecast', 'out'];
+        // Shared by the animated block previews: a phase loop (reset -> data -> model -> forecast -> out)
+        // that runs only while the preview is on screen, plus the preview's measured pixel size.
+        const PREVIEW_ORDER = ['reset', 'data', 'model', 'forecast', 'out'];
         const FCP_MS = { reset: 120, data: 2300, model: 2100, forecast: 3900, out: 450 };
 
-        // Smooth curve through points (Catmull-Rom as cubic Béziers)
-        const fcpSmooth = (pts) => pts.map((p, i) => {
-            if (i === 0) return `M${p[0].toFixed(1)},${p[1].toFixed(1)}`;
-            const p0 = pts[i - 2] || pts[i - 1];
-            const p1 = pts[i - 1];
-            const p3 = pts[i + 1] || p;
-            const c1 = [p1[0] + (p[0] - p0[0]) / 6, p1[1] + (p[1] - p0[1]) / 6];
-            const c2 = [p[0] - (p3[0] - p1[0]) / 6, p[1] - (p3[1] - p1[1]) / 6];
-            return `C${c1[0].toFixed(1)},${c1[1].toFixed(1)} ${c2[0].toFixed(1)},${c2[1].toFixed(1)} ${p[0].toFixed(1)},${p[1].toFixed(1)}`;
-        }).join(' ');
-
-        const ForecastPreview = ({ ui }) => {
+        const usePreviewLoop = (ms) => {
             const rootRef = useRef(null);
             const chartRef = useRef(null);
             const [size, setSize] = useState(null);
@@ -6995,13 +7090,46 @@
             useEffect(() => {
                 if (reduced || !running) return undefined;
                 const timer = setTimeout(() => {
-                    setPhase(prev => FCP_ORDER[(FCP_ORDER.indexOf(prev) + 1) % FCP_ORDER.length]);
-                }, FCP_MS[phase]);
+                    setPhase(prev => PREVIEW_ORDER[(PREVIEW_ORDER.indexOf(prev) + 1) % PREVIEW_ORDER.length]);
+                }, ms[phase]);
                 return () => clearTimeout(timer);
-            }, [phase, running, reduced]);
+            }, [phase, running, reduced, ms]);
 
-            const steps = [['data', ui.fcp_data], ['model', ui.fcp_model], ['forecast', ui.fcp_forecast]];
-            const current = phase === 'out' ? 3 : steps.findIndex(([key]) => key === phase);
+            return { rootRef, chartRef, size, phase };
+        };
+
+        // Step tabs above a preview; labels follow the three working phases
+        const PreviewSteps = ({ labels, phase, ms }) => {
+            const keys = ['data', 'model', 'forecast'];
+            const current = phase === 'out' ? 3 : keys.indexOf(phase);
+            return (
+                <div className="fcp-steps">
+                    {keys.map((key, i) => (
+                        <span
+                            key={key}
+                            className={`fcp-step${i === current ? ' is-active' : ''}${i < current ? ' is-done' : ''}`}
+                            style={{ '--fcp-dur': `${ms[key]}ms` }}
+                        >
+                            <b>{i + 1}</b><span>{labels[i]}</span>
+                        </span>
+                    ))}
+                </div>
+            );
+        };
+
+        // Smooth curve through points (Catmull-Rom as cubic Béziers)
+        const fcpSmooth = (pts) => pts.map((p, i) => {
+            if (i === 0) return `M${p[0].toFixed(1)},${p[1].toFixed(1)}`;
+            const p0 = pts[i - 2] || pts[i - 1];
+            const p1 = pts[i - 1];
+            const p3 = pts[i + 1] || p;
+            const c1 = [p1[0] + (p[0] - p0[0]) / 6, p1[1] + (p[1] - p0[1]) / 6];
+            const c2 = [p[0] - (p3[0] - p1[0]) / 6, p[1] - (p3[1] - p1[1]) / 6];
+            return `C${c1[0].toFixed(1)},${c1[1].toFixed(1)} ${c2[0].toFixed(1)},${c2[1].toFixed(1)} ${p[0].toFixed(1)},${p[1].toFixed(1)}`;
+        }).join(' ');
+
+        const ForecastPreview = ({ ui }) => {
+            const { rootRef, chartRef, size, phase } = usePreviewLoop(FCP_MS);
 
             let scene = null;
             if (size) {
@@ -7059,17 +7187,134 @@
 
             return (
                 <div className="fcp" data-phase={phase} ref={rootRef}>
-                    <div className="fcp-steps">
-                        {steps.map(([key, label], i) => (
-                            <span
-                                key={key}
-                                className={`fcp-step${i === current ? ' is-active' : ''}${i < current ? ' is-done' : ''}`}
-                                style={{ '--fcp-dur': `${FCP_MS[key]}ms` }}
-                            >
-                                <b>{i + 1}</b><span>{label}</span>
-                            </span>
-                        ))}
-                    </div>
+                    <PreviewSteps labels={[ui.fcp_data, ui.fcp_model, ui.fcp_forecast]} phase={phase} ms={FCP_MS} />
+                    <div className="fcp-chart" ref={chartRef}>{scene}</div>
+                </div>
+            );
+        };
+
+        // Animated preview for the inventory block: daily demand -> an (s, S) reorder rule -> the simulated stock level,
+        // with orders placed when stock reaches s and deliveries arriving after the lead time
+        const IVP_MS = { reset: 120, data: 1900, model: 1700, forecast: 4600, out: 450 };
+        const IVP_DATA = (() => {
+            const demand = [6, 5, 8, 7, 4, 6, 9, 5, 7, 6, 8, 4, 5, 7, 9, 6, 5, 8, 6, 7, 4, 6, 8, 5, 7, 9, 5, 6, 7, 8, 4, 6, 5, 7, 8, 6];
+            const s = 38, S = 100, lead = 3;
+            let onHand = 92;
+            let pipeline = [];
+            const steps = [];
+            demand.forEach((d, t) => {
+                const received = pipeline.filter(o => o.arrive === t).reduce((sum, o) => sum + o.qty, 0);
+                pipeline = pipeline.filter(o => o.arrive !== t);
+                const start = onHand;
+                onHand += received;
+                const top = onHand;
+                onHand = Math.max(0, onHand - d);
+                const position = onHand + pipeline.reduce((sum, o) => sum + o.qty, 0);
+                const order = position <= s;
+                if (order) pipeline.push({ arrive: t + lead, qty: S - position });
+                steps.push({ start, top, end: onHand, received, order });
+            });
+            return { demand, steps, s, S };
+        })();
+
+        const InventoryPreview = ({ ui }) => {
+            const { rootRef, chartRef, size, phase } = usePreviewLoop(IVP_MS);
+            const draw = 3200;
+
+            let scene = null;
+            if (size) {
+                const { w, h } = size;
+                const { demand, steps, s, S } = IVP_DATA;
+                const padL = 22, padR = 12, padT = 14, padB = 8;
+                const n = demand.length;
+                const slotW = (w - padL - padR) / n;
+                const stripH = Math.max(18, h * 0.17);
+                const stripBase = h - padB;
+                const zeroY = stripBase - stripH - 9;
+                const yMax = S * 1.1;
+                const x = (t) => padL + slotW * t;
+                const y = (v) => padT + (1 - v / yMax) * (zeroY - padT);
+                const dMax = Math.max(...demand);
+
+                // Stock level as a sawtooth: jump up on delivery, fall with demand across the period
+                const pts = [[x(0), y(steps[0].start)]];
+                const marks = [];
+                steps.forEach((st, t) => {
+                    if (st.received) {
+                        marks.push({ kind: 'arrive', idx: pts.length - 1, t, from: st.start, to: st.top });
+                        pts.push([x(t), y(st.top)]);
+                    }
+                    pts.push([x(t + 1), y(st.end)]);
+                    if (st.order) marks.push({ kind: 'order', idx: pts.length - 1, t, level: st.end });
+                });
+                const cum = [0];
+                for (let i = 1; i < pts.length; i++) {
+                    cum.push(cum[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
+                }
+                const total = cum[cum.length - 1] || 1;
+                const at = (idx) => Math.round((cum[idx] / total) * draw);
+                const linePath = pts.map((p, i) => `${i ? 'L' : 'M'}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ');
+                const areaPath = `${linePath} L${pts[pts.length - 1][0].toFixed(1)},${zeroY} L${pts[0][0].toFixed(1)},${zeroY} Z`;
+                const barW = Math.max(1.5, slotW * 0.56);
+                const ruleEnd = w - padR;
+
+                scene = (
+                    <svg viewBox={`0 0 ${w} ${h}`} width={w} height={h} aria-hidden="true" style={{ '--ivp-draw': `${draw}ms` }}>
+                        <g className="fcp-scene">
+                            <line className="fcp-axis" x1={padL - 4} y1={zeroY} x2={ruleEnd + 4} y2={zeroY} />
+                            <line className="fcp-axis" x1={padL - 4} y1={stripBase} x2={ruleEnd + 4} y2={stripBase} />
+                            {demand.map((d, t) => (
+                                <rect
+                                    key={t}
+                                    className="ivp-dbar"
+                                    x={x(t) + (slotW - barW) / 2}
+                                    y={stripBase - (d / dMax) * stripH}
+                                    width={barW}
+                                    height={(d / dMax) * stripH}
+                                    rx={Math.min(1, barW / 3)}
+                                    style={{ transitionDelay: `${t * 38}ms` }}
+                                />
+                            ))}
+                            <path className="ivp-area" d={areaPath} />
+                            <g className="ivp-rule ivp-rule--S">
+                                <line x1={padL} y1={y(S)} x2={ruleEnd} y2={y(S)} />
+                                <text x={padL - 7} y={y(S) + 3.5} textAnchor="end">S</text>
+                            </g>
+                            <g className="ivp-rule ivp-rule--s">
+                                <line x1={padL} y1={y(s)} x2={ruleEnd} y2={y(s)} />
+                                <text x={padL - 7} y={y(s) + 3.5} textAnchor="end">s</text>
+                            </g>
+                            <path className="ivp-level" d={linePath} pathLength="1" />
+                            {marks.filter(m => m.kind === 'arrive').map(m => (
+                                <rect
+                                    key={`a${m.t}`}
+                                    className="ivp-arrive"
+                                    x={x(m.t) - 1.5}
+                                    y={y(m.to)}
+                                    width="3"
+                                    height={Math.max(0, y(m.from) - y(m.to))}
+                                    rx="1"
+                                    style={{ transitionDelay: `${at(m.idx)}ms` }}
+                                />
+                            ))}
+                            {marks.filter(m => m.kind === 'order').map(m => (
+                                <circle
+                                    key={`o${m.t}`}
+                                    className="ivp-order"
+                                    cx={x(m.t + 1)}
+                                    cy={y(m.level)}
+                                    r="3.2"
+                                    style={{ transitionDelay: `${at(m.idx)}ms` }}
+                                />
+                            ))}
+                        </g>
+                    </svg>
+                );
+            }
+
+            return (
+                <div className="fcp" data-phase={phase} ref={rootRef}>
+                    <PreviewSteps labels={[ui.ivp_data, ui.ivp_model, ui.ivp_forecast]} phase={phase} ms={IVP_MS} />
                     <div className="fcp-chart" ref={chartRef}>{scene}</div>
                 </div>
             );
@@ -7329,9 +7574,9 @@
 
                         {shot && (
                             <div className={`card-visible-content lp3-block-shot${shot.animated ? ' lp3-block-shot--anim' : ''} mt-4 sm:mt-0 sm:w-[46%] shrink-0`} aria-hidden="true">
-                                {shot.animated
-                                    ? <ForecastPreview ui={content.ui} />
-                                    : <span style={{ backgroundImage: `url('./assets/${shot.file}')`, backgroundPosition: shot.pos }}></span>}
+                                {shot.animated === 'forecast' && <ForecastPreview ui={content.ui} />}
+                                {shot.animated === 'inventory' && <InventoryPreview ui={content.ui} />}
+                                {!shot.animated && <span style={{ backgroundImage: `url('./assets/${shot.file}')`, backgroundPosition: shot.pos }}></span>}
                             </div>
                         )}
                     </div>
