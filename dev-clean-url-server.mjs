@@ -19,8 +19,10 @@ const cleanRoutes = new Set([
   'index',
   'inventory',
   'mlforecaster',
+  'privacy',
   'reset-password',
   'terminal',
+  'terms',
 ]);
 
 const mimeTypes = {
