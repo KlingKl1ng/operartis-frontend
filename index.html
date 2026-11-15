@@ -4657,7 +4657,7 @@
                     decisions_answered_by: "Answered by",
                     decisions_items: [
                         { module: 'forecaster', tag: "Demand", question: "How much will we sell in the coming months?" },
-                        { module: 'advanced_forecaster', tag: "Scenarios", question: "How does demand shift when the drivers behind it change?" },
+                        { module: 'vrp', name: "Vehicle Routing", tag: "Routing", question: "Which vehicle visits which customer, and in what order?" },
                         { module: 'abc', tag: "Assortment", question: "Which items deserve the tightest control?" },
                         { module: 'inventory', tag: "Inventory", question: "How much safety stock do we need, and when do we reorder?" }
                     ],
@@ -5043,7 +5043,7 @@
                     decisions_answered_by: "Giải đáp bởi",
                     decisions_items: [
                         { module: 'forecaster', tag: "Nhu cầu", question: "Chúng ta sẽ bán được bao nhiêu trong những tháng tới?" },
-                        { module: 'advanced_forecaster', tag: "Kịch bản", question: "Nhu cầu thay đổi thế nào khi các yếu tố tác động thay đổi?" },
+                        { module: 'vrp', name: "Định Tuyến Xe", tag: "Định tuyến", question: "Xe nào đến khách hàng nào, và theo thứ tự nào?" },
                         { module: 'abc', tag: "Danh mục", question: "Mặt hàng nào cần được kiểm soát chặt chẽ nhất?" },
                         { module: 'inventory', tag: "Tồn kho", question: "Cần bao nhiêu tồn kho an toàn và khi nào nên đặt hàng lại?" }
                     ],
@@ -5429,7 +5429,7 @@
                     decisions_answered_by: "Beantwortet von",
                     decisions_items: [
                         { module: 'forecaster', tag: "Bedarf", question: "Wie viel werden wir in den kommenden Monaten verkaufen?" },
-                        { module: 'advanced_forecaster', tag: "Szenarien", question: "Wie verändert sich der Bedarf, wenn sich seine Treiber ändern?" },
+                        { module: 'vrp', name: "Vehicle Routing", tag: "Touren", question: "Welches Fahrzeug fährt zu welchem Kunden, und in welcher Reihenfolge?" },
                         { module: 'abc', tag: "Sortiment", question: "Welche Artikel verlangen die engste Steuerung?" },
                         { module: 'inventory', tag: "Bestand", question: "Wie viel Sicherheitsbestand brauchen wir, und wann bestellen wir nach?" }
                     ],
@@ -7251,9 +7251,9 @@
         );
 
         // Decisions — the planning questions each live module answers
-        const DECISION_PHOTOS = { forecaster: 'demand', advanced_forecaster: 'scenarios', abc: 'assortment', inventory: 'inventory' };
+        const DECISION_PHOTOS = { forecaster: 'demand', vrp: 'routing', abc: 'assortment', inventory: 'inventory' };
         // Decision cards that open a post instead of the tool itself
-        const DECISION_POSTS = { forecaster: './blog-ml-forecaster' };
+        const DECISION_POSTS = { forecaster: './blog-ml-forecaster', vrp: './blog-vehicle-routing', inventory: './blog-inventory-optimizer', abc: './blog-abc-xyz-analysis' };
         const DecisionsSection = ({ content }) => {
             const ui = content.ui;
             const items = (ui.decisions_items || []).filter(item => MODULE_STATIC_DATA[item.module]);
@@ -7280,7 +7280,7 @@
                                         )}
                                         <div className="flex items-center justify-between gap-3">
                                             <span className="rounded-full border border-white/20 bg-slate-950/45 backdrop-blur-md px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-slate-100">{item.tag}</span>
-                                            {isLive && (
+                                            {cardHref && (
                                                 <span className="lp3-decision-arrow flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-slate-950/45 backdrop-blur-md text-slate-100 [&>svg]:h-4 [&>svg]:w-4" aria-hidden="true">
                                                     <ArrowRightIcon />
                                                 </span>
@@ -7291,7 +7291,7 @@
                                             <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-gold/15 text-brand-gold [&>svg]:h-[18px] [&>svg]:w-[18px]" aria-hidden="true">{module.icon}</span>
                                             <span className="min-w-0">
                                                 <span className="block text-[9px] font-bold uppercase tracking-widest text-slate-400">{ui.decisions_answered_by}</span>
-                                                <span className="block truncate text-sm font-bold text-slate-100 group-hover:text-brand-gold transition-colors">{text.name}</span>
+                                                <span className="block truncate text-sm font-bold text-slate-100 group-hover:text-brand-gold transition-colors">{item.name || text.name}</span>
                                             </span>
                                         </div>
                                     </Tag>
