@@ -22,3 +22,4 @@ Each file was cropped, colour-graded toward the Operartis navy/gold palette and 
 | `blog-inventory-simulation.png` | Inventory post screenshot | Own product screenshot (test fixture data) |
 | `blog-abcxyz-hero.jpg` | ABC-XYZ post hero (`blog-abc-xyz-analysis.html`) — wide crop of `lp-assortment.jpg` | https://unsplash.com/photos/ECMRLse82Pc |
 | `blog-abcxyz-matrix.png` | ABC-XYZ post screenshot | Own product screenshot (project template data) |
+| `video/operartis-intro-en.mp4`, `video/operartis-intro-vi.mp4` (+ posters) | Intro video behind the hero "Watch the intro" button | Own production: animation built from the assets above, original synthesised music |
