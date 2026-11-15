@@ -4069,6 +4069,101 @@
             }
         }
 
+        /* ---- Industry 4.0: without / with APS ---- */
+        .i4l2-timer {
+            position: absolute;
+            left: 0;
+            top: 0;
+            z-index: 2;
+            height: 2px;
+            width: 100%;
+            background: linear-gradient(90deg, #b45309, #f59e0b);
+            transform-origin: left center;
+            animation: pf2-timer 9.5s linear both;
+        }
+
+        .i4l2-stack {
+            display: grid;
+            min-width: 0;
+            align-content: center;
+        }
+
+        .i4l2-layer {
+            grid-area: 1 / 1;
+            min-width: 0;
+            transition: opacity 0.55s ease, transform 0.55s ease;
+        }
+
+        .i4l2-layer.is-off {
+            opacity: 0;
+            transform: translateY(10px);
+            pointer-events: none;
+        }
+
+        .i4l2-card {
+            padding: 1.1rem 1.15rem;
+            border-radius: 1rem;
+            border: 1px solid rgba(148, 163, 184, 0.38);
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .dark .i4l2-card {
+            border-color: rgba(255, 255, 255, 0.1);
+            background: rgba(15, 23, 42, 0.38);
+        }
+
+        .i4l2-card--aps,
+        .dark .i4l2-card--aps {
+            border-color: rgba(217, 119, 6, 0.5);
+            background: linear-gradient(160deg, rgba(245, 158, 11, 0.16), rgba(245, 158, 11, 0.04));
+        }
+
+        .i4l2-icon {
+            display: flex;
+            height: 2.5rem;
+            width: 2.5rem;
+            flex: none;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.75rem;
+            background: rgba(100, 116, 139, 0.14);
+            color: #475569;
+        }
+
+        .dark .i4l2-icon { color: #cbd5e1; }
+
+        .i4l2-icon--aps,
+        .dark .i4l2-icon--aps {
+            background: rgba(245, 158, 11, 0.2);
+            color: #d97706;
+        }
+
+        .dark .i4l2-icon--aps { color: #f59e0b; }
+
+        .i4l2-mark {
+            display: flex;
+            height: 1.15rem;
+            width: 1.15rem;
+            flex: none;
+            align-items: center;
+            justify-content: center;
+            margin-top: 0.1rem;
+            border-radius: 9999px;
+            font-size: 11px;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .i4l2-mark--no { background: rgba(244, 63, 94, 0.14); color: #e11d48; }
+        .dark .i4l2-mark--no { color: #fb7185; }
+        .i4l2-mark--yes { background: rgba(245, 158, 11, 0.22); color: #b45309; }
+        .dark .i4l2-mark--yes { color: #f59e0b; }
+
+        @media (prefers-reduced-motion: reduce) {
+            .i4l2-timer { animation: none; transform: none; }
+            .i4l2-layer { transition: none; }
+        }
+
         /* ---- Mathematical foundation: principles and the framed walkthrough ---- */
         .pf2-pillar {
             position: relative;
@@ -7261,6 +7356,7 @@
             const ui = content.ui;
             const [phase, setPhase] = useState(0);
             const [started, setStarted] = useState(false);
+            const [cycle, setCycle] = useState(0);
             const sectionRef = useRef(null);
             const apsVisible = phase === 1;
 
@@ -7280,17 +7376,21 @@
 
             useEffect(() => {
                 if (!started) return undefined;
-                setPhase(0);
                 const timer = setInterval(() => setPhase(p => (p + 1) % 2), 9500);
                 return () => clearInterval(timer);
-            }, [started]);
+            }, [started, cycle]);
 
-            const togglePhase = () => setPhase(p => (p + 1) % 2);
+            const selectPhase = (next) => { setPhase(next); setCycle(n => n + 1); };
+            const togglePhase = () => selectPhase(apsVisible ? 0 : 1);
+            const systems = [
+                { label: ui.i4l_erp_label, full: ui.i4l_erp_full, role: ui.i4l_erp_role, Icon: BoxIcon, cons: ui.i4l_erp_cons },
+                { label: ui.i4l_mes_label, full: ui.i4l_mes_full, role: ui.i4l_mes_role, Icon: FactoryIcon, cons: ui.i4l_mes_cons },
+            ];
 
             return (
                 <section
                     ref={sectionRef}
-                    className="relative rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-gradient-to-b from-white/55 via-white/35 to-white/20 dark:from-slate-900/55 dark:via-slate-900/35 dark:to-slate-900/20 backdrop-blur-xl shadow-sm overflow-hidden"
+                    className={`relative rounded-2xl border transition-colors duration-700 ${apsVisible ? 'border-brand-gold/50 dark:border-brand-gold/35' : 'border-rose-300/70 dark:border-rose-500/30'} bg-gradient-to-b from-white/55 via-white/35 to-white/20 dark:from-slate-900/55 dark:via-slate-900/35 dark:to-slate-900/20 backdrop-blur-xl shadow-sm overflow-hidden`}
                     aria-label={ui.i4l_title}
                 >
                     <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-2xl">
@@ -7300,18 +7400,27 @@
                     </div>
 
                     <div className="w-full px-4 sm:px-5 md:px-6 py-4 md:py-5 relative">
-                        <div className="flex flex-wrap items-end justify-end gap-3 mb-4 md:mb-5">
-                            <div className="flex items-center gap-3">
-                                {[0, 1].map(i => (
+                        {started && <span key={`${phase}-${cycle}`} className="i4l2-timer" aria-hidden="true"></span>}
+                        <div className="flex flex-wrap items-center justify-between gap-3 mb-4 md:mb-6">
+                            <div className="lp3-console-tabs" role="tablist" aria-label={ui.i4l_title} style={{ '--lp3-tab-count': 2, '--lp3-tab-active': phase }}>
+                                <span className="lp3-console-tab-indicator" aria-hidden="true"></span>
+                                {[ui.i4l_phase_gap_badge, ui.i4l_phase_aps_badge].map((label, i) => (
                                     <button
                                         key={i}
                                         type="button"
-                                        onClick={() => setPhase(i)}
-                                        className={`lp3-dot h-1.5 rounded-full transition-all duration-500 ${phase === i ? 'w-6 bg-brand-gold' : 'w-1.5 bg-slate-300 dark:bg-slate-700 hover:bg-brand-gold/40'}`}
-                                        aria-label={i === 0 ? ui.i4l_phase_gap_badge : ui.i4l_phase_aps_badge}
-                                    />
+                                        role="tab"
+                                        aria-selected={phase === i}
+                                        onClick={() => selectPhase(i)}
+                                        className={`lp3-console-tab ${phase === i ? 'is-active' : ''}`}
+                                    >
+                                        {label}
+                                    </button>
                                 ))}
                             </div>
+                            <span className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-wider transition-colors duration-700 ${apsVisible ? 'border-brand-gold/40 bg-brand-gold/10 text-brand-dark dark:text-brand-gold' : 'border-rose-300/70 bg-rose-50/70 text-rose-600 dark:border-rose-500/30 dark:bg-rose-950/30 dark:text-rose-400'}`}>
+                                <i className={`h-1.5 w-1.5 rounded-full ${apsVisible ? 'bg-brand-gold' : 'bg-rose-500'}`} aria-hidden="true"></i>
+                                {apsVisible ? ui.i4l_industry_tag : ui.i4l_gap_label}
+                            </span>
                         </div>
 
                         <div className="grid lg:grid-cols-[1.05fr_0.95fr] gap-6 md:gap-8 items-stretch min-w-0">
@@ -7323,10 +7432,6 @@
                                 tabIndex={0}
                                 aria-label={apsVisible ? ui.i4l_phase_aps_badge : ui.i4l_phase_gap_badge}
                             >
-                                <div className="flex justify-end mb-3">
-                                    <span className="text-right text-[10px] font-mono uppercase tracking-wider text-slate-400 dark:text-slate-500">{ui.i4l_tap_hint}</span>
-                                </div>
-
                                 <div className="flex-1 flex items-center justify-center min-w-0 w-full">
                                     <div className="i4l-diagram-stage select-none w-full">
                                         <svg viewBox="0 0 480 320" className="i4l-diagram-svg" aria-hidden="true">
@@ -7392,85 +7497,62 @@
                                 </div>
                             </div>
 
-                            <div className="flex flex-col gap-3 md:gap-4 h-full min-h-0 min-w-0">
-                                <div className={`relative shrink-0 rounded-xl border px-4 py-3 md:px-5 md:py-4 min-h-[9.5rem] md:min-h-[10rem] transition-colors duration-700 ${apsVisible ? 'border-brand-gold/40 bg-brand-gold/5 dark:bg-brand-gold/10' : 'border-rose-200/70 dark:border-rose-900/50 bg-rose-50/50 dark:bg-rose-950/20'}`}>
-                                    <div className={`i4l-phase-layer${apsVisible ? ' i4l-phase-hidden' : ''}`}>
-                                        <span className="inline-flex text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full mb-2 text-rose-600 dark:text-rose-400 bg-rose-100/80 dark:bg-rose-950/40 border border-rose-200/60 dark:border-rose-800/60">
-                                            {ui.i4l_phase_gap_badge}
-                                        </span>
-                                        <h3 className="text-sm md:text-base font-bold text-slate-800 dark:text-slate-100 mb-2 leading-snug">
-                                            {ui.i4l_phase_gap_title}
-                                        </h3>
-                                        <p className="text-xs md:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                                            {ui.i4l_phase_gap_desc}
-                                        </p>
-                                    </div>
-                                    <div className={`i4l-phase-layer absolute inset-0 px-4 py-3 md:px-5 md:py-4${apsVisible ? '' : ' i4l-phase-hidden'}`}>
-                                        <span className="inline-flex text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full mb-2 text-brand-gold bg-brand-gold/10 border border-brand-gold/20">
-                                            {ui.i4l_phase_aps_badge}
-                                        </span>
-                                        <h3 className="text-sm md:text-base font-bold text-slate-800 dark:text-slate-100 mb-2 leading-snug">
-                                            {ui.i4l_phase_aps_title}
-                                        </h3>
-                                        <p className="text-xs md:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                                            {ui.i4l_phase_aps_desc}
-                                        </p>
+                            {/* Both states share one grid cell, so the block keeps the same height when it switches */}
+                            <div className="i4l2-stack">
+                                <div className={`i4l2-layer ${apsVisible ? 'is-off' : ''}`} aria-hidden={apsVisible}>
+                                    <h3 className="text-xl md:text-[1.6rem] font-black tracking-tight leading-tight text-slate-900 dark:text-white">{ui.i4l_phase_gap_title}</h3>
+                                    <p className="mt-3 text-sm md:text-base leading-relaxed text-slate-600 dark:text-slate-400">{ui.i4l_phase_gap_desc}</p>
+                                    <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                                        {systems.map(({ label, full, role, Icon, cons }) => (
+                                            <div key={label} className="i4l2-card">
+                                                <div className="flex items-center gap-3">
+                                                    <span className="i4l2-icon" aria-hidden="true"><Icon /></span>
+                                                    <div className="min-w-0">
+                                                        <span className="block text-base font-black leading-tight text-slate-900 dark:text-white">{label}</span>
+                                                        <span className="block text-[11px] leading-snug text-slate-500 dark:text-slate-400">{full}</span>
+                                                    </div>
+                                                </div>
+                                                <p className="mt-3 text-xs font-semibold leading-relaxed text-slate-700 dark:text-slate-300">{role}</p>
+                                                <ul className="mt-3 space-y-2">
+                                                    {cons.map((item, i) => (
+                                                        <li key={i} className="flex gap-2.5 text-[13px] leading-relaxed text-slate-600 dark:text-slate-400">
+                                                            <span className="i4l2-mark i4l2-mark--no" aria-hidden="true">×</span>
+                                                            <span>{item}</span>
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        ))}
                                     </div>
                                 </div>
 
-                                <div className="relative flex-1 min-h-0 sm:min-h-[17rem] md:min-h-[18rem]">
-                                    <div className={`i4l-phase-layer ${apsVisible ? 'hidden sm:block sm:absolute sm:inset-0 i4l-phase-hidden' : 'relative sm:absolute sm:inset-0'}`}>
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:h-full items-stretch">
-                                            <div className="rounded-xl border border-slate-200/70 dark:border-slate-800/80 bg-white/60 dark:bg-slate-900/50 px-5 py-4 md:py-5 sm:h-full flex flex-col">
-                                                <div className="flex items-center gap-3 mb-4">
-                                                    <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-500/10 text-slate-600 dark:text-slate-300"><BoxIcon /></span>
-                                                    <span className="text-sm md:text-base font-bold text-slate-700 dark:text-slate-200">{ui.i4l_erp_label}</span>
-                                                </div>
-                                                <ul className="sm:flex-1 flex flex-col sm:justify-center space-y-3">
-                                                    {ui.i4l_erp_cons.map((item, i) => (
-                                                        <li key={i} className="flex gap-2.5 text-xs md:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                                                            <span className="text-rose-400 shrink-0 mt-0.5 text-sm font-bold">×</span>
-                                                            <span>{item}</span>
-                                                        </li>
-                                                    ))}
-                                                </ul>
-                                            </div>
-                                            <div className="rounded-xl border border-slate-200/70 dark:border-slate-800/80 bg-white/60 dark:bg-slate-900/50 px-5 py-4 md:py-5 sm:h-full flex flex-col">
-                                                <div className="flex items-center gap-3 mb-4">
-                                                    <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-500/10 text-slate-600 dark:text-slate-300"><FactoryIcon /></span>
-                                                    <span className="text-sm md:text-base font-bold text-slate-700 dark:text-slate-200">{ui.i4l_mes_label}</span>
-                                                </div>
-                                                <ul className="sm:flex-1 flex flex-col sm:justify-center space-y-3">
-                                                    {ui.i4l_mes_cons.map((item, i) => (
-                                                        <li key={i} className="flex gap-2.5 text-xs md:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                                                            <span className="text-rose-400 shrink-0 mt-0.5 text-sm font-bold">×</span>
-                                                            <span>{item}</span>
-                                                        </li>
-                                                    ))}
-                                                </ul>
+                                <div className={`i4l2-layer ${apsVisible ? '' : 'is-off'}`} aria-hidden={!apsVisible}>
+                                    <h3 className="text-xl md:text-[1.6rem] font-black tracking-tight leading-tight"><span className="opus-sheen inline-block pb-[0.14em] -mb-[0.14em]">{ui.i4l_phase_aps_title}</span></h3>
+                                    <p className="mt-3 text-sm md:text-base leading-relaxed text-slate-600 dark:text-slate-400">{ui.i4l_phase_aps_desc}</p>
+                                    <div className="i4l2-card i4l2-card--aps mt-5">
+                                        <div className="flex items-center gap-3">
+                                            <span className="i4l2-icon i4l2-icon--aps sc-node-active" aria-hidden="true"><ActivityIcon /></span>
+                                            <div className="min-w-0">
+                                                <span className="block text-base font-black leading-tight text-brand-dark dark:text-brand-gold">{ui.i4l_aps_label}</span>
+                                                <span className="block text-[11px] leading-snug text-slate-500 dark:text-slate-400">{ui.i4l_aps_full}</span>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div className={`i4l-phase-layer ${apsVisible ? 'relative sm:absolute sm:inset-0' : 'hidden sm:block sm:absolute sm:inset-0 i4l-phase-hidden'}`}>
-                                        <div className="rounded-xl border border-brand-gold/30 bg-white/70 dark:bg-slate-900/60 px-5 py-4 md:py-5 sm:h-full flex flex-col">
-                                            <div className="flex items-center gap-3 mb-4">
-                                                <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-gold/15 text-brand-gold sc-node-active"><ActivityIcon /></span>
-                                                <div>
-                                                    <span className="block text-sm md:text-base font-black text-brand-gold uppercase tracking-wide">{ui.i4l_aps_label}</span>
-                                                    <span className="block text-xs md:text-sm text-slate-500 dark:text-slate-400">{ui.i4l_aps_full}</span>
-                                                </div>
-                                            </div>
-                                            <div className="sm:flex-1 flex flex-col sm:justify-center min-h-0">
-                                                <p className="text-xs md:text-sm text-slate-600 dark:text-slate-400 mb-4 leading-relaxed">{ui.i4l_aps_role}</p>
-                                                <ul className="space-y-3">
-                                                    {ui.i4l_aps_pros.map((item, i) => (
-                                                        <li key={i} className="flex gap-2.5 text-xs md:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
-                                                            <span className="text-brand-gold shrink-0 mt-0.5 text-sm font-bold">✓</span>
-                                                            <span>{item}</span>
-                                                        </li>
-                                                    ))}
-                                                </ul>
-                                            </div>
+                                        <p className="mt-3 text-xs font-semibold leading-relaxed text-slate-700 dark:text-slate-300">{ui.i4l_aps_role}</p>
+                                        <ul className="mt-3 space-y-2">
+                                            {ui.i4l_aps_pros.map((item, i) => (
+                                                <li key={i} className="flex gap-2.5 text-[13px] leading-relaxed text-slate-700 dark:text-slate-300">
+                                                    <span className="i4l2-mark i4l2-mark--yes" aria-hidden="true">✓</span>
+                                                    <span>{item}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                        <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-brand-gold/25 pt-4">
+                                            {[ui.i4l_flow_input, ui.i4l_flow_optimized, ui.i4l_flow_recording].map((step, i) => (
+                                                <React.Fragment key={i}>
+                                                    {i > 0 && <span className="text-brand-gold" aria-hidden="true">→</span>}
+                                                    <span className="lp3-chip lp3-chip--live">{step}</span>
+                                                </React.Fragment>
+                                            ))}
                                         </div>
                                     </div>
                                 </div>
