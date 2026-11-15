@@ -981,7 +981,7 @@
             background:
                 linear-gradient(90deg, rgba(2, 6, 23, 0.92) 0%, rgba(2, 6, 23, 0.62) 45%, rgba(2, 6, 23, 0.1) 100%),
                 linear-gradient(180deg, rgba(2, 6, 23, 0.2) 0%, rgba(2, 6, 23, 0) 40%, rgba(2, 6, 23, 0.35) 100%),
-                url('./assets/contact-hero.jpg') right 62% / cover no-repeat,
+                url('./assets/terms-hero.jpg') right 62% / cover no-repeat,
                 #020617;
             border-color: rgba(245, 158, 11, 0.28);
             box-shadow:
@@ -1006,7 +1006,7 @@
             .dark .contact-hero.contact-hero--photo {
                 background:
                     linear-gradient(180deg, rgba(2, 6, 23, 0.9) 0%, rgba(2, 6, 23, 0.7) 55%, rgba(2, 6, 23, 0.45) 100%),
-                    url('./assets/contact-hero.jpg') 70% 62% / cover no-repeat,
+                    url('./assets/terms-hero.jpg') 70% 62% / cover no-repeat,
                     #020617;
             }
         }
@@ -1167,7 +1167,7 @@
                 assurance_1: 'No sharing private data',
                 assurance_2: 'No publish personal information',
                 assurance_3: 'Professional and helpful service',
-                nav_platform: 'Plattform',
+                nav_platform: 'Platform',
                 nav_solutions: 'Solutions',
                 nav_mathematical_foundation: 'Mathematical Foundation',
                 nav_supply_chain: 'Supply Chain',
@@ -3215,14 +3215,14 @@
 
                     <main className="relative z-10 flex-1 overflow-y-auto min-h-0">
                         <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 py-8 md:py-12 pb-16">
-                            <section className="contact-hero rounded-3xl border border-amber-700/40 dark:border-white/[0.06] ring-0 dark:ring-1 dark:ring-white/[0.04] px-6 py-10 md:px-12 md:py-14 mb-10 md:mb-12">
+                            <section className="contact-hero contact-hero--photo rounded-3xl border border-amber-700/40 dark:border-white/[0.06] ring-0 dark:ring-1 dark:ring-white/[0.04] px-6 py-12 md:px-12 md:py-16 lg:py-20 mb-10 md:mb-12">
                                 <div className="relative z-10 max-w-3xl">
                                     <p className="text-[10px] font-bold uppercase contact-eyebrow text-brand-gold mb-3">{policy.eyebrow}</p>
-                                    <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-slate-900 dark:text-white leading-[1.08] mb-4">
+                                    <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-white leading-[1.08] mb-4">
                                         {policy.headline}
                                     </h1>
-                                    <p className="font-mono text-xs text-slate-500 dark:text-slate-400 mb-4">{policyText(policy.updated)}</p>
-                                    <p className="text-base md:text-lg leading-relaxed text-slate-600 dark:text-slate-300">{policy.lead}</p>
+                                    <p className="font-mono text-xs text-slate-300 mb-4">{policyText(policy.updated)}</p>
+                                    <p className="text-base md:text-lg leading-relaxed text-slate-200">{policy.lead}</p>
                                 </div>
                             </section>
 

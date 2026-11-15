@@ -12,3 +12,5 @@ Each file was cropped, colour-graded toward the Operartis navy/gold palette and 
 | `lp-inventory.jpg` | Decisions card — Inventory | https://unsplash.com/photos/h3pVxOIpnzk |
 | `lp-factory.jpg` | Platform banner | https://unsplash.com/photos/8gr6bObQLOI |
 | `contact-hero.jpg` | Contact page hero (`contact.html`) | https://unsplash.com/photos/YxMdnFDlMHs |
+| `privacy-hero.jpg` | Privacy Policy hero (`privacy.html`) | https://unsplash.com/photos/M5tzZtFCOfs |
+| `terms-hero.jpg` | Terms of Service hero (`terms.html`) | https://unsplash.com/photos/NzIV4vOBA7s |
