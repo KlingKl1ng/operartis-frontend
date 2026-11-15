@@ -30,8 +30,8 @@
         if (!(rect.width > 0 && rect.height > 0)) return false;
         try {
             sessionStorage.setItem(KEY, JSON.stringify({
-                left: rect.left - trackRect.left,
-                top: rect.top - trackRect.top,
+                left: rect.left - trackRect.left - track.clientLeft,
+                top: rect.top - trackRect.top - track.clientTop,
                 width: rect.width,
                 height: rect.height,
                 t: Date.now()
