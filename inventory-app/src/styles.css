@@ -162,6 +162,7 @@
 .inv-run-metrics strong { display: flex; align-items: center; color: var(--text); font-family: var(--font-mono); font-size: 12px; font-weight: 600; }
 .inv-policy { display: grid; flex: 0 0 auto; gap: 10px; padding: 10px 14px; }
 .inv-policy-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 12px; }
+.inv-policy-head strong.is-warn { color: var(--warn); }
 .inv-policy-head strong { display: inline-flex; align-items: center; gap: 6px; color: var(--good); font-size: 11px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; }
 .inv-policy dl { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px 16px; margin: 0; }
 .inv-policy dl > div { display: grid; gap: 2px; min-width: 0; }

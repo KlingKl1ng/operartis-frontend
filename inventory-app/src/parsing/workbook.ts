@@ -3,6 +3,7 @@
 import * as XLSX from 'xlsx';
 import { addDays, byDate, isNumericDate, localIsoDate, parseHeaderDate, parsePrefixedDate, parseStartDate } from './dates';
 import type { FileMetadata, FileSkuParams, ForecastPoint, Mapping, ParsedFile } from '../domain/types';
+import { estimateValidationErrors, type ValidationErrors, type ValidationPair } from './validation';
 
 type Row = Record<string, unknown>;
 
@@ -34,11 +35,40 @@ export function isValidSku(value: unknown): boolean {
   return !NOT_A_SKU.some((pattern) => pattern.test(text));
 }
 
-function firstSheet(data: ArrayBuffer, cellDates: boolean): XLSX.WorkSheet {
+function readWorkbook(data: ArrayBuffer, cellDates: boolean): XLSX.WorkBook {
   const workbook = XLSX.read(data, { type: 'array', cellDates });
   // Limits on sheets and rows; skipped outside the browser (tests).
   if (typeof window !== 'undefined') window.OperartisSecurity?.validateWorkbook(workbook);
+  return workbook;
+}
+
+const firstSheet = (data: ArrayBuffer, cellDates: boolean) => {
+  const workbook = readWorkbook(data, cellDates);
   return workbook.Sheets[workbook.SheetNames[0]];
+};
+
+const VALIDATION_SHEET = 'validation forecasts';
+
+/**
+ * Past forecast errors of an Operartis forecast report (its "Validation
+ * Forecasts" sheet), or null when the file has none.
+ */
+export function readValidationErrors(workbook: XLSX.WorkBook): ValidationErrors | null {
+  const name = workbook.SheetNames.find((sheetName) => sheetName.trim().toLowerCase() === VALIDATION_SHEET);
+  if (!name) return null;
+  const rows = XLSX.utils.sheet_to_json<Row>(workbook.Sheets[name], { raw: true });
+  const pairs: ValidationPair[] = rows.map((row) => {
+    const cell = (wanted: string) => row[Object.keys(row).find((header) => header.trim().toLowerCase() === wanted) ?? ''];
+    const origin = cell('origin');
+    return {
+      sku: cell('sku') == null ? '' : String(cell('sku')).trim(),
+      origin: origin instanceof Date ? localIsoDate(origin) : String(origin ?? ''),
+      lead: cellNumber(cell('lead')),
+      actual: cellNumber(cell('actual')),
+      forecast: cellNumber(cell('forecast')),
+    };
+  });
+  return estimateValidationErrors(pairs);
 }
 
 /**
@@ -135,7 +165,10 @@ function reportRows(sheet: XLSX.WorkSheet, mapping: Mapping): Row[] {
  * P50_D1… file that has no start-date column.
  */
 export function parseFile(data: ArrayBuffer, mapping: Mapping, options: { today?: Date } = {}): ParsedFile {
-  const sheet = firstSheet(data, true);
+  const workbook = readWorkbook(data, true);
+  const sheet = workbook.Sheets[workbook.SheetNames[0]];
+  const validation = readValidationErrors(workbook);
+  let spreadFromValidation = 0;
   const rows: Row[] = mapping.format === 'operartis_residual'
     ? reportRows(sheet, mapping)
     // Cells are read as displayed text, so a number shown with two decimals is read with two decimals.
@@ -190,7 +223,10 @@ export function parseFile(data: ArrayBuffer, mapping: Mapping, options: { today?
     // The forecast is the last N date columns; the columns before them are sales history.
     const forecastColumns = dateColumns.slice(-(mapping.forecast_horizon || dateColumns.length));
     eachProductRow((row, skuId) => {
-      const residStd = numberOrZero(row[mapping.resid_std || '']);
+      // The error on days the model had not seen, where the report has enough of them; else its fit error.
+      const validated = validation?.spread[skuId.trim()];
+      if (validated !== undefined) spreadFromValidation += 1;
+      const residStd = validated ?? numberOrZero(row[mapping.resid_std || '']);
       forecastColumns.forEach((column, index) => {
         const date = parseHeaderDate(column);
         if (!date) return;
@@ -241,5 +277,6 @@ export function parseFile(data: ArrayBuffer, mapping: Mapping, options: { today?
   }
 
   const skus = Object.keys(grouped).filter((sku) => grouped[sku].length > 0);
-  return { grouped, skus, skuParams };
+  if (!validation) return { grouped, skus, skuParams };
+  return { grouped, skus, skuParams, validation: { persistence: validation.persistence, spreadProducts: spreadFromValidation } };
 }

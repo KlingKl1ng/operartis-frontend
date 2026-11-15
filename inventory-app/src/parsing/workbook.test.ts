@@ -45,6 +45,7 @@ const FIXTURES: Array<{ file: string; format: Mapping['format'] }> = [
   { file: 'prefixed.xlsx', format: 'forecaster_prefixed' },
   { file: 'forecaster.xlsx', format: 'forecaster' },
   { file: 'residual.xlsx', format: 'operartis_residual' },
+  { file: 'residual-validated.xlsx', format: 'operartis_residual' },
 ];
 
 describe('reading an uploaded file end to end', () => {
@@ -59,6 +60,33 @@ describe('reading an uploaded file end to end', () => {
       expect(result).toEqual(JSON.parse(readFileSync(goldenPath, 'utf8')));
     });
   }
+});
+
+describe('a forecast report with validation sheets', () => {
+  // residual-validated.xlsx was written by the forecaster for six products with
+  // demand whose deviations linger for some days (five origins of 30 days each).
+  const read = (file: string) => {
+    const data = load(fixturePath(file));
+    const { headers, metadata } = inspectFile(data);
+    return parseFile(data, autoMapping(headers, metadata).mapping);
+  };
+
+  it('takes the persistence and the spread from the past forecast errors', () => {
+    const parsed = read('residual-validated.xlsx');
+    expect(parsed.skus).toHaveLength(6);
+    expect(parsed.validation).toEqual({ persistence: 0.6, spreadProducts: 6 });
+    // SKU-01: Resid_Std is 4.5616, the error on unseen days 5.31.
+    const [first] = parsed.grouped['SKU-01'];
+    expect(first.resid_std).toBeCloseTo(5.31, 2);
+    expect(first.p90).toBeCloseTo(first.p50 + 1.28 * first.resid_std!, 6);
+    expect(parsed.grouped['SKU-01']).toHaveLength(30);
+  });
+
+  it('keeps Resid_Std and reports nothing for a report without those sheets', () => {
+    const parsed = read('residual.xlsx');
+    expect(parsed.validation).toBeUndefined();
+    expect(parsed.grouped.GOINANI4060[0].resid_std).toBe(31.5435);
+  });
 });
 
 // One-off comparison with other files (for example real templates): set

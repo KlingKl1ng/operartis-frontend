@@ -27,6 +27,10 @@ export interface Params {
   serviceLevel: number;
   /** Minimum order quantity; 0 means none. */
   moqValue: number;
+  /** Wanted number of reviews between two orders; sets the order size S − s from the forecast. */
+  orderInterval: number;
+  /** Share of one day's forecast error that carries over into the next day; 0 means independent days. */
+  errorPersistence: number;
 }
 
 /** One forecast period of one product, as sent to the engine. */
@@ -105,6 +109,16 @@ export interface ParsedFile {
   grouped: Record<string, ForecastPoint[]>;
   skus: string[];
   skuParams: Record<string, FileSkuParams>;
+  /** Present when the file carries past forecast errors (an Operartis forecast report with validation sheets). */
+  validation?: FileValidation;
+}
+
+/** What was taken from a forecast report's past forecast errors. */
+export interface FileValidation {
+  /** Share of a day's forecast error carried into the next day, pooled over the file's products; null if not estimable. */
+  persistence: number | null;
+  /** Number of products whose error spread comes from those errors instead of Resid_Std. */
+  spreadProducts: number;
 }
 
 // ---------- Results ----------
@@ -152,6 +166,8 @@ export interface TimelineMetrics {
   totalStockouts: number;
   totalDays?: number;
   alpha_steady?: number | null;
+  /** Share of replenishment cycles after the warm-up without a stockout: what the optimizer targets. */
+  alpha_cycle?: number | null;
   beta_steady?: number | null;
   warmup_days?: number | null;
   warmup_stockout_days?: number | null;
@@ -165,6 +181,8 @@ export interface SimResult {
   metrics: TimelineMetrics | null;
 }
 
+export type OptimizationStatus = 'tuned' | 'target_not_reachable' | 'forecast_too_short';
+
 export interface OptimizationResult {
   jobId?: string | null;
   skuId: string;
@@ -177,6 +195,8 @@ export interface OptimizationResult {
   recommendedInitialStock: number;
   iterationsUsed: number;
   convergenceAchieved: boolean;
+  /** Whether the safety factor could be tuned to the target, and if not, why. */
+  status: OptimizationStatus;
   mcAvgInventory: number | null;
   mcAvgStockoutDays: number | null;
   timeline?: TimelineDay[];

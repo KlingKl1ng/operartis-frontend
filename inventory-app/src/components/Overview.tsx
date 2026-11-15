@@ -7,13 +7,15 @@ import { label as upper } from './Label';
 
 type SortKey = 'sku' | 'days' | 'status' | 'alpha' | 'beta' | 'safetyFactor' | 'avgInventory' | 'stockouts';
 
-export type ProductStatus = 'notRun' | 'running' | 'optimized' | 'failed';
+export type ProductStatus = 'notRun' | 'running' | 'optimized' | 'untuned' | 'failed';
 
 const STATUS: Record<ProductStatus, { label: TextKey; pill: string; rank: number }> = {
   failed: { label: 'statusFailed', pill: 'is-bad', rank: 0 },
-  notRun: { label: 'noResultYet', pill: '', rank: 1 },
-  running: { label: 'running', pill: 'is-gold', rank: 2 },
-  optimized: { label: 'statusOptimized', pill: 'is-good', rank: 3 },
+  // A result whose safety factor could not be tuned to the target: forecast too short, or target out of reach.
+  untuned: { label: 'statusUntuned', pill: 'is-warn', rank: 1 },
+  notRun: { label: 'noResultYet', pill: '', rank: 2 },
+  running: { label: 'running', pill: 'is-gold', rank: 3 },
+  optimized: { label: 'statusOptimized', pill: 'is-good', rank: 4 },
 };
 
 export interface OverviewProduct {

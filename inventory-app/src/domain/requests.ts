@@ -32,6 +32,10 @@ interface SkuRequestBase {
   review_period: number;
   target_service_level: number;
   forecast_data: ApiForecastEntry[];
+  /** Wanted number of reviews between two orders. */
+  order_interval_reviews: number;
+  /** Share of one day's forecast error carried into the next day, 0 to 0.95. */
+  error_persistence: number;
   min_order_qty?: number | null;
 }
 
@@ -73,6 +77,9 @@ const toApiForecast = (forecast: ForecastPoint[]): ApiForecastEntry[] => forecas
   horizon_index: point.horizon_index ?? null,
 }));
 
+/** The persistence within the range the engine accepts. */
+const errorPersistence = (params: Params) => Math.min(Math.max(Number(params.errorPersistence) || 0, 0), 0.95);
+
 function baseRequest(sku: string, forecast: ForecastPoint[], params: Params, filename: string | null): SkuRequestBase {
   return {
     sku_id: sku,
@@ -84,6 +91,8 @@ function baseRequest(sku: string, forecast: ForecastPoint[], params: Params, fil
     review_period: params.reviewPeriod,
     target_service_level: params.serviceLevel,
     forecast_data: toApiForecast(forecast),
+    order_interval_reviews: Math.max(1, Math.round(params.orderInterval) || 1),
+    error_persistence: errorPersistence(params),
   };
 }
 
@@ -145,6 +154,8 @@ export function exportRequest(input: {
       target_service_level: params.serviceLevel,
       safety_factor: optimum?.optimalSafetyFactor ?? 1.0,
       min_order_qty: params.moqValue,
+      order_interval_reviews: Math.max(1, Math.round(params.orderInterval) || 1),
+      error_persistence: errorPersistence(params),
       // The optimizer's 500-run result takes precedence over the single run on screen.
       achieved_alpha: optimum?.achievedAlpha ?? sim?.metrics?.alpha ?? 0,
       achieved_beta: optimum?.achievedBeta ?? sim?.metrics?.beta ?? 0,

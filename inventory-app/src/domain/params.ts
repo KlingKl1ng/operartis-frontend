@@ -18,9 +18,15 @@ export const DEFAULT_PARAMS: Params = {
   reviewPeriod: 7,
   serviceLevel: 0.95,
   moqValue: 0,
+  orderInterval: 1,
+  errorPersistence: 0,
 };
 
 export const REVIEW_PERIODS = [1, 7, 14, 30] as const;
+/** Choices for the number of reviews between two orders. */
+export const ORDER_INTERVALS = [1, 2, 3, 4, 6, 8, 12] as const;
+/** Choices for how much of a day's forecast error carries over into the next day. */
+export const ERROR_PERSISTENCE = [0, 0.3, 0.5, 0.7] as const;
 /** Service-level slider, in percent. */
 export const SERVICE_LEVEL = { min: 80, max: 99.5, step: 0.5, presets: [84, 90, 95, 97.5, 99] } as const;
 export const MONTE_CARLO_RUNS = 500;

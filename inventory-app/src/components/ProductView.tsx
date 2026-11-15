@@ -286,7 +286,7 @@ function PolicyCard({ policy, t }: { policy: OptimizationResult; t: Translator }
   // Two rows of four: what the policy achieves, then the policy itself and the stock it holds.
   const figures: Array<{ label: TextKey; value: string; level?: 'good' | 'warn' }> = [
     { label: 'targetAlpha', value: `${t.format.number(policy.targetAlpha * 100, 0, 2)}%` },
-    { label: 'achievedAlpha', value: `${t.format.fixed(policy.achievedAlpha * 100, 1)}%`, level: targetReached(policy) ? 'good' : 'warn' },
+    { label: 'achievedAlpha', value: `${t.format.fixed(policy.achievedAlpha * 100, 1)}%`, level: policy.status === 'tuned' && targetReached(policy) ? 'good' : 'warn' },
     { label: 'achievedBeta', value: `${t.format.fixed(policy.achievedBeta * 100, 1)}%` },
     { label: 'avgStockoutDays', value: policy.mcAvgStockoutDays != null ? t.format.fixed(policy.mcAvgStockoutDays, 1) : '—' },
     { label: 'safetyFactor', value: `${t.format.fixed(policy.optimalSafetyFactor, 2)}×` },
@@ -295,9 +295,11 @@ function PolicyCard({ policy, t }: { policy: OptimizationResult; t: Translator }
     { label: 'avgInv', value: policy.mcAvgInventory != null ? t.format.number(policy.mcAvgInventory, 0, 0) : '—' },
   ];
   return (
-    <section className="inv-policy ops-card" aria-label={t('policy')} title={t('avgOfRuns', t.format.number(MONTE_CARLO_RUNS, 0, 0))}>
+    <section className="inv-policy ops-card" aria-label={t('policy')} title={`${t('avgOfRuns', t.format.number(MONTE_CARLO_RUNS, 0, 0))}. ${t('serviceMeaning')}`}>
       <div className="inv-policy-head">
-        <strong><CircleCheck size={14} aria-hidden="true" />{t(policy.convergenceAchieved ? 'optimalPolicyFound' : 'bestPolicyFound')}</strong>
+        {policy.status === 'tuned'
+          ? <strong><CircleCheck size={14} aria-hidden="true" />{t('optimalPolicyFound')}</strong>
+          : <strong className="is-warn" title={t(policy.status === 'forecast_too_short' ? 'forecastTooShortHint' : 'targetNotReachableHint')}><TriangleAlert size={14} aria-hidden="true" />{t(policy.status === 'forecast_too_short' ? 'forecastTooShort' : 'targetNotReachable')}</strong>}
       </div>
       {/* Labels keep their case: (s) and (S) are different things. */}
       <dl>
@@ -373,8 +375,8 @@ export function ProductView({ t, dark, result, policy, running, failure, onReloa
           <h3>{t(view === 'chart' ? 'inventorySimulation' : 'inventorySimulationStats')}</h3>
           {metrics && (
             <div className="inv-run-metrics" title={metrics.warmup_days == null ? t('thisRunHint') : `${t('thisRunHint')}. ${t('warmupExcluded', metrics.warmup_days)}`}>
-              {/* Figures of this run; after the warm-up, as the optimizer and the policy card count them. */}
-              {share('Alpha', metrics.alpha_steady)}
+              {/* Figures of this run after the warm-up, counted as the optimizer and the policy card count them: Alpha per replenishment cycle, Beta per unit of demand. */}
+              {share('Alpha', metrics.alpha_cycle ?? metrics.alpha_steady)}
               {share('Beta', metrics.beta_steady)}
               <div><span>{t('avgInv')}:</span><strong>{t.format.number(metrics.avgInventory, 0, 0)}</strong></div>
             </div>

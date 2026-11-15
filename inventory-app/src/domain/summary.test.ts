@@ -25,6 +25,10 @@ describe('overview figures', () => {
   it('keeps the colour bands of the old page', () => {
     expect([0.95, 0.9, 0.89].map(serviceLevelBand)).toEqual(['good', 'warn', 'bad']);
     expect([stockoutsAreRare(0.49), stockoutsAreRare(0.5)]).toEqual([true, false]);
-    expect([targetReached({ achievedAlpha: 0.93, targetAlpha: 0.95 }), targetReached({ achievedAlpha: 0.92, targetAlpha: 0.95 })]).toEqual([true, false]);
+  });
+
+  it('counts the target as reached only at or above it', () => {
+    const reached = (achievedAlpha: number) => targetReached({ achievedAlpha, targetAlpha: 0.95 });
+    expect([reached(0.95), reached(0.953), reached(0.949)]).toEqual([true, true, false]);
   });
 });

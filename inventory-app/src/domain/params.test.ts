@@ -68,6 +68,23 @@ describe('requests to the engine', () => {
     expect(body).not.toHaveProperty('safety_factor');
   });
 
+  it('sends the order interval as a whole number of reviews, at least one', () => {
+    expect(optimizationRequest(DEFAULT_PARAMS).order_interval_reviews).toBe(1);
+    expect(optimizationRequest({ ...DEFAULT_PARAMS, orderInterval: 4 }).order_interval_reviews).toBe(4);
+    expect(simulationRequest('A', forecast, { ...DEFAULT_PARAMS, orderInterval: 2 }, 1, null).order_interval_reviews).toBe(2);
+    expect(optimizationRequest({ ...DEFAULT_PARAMS, orderInterval: 0 }).order_interval_reviews).toBe(1);
+    expect(optimizationRequest({ ...DEFAULT_PARAMS, orderInterval: Number.NaN }).order_interval_reviews).toBe(1);
+  });
+
+  it('sends the error persistence within the range the engine accepts', () => {
+    expect(optimizationRequest(DEFAULT_PARAMS).error_persistence).toBe(0);
+    expect(optimizationRequest({ ...DEFAULT_PARAMS, errorPersistence: 0.5 }).error_persistence).toBe(0.5);
+    expect(simulationRequest('A', forecast, { ...DEFAULT_PARAMS, errorPersistence: 0.3 }, 1, null).error_persistence).toBe(0.3);
+    expect(optimizationRequest({ ...DEFAULT_PARAMS, errorPersistence: 2 }).error_persistence).toBe(0.95);
+    expect(optimizationRequest({ ...DEFAULT_PARAMS, errorPersistence: -1 }).error_persistence).toBe(0);
+    expect(optimizationRequest({ ...DEFAULT_PARAMS, errorPersistence: Number.NaN }).error_persistence).toBe(0);
+  });
+
   it('sends a value list only for that lead-time type', () => {
     const config = { ...DEFAULT_PARAMS.leadTimeConfig, type: 'value' as const, values: [{ value: 7, probability: 0.4 }, { value: 9, probability: 0.6 }] };
     expect(optimizationRequest({ ...DEFAULT_PARAMS, leadTimeConfig: config }).lead_time_config.values).toEqual(config.values);

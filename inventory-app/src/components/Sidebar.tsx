@@ -1,7 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { Lock, LockOpen, Plus, Trash2, Upload } from 'lucide-react';
 import { SectionLabel } from '../../../app-shared/ui';
-import { leadTimeProbabilitySum, leadTimeValuesValid, REVIEW_PERIODS, SERVICE_LEVEL } from '../domain/params';
+import { ERROR_PERSISTENCE, leadTimeProbabilitySum, leadTimeValuesValid, ORDER_INTERVALS, REVIEW_PERIODS, SERVICE_LEVEL } from '../domain/params';
 import type { LeadTimeConfig, LeadTimeType, Params } from '../domain/types';
 import type { TextKey, Translator } from '../i18n';
 import { label as upper } from './Label';
@@ -255,7 +255,10 @@ function Slider({
   );
 }
 
+const PERSISTENCE_LABEL: Record<number, TextKey> = { 0: 'persistenceNone', 0.3: 'persistenceLow', 0.5: 'persistenceMedium', 0.7: 'persistenceHigh' };
 const REVIEW_LABEL: Record<number, TextKey> = { 1: 'daily', 7: 'weekly', 14: 'biWeekly', 30: 'monthly' };
+/** A number of days in words where there is a word for it: "Weekly", otherwise "21 days". */
+const daysLabel = (days: number, t: Translator) => (REVIEW_LABEL[days] ? t(REVIEW_LABEL[days]) : `${t.format.number(days, 0, 0)} ${t('days')}`);
 
 type FieldFlags = { initialStock: boolean; leadTime: boolean; reviewPeriod: boolean; moq: boolean; serviceLevel: boolean };
 
@@ -273,6 +276,8 @@ export interface SidebarProps {
   onParamsChange: (patch: Partial<Params>) => void;
   /** The parameters the uploaded file gives; they differ per product. */
   fileFields: FieldFlags;
+  /** The error persistence estimated from the forecast report's past forecast errors, if it has any. */
+  reportPersistence: number | null;
   /** Those of them that are locked until the user unlocks a product. */
   lockedFields: FieldFlags;
   /** The product's file values were unlocked for editing. */
@@ -374,15 +379,46 @@ export function Sidebar(props: SidebarProps) {
           <LeadTimeEditor config={params.leadTimeConfig} lock={lock('leadTime')} t={t} onChange={(leadTimeConfig) => props.onParamsChange({ leadTimeConfig })} />
         )}
 
-        <Field label={t('reviewPeriod')} lock={lock('reviewPeriod')} t={t}>
-          {perProduct('reviewPeriod') ? <FromFile t={t} /> : (
-            <select className="ops-select" value={params.reviewPeriod} disabled={fixed('reviewPeriod')} onChange={(event) => props.onParamsChange({ reviewPeriod: parseInt(event.target.value, 10) })}>
-              {/* A period read from the file that is not one of the four choices is still shown. */}
-              {[...new Set([...REVIEW_PERIODS, params.reviewPeriod])].sort((a, b) => a - b).map((days) => (
-                <option key={days} value={days}>{REVIEW_LABEL[days] ? t(REVIEW_LABEL[days]) : `${t.format.number(days, 0, 0)} ${t('days')}`}</option>
-              ))}
-            </select>
-          )}
+        <div className="inv-grid-2">
+          <Field label={t('reviewPeriodShort')} lock={lock('reviewPeriod')} t={t}>
+            {perProduct('reviewPeriod') ? <FromFile t={t} /> : (
+              <select className="ops-select" value={params.reviewPeriod} disabled={fixed('reviewPeriod')} onChange={(event) => props.onParamsChange({ reviewPeriod: parseInt(event.target.value, 10) })}>
+                {/* A period read from the file that is not one of the four choices is still shown. */}
+                {[...new Set([...REVIEW_PERIODS, params.reviewPeriod])].sort((a, b) => a - b).map((days) => (
+                  <option key={days} value={days}>{daysLabel(days, t)}</option>
+                ))}
+              </select>
+            )}
+          </Field>
+          {/* How often to order: a whole number of reviews, shown in days. It sets the order size, the gap between s and S. */}
+          <Field label={t('orderInterval')} lock={undefined} t={t}>
+            {perProduct('reviewPeriod') ? (
+              <select className="ops-select" value={params.orderInterval} title={t('orderIntervalHint')} onChange={(event) => props.onParamsChange({ orderInterval: parseInt(event.target.value, 10) })}>
+                {/* The review period R differs per product, so the interval cannot be given in days here. */}
+                {[...new Set([...ORDER_INTERVALS, params.orderInterval])].sort((a, b) => a - b).map((reviews) => (
+                  <option key={reviews} value={reviews}>{`${t.format.number(reviews, 0, 0)} × R`}</option>
+                ))}
+              </select>
+            ) : (
+              <select className="ops-select" value={params.orderInterval} title={t('orderIntervalHint')} onChange={(event) => props.onParamsChange({ orderInterval: parseInt(event.target.value, 10) })}>
+                {[...new Set([...ORDER_INTERVALS, params.orderInterval])].sort((a, b) => a - b).map((reviews) => (
+                  <option key={reviews} value={reviews}>{daysLabel(reviews * params.reviewPeriod, t)}</option>
+                ))}
+              </select>
+            )}
+          </Field>
+        </div>
+
+        {/* How strongly a day's forecast error carries over into the next day. */}
+        <Field label={t('errorPersistence')} lock={undefined} t={t}>
+          <select className="ops-select" value={params.errorPersistence} title={t('errorPersistenceHint')} onChange={(event) => props.onParamsChange({ errorPersistence: parseFloat(event.target.value) })}>
+            {[...new Set([...ERROR_PERSISTENCE, params.errorPersistence, ...(props.reportPersistence != null ? [props.reportPersistence] : [])])].sort((a, b) => a - b).map((share) => (
+              <option key={share} value={share}>
+                {share === props.reportPersistence ? t('persistenceFromReport') : PERSISTENCE_LABEL[share] ? t(PERSISTENCE_LABEL[share]) : t('persistenceOwn')}
+                {share > 0 || share === props.reportPersistence ? ` (${t.format.number(share, 0, 2)})` : ''}
+              </option>
+            ))}
+          </select>
         </Field>
 
         <div className="ops-field">

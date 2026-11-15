@@ -1,7 +1,7 @@
 // Calls to the inventory engine and the shapes it answers with.
 import { createApi, ApiError, sleep } from '../../../app-shared/api';
 import type { BatchRequest, SimulationRequest } from '../domain/requests';
-import type { OptimizationResult, OrderInfo, SimResult, TimelineDay, TimelineMetrics } from '../domain/types';
+import type { OptimizationResult, OptimizationStatus, OrderInfo, SimResult, TimelineDay, TimelineMetrics } from '../domain/types';
 
 const api = createApi('/inventory');
 
@@ -37,6 +37,7 @@ interface ApiMetrics {
   total_stockouts: number;
   total_days?: number;
   alpha_steady?: number | null;
+  alpha_cycle?: number | null;
   beta_steady?: number | null;
   warmup_days?: number | null;
   warmup_stockout_days?: number | null;
@@ -55,6 +56,7 @@ interface ApiOptimization {
   recommended_initial_stock: number;
   iterations_used: number;
   convergence_achieved: boolean;
+  status?: string | null;
   mc_avg_inventory?: number | null;
   mc_avg_stockout_days?: number | null;
   timeline?: ApiTimelineEntry[] | null;
@@ -97,11 +99,18 @@ export function mapMetrics(metrics: ApiMetrics | null | undefined): TimelineMetr
     totalStockouts: metrics.total_stockouts,
     totalDays: metrics.total_days,
     alpha_steady: metrics.alpha_steady,
+    alpha_cycle: metrics.alpha_cycle,
     beta_steady: metrics.beta_steady,
     warmup_days: metrics.warmup_days,
     warmup_stockout_days: metrics.warmup_stockout_days,
     steady_state_days: metrics.steady_state_days,
   };
+}
+
+/** The engine's verdict on the search; an answer without one is read from its older convergence flag. */
+function toStatus(result: ApiOptimization): OptimizationStatus {
+  if (result.status === 'tuned' || result.status === 'target_not_reachable' || result.status === 'forecast_too_short') return result.status;
+  return result.convergence_achieved ? 'tuned' : 'target_not_reachable';
 }
 
 export function mapOptimization(result: ApiOptimization): OptimizationResult {
@@ -117,6 +126,7 @@ export function mapOptimization(result: ApiOptimization): OptimizationResult {
     recommendedInitialStock: result.recommended_initial_stock,
     iterationsUsed: result.iterations_used,
     convergenceAchieved: result.convergence_achieved,
+    status: toStatus(result),
     mcAvgInventory: result.mc_avg_inventory ?? null,
     mcAvgStockoutDays: result.mc_avg_stockout_days ?? null,
     timeline: result.timeline ? mapTimeline(result.timeline) : undefined,

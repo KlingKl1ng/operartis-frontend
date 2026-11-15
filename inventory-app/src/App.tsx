@@ -16,7 +16,7 @@ import { DEFAULT_PARAMS, fileGivenFields, hasOwnValues, leadTimeValuesValid, loc
 import { batchRequest, exportRequest, simulationRequest } from './domain/requests';
 import { summaryRow, type SummaryRow } from './domain/summary';
 import type {
-  FileMetadata, FileSkuParams, ForecastPoint, LockState, Mapping, OptimizationResult, Params, SimResult,
+  FileMetadata, FileSkuParams, FileValidation, ForecastPoint, LockState, Mapping, OptimizationResult, Params, SimResult,
 } from './domain/types';
 import { useTranslator } from './i18n';
 import { autoMapping } from './parsing/mapping';
@@ -58,6 +58,8 @@ export default function App() {
   const [forecasts, setForecasts] = useState<Record<string, ForecastPoint[]>>({});
   const [fileParams, setFileParams] = useState<Record<string, FileSkuParams>>({});
   const [locks, setLocks] = useState<LockState>({});
+  // What a forecast report's past forecast errors gave: the persistence and how many products' spread.
+  const [validation, setValidation] = useState<FileValidation | null>(null);
 
   // Parameters: `defaults` are the values for all products; `overrides` hold what was changed for single products.
   const [defaults, setDefaults] = useState<Params>(DEFAULT_PARAMS);
@@ -184,6 +186,23 @@ export default function App() {
       setForecasts(parsed.grouped);
       setFileParams(parsed.skuParams);
       setLocks(chosenLocks);
+      // The persistence estimated from the report's past forecast errors becomes the value for all products.
+      // One taken from the previous file does not carry over to a file without such errors.
+      const estimated = parsed.validation?.persistence ?? null;
+      const previous = validation?.persistence ?? null;
+      setDefaults((current) => {
+        if (estimated != null) return { ...current, errorPersistence: estimated };
+        return previous != null && current.errorPersistence === previous ? { ...current, errorPersistence: 0 } : current;
+      });
+      setValidation(parsed.validation ?? null);
+      if (parsed.validation && (estimated != null || parsed.validation.spreadProducts > 0)) {
+        notify('success', t('validationErrorsRead'), [
+          estimated != null ? t('validationPersistence', t.format.number(estimated, 0, 2)) : '',
+          parsed.validation.spreadProducts > 0
+            ? t('validationSpread', t.format.number(parsed.validation.spreadProducts, 0, 0), t.format.number(parsed.skus.length, 0, 0))
+            : '',
+        ].filter(Boolean).join(' '));
+      }
       setSelected(parsed.skus);
       // A file with a single product has no overview; its tab is the page.
       setOpenTabs(parsed.skus.length === 1 ? parsed.skus : []);
@@ -200,6 +219,7 @@ export default function App() {
     setForecasts({});
     setFileParams({});
     setLocks({});
+    setValidation(null);
     setDefaults(DEFAULT_PARAMS);
     setSelected([]);
     setOpenTabs([]);
@@ -306,7 +326,8 @@ export default function App() {
     return skus.map((sku) => {
       // A product that is running again shows no figures from its previous run.
       const row = running.has(sku) ? null : summaryRow(sku, simResults[sku], optimizationResults[sku]);
-      const status: ProductStatus = running.has(sku) ? 'running' : failures[sku] ? 'failed' : row ? 'optimized' : 'notRun';
+      const tuned = optimizationResults[sku]?.status === 'tuned';
+      const status: ProductStatus = running.has(sku) ? 'running' : failures[sku] ? 'failed' : !row ? 'notRun' : tuned ? 'optimized' : 'untuned';
       return { sku, forecastDays: forecasts[sku]?.length || 0, status, row, failure: running.has(sku) ? undefined : failures[sku], edited: hasOwnValues(sku, sources) };
     });
   }, [skus, forecasts, simResults, optimizationResults, failures, runningSkus, sources]);
@@ -373,6 +394,7 @@ export default function App() {
             params={productTab ? paramsFor(productTab) : defaults}
             onParamsChange={updateParams}
             fileFields={fileFields}
+            reportPersistence={validation?.persistence ?? null}
             lockedFields={lockedFields(hasFile, locks)}
             unlocked={Boolean(productTab && unlocked[productTab])}
             edited={Boolean(productTab && hasOwnValues(productTab, sources))}

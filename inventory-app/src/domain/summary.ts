@@ -7,8 +7,8 @@ export type Level = 'good' | 'warn' | 'bad';
 export const serviceLevelBand = (alpha: number): Level => (alpha >= 0.95 ? 'good' : alpha >= 0.9 ? 'warn' : 'bad');
 /** Fewer than half a stockout day on average counts as rare. */
 export const stockoutsAreRare = (days: number) => days < 0.5;
-/** The optimizer may land up to two points under the target and still count as reached. */
-export const targetReached = (result: { achievedAlpha: number; targetAlpha: number }) => result.achievedAlpha >= result.targetAlpha - 0.02;
+/** The target is a floor: reached means at or above it. */
+export const targetReached = (result: { achievedAlpha: number; targetAlpha: number }) => result.achievedAlpha >= result.targetAlpha - 1e-9;
 
 export interface SummaryRow {
   sku: string;
