@@ -3855,6 +3855,154 @@
             background: linear-gradient(160deg, rgba(120, 53, 15, 0.55), rgba(69, 26, 3, 0.65));
             color: #fbbf24;
         }
+        /* ============================================================
+           LANDING V3 — calmer editorial rhythm on the Operartis DS
+           (gold + slate + glass; larger type, fewer boxes)
+           ============================================================ */
+        .lp3-hero-pill {
+            border: 1px solid rgba(148, 163, 184, 0.35);
+            background: rgba(255, 255, 255, 0.55);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.6);
+        }
+
+        .dark .lp3-hero-pill {
+            border-color: rgba(255, 255, 255, 0.1);
+            background: rgba(15, 23, 42, 0.55);
+            box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+        }
+
+        .lp3-hero-visual {
+            position: relative;
+            isolation: isolate;
+            overflow: hidden;
+            background:
+                radial-gradient(70% 90% at 50% 0%, rgba(245, 158, 11, 0.1), transparent 62%),
+                linear-gradient(180deg, rgba(255, 255, 255, 0.15) 0%, rgba(248, 250, 252, 0) 45%, rgba(248, 250, 252, 0.55) 100%),
+                url('./assets/hero-map-day.jpg') center / cover no-repeat;
+            box-shadow: 0 30px 80px -40px rgba(15, 23, 42, 0.35);
+        }
+
+        .dark .lp3-hero-visual {
+            background:
+                radial-gradient(70% 90% at 50% 0%, rgba(245, 158, 11, 0.12), transparent 62%),
+                linear-gradient(180deg, rgba(2, 6, 23, 0.1) 0%, rgba(2, 6, 23, 0) 45%, rgba(2, 6, 23, 0.7) 100%),
+                url('./assets/hero-map-night.jpg') center / cover no-repeat;
+            box-shadow: 0 30px 80px -40px rgba(0, 0, 0, 0.8);
+        }
+
+        /* Stats row — hairline dividers instead of a boxed band */
+        .lp3-stat {
+            position: relative;
+            padding: 0.25rem 1rem;
+        }
+
+        @media (min-width: 1024px) {
+            .lp3-stat:not(:first-child)::before {
+                content: '';
+                position: absolute;
+                left: 0;
+                top: 10%;
+                bottom: 10%;
+                width: 1px;
+                background: linear-gradient(180deg, transparent, rgba(148, 163, 184, 0.45), transparent);
+            }
+
+            .dark .lp3-stat:not(:first-child)::before {
+                background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.14), transparent);
+            }
+        }
+
+        /* Decision cards — question first, module that answers it second */
+        .lp3-decision-card {
+            position: relative;
+            isolation: isolate;
+            overflow: hidden;
+            border: 1px solid rgba(203, 213, 225, 0.8);
+            background: linear-gradient(160deg, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.55));
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 8px 32px rgba(15, 23, 42, 0.06), inset 0 1px 0 0 rgba(255, 255, 255, 0.7);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease, box-shadow 0.4s ease;
+        }
+
+        .dark .lp3-decision-card {
+            border-color: rgba(255, 255, 255, 0.08);
+            background: linear-gradient(160deg, rgba(30, 41, 59, 0.5), rgba(15, 23, 42, 0.35));
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+        }
+
+        .lp3-decision-card::before {
+            content: '';
+            position: absolute;
+            z-index: -1;
+            right: -30%;
+            top: -35%;
+            width: 80%;
+            aspect-ratio: 1;
+            border-radius: 9999px;
+            background: radial-gradient(closest-side, rgba(245, 158, 11, 0.16), transparent);
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            pointer-events: none;
+        }
+
+        .lp3-decision-card:hover,
+        .lp3-decision-card:focus-visible {
+            transform: translateY(-4px);
+            border-color: rgba(245, 158, 11, 0.55);
+            box-shadow: 0 18px 48px rgba(180, 83, 9, 0.14), inset 0 1px 0 0 rgba(255, 255, 255, 0.7);
+            outline: none;
+        }
+
+        .dark .lp3-decision-card:hover,
+        .dark .lp3-decision-card:focus-visible {
+            border-color: rgba(245, 158, 11, 0.5);
+            box-shadow: 0 18px 48px rgba(0, 0, 0, 0.45), inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .lp3-decision-card:hover::before,
+        .lp3-decision-card:focus-visible::before {
+            opacity: 1;
+        }
+
+        .lp3-decision-arrow {
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .lp3-decision-card:hover .lp3-decision-arrow,
+        .lp3-decision-card:focus-visible .lp3-decision-arrow {
+            transform: translateX(3px);
+            background-color: #f59e0b;
+            border-color: #f59e0b;
+            color: #fff;
+        }
+
+        /* Closing CTA — always-dark band over the night earth */
+        .lp3-cta {
+            position: relative;
+            isolation: isolate;
+            overflow: hidden;
+            background:
+                radial-gradient(60% 80% at 85% 35%, rgba(245, 158, 11, 0.16), transparent 60%),
+                linear-gradient(180deg, rgba(2, 6, 23, 0.55) 0%, rgba(2, 6, 23, 0.35) 45%, rgba(2, 6, 23, 0.85) 100%),
+                url('./assets/cta-earth-night.jpg') center 38% / cover no-repeat,
+                #020617;
+            box-shadow: 0 30px 80px -40px rgba(2, 6, 23, 0.9), inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .lp3-decision-card,
+            .lp3-decision-arrow {
+                transition: none;
+            }
+
+            .lp3-decision-card:hover,
+            .lp3-decision-card:focus-visible {
+                transform: none;
+            }
+        }
     </style>
 
     <script src="./vendor/react-17.0.2.production.min.js"></script>
@@ -4223,6 +4371,16 @@
                     cta_why: "Why Operartis",
                     metrics_eyebrow: "Built for measurable impact",
                     metrics_title: "One platform. Every planning horizon.",
+                    decisions_eyebrow: "Decisions, not dashboards",
+                    decisions_title: "Every planning decision moves your numbers.",
+                    decisions_title_muted: "Operartis turns each question into a model you can solve.",
+                    decisions_answered_by: "Answered by",
+                    decisions_items: [
+                        { module: 'forecaster', tag: "Demand", question: "How much will we sell in the coming months?" },
+                        { module: 'advanced_forecaster', tag: "Scenarios", question: "How does demand shift when the drivers behind it change?" },
+                        { module: 'abc', tag: "Assortment", question: "Which items deserve the tightest control?" },
+                        { module: 'inventory', tag: "Inventory", question: "How much safety stock do we need, and when do we reorder?" }
+                    ],
                     proof_eyebrow: "Mathematical foundation",
                     proof_title: "Optimization with proof.",
                     proof_body: "Operartis is an optimization system built from data-driven mathematical models. It helps managers make better decisions. The results are (near)optimal solutions under given constraints that can be proven.",
@@ -4582,6 +4740,16 @@
                     cta_why: "Vì Sao Chọn Operartis",
                     metrics_eyebrow: "Được xây dựng để đo lường tác động",
                     metrics_title: "Một nền tảng. Mọi khung hoạch định.",
+                    decisions_eyebrow: "Quyết định, không chỉ báo cáo",
+                    decisions_title: "Mỗi quyết định hoạch định đều tác động đến kết quả kinh doanh.",
+                    decisions_title_muted: "Operartis biến từng câu hỏi thành mô hình có thể giải được.",
+                    decisions_answered_by: "Giải đáp bởi",
+                    decisions_items: [
+                        { module: 'forecaster', tag: "Nhu cầu", question: "Chúng ta sẽ bán được bao nhiêu trong những tháng tới?" },
+                        { module: 'advanced_forecaster', tag: "Kịch bản", question: "Nhu cầu thay đổi thế nào khi các yếu tố tác động thay đổi?" },
+                        { module: 'abc', tag: "Danh mục", question: "Mặt hàng nào cần được kiểm soát chặt chẽ nhất?" },
+                        { module: 'inventory', tag: "Tồn kho", question: "Cần bao nhiêu tồn kho an toàn và khi nào nên đặt hàng lại?" }
+                    ],
                     proof_eyebrow: "Nền tảng toán học",
                     proof_title: "Tối ưu hoá có thể chứng minh",
                     proof_body: "Operartis là hệ thống tối ưu hoá xây dựng từ các mô hình toán học dựa trên dữ liệu. Hệ thống hỗ trợ nhà quản lý ra quyết định tốt hơn. Kết quả là các lời giải (cận) tối ưu dưới các điều kiện ràng buộc cho trước có thể chứng minh được.",
@@ -4941,6 +5109,16 @@
                     cta_why: "Warum Operartis",
                     metrics_eyebrow: "Für messbare Wirkung entwickelt",
                     metrics_title: "Eine Plattform. Jeder Planungshorizont.",
+                    decisions_eyebrow: "Entscheidungen statt Dashboards",
+                    decisions_title: "Jede Planungsentscheidung bewegt Ihre Kennzahlen.",
+                    decisions_title_muted: "Operartis macht aus jeder Frage ein lösbares Modell.",
+                    decisions_answered_by: "Beantwortet von",
+                    decisions_items: [
+                        { module: 'forecaster', tag: "Bedarf", question: "Wie viel werden wir in den kommenden Monaten verkaufen?" },
+                        { module: 'advanced_forecaster', tag: "Szenarien", question: "Wie verändert sich der Bedarf, wenn sich seine Treiber ändern?" },
+                        { module: 'abc', tag: "Sortiment", question: "Welche Artikel verlangen die engste Steuerung?" },
+                        { module: 'inventory', tag: "Bestand", question: "Wie viel Sicherheitsbestand brauchen wir, und wann bestellen wir nach?" }
+                    ],
                     proof_eyebrow: "Mathematische Grundlage",
                     proof_title: "Optimierung mit Beweis.",
                     proof_body: "Operartis ist ein Optimierungssystem aus datengestützten mathematischen Modellen. Es unterstützt Führungskräfte bei besseren Entscheidungen. Die Ergebnisse sind (nahezu)optimale Lösungen unter gegebenen Restriktionen, die beweisbar sind.",
@@ -5875,8 +6053,7 @@
 
             return (
                 <section
-                    id="supply-chain"
-                    className="opus-scroll-target relative rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-gradient-to-b from-white/55 via-white/35 to-white/20 dark:from-slate-900/55 dark:via-slate-900/35 dark:to-slate-900/20 backdrop-blur-xl shadow-sm"
+                    className="relative rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-gradient-to-b from-white/55 via-white/35 to-white/20 dark:from-slate-900/55 dark:via-slate-900/35 dark:to-slate-900/20 backdrop-blur-xl shadow-sm"
                     aria-label={content.ui.sc_title}
                 >
                     <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-2xl">
@@ -5885,13 +6062,6 @@
                     </div>
 
                     <div className="w-full px-4 sm:px-5 md:px-6 py-4 md:py-5 relative">
-                        <div className="mb-4 md:mb-5">
-                            <div>
-                                <p className="text-[10px] font-bold uppercase opus-eyebrow text-brand-gold mb-1">{content.ui.sc_eyebrow}</p>
-                                <h2 className="text-sm md:text-base font-bold text-slate-800 dark:text-slate-100 tracking-tight">{content.ui.sc_title}</h2>
-                            </div>
-                        </div>
-
                         <div className="relative sc-flow-scroll -mx-1 px-1 pb-3">
                             <div className="relative w-full pt-6 md:pt-14 pb-6 md:pb-16 overflow-visible" ref={flowTrackRef}>
                                 <div className="hidden md:contents">
@@ -6153,9 +6323,8 @@
 
             return (
                 <section
-                    id="industry-40"
                     ref={sectionRef}
-                    className="opus-scroll-target relative rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-gradient-to-b from-white/55 via-white/35 to-white/20 dark:from-slate-900/55 dark:via-slate-900/35 dark:to-slate-900/20 backdrop-blur-xl shadow-sm overflow-hidden"
+                    className="relative rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-gradient-to-b from-white/55 via-white/35 to-white/20 dark:from-slate-900/55 dark:via-slate-900/35 dark:to-slate-900/20 backdrop-blur-xl shadow-sm overflow-hidden"
                     aria-label={ui.i4l_title}
                 >
                     <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-2xl">
@@ -6165,11 +6334,7 @@
                     </div>
 
                     <div className="w-full px-4 sm:px-5 md:px-6 py-4 md:py-5 relative">
-                        <div className="flex flex-wrap items-end justify-between gap-3 mb-5 md:mb-6">
-                            <div>
-                                <p className="text-[10px] font-bold uppercase opus-eyebrow text-brand-gold mb-1">{ui.i4l_eyebrow}</p>
-                                <h2 className="text-sm md:text-base font-bold text-slate-800 dark:text-slate-100 tracking-tight">{ui.i4l_title}</h2>
-                            </div>
+                        <div className="flex flex-wrap items-end justify-end gap-3 mb-4 md:mb-5">
                             <div className="flex items-center gap-2">
                                 {[0, 1].map(i => (
                                     <button
@@ -6537,6 +6702,39 @@
             const pipelineSteps = content.ui.hero_pipeline_steps || [];
             const consoleEvents = content.ui.hero_console_events || [];
             const [activeFlowIdx, setActiveFlowIdx] = useState(0);
+            const titleRef = useRef(null);
+
+            // Keep the headline on exactly two lines at any width / language:
+            // start from the CSS size for the breakpoint, then shrink until the widest line fits.
+            React.useLayoutEffect(() => {
+                const el = titleRef.current;
+                if (!el) return undefined;
+                let lastWidth = -1;
+                const fit = (force) => {
+                    const avail = el.clientWidth;
+                    if (!avail || (!force && avail === lastWidth)) return;
+                    lastWidth = avail;
+                    el.style.fontSize = '';
+                    const base = parseFloat(window.getComputedStyle(el).fontSize) || 40;
+                    let widest = 0;
+                    el.querySelectorAll('[data-hero-line]').forEach(line => {
+                        widest = Math.max(widest, line.getBoundingClientRect().width);
+                    });
+                    if (widest > avail) {
+                        el.style.fontSize = `${Math.floor((base * avail / widest) * 100) / 100}px`;
+                    }
+                };
+                fit(true);
+                const onResize = () => fit(false);
+                window.addEventListener('resize', onResize);
+                const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(onResize) : null;
+                if (ro) ro.observe(el);
+                if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => fit(true));
+                return () => {
+                    window.removeEventListener('resize', onResize);
+                    if (ro) ro.disconnect();
+                };
+            }, [content.ui.header_title_1, content.ui.header_title_2]);
 
             useEffect(() => {
                 if (!pipelineSteps.length) return undefined;
@@ -6556,86 +6754,85 @@
                 : [];
 
             return (
-                <div className="opus-hero-glow relative overflow-hidden rounded-3xl border border-white/40 dark:border-white/10 bg-white/15 dark:bg-brand-obsidian/40 backdrop-blur-xl dark:backdrop-blur-2xl ring-1 ring-white/20 dark:ring-white/5 shadow-[0_8px_32px_rgba(15,23,42,0.08),inset_0_1px_0_0_rgba(255,255,255,0.45)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.12),inset_0_1px_0_0_rgba(255,255,255,0.15)]">
-                    <div className="absolute -top-24 -left-24 w-72 h-72 bg-brand-gold/12 rounded-full blur-3xl animate-blob pointer-events-none"></div>
-                    <div className="absolute -bottom-24 right-10 w-72 h-72 bg-sky-500/10 rounded-full blur-3xl animate-blob animation-delay-2000 pointer-events-none"></div>
-
-                    <div className="relative z-10 grid lg:grid-cols-12 gap-8 lg:gap-6 items-center p-8 md:p-12 lg:p-14">
-                        <div className="lg:col-span-7 text-center lg:text-left">
-                            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-900 dark:text-white tracking-tight leading-[1.05] mb-6">
-                                <span className="md:hidden">
-                                    <span className="block">{content.ui.header_title_1}</span>
-                                    <span className="block">&</span>
-                                    <span className="block opus-sheen">{content.ui.header_title_2}</span>
-                                </span>
-                                <span className="hidden md:inline">
-                                    {content.ui.header_title_1}{' '}&{' '}
-                                    <span className="opus-sheen">{content.ui.header_title_2}</span>
-                                </span>
-                            </h1>
-                            <p className="text-base md:text-lg text-slate-600 dark:text-slate-300 leading-relaxed max-w-xl mx-auto lg:mx-0 mb-8">
-                                {content.ui.header_desc}
-                            </p>
-                            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3">
-                                <button type="button" onClick={onExplore} className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-brand-gold text-white text-sm font-bold shadow-lg shadow-brand-gold/20 hover:bg-amber-600 hover:shadow-brand-gold/40 hover:scale-[1.02] active:scale-95 transition-all">
-                                    {content.ui.cta_explore} <ArrowRightIcon />
-                                </button>
-                                <button type="button" onClick={onWhy} className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-sm font-bold transition-all duration-200 hover:border-brand-gold hover:text-brand-gold hover:bg-brand-gold/5 dark:hover:border-brand-gold dark:hover:text-brand-gold dark:hover:bg-brand-gold/10">
-                                    {content.ui.cta_why}
-                                </button>
-                            </div>
+                <div className="relative pt-2 sm:pt-6 md:pt-12">
+                    <div className="relative z-10 text-center max-w-5xl mx-auto">
+                        <div className="lp3-hero-pill inline-flex items-center gap-2.5 rounded-full px-3.5 py-1.5 mb-6 md:mb-8">
+                            <span className="h-1.5 w-1.5 rounded-full bg-brand-gold shadow-[0_0_10px_rgba(245,158,11,0.9)]" aria-hidden="true"></span>
+                            {/* Brand motto — kept in English per DESIGN_SYSTEM.md */}
+                            <span className="whitespace-nowrap text-[9px] sm:text-[11px] font-mono font-bold uppercase tracking-[0.08em] sm:tracking-[0.18em] text-slate-600 dark:text-slate-300">Optimizing today, Growing tomorrow.</span>
                         </div>
+                        {/* Always exactly two lines: "{title_1} &" / "{title_2}" — font size auto-fits the widest line */}
+                        <h1 ref={titleRef} className="text-[2.5rem] sm:text-6xl lg:text-7xl font-black text-slate-900 dark:text-white tracking-tight leading-[1.12]">
+                            <span className="block">
+                                <span data-hero-line className="inline-block whitespace-nowrap">{content.ui.header_title_1}{' '}&</span>
+                            </span>
+                            <span className="block">
+                                <span data-hero-line className="inline-block whitespace-nowrap opus-sheen">{content.ui.header_title_2}</span>
+                            </span>
+                        </h1>
+                        <p className="mt-6 md:mt-7 text-base sm:text-lg md:text-xl text-slate-600 dark:text-slate-300 leading-relaxed max-w-2xl mx-auto">
+                            {content.ui.header_desc}
+                        </p>
+                        <div className="mt-8 md:mt-10 flex flex-wrap items-center justify-center gap-3">
+                            <button type="button" onClick={onExplore} className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-brand-gold text-white text-sm md:text-base font-bold shadow-lg shadow-brand-gold/20 hover:bg-amber-600 hover:shadow-brand-gold/40 hover:scale-[1.02] active:scale-95 transition-all">
+                                {content.ui.cta_explore} <ArrowRightIcon />
+                            </button>
+                            <button type="button" onClick={onWhy} className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl border border-slate-300 dark:border-white/15 bg-white/50 dark:bg-white/[0.04] backdrop-blur-md text-slate-700 dark:text-slate-200 text-sm md:text-base font-bold transition-all duration-200 hover:border-brand-gold hover:text-brand-gold hover:bg-brand-gold/5 dark:hover:border-brand-gold dark:hover:text-brand-gold dark:hover:bg-brand-gold/10">
+                                {content.ui.cta_why}
+                            </button>
+                        </div>
+                    </div>
 
-                        {/* Live APS terminal visual */}
-                        <div className="lg:col-span-5">
-                            <div className="rounded-2xl border border-white/50 dark:border-white/10 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl shadow-2xl overflow-hidden">
-                                <div className="p-5 space-y-4">
-                                    <div>
-                                        <div className="flex items-center mb-3">
-                                            <span className="min-w-0 text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 truncate">{content.ui.hero_pipeline_label}</span>
-                                        </div>
-                                        <div className="mb-3 h-1 rounded-full bg-slate-200/70 dark:bg-slate-800 overflow-hidden">
+                    {/* Live APS pipeline — floating glass console over the network map */}
+                    <div className="lp3-hero-visual mt-12 md:mt-16 rounded-3xl border border-slate-200/80 dark:border-white/10 px-3 py-6 sm:p-8 md:p-12 lg:px-20 lg:py-16">
+                        <div className="relative z-10 max-w-4xl mx-auto rounded-2xl border border-white/70 dark:border-white/10 bg-white/80 dark:bg-slate-900/75 backdrop-blur-xl shadow-[0_24px_64px_rgba(15,23,42,0.16),inset_0_1px_0_0_rgba(255,255,255,0.7)] dark:shadow-[0_24px_64px_rgba(0,0,0,0.55),inset_0_1px_0_0_rgba(255,255,255,0.12)] overflow-hidden text-left">
+                            <div className="flex items-center justify-between gap-3 px-4 sm:px-6 py-3 border-b border-slate-200/70 dark:border-white/[0.06]">
+                                <span className="min-w-0 text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 truncate">{content.ui.hero_pipeline_label}</span>
+                                <span className="shrink-0 font-mono text-[10px] font-bold tabular-nums text-slate-400 dark:text-slate-500">
+                                    <span className="text-brand-gold">{String(activeFlowIdx + 1).padStart(2, '0')}</span> / {String(pipelineSteps.length).padStart(2, '0')}
+                                </span>
+                            </div>
+                            <div className="p-4 sm:p-6 space-y-4">
+                                <div className="h-1 rounded-full bg-slate-200/70 dark:bg-slate-800 overflow-hidden">
+                                    <div
+                                        className="h-full rounded-full bg-gradient-to-r from-brand-gold via-amber-400 to-brand-dark transition-[width] duration-700 ease-out"
+                                        style={{ width: `${flowProgress}%` }}
+                                    />
+                                </div>
+                                <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
+                                    {pipelineSteps.map((step, i) => {
+                                        const isActive = i === activeFlowIdx;
+                                        const isDone = i < activeFlowIdx;
+                                        return (
                                             <div
-                                                className="h-full rounded-full bg-gradient-to-r from-brand-gold via-amber-400 to-brand-dark transition-[width] duration-700 ease-out"
-                                                style={{ width: `${flowProgress}%` }}
-                                            />
-                                        </div>
-                                        <div className="grid grid-cols-3 gap-2">
-                                            {pipelineSteps.map((step, i) => {
-                                                const isActive = i === activeFlowIdx;
-                                                const isDone = i < activeFlowIdx;
-                                                return (
-                                                    <div
-                                                        key={step}
-                                                        className={`hero-aps-pipeline-step rounded-xl border px-2.5 py-2 min-h-[3.6rem] transition-colors duration-500 ${isActive ? 'hero-aps-pipeline-step-active border-brand-gold/60 bg-brand-gold/10 text-brand-gold' : isDone ? 'border-brand-gold/25 bg-brand-gold/5 text-slate-700 dark:text-slate-200' : 'border-slate-200/70 dark:border-white/5 bg-slate-50/60 dark:bg-slate-800/35 text-slate-500 dark:text-slate-400'}`}
-                                                    >
-                                                        <div className="relative z-[1] flex items-center justify-between gap-2 mb-1">
-                                                            <span className="text-[9px] font-mono font-bold tabular-nums opacity-70">{String(i + 1).padStart(2, '0')}</span>
-                                                            <span className={`h-1.5 w-1.5 rounded-full ${isActive ? 'bg-brand-gold' : isDone ? 'bg-emerald-400' : 'bg-slate-300 dark:bg-slate-600'}`}></span>
-                                                        </div>
-                                                        <div className="relative z-[1] text-[10px] font-bold uppercase tracking-wide leading-snug">{step}</div>
-                                                    </div>
-                                                );
-                                            })}
-                                        </div>
-                                    </div>
+                                                key={step}
+                                                className={`hero-aps-pipeline-step rounded-xl border px-2.5 py-2 min-h-[3.6rem] md:min-h-[4.25rem] transition-colors duration-500 ${isActive ? 'hero-aps-pipeline-step-active border-brand-gold/60 bg-brand-gold/10 text-brand-gold' : isDone ? 'border-brand-gold/25 bg-brand-gold/5 text-slate-700 dark:text-slate-200' : 'border-slate-200/70 dark:border-white/5 bg-slate-50/60 dark:bg-slate-800/35 text-slate-500 dark:text-slate-400'}`}
+                                            >
+                                                <div className="relative z-[1] flex items-center justify-between gap-2 mb-1">
+                                                    <span className="text-[9px] font-mono font-bold tabular-nums opacity-70">{String(i + 1).padStart(2, '0')}</span>
+                                                    <span className={`h-1.5 w-1.5 rounded-full ${isActive ? 'bg-brand-gold' : isDone ? 'bg-emerald-400' : 'bg-slate-300 dark:bg-slate-600'}`}></span>
+                                                </div>
+                                                <div className="relative z-[1] text-[10px] font-bold uppercase tracking-wide leading-snug">{step}</div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
 
-                                    <div className="rounded-xl border border-slate-200/70 dark:border-white/5 bg-slate-950/[0.03] dark:bg-slate-950/35 p-3">
-                                        <div className="mb-2">
-                                            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">{content.ui.hero_console_label}</span>
-                                        </div>
-                                        <div className="space-y-1.5 font-mono text-[10px] leading-relaxed">
-                                            {visibleEvents.map((event, i) => {
-                                                const isActive = i === 0;
-                                                return (
-                                                    <div key={`${event}-${i}`} className={`flex items-center gap-2 min-w-0 ${isActive ? 'text-slate-700 dark:text-slate-100' : 'text-slate-400 dark:text-slate-500'}`}>
-                                                        <span className={isActive ? 'text-brand-gold' : 'text-slate-300 dark:text-slate-600'}>{isActive ? '>' : '$'}</span>
-                                                        <span className="truncate">{event}</span>
-                                                        {isActive && <span className="hero-console-cursor h-3 w-1 bg-brand-gold shrink-0"></span>}
-                                                    </div>
-                                                );
-                                            })}
-                                        </div>
+                                <div className="rounded-xl border border-slate-200/70 dark:border-white/5 bg-slate-950/[0.03] dark:bg-slate-950/40 p-3 sm:p-4">
+                                    <div className="mb-2">
+                                        <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">{content.ui.hero_console_label}</span>
+                                    </div>
+                                    <div className="space-y-1.5 font-mono text-[10px] sm:text-[11px] leading-relaxed">
+                                        {visibleEvents.map((event, i) => {
+                                            const isActive = i === 0;
+                                            return (
+                                                <div key={`${event}-${i}`} className={`flex items-center gap-2 min-w-0 ${isActive ? 'text-slate-700 dark:text-slate-100' : 'text-slate-400 dark:text-slate-500'}`}>
+                                                    <span className={isActive ? 'text-brand-gold' : 'text-slate-300 dark:text-slate-600'}>{isActive ? '>' : '$'}</span>
+                                                    <span className="truncate">{event}</span>
+                                                    {isActive && <span className="hero-console-cursor h-3 w-1 bg-brand-gold shrink-0"></span>}
+                                                </div>
+                                            );
+                                        })}
                                     </div>
                                 </div>
                             </div>
@@ -6664,23 +6861,79 @@
             );
         };
 
-        // Metrics band — Zentio "measurable impact" strip
+        // Shared section heading — eyebrow + large title + optional lead (Landing V3 type scale)
+        const SectionHeading = ({ eyebrow, title, muted, desc, align = 'left', className = '' }) => (
+            <div className={`max-w-4xl mb-8 md:mb-12 ${align === 'center' ? 'mx-auto text-center' : ''} ${className}`}>
+                {eyebrow && <p className="text-[10px] md:text-[11px] font-bold uppercase opus-eyebrow text-brand-gold mb-3 md:mb-4">{eyebrow}</p>}
+                <h2 className="text-[1.75rem] sm:text-4xl md:text-[2.75rem] font-bold text-slate-900 dark:text-white tracking-tight leading-[1.15] md:leading-[1.12]">
+                    {title}
+                    {muted && <span className="text-slate-400 dark:text-slate-500">{' '}{muted}</span>}
+                </h2>
+                {desc && (
+                    <p className={`mt-4 md:mt-5 text-base md:text-lg text-slate-500 dark:text-slate-400 leading-relaxed max-w-2xl ${align === 'center' ? 'mx-auto' : ''}`}>{desc}</p>
+                )}
+            </div>
+        );
+
+        // Metrics — open stats row with hairline dividers
         const MetricsBand = ({ content, stats }) => (
-            <div className="opus-metrics-glass rounded-3xl border border-slate-400/40 dark:border-white/[0.06] ring-0 dark:ring-1 dark:ring-white/[0.04] p-8 md:p-10">
-                <div className="relative z-[1] text-center max-w-2xl mx-auto mb-8">
-                    <p className="text-[10px] font-bold uppercase opus-eyebrow text-brand-gold mb-2">{content.ui.metrics_eyebrow}</p>
-                    <h2 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">{content.ui.metrics_title}</h2>
-                </div>
-                <div className="relative z-[1] grid grid-cols-2 lg:grid-cols-4 gap-y-8 md:gap-y-6">
+            <div>
+                <SectionHeading align="center" eyebrow={content.ui.metrics_eyebrow} title={content.ui.metrics_title} />
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-y-10">
                     {stats.map((s, i) => (
-                        <div key={i} className="opus-metrics-stat text-center px-2">
-                            <div className="text-4xl md:text-5xl font-black font-mono tabular-nums text-transparent bg-clip-text bg-gradient-to-br from-brand-gold to-brand-dark">{s.value}</div>
-                            <div className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mt-2">{s.label}</div>
+                        <div key={i} className="lp3-stat text-center">
+                            <div className="text-5xl md:text-6xl font-black font-mono tabular-nums text-transparent bg-clip-text bg-gradient-to-br from-brand-gold to-brand-dark">{s.value}</div>
+                            <div className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mt-3">{s.label}</div>
                         </div>
                     ))}
                 </div>
             </div>
         );
+
+        // Decisions — the planning questions each live module answers
+        const DecisionsSection = ({ content }) => {
+            const ui = content.ui;
+            const items = (ui.decisions_items || []).filter(item => MODULE_STATIC_DATA[item.module]);
+            if (!items.length) return null;
+            return (
+                <div>
+                    <SectionHeading eyebrow={ui.decisions_eyebrow} title={ui.decisions_title} muted={ui.decisions_title_muted} />
+                    <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        {items.map((item, i) => {
+                            const module = MODULE_STATIC_DATA[item.module];
+                            const text = (content.registry && content.registry[item.module]) || { name: item.module };
+                            const isLive = module.status === 'live';
+                            const Tag = isLive ? 'a' : 'div';
+                            return (
+                                <Reveal key={item.module} delay={i * 80} className="h-full">
+                                    <Tag
+                                        {...(isLive ? { href: module.href } : {})}
+                                        className="lp3-decision-card group flex h-full min-h-[13.5rem] sm:min-h-[17rem] lg:min-h-[20rem] flex-col rounded-2xl p-5 md:p-6"
+                                    >
+                                        <div className="flex items-center justify-between gap-3">
+                                            <span className="rounded-full border border-slate-300/80 dark:border-white/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">{item.tag}</span>
+                                            {isLive && (
+                                                <span className="lp3-decision-arrow flex h-8 w-8 items-center justify-center rounded-full border border-slate-300/80 dark:border-white/10 text-slate-500 dark:text-slate-400 [&>svg]:h-4 [&>svg]:w-4" aria-hidden="true">
+                                                    <ArrowRightIcon />
+                                                </span>
+                                            )}
+                                        </div>
+                                        <p className="mt-auto pt-10 text-xl md:text-[1.375rem] font-bold tracking-tight leading-snug text-slate-900 dark:text-white">{item.question}</p>
+                                        <div className="mt-5 pt-4 border-t border-slate-200/80 dark:border-white/[0.07] flex items-center gap-3">
+                                            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-gold/10 text-brand-gold [&>svg]:h-[18px] [&>svg]:w-[18px]" aria-hidden="true">{module.icon}</span>
+                                            <span className="min-w-0">
+                                                <span className="block text-[9px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">{ui.decisions_answered_by}</span>
+                                                <span className="block truncate text-sm font-bold text-slate-800 dark:text-slate-100 group-hover:text-brand-gold transition-colors">{text.name}</span>
+                                            </span>
+                                        </div>
+                                    </Tag>
+                                </Reveal>
+                            );
+                        })}
+                    </div>
+                </div>
+            );
+        };
 
         // Render proof formulas: Σ_{k ∈ K}, x_{ij}^{k} → proper sub/sup (readable ∈)
         const renderProofFormula = (line) => {
@@ -6902,14 +7155,14 @@
                         <div className="absolute -bottom-12 right-1/4 w-56 h-28 bg-amber-500/4 rounded-full blur-3xl" />
                     </div>
 
-                    <div className="relative w-full px-3.5 sm:px-5 md:px-8 py-5 sm:py-6 md:py-8">
-                        <div className="grid lg:grid-cols-12 gap-5 sm:gap-8 lg:gap-10 items-start">
+                    <div className="relative w-full px-3.5 sm:px-5 md:px-8 py-5 sm:py-6 md:py-10">
+                        <div className="grid lg:grid-cols-12 gap-5 sm:gap-8 lg:gap-10 items-center">
                             <div className="lg:col-span-5">
-                                <p className="text-[10px] font-bold uppercase opus-eyebrow text-brand-gold mb-2">{ui.proof_eyebrow}</p>
-                                <h2 className="text-[1.35rem] sm:text-xl md:text-2xl font-bold text-slate-900 dark:text-white tracking-tight leading-snug mb-3 sm:mb-4">
+                                <p className="text-[10px] md:text-[11px] font-bold uppercase opus-eyebrow text-brand-gold mb-3 md:mb-4">{ui.proof_eyebrow}</p>
+                                <h2 className="text-[1.75rem] sm:text-4xl md:text-[2.75rem] font-bold text-slate-900 dark:text-white tracking-tight leading-[1.15] md:leading-[1.12] mb-4 sm:mb-5">
                                     {ui.proof_title}
                                 </h2>
-                                <p className="text-[13px] sm:text-sm md:text-[15px] text-slate-600 dark:text-slate-300 leading-relaxed">
+                                <p className="text-sm sm:text-base md:text-lg text-slate-600 dark:text-slate-400 leading-relaxed">
                                     {ui.proof_body}
                                 </p>
                             </div>
@@ -7350,11 +7603,7 @@
 
             return (
                 <div>
-                    <div className="max-w-2xl mb-8">
-                        <p className="text-[10px] font-bold uppercase opus-eyebrow text-brand-gold mb-2">{content.ui.journey_eyebrow}</p>
-                        <h2 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white tracking-tight mb-3">{content.ui.journey_title}</h2>
-                        <p className="text-sm md:text-base text-slate-500 dark:text-slate-400 leading-relaxed">{content.ui.journey_desc}</p>
-                    </div>
+                    <SectionHeading eyebrow={content.ui.journey_eyebrow} title={content.ui.journey_title} desc={content.ui.journey_desc} />
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         {horizons.map((h, i) => {
                             const isSelected = i === selectedIdx;
@@ -8307,9 +8556,8 @@
 
             return (
                 <section
-                    id="or-process"
                     ref={sectionRef}
-                    className="opus-scroll-target relative rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-gradient-to-b from-white/55 via-white/35 to-white/20 dark:from-slate-900/55 dark:via-slate-900/35 dark:to-slate-900/20 backdrop-blur-xl shadow-sm mb-16 md:mb-20"
+                    className="relative rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-gradient-to-b from-white/55 via-white/35 to-white/20 dark:from-slate-900/55 dark:via-slate-900/35 dark:to-slate-900/20 backdrop-blur-xl shadow-sm mb-16 md:mb-20"
                     aria-label={ui.or_process_title}
                 >
                     <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-2xl">
@@ -8318,12 +8566,6 @@
                     </div>
 
                     <div className="w-full px-4 sm:px-5 md:px-6 py-5 md:py-6 relative">
-                        <div className="mb-6 md:mb-8 max-w-3xl">
-                            <p className="text-[10px] font-bold uppercase opus-eyebrow text-brand-gold mb-2">{ui.or_process_eyebrow}</p>
-                            <h2 className="text-xl md:text-2xl font-bold text-slate-800 dark:text-slate-100 tracking-tight mb-3">{ui.or_process_title}</h2>
-                            <p className="text-sm md:text-base text-slate-600 dark:text-slate-400 leading-relaxed">{ui.or_process_subtitle}</p>
-                        </div>
-
                         <div className="grid lg:grid-cols-[1fr_1fr] gap-8 md:gap-10 items-center">
                             <div className="or-cycle-stage select-none">
                                 <svg className="or-cycle-svg" viewBox={`0 0 ${OR_CYCLE_CFG.vb} ${OR_CYCLE_CFG.vb}`} aria-hidden="true">
@@ -8546,7 +8788,6 @@
 
             return (
                 <section
-                    id="analytics"
                     className="relative rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-gradient-to-b from-white/55 via-white/35 to-white/20 dark:from-slate-900/55 dark:via-slate-900/35 dark:to-slate-900/20 backdrop-blur-xl shadow-sm mb-16 md:mb-20 overflow-hidden"
                     aria-label={ui.analytics_title}
                 >
@@ -8556,12 +8797,7 @@
                     </div>
 
                     <div className="w-full px-4 sm:px-5 md:px-6 py-5 md:py-6 relative">
-                        <div className="flex flex-wrap items-end justify-between gap-3 mb-6 md:mb-8">
-                            <div className="max-w-2xl">
-                                <p className="text-[10px] font-bold uppercase opus-eyebrow text-brand-gold mb-1">{ui.analytics_eyebrow}</p>
-                                <h2 className="text-xl md:text-2xl font-bold text-slate-800 dark:text-slate-100 tracking-tight mb-2">{ui.analytics_title}</h2>
-                                <p className="text-xs md:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">{ui.analytics_subtitle}</p>
-                            </div>
+                        <div className="flex flex-wrap items-end justify-end gap-3 mb-4 md:mb-5">
                             <p className="text-[9px] font-mono uppercase tracking-wider text-slate-400 dark:text-slate-500">{ui.analytics_source_note}</p>
                         </div>
 
@@ -8841,15 +9077,15 @@
                 </div>
 
                 <Reveal delay={300}>
-                    <div className="mt-16 text-center rounded-2xl border border-brand-gold/20 bg-brand-gold/5 p-6 md:p-8">
-                        <p className="text-slate-800 dark:text-slate-200 font-medium max-w-2xl md:max-w-4xl mx-auto text-base md:text-lg leading-relaxed md:whitespace-nowrap">{content.ui.invite_text}</p>
-                        <p className="text-brand-gold font-bold uppercase tracking-widest mt-5 text-xs">Let’s optimize today — so you can grow stronger tomorrow.</p>
+                    <div className="lp3-cta mt-20 md:mt-28 rounded-3xl border border-white/10 px-6 py-16 sm:px-10 md:py-24 lg:py-28 text-center">
+                        <p className="text-brand-gold font-bold uppercase tracking-widest text-[10px] md:text-xs mb-5 md:mb-6">Let’s optimize today — so you can grow stronger tomorrow.</p>
+                        <h2 className="text-[1.75rem] sm:text-4xl md:text-5xl font-bold text-white tracking-tight leading-[1.15] max-w-4xl mx-auto">{content.ui.invite_text}</h2>
                         <button
                             type="button"
                             onClick={() => onNav?.('contact')}
-                            className="inline-flex items-center justify-center gap-2 mt-6 px-6 py-3 rounded-xl bg-brand-gold text-white text-sm font-bold shadow-lg shadow-brand-gold/20 hover:bg-amber-600 hover:shadow-brand-gold/40 hover:scale-[1.02] active:scale-95 transition-all"
+                            className="inline-flex items-center justify-center gap-2 mt-8 md:mt-10 px-7 py-3.5 rounded-xl bg-brand-gold text-white text-sm md:text-base font-bold shadow-lg shadow-brand-gold/30 hover:bg-amber-600 hover:shadow-brand-gold/50 hover:scale-[1.02] active:scale-95 transition-all"
                         >
-                            {content.ui.contact_operartis}
+                            {content.ui.contact_operartis} <ArrowRightIcon />
                         </button>
                     </div>
                 </Reveal>
@@ -9575,41 +9811,44 @@
                                 <HeroSection content={content} onExplore={() => scrollToId('matrix-fit')} onWhy={() => scrollToId('about-why')} />
                             </Reveal>
 
-                            <div className="mt-10 md:mt-14">
+                            <div className="mt-8 md:mt-10">
                                 <CapabilityRibbon content={content} />
                             </div>
 
-                            <div className="mt-14 md:mt-20">
+                            <div className="mt-20 md:mt-28">
                                 <Reveal><MetricsBand content={content} stats={stats} /></Reveal>
                             </div>
 
-                            <div className="mt-14 md:mt-16">
+                            <div className="mt-24 md:mt-32">
+                                <Reveal><DecisionsSection content={content} /></Reveal>
+                            </div>
+
+                            <div id="supply-chain" className="opus-scroll-target mt-24 md:mt-32">
+                                <Reveal><SectionHeading eyebrow={content.ui.sc_eyebrow} title={content.ui.sc_title} /></Reveal>
                                 <Reveal delay={100}><SupplyChainFlow content={content} /></Reveal>
                             </div>
 
-                            <div className="mt-16 md:mt-20">
+                            <div className="mt-24 md:mt-32">
                                 <Reveal delay={125}><ProofFoundationSection content={content} /></Reveal>
                             </div>
-                            <div className="mt-16 md:mt-20">
+
+                            <div id="industry-40" className="opus-scroll-target mt-24 md:mt-32">
+                                <Reveal><SectionHeading eyebrow={content.ui.i4l_eyebrow} title={content.ui.i4l_title} /></Reveal>
                                 <SystemIntegrationLoop content={content} />
                             </div>
 
-                            <Reveal delay={200}>
-                                <div className="opus-scroll-target pt-12 md:pt-16 mt-4 md:mt-8 border-t border-slate-200/70 dark:border-white/5">
-                                    <AnalyticsMaturitySection content={content} />
-                                </div>
-                            </Reveal>
+                            <div id="analytics" className="opus-scroll-target mt-24 md:mt-32">
+                                <Reveal><SectionHeading eyebrow={content.ui.analytics_eyebrow} title={content.ui.analytics_title} desc={content.ui.analytics_subtitle} /></Reveal>
+                                <Reveal delay={100}><AnalyticsMaturitySection content={content} /></Reveal>
+                            </div>
 
-                            <div id="matrix-fit" className="opus-scroll-target mt-16 md:mt-24">
+                            <div id="matrix-fit" className="opus-scroll-target mt-8 md:mt-12">
                                 <Reveal><JourneyStrip content={content} horizons={content.matrix} onNav={scrollToHorizon} /></Reveal>
                             </div>
 
-                            <div id="platform" className="opus-scroll-target mt-16 md:mt-24">
+                            <div id="platform" className="opus-scroll-target mt-24 md:mt-32">
                                 <Reveal>
-                                    <div className="mb-8">
-                                        <p className="text-[10px] font-bold uppercase opus-eyebrow text-brand-gold mb-2">{content.ui.platform_eyebrow}</p>
-                                        <h2 className="text-2xl md:text-4xl font-bold text-slate-900 dark:text-white tracking-tight">{content.ui.platform_title}</h2>
-                                    </div>
+                                    <SectionHeading eyebrow={content.ui.platform_eyebrow} title={content.ui.platform_title} />
                                 </Reveal>
                             </div>
 
@@ -9627,11 +9866,10 @@
                                 ))}
                             </div>
 
-                            <Reveal delay={175}>
-                                <div className="pt-12 md:pt-16 mt-4 md:mt-8 border-t border-slate-200/70 dark:border-white/5">
-                                    <OrProcessSection content={content} />
-                                </div>
-                            </Reveal>
+                            <div id="or-process" className="opus-scroll-target mt-16 md:mt-24">
+                                <Reveal><SectionHeading eyebrow={content.ui.or_process_eyebrow} title={content.ui.or_process_title} desc={content.ui.or_process_subtitle} /></Reveal>
+                                <Reveal delay={100}><OrProcessSection content={content} /></Reveal>
+                            </div>
 
                             <AboutSection content={content} onNav={scrollToNavItem} />
                         </div>
