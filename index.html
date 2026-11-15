@@ -4069,6 +4069,213 @@
             }
         }
 
+        /* ---- Mathematical foundation: principles and the framed walkthrough ---- */
+        .pf2-pillar {
+            position: relative;
+            display: flex;
+            gap: 0.9rem;
+            overflow: hidden;
+            padding: 1.15rem 1.15rem 1.2rem;
+            border-radius: 1rem;
+            border: 1px solid rgba(148, 163, 184, 0.35);
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .dark .pf2-pillar {
+            border-color: rgba(255, 255, 255, 0.1);
+            background: rgba(15, 23, 42, 0.38);
+        }
+
+        .pf2-pillar::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #b45309, #f59e0b 55%, rgba(245, 158, 11, 0));
+        }
+
+        .pf2-pillar-icon {
+            display: flex;
+            height: 2.5rem;
+            width: 2.5rem;
+            flex: none;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.75rem;
+            background: rgba(245, 158, 11, 0.14);
+            color: #b45309;
+        }
+
+        .dark .pf2-pillar-icon { color: #f59e0b; }
+
+        .pf2-frame {
+            overflow: hidden;
+            border-radius: 1.25rem;
+            border: 1px solid rgba(217, 119, 6, 0.35);
+            background: rgba(255, 255, 255, 0.55);
+        }
+
+        .dark .pf2-frame {
+            border-color: rgba(245, 158, 11, 0.28);
+            background: rgba(2, 6, 23, 0.42);
+        }
+
+        .pf2-steps {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.3);
+        }
+
+        .dark .pf2-steps { border-bottom-color: rgba(255, 255, 255, 0.1); }
+
+        .pf2-step {
+            position: relative;
+            display: flex;
+            min-width: 0;
+            align-items: center;
+            gap: 0.65rem;
+            padding: 0.9rem 1rem;
+            border-right: 1px solid rgba(148, 163, 184, 0.3);
+            text-align: left;
+            color: #64748b;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .dark .pf2-step {
+            border-right-color: rgba(255, 255, 255, 0.1);
+            color: #94a3b8;
+        }
+
+        .pf2-step:hover { color: #0f172a; }
+        .dark .pf2-step:hover { color: #f1f5f9; }
+
+        .pf2-step.is-active {
+            background: rgba(245, 158, 11, 0.12);
+            color: #0f172a;
+        }
+
+        .dark .pf2-step.is-active { color: #ffffff; }
+
+        .pf2-step:focus-visible,
+        .pf2-play:focus-visible {
+            outline: 2px solid #f59e0b;
+            outline-offset: -2px;
+        }
+
+        /* resting marker under the selected step; the timer below runs over it while autoplay is on */
+        .pf2-step.is-active::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 2px;
+            background: rgba(245, 158, 11, 0.4);
+        }
+
+        .pf2-step-num {
+            display: flex;
+            height: 1.65rem;
+            width: 1.65rem;
+            flex: none;
+            align-items: center;
+            justify-content: center;
+            border-radius: 9999px;
+            border: 1.5px solid currentColor;
+            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+            font-size: 10px;
+            font-weight: 800;
+            opacity: 0.8;
+        }
+
+        .pf2-step.is-done .pf2-step-num {
+            border-color: #f59e0b;
+            color: #d97706;
+            opacity: 1;
+        }
+
+        .dark .pf2-step.is-done .pf2-step-num { color: #f59e0b; }
+
+        .pf2-step.is-active .pf2-step-num {
+            border-color: #f59e0b;
+            background: #f59e0b;
+            color: #ffffff;
+            opacity: 1;
+        }
+
+        .pf2-step-label {
+            min-width: 0;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            overflow-wrap: anywhere;
+        }
+
+        @keyframes pf2-timer {
+            from { transform: scaleX(0); }
+            to { transform: scaleX(1); }
+        }
+
+        .pf2-step-timer {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1;
+            height: 2px;
+            background: #f59e0b;
+            transform-origin: left center;
+            animation: pf2-timer 6.8s linear both;
+        }
+
+        .pf2-play {
+            display: flex;
+            width: 3rem;
+            align-items: center;
+            justify-content: center;
+            color: #64748b;
+            transition: color 0.2s ease, background-color 0.2s ease;
+        }
+
+        .pf2-play:hover {
+            background: rgba(245, 158, 11, 0.12);
+            color: #d97706;
+        }
+
+        .dark .pf2-play { color: #94a3b8; }
+        .dark .pf2-play:hover { color: #f59e0b; }
+
+        @media (min-width: 768px) {
+            .pf2-step { padding: 1rem 1.25rem; }
+            .pf2-step-label { font-size: 12px; }
+        }
+
+        @media (max-width: 639px) {
+            .pf2-step {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.35rem;
+                padding: 0.7rem 0.55rem 0.8rem;
+            }
+
+            /* one line per label: narrower play button and no letter-spacing leave room for the longest one */
+            .pf2-step-label {
+                font-size: 10px;
+                letter-spacing: 0;
+                overflow-wrap: normal;
+                white-space: nowrap;
+            }
+
+            .pf2-play { width: 2.25rem; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .pf2-step-timer { animation: none; transform: none; }
+        }
+
         /* ---- Analytics staircase explorer ---- */
         .aa2-zone {
             position: absolute;
@@ -5089,6 +5296,8 @@
                         { label: "Provable optima", text: "No claims without proof. No marketing theatre. No exaggeration — only solutions that stand on mathematics." }
                     ],
                     proof_build_eyebrow: "From model to module",
+                    proof_autoplay_pause: "Pause the walkthrough",
+                    proof_autoplay_play: "Play the walkthrough",
                     proof_build_stages: [
                         {
                             id: "formulate",
@@ -5480,6 +5689,8 @@
                         { label: "Tối ưu có chứng minh", text: "Không khẳng định thiếu chứng minh. Không marketing thổi phồng. Không phóng đại — chỉ những giải pháp dựa trên sự logic chặt chẽ và toán học." }
                     ],
                     proof_build_eyebrow: "Từ mô hình đến mô-đun",
+                    proof_autoplay_pause: "Tạm dừng trình diễn",
+                    proof_autoplay_play: "Phát trình diễn",
                     proof_build_stages: [
                         {
                             id: "formulate",
@@ -5871,6 +6082,8 @@
                         { label: "Beweisbare Optima", text: "Keine Behauptungen ohne Beweis. Kein Marketingtheater. Keine Übertreibung — nur Lösungen auf mathematischem Fundament." }
                     ],
                     proof_build_eyebrow: "Vom Modell zum Modul",
+                    proof_autoplay_pause: "Ablauf anhalten",
+                    proof_autoplay_play: "Ablauf abspielen",
                     proof_build_stages: [
                         {
                             id: "formulate",
@@ -7952,6 +8165,13 @@
             };
         });
         const PROOF_PACK_MATRIX_COLS = buildProofPackMatrixCols(8, 24);
+        // One icon per principle: data, decision support, proof
+        const PROOF_PILLAR_ICONS = [
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><ellipse cx="12" cy="5.5" rx="8" ry="3" /><path d="M4 5.5v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6M4 11.5v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6" /></svg>,
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9" /><path d="M15.5 8.5l-2 5-5 2 2-5 5-2z" /></svg>,
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3l8 3v6c0 4.5-3.2 8-8 9-4.800-1-8-4.500-8-9V6l8-3z" /><path d="M8.500 12l2.500 2.500 4.500-5" /></svg>,
+        ];
+
         const ProofFoundationSection = ({ content }) => {
             const ui = content.ui;
             const pillars = ui.proof_pillars || [];
@@ -8027,80 +8247,84 @@
                     </div>
 
                     <div className="relative w-full px-3.5 sm:px-5 md:px-8 py-5 sm:py-6 md:py-10">
-                        <div className="grid lg:grid-cols-12 gap-5 sm:gap-8 lg:gap-10 items-center">
-                            <div className="lg:col-span-5">
+                        {/* Statement */}
+                        <div className="grid lg:grid-cols-12 gap-4 lg:gap-10 items-end">
+                            <div className="lg:col-span-7">
                                 <p className="text-[10px] md:text-[11px] font-bold uppercase opus-eyebrow text-brand-gold mb-3 md:mb-4">{ui.proof_eyebrow}</p>
-                                <h2 className="text-[1.75rem] sm:text-4xl md:text-[2.75rem] font-bold text-slate-900 dark:text-white tracking-tight leading-[1.15] md:leading-[1.12] mb-4 sm:mb-5">
+                                <h2 className="text-[2rem] sm:text-5xl lg:text-[3.25rem] font-black text-slate-900 dark:text-white tracking-tight leading-[1.14]">
                                     {ui.proof_title}
                                 </h2>
-                                <p className="text-sm sm:text-base md:text-lg text-slate-600 dark:text-slate-400 leading-relaxed">
-                                    {ui.proof_body}
-                                </p>
                             </div>
+                            <p className="lg:col-span-5 text-sm sm:text-base md:text-lg text-slate-600 dark:text-slate-400 leading-relaxed">
+                                {ui.proof_body}
+                            </p>
+                        </div>
 
-                            <div className="lg:col-span-7 flex flex-col gap-2.5 sm:gap-3">
-                                {pillars.map((pillar, i) => (
-                                    <div
-                                        key={pillar.label}
-                                        className="flex gap-3 rounded-xl border border-slate-200/70 dark:border-white/10 bg-white/45 dark:bg-slate-950/30 px-3.5 py-3 sm:px-4 sm:py-3.5 md:px-5 md:py-4"
-                                    >
-                                        <span className="shrink-0 font-mono text-[10px] font-bold tabular-nums text-brand-gold/90 pt-0.5">
-                                            {String(i + 1).padStart(2, '0')}
-                                        </span>
-                                        <div className="min-w-0">
-                                            <h3 className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-100 mb-1">
-                                                {pillar.label}
-                                            </h3>
-                                            <p className="text-[12px] sm:text-xs md:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                                                {pillar.text}
-                                            </p>
-                                        </div>
+                        {/* Three principles */}
+                        <div className="mt-7 md:mt-10 grid gap-3 md:gap-4 md:grid-cols-3">
+                            {pillars.map((pillar, i) => (
+                                <div key={pillar.label} className="pf2-pillar">
+                                    <span className="pf2-pillar-icon" aria-hidden="true">{PROOF_PILLAR_ICONS[i]}</span>
+                                    <div className="min-w-0">
+                                        <h3 className="text-xs md:text-[13px] font-bold uppercase tracking-wider text-slate-900 dark:text-white">{pillar.label}</h3>
+                                        <p className="mt-1.5 text-[13px] md:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">{pillar.text}</p>
                                     </div>
-                                ))}
-                            </div>
+                                </div>
+                            ))}
                         </div>
 
                         {stages.length > 0 && (
-                            <div className="mt-6 sm:mt-8 md:mt-10 pt-5 sm:pt-6 md:pt-8 border-t border-slate-200/70 dark:border-white/10">
-                                <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between sm:gap-3 mb-3 sm:mb-4">
-                                    <p className="text-[10px] font-bold uppercase opus-eyebrow text-brand-gold">
+                            <div className="mt-8 md:mt-12">
+                                <div className="flex flex-col gap-1.5 sm:flex-row sm:items-end sm:justify-between sm:gap-6 mb-3 sm:mb-4">
+                                    <p className="text-[10px] md:text-[11px] font-bold uppercase opus-eyebrow text-brand-gold">
                                         {ui.proof_build_eyebrow}
                                     </p>
                                     {activeStage && (
-                                        <p className="text-[12px] sm:text-xs md:text-sm text-slate-500 dark:text-slate-400 leading-relaxed max-w-xl sm:text-right">
+                                        <p key={stageIdx} className="aa2-fade text-[13px] md:text-sm text-slate-500 dark:text-slate-400 leading-relaxed max-w-xl sm:text-right">
                                             {activeStage.caption}
                                         </p>
                                     )}
                                 </div>
 
-                                <div className="grid grid-cols-3 gap-1.5 sm:gap-2 mb-3 sm:mb-4" role="tablist" aria-label={ui.proof_build_eyebrow}>
-                                    {stages.map((stage, i) => {
-                                        const isActive = i === stageIdx;
-                                        return (
-                                            <button
-                                                key={stage.id}
-                                                type="button"
-                                                role="tab"
-                                                aria-selected={isActive}
-                                                onClick={() => selectStage(i)}
-                                                className={`proof-build-stage-btn rounded-xl border border-slate-200/70 dark:border-white/10 bg-white/35 dark:bg-slate-950/20 px-2 sm:px-3 py-2 sm:py-2.5 text-left ${isActive ? 'is-active' : 'text-slate-500 dark:text-slate-400 hover:border-brand-gold/25 hover:text-brand-gold'}`}
-                                            >
-                                                <span className="flex flex-col sm:flex-row items-start sm:items-center gap-0.5 sm:gap-2 min-w-0">
-                                                    <span className="font-mono text-[10px] font-bold tabular-nums opacity-80">
-                                                        {String(i + 1).padStart(2, '0')}
-                                                    </span>
-                                                    <span className="proof-stage-label text-[10px] sm:text-xs font-bold uppercase tracking-wider max-w-full">
-                                                        {stage.label}
-                                                    </span>
-                                                </span>
-                                            </button>
-                                        );
-                                    })}
-                                </div>
+                                {/* The walkthrough: step track on top, the animated stage below, in one frame */}
+                                <div className="pf2-frame">
+                                    <div className="pf2-steps" role="tablist" aria-label={ui.proof_build_eyebrow}>
+                                        {stages.map((stage, i) => {
+                                            const isActive = i === stageIdx;
+                                            return (
+                                                <button
+                                                    key={stage.id}
+                                                    type="button"
+                                                    role="tab"
+                                                    aria-selected={isActive}
+                                                    onClick={() => selectStage(i)}
+                                                    className={`pf2-step ${isActive ? 'is-active' : ''} ${i < stageIdx ? 'is-done' : ''}`}
+                                                >
+                                                    <span className="pf2-step-num">{String(i + 1).padStart(2, '0')}</span>
+                                                    <span className="pf2-step-label">{stage.label}</span>
+                                                    {isActive && autoPlay && inView && (
+                                                        <span key={`${stageIdx}-${playGen}`} className="pf2-step-timer" aria-hidden="true"></span>
+                                                    )}
+                                                </button>
+                                            );
+                                        })}
+                                        <button
+                                            type="button"
+                                            onClick={() => setAutoPlay(on => !on)}
+                                            aria-pressed={autoPlay}
+                                            aria-label={autoPlay ? ui.proof_autoplay_pause : ui.proof_autoplay_play}
+                                            title={autoPlay ? ui.proof_autoplay_pause : ui.proof_autoplay_play}
+                                            className="pf2-play"
+                                        >
+                                            {autoPlay
+                                                ? <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1" /><rect x="14" y="5" width="4" height="14" rx="1" /></svg>
+                                                : <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.500v15l13-7.500-13-7.500z" /></svg>}
+                                        </button>
+                                    </div>
 
                                 <div
                                     ref={panelRef}
-                                    className={`proof-build-panel rounded-xl border border-slate-200/70 dark:border-white/10 bg-white/50 dark:bg-slate-950/35 px-3.5 py-4 sm:px-5 sm:py-5 md:px-7 md:py-7${hasEntered ? ' proof-anim-play' : ''}`}
+                                    className={`proof-build-panel px-3.5 py-4 sm:px-5 sm:py-5 md:px-7 md:py-7${hasEntered ? ' proof-anim-play' : ''}`}
                                 >
                                     {/* Formulate */}
                                     <div className={`proof-build-layer ${stageIdx === 0 ? 'is-active' : ''}`} aria-hidden={stageIdx !== 0}>
@@ -8460,6 +8684,7 @@
                                             </div>
                                         </div>
                                     </div>
+                                </div>
                                 </div>
                             </div>
                         )}
