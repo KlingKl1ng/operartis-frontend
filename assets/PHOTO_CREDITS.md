@@ -14,3 +14,5 @@ Each file was cropped, colour-graded toward the Operartis navy/gold palette and 
 | `contact-hero.jpg` | Contact page hero (`contact.html`) | https://unsplash.com/photos/YxMdnFDlMHs |
 | `privacy-hero.jpg` | Privacy Policy hero (`privacy.html`) | https://unsplash.com/photos/M5tzZtFCOfs |
 | `terms-hero.jpg` | Terms of Service hero (`terms.html`) | https://unsplash.com/photos/NzIV4vOBA7s |
+| `blog-forecaster-hero.jpg` | Forecaster post hero (`blog-ml-forecaster.html`) — wide crop of `lp-demand.jpg` | https://unsplash.com/photos/ivfp_yxZuYQ |
+| `blog-forecaster-charts.png` | Forecaster post screenshot | Own product screenshot (sample template data) |

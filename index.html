@@ -7252,6 +7252,8 @@
 
         // Decisions — the planning questions each live module answers
         const DECISION_PHOTOS = { forecaster: 'demand', advanced_forecaster: 'scenarios', abc: 'assortment', inventory: 'inventory' };
+        // Decision cards that open a post instead of the tool itself
+        const DECISION_POSTS = { forecaster: './blog-ml-forecaster' };
         const DecisionsSection = ({ content }) => {
             const ui = content.ui;
             const items = (ui.decisions_items || []).filter(item => MODULE_STATIC_DATA[item.module]);
@@ -7264,11 +7266,13 @@
                             const module = MODULE_STATIC_DATA[item.module];
                             const text = (content.registry && content.registry[item.module]) || { name: item.module };
                             const isLive = module.status === 'live';
-                            const Tag = isLive ? 'a' : 'div';
+                            // A card with a post opens the post; otherwise a live module opens the tool
+                            const cardHref = DECISION_POSTS[item.module] || (isLive ? module.href : null);
+                            const Tag = cardHref ? 'a' : 'div';
                             return (
                                 <Reveal key={item.module} delay={i * 80} className="h-full">
                                     <Tag
-                                        {...(isLive ? { href: module.href } : {})}
+                                        {...(cardHref ? { href: cardHref } : {})}
                                         className="lp3-decision-card lp3-decision-card--photo group flex h-full min-h-[15rem] sm:min-h-[19rem] lg:min-h-[23rem] flex-col rounded-2xl p-5 md:p-6"
                                     >
                                         {DECISION_PHOTOS[item.module] && (

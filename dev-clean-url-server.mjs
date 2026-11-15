@@ -13,6 +13,7 @@ const cleanRoutes = new Set([
   'abcxyz',
   'accept-invite',
   'admin',
+  'blog-ml-forecaster',
   'contact',
   'dashboard',
   'forecaster',
