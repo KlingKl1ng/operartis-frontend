@@ -8517,7 +8517,7 @@
                                 </div>
 
                                 <div className={`i4l2-layer ${apsVisible ? '' : 'is-off'}`} aria-hidden={!apsVisible}>
-                                    <h3 className="text-xl md:text-[1.6rem] font-black tracking-tight leading-tight"><span className="opus-sheen inline-block pb-[0.14em] -mb-[0.14em]">{ui.i4l_phase_aps_title}</span></h3>
+                                    <h3 className="text-xl md:text-[1.6rem] font-black tracking-tight leading-tight text-slate-900 dark:text-white">{ui.i4l_phase_aps_title}</h3>
                                     <p className="mt-3 text-sm md:text-base leading-relaxed text-slate-600 dark:text-slate-400">{ui.i4l_phase_aps_desc}</p>
                                     <div className="i4l2-card i4l2-card--aps mt-5">
                                         <div className="flex items-center gap-3">
@@ -9059,7 +9059,8 @@
         const MetricsBand = ({ content, stats }) => (
             <div>
                 <SectionHeading align="center" eyebrow={content.ui.metrics_eyebrow} title={content.ui.metrics_title} />
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-y-10">
+                {/* Same translucent glass as the other section panels */}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-y-10 rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white/45 dark:bg-slate-900/35 backdrop-blur-sm px-2 sm:px-4 py-8 md:py-10">
                     {stats.map((s, i) => (
                         <div key={i} className="lp3-stat text-center">
                             <div className="text-5xl md:text-6xl font-black font-mono tabular-nums text-transparent bg-clip-text bg-gradient-to-br from-brand-gold to-brand-dark">{s.value}</div>
