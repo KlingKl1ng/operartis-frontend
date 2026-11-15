@@ -2767,6 +2767,33 @@
                 inset 0 1px 0 rgba(255, 255, 255, 0.1);
         }
 
+        /* Phones and touch screens: the stage icons sit over the animated network canvas, inside a
+           panel that is already blurred. A second blur on every icon has to be redrawn each frame,
+           and the scale-up on the active icon makes the 20px strokes re-rasterise, which shows as
+           shimmering, wobbling icons on iPhones. Use solid glass and keep the icons still there. */
+        @media (max-width: 767px), (hover: none) and (pointer: coarse) {
+            .sc-node-glass {
+                -webkit-backdrop-filter: none;
+                backdrop-filter: none;
+                background-color: rgba(255, 255, 255, 0.92);
+            }
+
+            .dark .sc-node-glass { background-color: rgba(15, 23, 42, 0.92); }
+
+            [data-sc-icon],
+            [data-sc-icon] > span {
+                transform: none !important;
+                transition-property: color, background-color, border-color, box-shadow;
+            }
+
+            .sc-pulse-ring { animation-name: sc-pulse-fade; }
+        }
+
+        @keyframes sc-pulse-fade {
+            0%, 100% { opacity: 0.45; }
+            50% { opacity: 0.15; }
+        }
+
         .sc-pulse-ring-gold {
             background: radial-gradient(ellipse at center, rgba(245, 158, 11, 0.2), transparent 72%);
         }
