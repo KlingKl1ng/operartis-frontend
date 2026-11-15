@@ -13,27 +13,36 @@ const cleanRoutes = new Set([
   'abcxyz',
   'accept-invite',
   'admin',
+  'blog-abc-xyz-analysis',
+  'blog-inventory-optimizer',
+  'blog-ml-forecaster',
+  'blog-vehicle-routing',
   'contact',
   'dashboard',
   'forecaster',
   'index',
   'inventory',
   'mlforecaster',
+  'privacy',
   'reset-password',
   'terminal',
+  'terms',
 ]);
 
 const mimeTypes = {
   '.css': 'text/css; charset=utf-8',
   '.html': 'text/html; charset=utf-8',
   '.ico': 'image/x-icon',
+  '.jpg': 'image/jpeg',
   '.js': 'text/javascript; charset=utf-8',
   '.json': 'application/json; charset=utf-8',
   '.map': 'application/json; charset=utf-8',
+  '.mp4': 'video/mp4',
   '.png': 'image/png',
   '.svg': 'image/svg+xml',
   '.txt': 'text/plain; charset=utf-8',
   '.webmanifest': 'application/manifest+json; charset=utf-8',
+  '.webp': 'image/webp',
   '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
 };
 
@@ -115,9 +124,31 @@ const server = createServer((req, res) => {
     }
 
     const type = mimeTypes[extname(fullPath).toLowerCase()] || 'application/octet-stream';
+    const size = statSync(fullPath).size;
+    const range = /^bytes=(\d*)-(\d*)$/.exec(req.headers.range || '');
+    if (range && (range[1] || range[2])) {
+      // Byte ranges, so <video> can seek (and play at all in Safari)
+      const start = range[1] ? Number(range[1]) : Math.max(0, size - Number(range[2]));
+      const end = range[1] && range[2] ? Math.min(Number(range[2]), size - 1) : size - 1;
+      if (start > end || start >= size) {
+        send(res, 416, '', { 'Content-Range': `bytes */${size}` });
+        return;
+      }
+      res.writeHead(206, {
+        'Cache-Control': 'no-store',
+        'Content-Type': type,
+        'Accept-Ranges': 'bytes',
+        'Content-Range': `bytes ${start}-${end}/${size}`,
+        'Content-Length': end - start + 1,
+      });
+      createReadStream(fullPath, { start, end }).pipe(res);
+      return;
+    }
     res.writeHead(200, {
       'Cache-Control': 'no-store',
       'Content-Type': type,
+      'Accept-Ranges': 'bytes',
+      'Content-Length': size,
     });
     createReadStream(fullPath).pipe(res);
   } catch (error) {

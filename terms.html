@@ -1,0 +1,3291 @@
+<!DOCTYPE html>
+<html lang="en">
+<!--
+    Terms of Service — built on the contact.html shell (same as privacy.html) so header,
+    canvas, glass panels and footer match the rest of the site. Text lives in TERMS_COPY.
+
+    Written for the Vietnamese market: governed by Vietnamese law, Vietnamese version prevails.
+    BEFORE GOING LIVE: have the text reviewed by legal counsel (liability cap, 180-day
+    deletion and governing-law clauses are business commitments), then remove the "noindex"
+    robots meta below.
+-->
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Operartis | Terms of Service</title>
+    <meta name="description" content="The terms that govern use of operartis.io and the Operartis APS platform.">
+    <meta name="robots" content="noindex">
+    <link rel="canonical" href="https://operartis.io/terms">
+    <meta name="theme-color" content="#020617">
+    <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="./favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
+    <link rel="manifest" href="./site.webmanifest">
+    <script src="./vendor/tailwindcss-3.4.17.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            gold: '#f59e0b',
+                            dark: '#b45309',
+                            obsidian: '#0f172a',
+                            slate: '#1e293b'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        mono: ['Roboto Mono', 'monospace'],
+                    }
+                }
+            }
+        };
+    </script>
+    <script src="./operartis-theme.js?v=20260623-theme-sync"></script>
+    <script src="./operartis-lang.js"></script>
+    <script src="./operartis-nav-indicator.js?v=20260812-cross-page-nav"></script>
+    <script>
+        window.OPERARTIS_AUTH_AUTO_PROMPT = false;
+        window.OPERARTIS_AUTH_FLOATING_ACCOUNT = false;
+    </script>
+    <script src="./operartis-api.js?v=20260910-stable-csrf"></script>
+    <script src="./operartis-auth-ui.js?v=20260623-display-name"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=Roboto+Mono:wght@400;500&display=swap');
+
+        html, body, #root { height: 100%; }
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: #ffffff;
+            color: #0f172a;
+            -webkit-font-smoothing: antialiased;
+        }
+        .dark body { background: #020617; color: #f8fafc; }
+
+        /* —— Header chrome (from index) —— */
+        .header-bar { background: transparent; }
+
+        .header-util-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.375rem;
+            border-radius: 9999px;
+            color: rgb(100 116 139);
+            transition: color 0.2s ease, background-color 0.2s ease;
+        }
+        .header-util-btn:hover { background-color: rgba(255, 255, 255, 0.2); }
+        .dark .header-util-btn { color: rgb(148 163 184); }
+        .dark .header-util-btn:hover { background-color: rgba(255, 255, 255, 0.05); }
+
+        /* Touch: single-button header pills and the account button get a 40px+ hit area */
+        .header-glass-pill:not(.header-glass-pill--wide) > .header-util-btn { position: relative; }
+        .header-glass-pill:not(.header-glass-pill--wide) > .header-util-btn::after {
+            content: '';
+            position: absolute;
+            inset: -8px -5px;
+        }
+        .header-auth-btn::after {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border-radius: 9999px;
+        }
+
+        .header-util-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.25rem;
+            height: 1.25rem;
+            flex-shrink: 0;
+        }
+        .header-util-icon svg {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .header-auth-btn {
+            transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+        }
+        .header-auth-btn:hover {
+            transform: scale(1.06);
+            filter: brightness(1.1);
+        }
+        .header-auth-btn:active {
+            transform: scale(0.94);
+            filter: brightness(1);
+        }
+        .header-auth-btn--gold {
+            box-shadow: 0 4px 14px rgba(245, 158, 11, 0.28);
+        }
+        .header-auth-btn--gold:hover {
+            box-shadow: 0 8px 28px rgba(245, 158, 11, 0.5), 0 0 0 2px rgba(251, 191, 36, 0.35);
+        }
+        .header-auth-btn:focus-visible {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.55);
+        }
+        .index-account-avatar-img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            border-radius: 999px;
+            object-fit: cover;
+        }
+        .index-account-avatar-initials {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            border-radius: 999px;
+            color: #08111f;
+            font-size: 0.75rem;
+            font-weight: 900;
+            letter-spacing: 0;
+            background: radial-gradient(circle at 30% 25%, rgba(251, 191, 36, 0.98), rgba(217, 119, 6, 0.9));
+        }
+        .index-account-menu {
+            position: absolute;
+            right: 0;
+            top: calc(100% + 10px);
+            z-index: 100;
+            width: 240px;
+            overflow: visible;
+            border-radius: 10px;
+            border: 1px solid rgba(148, 163, 184, 0.28);
+            background: rgba(255, 255, 255, 0.98);
+            box-shadow: 0 8px 32px rgba(15, 23, 42, 0.08);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            -webkit-font-smoothing: antialiased;
+            transform-origin: top right;
+            animation: indexAccountMenuIn 0.18s ease-out;
+        }
+        @keyframes indexAccountMenuIn {
+            from { opacity: 0; transform: translateY(-6px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .index-account-menu::before {
+            content: "";
+            position: absolute;
+            top: -6px;
+            right: 13px;
+            width: 12px;
+            height: 12px;
+            background: rgba(255, 255, 255, 0.98);
+            border-left: 1px solid rgba(148, 163, 184, 0.28);
+            border-top: 1px solid rgba(148, 163, 184, 0.28);
+            transform: rotate(45deg);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .dark .index-account-menu {
+            border-color: rgba(148, 163, 184, 0.18);
+            background: rgba(15, 23, 42, 0.96);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+        }
+        .dark .index-account-menu::before {
+            background: rgba(15, 23, 42, 0.96);
+            border-left-color: rgba(148, 163, 184, 0.18);
+            border-top-color: rgba(148, 163, 184, 0.18);
+        }
+        .index-account-menu-head {
+            padding: 12px 14px 10px;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.28);
+            background: transparent;
+            position: relative;
+            z-index: 1;
+            border-radius: 10px 10px 0 0;
+        }
+        .dark .index-account-menu-head { border-bottom-color: rgba(148, 163, 184, 0.18); }
+        .index-account-menu-email {
+            margin: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0;
+            color: #0f172a;
+        }
+        .dark .index-account-menu-email { color: #f8fafc; }
+        .index-account-menu-role {
+            margin: 3px 0 0;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #64748b;
+        }
+        .dark .index-account-menu-role { color: #94a3b8; }
+        .index-account-menu-body {
+            padding: 6px;
+            position: relative;
+            z-index: 1;
+            border-radius: 0 0 10px 10px;
+        }
+        .index-account-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            padding: 10px 12px;
+            border: 0;
+            border-radius: 10px;
+            background: transparent;
+            color: #0f172a;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            text-align: left;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+        }
+        .dark .index-account-menu-item { color: #f8fafc; }
+        .index-account-menu-item-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 15px;
+            height: 15px;
+            flex-shrink: 0;
+            color: currentColor;
+            opacity: 0.88;
+            transition: color 0.15s ease, opacity 0.15s ease;
+        }
+        .dark .index-account-menu-item-icon { opacity: 0.92; }
+        .index-account-menu-item-icon svg { display: block; width: 100%; height: 100%; }
+        .index-account-menu-item:hover {
+            background: rgba(245, 158, 11, 0.12);
+            color: #b45309;
+            transform: translateX(1px);
+        }
+        .dark .index-account-menu-item:hover {
+            background: rgba(245, 158, 11, 0.14);
+            color: #fbbf24;
+        }
+        .index-account-menu-item--danger:hover {
+            background: rgba(239, 68, 68, 0.1);
+            color: #b91c1c;
+            transform: translateX(1px);
+        }
+        .dark .index-account-menu-item--danger:hover {
+            background: rgba(248, 113, 113, 0.12);
+            color: #fca5a5;
+        }
+        .index-account-menu-divider {
+            height: 1px;
+            margin: 4px 10px;
+            background: linear-gradient(90deg, transparent, rgba(148, 163, 184, 0.35), transparent);
+        }
+        .dark .index-account-menu-divider {
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.14), transparent);
+        }
+
+        .header-glass-pill {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.5rem;
+            height: 2.5rem;
+            padding: 0.25rem;
+            flex-shrink: 0;
+            border-radius: 9999px;
+            /* Visible slate edge in light mode — white border disappears on Safari/light */
+            border: 1px solid rgba(100, 116, 139, 0.32);
+            background-image: linear-gradient(to bottom right, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.2));
+            box-shadow:
+                0 4px 16px rgba(15, 23, 42, 0.08),
+                0 0 0 1px rgba(148, 163, 184, 0.18),
+                inset 0 1px 0 0 rgba(255, 255, 255, 0.55);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .dark .header-glass-pill {
+            border-color: rgba(255, 255, 255, 0.1);
+            background-image: linear-gradient(to bottom right, rgba(30, 41, 59, 0.3), rgba(15, 23, 42, 0.1));
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1), inset 0 1px 0 0 rgba(255, 255, 255, 0.2);
+        }
+        /* Safari light: strengthen continuous pill outline (partial top/bottom edges otherwise) */
+        @supports (-webkit-touch-callout: none) {
+            html:not(.dark) .header-glass-pill {
+                border-color: rgba(100, 116, 139, 0.42);
+                box-shadow:
+                    0 4px 16px rgba(15, 23, 42, 0.08),
+                    inset 0 0 0 1px rgba(100, 116, 139, 0.28),
+                    inset 0 1px 0 0 rgba(255, 255, 255, 0.5);
+            }
+        }
+        .header-glass-pill--wide {
+            width: auto;
+            height: 2.5rem;
+            gap: 0.25rem;
+            padding-left: 0.35rem;
+            padding-right: 0.35rem;
+        }
+
+        .header-glass-pill--brand {
+            height: auto;
+            min-height: 2.5rem;
+            justify-content: flex-start;
+            padding: 0.375rem 0.75rem 0.375rem 0.375rem;
+        }
+
+        @media (min-width: 640px) {
+            .header-glass-pill--brand {
+                padding-right: 1rem;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .header-glass-pill--brand {
+                padding-right: 1.25rem;
+            }
+        }
+
+        .header-nav-glass-slab {
+            width: max-content;
+            max-width: 100%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .header-nav-glass-slab .header-nav-tab {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 1.75rem;
+            min-height: 1.75rem;
+            padding: 0 0.75rem;
+            line-height: 1;
+            box-sizing: border-box;
+            text-align: center;
+            border-radius: 9999px;
+        }
+        .header-nav-glass-slab .header-nav-tab-label {
+            display: block;
+            line-height: 1;
+            transform: none;
+        }
+        .header-nav-tabs-track {
+            position: relative;
+            align-items: center;
+        }
+        .header-nav-glass-indicator {
+            position: absolute;
+            top: 0;
+            left: 0;
+            box-sizing: border-box;
+            border-radius: 9999px;
+            border: 1px solid rgba(245, 158, 11, 0.22);
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(180, 83, 9, 0.06));
+            box-shadow:
+                0 2px 8px rgba(245, 158, 11, 0.28),
+                0 1px 3px rgba(15, 23, 42, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            pointer-events: none;
+            z-index: 0;
+            transition: opacity 0.2s ease;
+            will-change: transform, width;
+        }
+        .header-nav-glass-indicator.is-animated {
+            transition:
+                transform 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+                width 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+                height 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+                opacity 0.2s ease;
+        }
+        .dark .header-nav-glass-indicator {
+            border-color: rgba(245, 158, 11, 0.28);
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(15, 23, 42, 0.35));
+            box-shadow:
+                0 2px 10px rgba(245, 158, 11, 0.32),
+                0 1px 4px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .header-nav-tab {
+            position: relative;
+            z-index: 1;
+            flex-shrink: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.375rem 0.75rem;
+            border-radius: 9999px;
+            border: 1px solid transparent;
+            font-size: 0.625rem;
+            font-weight: 700;
+            line-height: 1;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            text-align: center;
+            box-sizing: border-box;
+            cursor: pointer;
+            background: transparent;
+            box-shadow: none;
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+            color: #64748b;
+            transition: color 0.2s ease;
+            appearance: none;
+            -webkit-appearance: none;
+            margin: 0;
+            font-family: inherit;
+        }
+        .dark .header-nav-tab { color: #94a3b8; }
+        .header-nav-tab:hover { color: #d97706; }
+        .dark .header-nav-tab:hover { color: #fbbf24; }
+        .header-nav-tab-active { color: #d97706; }
+        .dark .header-nav-tab-active { color: #fbbf24; }
+
+        .header-nav-aps-menu .header-nav-tab-active {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(180, 83, 9, 0.06));
+            box-shadow:
+                0 2px 8px rgba(245, 158, 11, 0.28),
+                0 1px 3px rgba(15, 23, 42, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+        .dark .header-nav-aps-menu .header-nav-tab-active {
+            box-shadow:
+                0 2px 10px rgba(245, 158, 11, 0.32),
+                0 1px 4px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .header-nav-child {
+            width: 100%;
+            justify-content: flex-start;
+            text-align: left;
+            font-size: 0.625rem;
+            padding: 0.45rem 0.65rem;
+            border-radius: 0.5rem;
+        }
+        .header-nav-aps-menu .header-nav-child {
+            justify-content: flex-start;
+            text-align: left;
+        }
+        .header-nav-aps-menu .header-nav-child.header-nav-aps-nested-trigger {
+            justify-content: space-between;
+        }
+
+        .header-nav-aps-wrap {
+            position: relative;
+            flex-shrink: 0;
+            display: inline-flex;
+            align-items: center;
+            height: 1.75rem;
+        }
+        .header-nav-aps-wrap::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 100%;
+            height: 12px;
+        }
+        .header-nav-aps-menu {
+            min-width: 11.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+            padding: 0.35rem;
+            border-radius: 0.75rem;
+            background: rgba(255, 255, 255, 0.96);
+            border: 1px solid rgba(245, 158, 11, 0.22);
+            box-shadow:
+                0 12px 32px rgba(15, 23, 42, 0.14),
+                0 0 0 1px rgba(255, 255, 255, 0.06) inset;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            animation: header-nav-menu-in 0.18s ease-out;
+        }
+        .header-nav-aps-menu-floating {
+            position: fixed;
+            z-index: 60;
+        }
+        .header-nav-aps-backdrop {
+            position: fixed;
+            inset: 0;
+            z-index: 15;
+            background: rgba(2, 6, 23, 0.18);
+            backdrop-filter: blur(1px);
+            -webkit-backdrop-filter: blur(1px);
+            animation: header-nav-backdrop-in 0.15s ease-out;
+        }
+        .dark .header-nav-aps-backdrop { background: rgba(2, 6, 23, 0.42); }
+        @keyframes header-nav-backdrop-in {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .header-nav-aps-menu-head {
+            padding: 0.35rem 0.65rem 0.25rem;
+            font-size: 0.5625rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: #b45309;
+            border-bottom: 1px solid rgba(245, 158, 11, 0.15);
+            margin-bottom: 0.15rem;
+        }
+        .header-nav-aps-menu-subhead {
+            border-bottom: none;
+            margin-bottom: 0;
+            margin-top: 0.15rem;
+            color: #92400e;
+            opacity: 0.9;
+        }
+        button.header-nav-aps-menu-head {
+            width: 100%;
+            display: block;
+            text-align: left;
+            cursor: pointer;
+            background: transparent;
+            border: none;
+            font-family: inherit;
+            appearance: none;
+            -webkit-appearance: none;
+        }
+        button.header-nav-aps-nested-trigger {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        button.header-nav-aps-menu-subhead:hover { opacity: 1; }
+        button.header-nav-aps-menu-subhead:focus-visible {
+            outline: 2px solid rgba(245, 158, 11, 0.45);
+            outline-offset: 1px;
+        }
+        .header-nav-aps-menu-divider {
+            height: 1px;
+            margin: 0.35rem 0.35rem 0.25rem;
+            background: rgba(245, 158, 11, 0.15);
+        }
+        .header-nav-aps-nested-wrap { position: relative; }
+        .header-nav-aps-nested-trigger {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
+            text-align: left;
+            cursor: pointer;
+            background: transparent;
+            border: none;
+            font-family: inherit;
+            appearance: none;
+            -webkit-appearance: none;
+            border-radius: 0.5rem;
+            transition: background-color 0.15s ease, opacity 0.15s ease;
+        }
+        .header-nav-aps-nested-trigger:hover:not(.header-nav-tab-active),
+        .header-nav-aps-nested-trigger[aria-expanded="true"]:not(.header-nav-tab-active) {
+            opacity: 1;
+            background: transparent;
+            box-shadow: none;
+        }
+        .header-nav-aps-nested-trigger:focus-visible {
+            outline: 2px solid rgba(245, 158, 11, 0.45);
+            outline-offset: 1px;
+        }
+        .header-nav-aps-nested-menu {
+            position: absolute;
+            top: 0;
+            left: calc(100% + 0.35rem);
+            z-index: 2;
+            min-width: 11.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+            padding: 0.35rem;
+            border-radius: 0.75rem;
+            background: rgba(255, 255, 255, 0.96);
+            border: 1px solid rgba(245, 158, 11, 0.22);
+            box-shadow:
+                0 12px 32px rgba(15, 23, 42, 0.14),
+                0 0 0 1px rgba(255, 255, 255, 0.06) inset;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            animation: header-nav-nested-in 0.16s ease-out;
+        }
+        .header-nav-aps-nested-menu-left {
+            left: auto;
+            right: calc(100% + 0.35rem);
+        }
+        .dark .header-nav-aps-menu-head { color: #fbbf24; }
+        .dark .header-nav-aps-menu-subhead { color: #fcd34d; }
+        .dark .header-nav-aps-menu-divider { background: rgba(245, 158, 11, 0.2); }
+        .dark .header-nav-aps-menu {
+            background: rgba(15, 23, 42, 0.96);
+            border-color: rgba(245, 158, 11, 0.2);
+            box-shadow:
+                0 12px 32px rgba(0, 0, 0, 0.45),
+                0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+        }
+        .dark .header-nav-aps-nested-trigger:hover:not(.header-nav-tab-active),
+        .dark .header-nav-aps-nested-trigger[aria-expanded="true"]:not(.header-nav-tab-active) {
+            background: transparent;
+            box-shadow: none;
+        }
+        .dark .header-nav-aps-nested-menu {
+            background: rgba(15, 23, 42, 0.96);
+            border-color: rgba(245, 158, 11, 0.2);
+            box-shadow:
+                0 12px 32px rgba(0, 0, 0, 0.45),
+                0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+        }
+        @keyframes header-nav-menu-in {
+            from { opacity: 0; transform: translateY(-4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes header-nav-nested-in {
+            from { opacity: 0; transform: translateX(-4px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .header-nav-aps-menu,
+            .header-nav-aps-nested-menu { animation: none; }
+        }
+
+        .header-nav-chevron {
+            display: inline-block;
+            margin-left: 0.2rem;
+            opacity: 0.65;
+            transition: transform 0.2s ease;
+            flex-shrink: 0;
+        }
+        .header-nav-chevron-open { transform: rotate(180deg); }
+        .header-nav-chevron-nested {
+            margin-left: 0;
+            transform: rotate(-90deg);
+        }
+        .header-nav-chevron-nested-open { transform: rotate(90deg); }
+
+        .mobile-nav-nested-trigger {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
+            min-height: 2.75rem;
+            border-radius: 0.75rem;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            background: rgba(255, 255, 255, 0.7);
+            padding: 0.625rem 0.75rem;
+            text-align: left;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: rgb(71 85 105);
+            transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
+        }
+        .dark .mobile-nav-nested-trigger {
+            border-color: rgb(30 41 59);
+            background: rgba(15, 23, 42, 0.7);
+            color: rgb(203 213 225);
+        }
+        .mobile-nav-nested-trigger[aria-expanded="true"],
+        .mobile-nav-nested-trigger.is-active {
+            border-color: rgba(245, 158, 11, 0.4);
+            background: rgba(245, 158, 11, 0.1);
+            color: #d97706;
+        }
+        .dark .mobile-nav-nested-trigger[aria-expanded="true"],
+        .dark .mobile-nav-nested-trigger.is-active { color: #fbbf24; }
+        .mobile-nav-nested-children {
+            display: grid;
+            gap: 0.5rem;
+            padding-left: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .mobile-nav-panel {
+            max-height: calc(100dvh - 1rem - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+            animation: mobileNavIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            padding-bottom: max(1rem, env(safe-area-inset-bottom));
+        }
+        @keyframes mobileNavIn {
+            from { opacity: 0; transform: translateY(18px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 2px;
+        }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #475569; }
+
+        /* —— Footer chrome (from index) —— */
+        .opus-site-footer {
+            position: relative;
+            overflow-x: hidden;
+            flex-shrink: 0;
+            isolation: isolate;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            background: linear-gradient(
+                180deg,
+                rgba(255, 255, 255, 0.2) 0%,
+                rgba(248, 250, 252, 0.52) 32%,
+                rgba(241, 245, 249, 0.76) 100%
+            );
+            box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.4);
+        }
+        .dark .opus-site-footer {
+            background: linear-gradient(
+                180deg,
+                rgba(2, 6, 23, 0.12) 0%,
+                rgba(2, 6, 23, 0.5) 28%,
+                rgba(2, 6, 23, 0.76) 100%
+            );
+            box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.07);
+        }
+        .opus-site-footer::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background-image:
+                radial-gradient(50% 80% at 8% 100%, rgba(245, 158, 11, 0.12), transparent 68%),
+                radial-gradient(42% 60% at 92% 15%, rgba(14, 165, 233, 0.06), transparent 62%);
+        }
+        .opus-site-footer::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            pointer-events: none;
+            background: linear-gradient(
+                90deg,
+                transparent 0%,
+                rgba(245, 158, 11, 0.42) 22%,
+                rgba(100, 116, 139, 0.5) 50%,
+                rgba(245, 158, 11, 0.35) 78%,
+                transparent 100%
+            );
+        }
+        .dark .opus-site-footer::after {
+            background: linear-gradient(
+                90deg,
+                transparent 0%,
+                rgba(245, 158, 11, 0.28) 22%,
+                rgba(148, 163, 184, 0.22) 50%,
+                rgba(245, 158, 11, 0.2) 78%,
+                transparent 100%
+            );
+        }
+        .opus-site-footer-divider { border-color: rgb(203 213 225); }
+        .dark .opus-site-footer-divider { border-color: rgb(30 41 59); }
+
+        .opus-footer-accordion-panel {
+            display: grid;
+            grid-template-rows: 0fr;
+            transition: grid-template-rows 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .opus-footer-accordion-panel > div { overflow: hidden; }
+        .opus-footer-accordion-panel--open { grid-template-rows: 1fr; }
+        .opus-footer-accordion-chevron {
+            color: rgb(100 116 139);
+            transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .opus-footer-accordion-chevron--open { transform: rotate(180deg); }
+        .dark .opus-footer-accordion-chevron { color: rgb(148 163 184); }
+
+        /* —— Contact page content —— */
+        .contact-canvas-bg {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            width: 100%;
+            height: 100%;
+        }
+
+        .contact-shell {
+            position: relative;
+            z-index: auto;
+            min-height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .contact-eyebrow { letter-spacing: 0.18em; }
+
+        /*
+         * Contact glass slabs — same see-through + edge language in light and dark.
+         * No backdrop-filter: main is overflow:auto (backdrop root), so blur would
+         * frost the empty scroll surface instead of the network canvas.
+         */
+        .contact-hero,
+        .contact-panel {
+            position: relative;
+            overflow: hidden;
+            border-radius: 1.5rem;
+            border: 1px solid transparent;
+            background: transparent;
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+        }
+
+        /* Hero — MetricsBand amber → sky edge (light) */
+        .contact-hero {
+            /* Real border (Safari light often drops masked ::after rings) */
+            border-color: rgba(180, 83, 9, 0.42);
+            box-shadow:
+                0 0 0 1px rgba(245, 158, 11, 0.28),
+                0 14px 34px rgba(15, 23, 42, 0.05),
+                inset 0 1px 0 rgba(255, 255, 255, 0.55),
+                inset 0 -1px 0 rgba(148, 163, 184, 0.08);
+        }
+
+        .contact-hero::before {
+            content: '';
+            position: absolute;
+            inset: 1px;
+            border-radius: inherit;
+            background:
+                radial-gradient(ellipse 72% 55% at 50% 0%, rgba(255, 255, 255, 0.42), transparent 64%),
+                linear-gradient(135deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.05) 56%, rgba(245, 158, 11, 0.04));
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .contact-hero::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            padding: 1px;
+            background:
+                linear-gradient(135deg, rgba(255, 255, 255, 0.85), rgba(245, 158, 11, 0.55) 40%, rgba(56, 189, 248, 0.32) 70%, rgba(148, 163, 184, 0.35));
+            -webkit-mask:
+                linear-gradient(#000 0 0) content-box,
+                linear-gradient(#000 0 0);
+            -webkit-mask-composite: xor;
+            mask:
+                linear-gradient(#000 0 0) content-box,
+                linear-gradient(#000 0 0);
+            mask-composite: exclude;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Safari: mask-composite exclude is unreliable — keep solid amber rim */
+        @supports (-webkit-touch-callout: none) {
+            html:not(.dark) .contact-hero {
+                border-color: rgba(180, 83, 9, 0.48);
+                box-shadow:
+                    0 0 0 1px rgba(217, 119, 6, 0.35),
+                    0 14px 34px rgba(15, 23, 42, 0.05),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+                    inset 0 -1px 0 rgba(148, 163, 184, 0.08);
+            }
+
+            html:not(.dark) .contact-hero::after {
+                /* Fallback ring without mask — Safari paints this as a soft amber frame */
+                padding: 0;
+                background: transparent;
+                -webkit-mask: none;
+                mask: none;
+                box-shadow: inset 0 0 0 1px rgba(217, 119, 6, 0.4);
+            }
+        }
+
+        /* Panels — neutral rim (light), same as dark language without gold */
+        .contact-panel {
+            border-color: rgba(148, 163, 184, 0.28);
+            box-shadow:
+                0 0 0 1px rgba(148, 163, 184, 0.14),
+                0 14px 34px rgba(15, 23, 42, 0.05),
+                inset 0 1px 0 rgba(255, 255, 255, 0.55),
+                inset 0 -1px 0 rgba(148, 163, 184, 0.08);
+        }
+
+        .contact-panel::before {
+            content: '';
+            position: absolute;
+            inset: 1px;
+            border-radius: inherit;
+            background:
+                radial-gradient(ellipse 72% 55% at 50% 0%, rgba(255, 255, 255, 0.42), transparent 64%),
+                linear-gradient(135deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.05) 56%, transparent);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .contact-panel::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            padding: 1px;
+            background:
+                linear-gradient(135deg, rgba(255, 255, 255, 0.7), rgba(148, 163, 184, 0.32) 48%, rgba(148, 163, 184, 0.18));
+            -webkit-mask:
+                linear-gradient(#000 0 0) content-box,
+                linear-gradient(#000 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .dark .contact-hero {
+            border-color: rgba(245, 158, 11, 0.2);
+            box-shadow:
+                0 0 0 1px rgba(245, 158, 11, 0.12),
+                0 14px 34px rgba(0, 0, 0, 0.18),
+                inset 0 1px 0 rgba(255, 255, 255, 0.055),
+                inset 0 -1px 0 rgba(255, 255, 255, 0.012);
+        }
+
+        .dark .contact-panel {
+            border-color: rgba(255, 255, 255, 0.06);
+            box-shadow:
+                0 0 0 1px rgba(255, 255, 255, 0.04),
+                0 14px 34px rgba(0, 0, 0, 0.18),
+                inset 0 1px 0 rgba(255, 255, 255, 0.055),
+                inset 0 -1px 0 rgba(255, 255, 255, 0.012);
+        }
+
+        .dark .contact-hero::before {
+            background:
+                radial-gradient(ellipse 72% 55% at 50% 0%, rgba(255, 255, 255, 0.028), transparent 64%),
+                linear-gradient(135deg, rgba(255, 255, 255, 0.025), rgba(255, 255, 255, 0.008) 56%, rgba(245, 158, 11, 0.012));
+        }
+
+        .dark .contact-panel::before {
+            background:
+                radial-gradient(ellipse 72% 55% at 50% 0%, rgba(255, 255, 255, 0.028), transparent 64%),
+                linear-gradient(135deg, rgba(255, 255, 255, 0.025), rgba(255, 255, 255, 0.008) 56%, transparent);
+        }
+
+        .dark .contact-hero::after {
+            background:
+                linear-gradient(135deg, rgba(255, 255, 255, 0.16), rgba(245, 158, 11, 0.48) 40%, rgba(56, 189, 248, 0.14) 70%, rgba(255, 255, 255, 0.1));
+        }
+
+        .dark .contact-panel::after {
+            background:
+                linear-gradient(135deg, rgba(255, 255, 255, 0.14), rgba(148, 163, 184, 0.18) 45%, rgba(255, 255, 255, 0.08));
+        }
+
+        /* Hero photo — always-dark panel: night port under a navy scrim (see assets/PHOTO_CREDITS.md) */
+        .contact-hero.contact-hero--photo,
+        .dark .contact-hero.contact-hero--photo {
+            background:
+                linear-gradient(90deg, rgba(2, 6, 23, 0.92) 0%, rgba(2, 6, 23, 0.62) 45%, rgba(2, 6, 23, 0.1) 100%),
+                linear-gradient(180deg, rgba(2, 6, 23, 0.2) 0%, rgba(2, 6, 23, 0) 40%, rgba(2, 6, 23, 0.35) 100%),
+                url('./assets/terms-hero.jpg') right 62% / cover no-repeat,
+                #020617;
+            border-color: rgba(245, 158, 11, 0.28);
+            box-shadow:
+                0 0 0 1px rgba(245, 158, 11, 0.12),
+                0 30px 80px -40px rgba(2, 6, 23, 0.9),
+                inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        }
+
+        .contact-hero.contact-hero--photo::before,
+        .dark .contact-hero.contact-hero--photo::before {
+            background: radial-gradient(ellipse 60% 70% at 12% 0%, rgba(245, 158, 11, 0.1), transparent 62%);
+        }
+
+        .contact-hero.contact-hero--photo::after,
+        .dark .contact-hero.contact-hero--photo::after {
+            background:
+                linear-gradient(135deg, rgba(255, 255, 255, 0.16), rgba(245, 158, 11, 0.48) 40%, rgba(56, 189, 248, 0.14) 70%, rgba(255, 255, 255, 0.1));
+        }
+
+        @media (max-width: 639px) {
+            .contact-hero.contact-hero--photo,
+            .dark .contact-hero.contact-hero--photo {
+                background:
+                    linear-gradient(180deg, rgba(2, 6, 23, 0.9) 0%, rgba(2, 6, 23, 0.7) 55%, rgba(2, 6, 23, 0.45) 100%),
+                    url('./assets/terms-hero.jpg') 70% 62% / cover no-repeat,
+                    #020617;
+            }
+        }
+
+        /* Privacy policy — long-form text inside the glass panel */
+        .policy-section {
+            scroll-margin-top: 1.5rem;
+        }
+
+        .policy-section + .policy-section {
+            margin-top: 2.25rem;
+            padding-top: 2.25rem;
+            border-top: 1px solid rgba(148, 163, 184, 0.25);
+        }
+
+        .dark .policy-section + .policy-section {
+            border-top-color: rgba(255, 255, 255, 0.07);
+        }
+
+        .policy-list li {
+            position: relative;
+            padding-left: 1.4rem;
+        }
+
+        .policy-list li::before {
+            content: '';
+            position: absolute;
+            left: 0.15rem;
+            top: 0.68em;
+            width: 0.4rem;
+            height: 0.4rem;
+            border-radius: 9999px;
+            background: #f59e0b;
+        }
+
+        /* Unfilled business facts — deliberately loud so they cannot ship unnoticed */
+        .policy-todo {
+            padding: 0.05em 0.3em;
+            border-radius: 0.3rem;
+            background: rgba(245, 158, 11, 0.18);
+            color: inherit;
+            box-shadow: inset 0 0 0 1px rgba(245, 158, 11, 0.55);
+        }
+
+        @media (min-width: 1024px) {
+            .policy-toc-sticky {
+                position: sticky;
+                top: 1.5rem;
+            }
+        }
+
+        .contact-hero > *,
+        .contact-panel > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .contact-field label {
+            display: block;
+            margin-bottom: 0.4rem;
+            font-size: 0.6875rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #334155;
+        }
+        .dark .contact-field label { color: #cbd5e1; }
+
+        .contact-field input,
+        .contact-field textarea {
+            width: 100%;
+            border-radius: 0.75rem;
+            border: 1px solid rgba(148, 163, 184, 0.4);
+            background: rgba(255, 255, 255, 0.92);
+            color: #0f172a;
+            padding: 0.7rem 0.9rem;
+            font-size: 0.9375rem;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .dark .contact-field input,
+        .dark .contact-field textarea {
+            border-color: rgba(148, 163, 184, 0.22);
+            background: rgba(2, 6, 23, 0.72);
+            color: #f8fafc;
+        }
+        .contact-field input:focus,
+        .contact-field textarea:focus {
+            border-color: rgba(245, 158, 11, 0.65);
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.18);
+        }
+        .contact-field textarea {
+            min-height: 140px;
+            resize: vertical;
+        }
+
+        .contact-reveal {
+            opacity: 0;
+            transform: translateY(18px);
+            filter: blur(5px);
+            transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1), transform 0.65s cubic-bezier(0.16, 1, 0.3, 1), filter 0.65s ease;
+        }
+        .contact-reveal.is-visible {
+            opacity: 1;
+            transform: none;
+            filter: none;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .contact-reveal {
+                opacity: 1;
+                transform: none;
+                filter: none;
+                transition: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="root"></div>
+
+    <script src="./vendor/react-17.0.2.production.min.js"></script>
+    <script src="./vendor/react-dom-17.0.2.production.min.js"></script>
+    <script src="./vendor/babel-standalone-7.26.10.min.js"></script>
+    <script src="./operartis-logo-mark.js?v=20260815-mobile-scroll-intro"></script>
+    <script type="text/babel">
+        const { useState, useEffect, useLayoutEffect, useMemo, useRef, useCallback } = React;
+        const OperartisLogoMark = window.OperartisLogoMark;
+
+        const CONTACT_COPY = {
+            en: {
+                page_title: 'Contact',
+                eyebrow: 'Get in touch',
+                headline: 'Let’s optimize your operations together with Operartis.',
+                lead: 'Talk with Operartis about an APS-System for your supply chain.',
+                email_label: 'Email',
+                email_hint: 'We look forward to your message and will try to get back to you promptly. Please do not hesitate to contact us either through email or the contact form.',
+                form_title: 'Send a message',
+                form_name: 'Name',
+                form_email: 'Work email',
+                form_company: 'Company',
+                form_company_optional: 'optional',
+                form_message: 'How can we help?',
+                form_submit: 'Send message',
+                form_privacy: 'By submitting, you agree to be contacted by Operartis. We never share your details.',
+                form_sending: 'Sending…',
+                form_sent: 'Message sent. We’ll get back to you soon.',
+                form_error: 'Could not send your message. Please try again or email info@operartis.io.',
+                form_required: 'Please fill in your name, email, and message.',
+                trust_1: 'Made for industrial operations',
+                trust_2: 'Data stays yours',
+                trust_3: 'Partnerships',
+                trust_4: 'Request demo',
+                trust_5: 'Book consultant appointment',
+                trust_6: 'Custom order',
+                assurance_1: 'No sharing private data',
+                assurance_2: 'No publish personal information',
+                assurance_3: 'Professional and helpful service',
+                nav_platform: 'Platform',
+                nav_solutions: 'Solutions',
+                nav_mathematical_foundation: 'Mathematical Foundation',
+                nav_supply_chain: 'Supply Chain',
+                nav_industry_40: 'Industry 4.0',
+                nav_analytics: 'Analytics Levels',
+                nav_aps_system: 'APS-System',
+                nav_implementation_process: 'Custom Deployment',
+                nav_about: 'About Us',
+                nav_contact: 'Contact',
+                nav_login: 'Login',
+                nav_dashboard: 'Dashboard',
+                nav_logout: 'Logout',
+                footer_tagline: 'An APS optimization platform that transforms ERP and MES data into actionable plans across the supply chain.',
+                footer_platform: 'Platform',
+                footer_solutions: 'Solutions',
+                footer_legal: 'Legal',
+                footer_company: 'Company',
+                footer_privacy: 'Privacy Policy',
+                footer_imprint: 'Imprint',
+                footer_terms: 'Terms of Service',
+                cta_why: 'Why Operartis',
+            },
+            vi: {
+                page_title: 'Liên hệ',
+                eyebrow: 'Liên hệ với chúng tôi',
+                headline: 'Cùng Operartis tối ưu hoá hệ thống vận hành của bạn.',
+                lead: 'Trao đổi với Operartis về hệ thống APS cho chuỗi cung ứng của bạn.',
+                email_label: 'Email',
+                email_hint: 'Chúng tôi rất mong nhận được tin nhắn của bạn và sẽ cố gắng phản hồi sớm. Đừng ngần ngại liên hệ qua email hoặc biểu mẫu liên hệ.',
+                form_title: 'Gửi tin nhắn',
+                form_name: 'Họ tên',
+                form_email: 'Email công việc',
+                form_company: 'Công ty',
+                form_company_optional: 'không bắt buộc',
+                form_message: 'Chúng tôi có thể giúp gì?',
+                form_submit: 'Gửi tin nhắn',
+                form_privacy: 'Khi gửi, bạn đồng ý để Operartis liên hệ. Chúng tôi không chia sẻ thông tin của bạn.',
+                form_sending: 'Đang gửi…',
+                form_sent: 'Đã gửi tin nhắn. Chúng tôi sẽ phản hồi sớm.',
+                form_error: 'Không gửi được tin nhắn. Vui lòng thử lại hoặc email info@operartis.io.',
+                form_required: 'Vui lòng điền họ tên, email và nội dung tin nhắn.',
+                trust_1: 'Dành cho vận hành công nghiệp',
+                trust_2: 'Dữ liệu thuộc về bạn',
+                trust_3: 'Hợp tác',
+                trust_4: 'Yêu cầu demo',
+                trust_5: 'Đặt lịch tư vấn',
+                trust_6: 'Đơn hàng tùy chỉnh',
+                assurance_1: 'Không chia sẻ dữ liệu riêng tư',
+                assurance_2: 'Không công bố thông tin cá nhân',
+                assurance_3: 'Dịch vụ chuyên nghiệp và tận tâm',
+                nav_platform: 'Nền tảng',
+                nav_solutions: 'Giải pháp',
+                nav_mathematical_foundation: 'Nền tảng toán học',
+                nav_supply_chain: 'Chuỗi cung ứng',
+                nav_industry_40: 'Công nghiệp 4.0',
+                nav_analytics: 'Cấp độ phân tích',
+                nav_aps_system: 'Hệ thống APS',
+                nav_implementation_process: 'Triển khai tùy chỉnh',
+                nav_about: 'Về chúng tôi',
+                nav_contact: 'Liên hệ',
+                nav_login: 'Đăng nhập',
+                nav_dashboard: 'Bảng điều khiển',
+                nav_logout: 'Đăng xuất',
+                footer_tagline: 'Nền tảng tối ưu APS biến dữ liệu ERP và MES thành kế hoạch khả thi trên toàn chuỗi cung ứng.',
+                footer_platform: 'Nền tảng',
+                footer_solutions: 'Giải pháp',
+                footer_legal: 'Pháp lý',
+                footer_company: 'Công ty',
+                footer_privacy: 'Chính sách bảo mật',
+                footer_imprint: 'Thông tin pháp lý',
+                footer_terms: 'Điều khoản dịch vụ',
+                cta_why: 'Vì Sao Chọn Operartis',
+            },
+            de: {
+                page_title: 'Kontakt',
+                eyebrow: 'Kontakt aufnehmen',
+                headline: 'Lassen Sie uns Ihre Abläufe gemeinsam mit Operartis optimieren.',
+                lead: 'Sprechen Sie mit Operartis über ein APS-System für Ihre Supply Chain.',
+                email_label: 'E-Mail',
+                email_hint: 'Wir freuen uns auf Ihre Nachricht und bemühen uns um eine zeitnahe Antwort. Kontaktieren Sie uns gerne per E-Mail oder über das Kontaktformular.',
+                form_title: 'Nachricht senden',
+                form_name: 'Name',
+                form_email: 'Geschäftliche E-Mail',
+                form_company: 'Unternehmen',
+                form_company_optional: 'optional',
+                form_message: 'Wie können wir helfen?',
+                form_submit: 'Nachricht senden',
+                form_privacy: 'Mit dem Absenden stimmen Sie einer Kontaktaufnahme durch Operartis zu. Wir geben Ihre Daten nicht weiter.',
+                form_sending: 'Wird gesendet…',
+                form_sent: 'Nachricht gesendet. Wir melden uns bald.',
+                form_error: 'Nachricht konnte nicht gesendet werden. Bitte erneut versuchen oder info@operartis.io schreiben.',
+                form_required: 'Bitte Name, E-Mail und Nachricht ausfüllen.',
+                trust_1: 'Für industrielle Abläufe',
+                trust_2: 'Ihre Daten bleiben Ihre',
+                trust_3: 'Partnerschaften',
+                trust_4: 'Demo anfragen',
+                trust_5: 'Beratungstermin buchen',
+                trust_6: 'Individuelle Bestellung',
+                assurance_1: 'Keine Weitergabe privater Daten',
+                assurance_2: 'Keine Veröffentlichung personenbezogener Daten',
+                assurance_3: 'Professioneller und hilfreicher Service',
+                nav_platform: 'Plattform',
+                nav_solutions: 'Lösungen',
+                nav_mathematical_foundation: 'Mathematische Grundlage',
+                nav_supply_chain: 'Lieferkette',
+                nav_industry_40: 'Industry 4.0',
+                nav_analytics: 'Analytics-Stufen',
+                nav_aps_system: 'APS-System',
+                nav_implementation_process: 'Individuelles Deployment',
+                nav_about: 'Über uns',
+                nav_contact: 'Kontakt',
+                nav_login: 'Anmelden',
+                nav_dashboard: 'Ihr Dashboard',
+                nav_logout: 'Abmelden',
+                footer_tagline: 'Eine APS-Optimierungsplattform, die ERP- und MES-Daten in umsetzbare Pläne über die gesamte Lieferkette verwandelt.',
+                footer_platform: 'Plattform',
+                footer_solutions: 'Lösungen',
+                footer_legal: 'Rechtliches',
+                footer_company: 'Unternehmen',
+                footer_privacy: 'Datenschutz',
+                footer_imprint: 'Impressum',
+                footer_terms: 'Nutzungsbedingungen',
+                cta_why: 'Warum Operartis',
+            },
+        };
+
+        // Terms of Service text (en / vi / de).
+        const TERMS_COPY = {
+            "en": {
+                "page_title": "Terms of Service",
+                "eyebrow": "Legal",
+                "headline": "Terms of Service",
+                "updated": "Last updated: 15 November 2026",
+                "lead": "These terms govern your use of operartis.io and the Operartis Advanced Planning & Scheduling (APS) platform. By creating an account or using the platform, you agree to them.",
+                "toc": "On this page",
+                "sections": [
+                    {
+                        "id": "agreement",
+                        "title": "Who these terms apply to",
+                        "blocks": [
+                            {
+                                "t": "p",
+                                "v": "The service is provided by Operartis Analytics (“Operartis”, “we”). “You” means the person using the service and the organization you act for."
+                            },
+                            {
+                                "t": "p",
+                                "v": "If your organization has signed a separate agreement or quotation with Operartis, that document takes precedence over these terms where the two differ."
+                            }
+                        ]
+                    },
+                    {
+                        "id": "service",
+                        "title": "The service",
+                        "blocks": [
+                            {
+                                "t": "p",
+                                "v": "Operartis is a software-as-a-service platform for supply chain planning, including modules for demand forecasting, ABC-XYZ analysis and inventory optimization. Modules marked as concept or beta are still in development and may change."
+                            },
+                            {
+                                "t": "p",
+                                "v": "The platform supports your decisions; it does not make them for you. Results depend on the data you provide, and you remain responsible for checking them and for the business decisions you take."
+                            }
+                        ]
+                    },
+                    {
+                        "id": "accounts",
+                        "title": "Accounts",
+                        "blocks": [
+                            {
+                                "t": "ul",
+                                "v": [
+                                    "Provide accurate information when you register and keep it up to date.",
+                                    "Keep your password confidential and tell us promptly if you suspect unauthorized access.",
+                                    "Your organization’s administrators manage its users and are responsible for activity under their accounts."
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "use",
+                        "title": "Acceptable use",
+                        "blocks": [
+                            {
+                                "t": "p",
+                                "v": "You agree not to:"
+                            },
+                            {
+                                "t": "ul",
+                                "v": [
+                                    "use the service in breach of Vietnamese law or the rights of others;",
+                                    "upload data you are not entitled to use, or malicious code;",
+                                    "attempt to bypass security, disrupt the service or access other organizations’ data;",
+                                    "copy, reverse engineer or resell the platform without our written consent."
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "data",
+                        "title": "Your data",
+                        "blocks": [
+                            {
+                                "t": "p",
+                                "v": "You keep all rights to the data you upload and the results computed from it. You allow us to process that data solely to provide the service to your organization."
+                            },
+                            {
+                                "t": "p",
+                                "v": "Uploaded data and results are deleted automatically after 180 days by default, so export anything you need to keep. Personal data is handled as described in our Privacy Policy."
+                            }
+                        ]
+                    },
+                    {
+                        "id": "ip",
+                        "title": "Intellectual property",
+                        "blocks": [
+                            {
+                                "t": "p",
+                                "v": "The platform, its software, models, design and documentation belong to Operartis. We grant you a limited, non-exclusive, non-transferable right to use them for your organization’s internal business purposes while your access is active."
+                            }
+                        ]
+                    },
+                    {
+                        "id": "fees",
+                        "title": "Fees",
+                        "blocks": [
+                            {
+                                "t": "p",
+                                "v": "Fees and payment terms are set out in the agreement or quotation between Operartis and your organization. Prices exclude value-added tax unless stated otherwise."
+                            }
+                        ]
+                    },
+                    {
+                        "id": "liability",
+                        "title": "Availability and liability",
+                        "blocks": [
+                            {
+                                "t": "p",
+                                "v": "We work to keep the service available and secure, but we do not guarantee that it will be uninterrupted or free of errors. We may carry out maintenance and change or discontinue features, and will give reasonable notice of significant changes."
+                            },
+                            {
+                                "t": "p",
+                                "v": "To the extent permitted by Vietnamese law, Operartis is not liable for indirect losses such as lost profit, lost revenue or business interruption, and our total liability is limited to the fees your organization paid for the service in the 12 months before the claim arose."
+                            }
+                        ]
+                    },
+                    {
+                        "id": "termination",
+                        "title": "Suspension and termination",
+                        "blocks": [
+                            {
+                                "t": "p",
+                                "v": "You may stop using the service at any time. We may suspend or end access if these terms are breached, if fees remain unpaid, or if the law requires it. When access ends, your right to use the platform ends and your data is deleted in line with our retention periods."
+                            }
+                        ]
+                    },
+                    {
+                        "id": "law",
+                        "title": "Governing law and disputes",
+                        "blocks": [
+                            {
+                                "t": "p",
+                                "v": "These terms are governed by the laws of Vietnam. We will first try to resolve any dispute through negotiation; if that fails, the dispute will be settled by the competent court in Vietnam."
+                            },
+                            {
+                                "t": "p",
+                                "v": "These terms are available in several languages. If the versions differ, the Vietnamese version prevails."
+                            }
+                        ]
+                    },
+                    {
+                        "id": "changes",
+                        "title": "Changes and contact",
+                        "blocks": [
+                            {
+                                "t": "p",
+                                "v": "We may update these terms when the service or the law changes. The current version is always on this page, with the date of the last update at the top. Continued use of the service after an update means you accept the new terms."
+                            },
+                            {
+                                "t": "p",
+                                "v": "Questions about these terms: info@operartis.io."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "vi": {
+                "page_title": "Điều khoản dịch vụ",
+                "eyebrow": "Pháp lý",
+                "headline": "Điều khoản dịch vụ",
+                "updated": "Cập nhật lần cuối: 15/11/2026",
+                "lead": "Các điều khoản này điều chỉnh việc bạn sử dụng operartis.io và nền tảng Hoạch định & Lập lịch Nâng cao (APS) của Operartis. Khi tạo tài khoản hoặc sử dụng nền tảng, bạn đồng ý với các điều khoản này.",
+                "toc": "Trong trang này",
+                "sections": [
+                    {
+                        "id": "agreement",
+                        "title": "Đối tượng áp dụng",
+                        "blocks": [
+                            {
+                                "t": "p",
+                                "v": "Dịch vụ được cung cấp bởi Operartis Analytics (“Operartis”, “chúng tôi”). “Bạn” là người sử dụng dịch vụ và tổ chức mà bạn đại diện."
+                            },
+                            {
+                                "t": "p",
+                                "v": "Nếu tổ chức của bạn đã ký hợp đồng hoặc báo giá riêng với Operartis, văn bản đó được ưu tiên áp dụng khi có khác biệt với các điều khoản này."
+                            }
+                        ]
+                    },
+                    {
+                        "id": "service",
+                        "title": "Dịch vụ",
+                        "blocks": [
+                            {
+                                "t": "p",
+                                "v": "Operartis là nền tảng phần mềm dịch vụ (SaaS) cho hoạch định chuỗi cung ứng, bao gồm các mô-đun dự báo nhu cầu, phân tích ABC-XYZ và tối ưu hoá tồn kho. Các mô-đun được đánh dấu là ý tưởng (concept) hoặc thử nghiệm (beta) vẫn đang được phát triển và có thể thay đổi."
+                            },
+                            {
+                                "t": "p",
+                                "v": "Nền tảng hỗ trợ bạn ra quyết định, không quyết định thay bạn. Kết quả phụ thuộc vào dữ liệu bạn cung cấp; bạn chịu trách nhiệm kiểm tra kết quả và về các quyết định kinh doanh của mình."
+                            }
+                        ]
+                    },
+                    {
+                        "id": "accounts",
+                        "title": "Tài khoản",
+                        "blocks": [
+                            {
+                                "t": "ul",
+                                "v": [
+                                    "Cung cấp thông tin chính xác khi đăng ký và cập nhật khi có thay đổi.",
+                                    "Giữ bí mật mật khẩu và thông báo ngay cho chúng tôi nếu nghi ngờ có truy cập trái phép.",
+                                    "Quản trị viên của tổ chức quản lý người dùng của tổ chức và chịu trách nhiệm về hoạt động dưới các tài khoản đó."
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "use",
+                        "title": "Quy định sử dụng",
+                        "blocks": [
+                            {
+                                "t": "p",
+                                "v": "Bạn cam kết không:"
+                            },
+                            {
+                                "t": "ul",
+                                "v": [
+                                    "sử dụng dịch vụ trái pháp luật Việt Nam hoặc xâm phạm quyền của người khác;",
+                                    "tải lên dữ liệu mà bạn không có quyền sử dụng, hoặc mã độc;",
+                                    "tìm cách vượt qua biện pháp bảo mật, gây gián đoạn dịch vụ hoặc truy cập dữ liệu của tổ chức khác;",
+                                    "sao chép, dịch ngược hoặc bán lại nền tảng khi chưa có sự đồng ý bằng văn bản của chúng tôi."
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "data",
+                        "title": "Dữ liệu của bạn",
+                        "blocks": [
+                            {
+                                "t": "p",
+                                "v": "Bạn giữ mọi quyền đối với dữ liệu bạn tải lên và kết quả tính toán từ dữ liệu đó. Bạn cho phép chúng tôi xử lý dữ liệu này chỉ nhằm cung cấp dịch vụ cho tổ chức của bạn."
+                            },
+                            {
+                                "t": "p",
+                                "v": "Dữ liệu đã tải lên và kết quả mặc định được tự động xoá sau 180 ngày, vì vậy hãy xuất những gì bạn cần lưu giữ. Dữ liệu cá nhân được xử lý theo Chính sách bảo mật của chúng tôi."
+                            }
+                        ]
+                    },
+                    {
+                        "id": "ip",
+                        "title": "Sở hữu trí tuệ",
+                        "blocks": [
+                            {
+                                "t": "p",
+                                "v": "Nền tảng, phần mềm, mô hình, thiết kế và tài liệu thuộc sở hữu của Operartis. Chúng tôi cấp cho bạn quyền sử dụng có giới hạn, không độc quyền, không thể chuyển nhượng, cho mục đích kinh doanh nội bộ của tổ chức bạn trong thời gian quyền truy cập còn hiệu lực."
+                            }
+                        ]
+                    },
+                    {
+                        "id": "fees",
+                        "title": "Phí dịch vụ",
+                        "blocks": [
+                            {
+                                "t": "p",
+                                "v": "Phí và điều khoản thanh toán được quy định trong hợp đồng hoặc báo giá giữa Operartis và tổ chức của bạn. Giá chưa bao gồm thuế giá trị gia tăng, trừ khi có ghi chú khác."
+                            }
+                        ]
+                    },
+                    {
+                        "id": "liability",
+                        "title": "Tính sẵn sàng và trách nhiệm",
+                        "blocks": [
+                            {
+                                "t": "p",
+                                "v": "Chúng tôi nỗ lực duy trì dịch vụ ổn định và an toàn, nhưng không cam kết dịch vụ hoạt động liên tục hoặc không có lỗi. Chúng tôi có thể bảo trì, thay đổi hoặc ngừng một số tính năng và sẽ thông báo trước hợp lý đối với các thay đổi quan trọng."
+                            },
+                            {
+                                "t": "p",
+                                "v": "Trong phạm vi pháp luật Việt Nam cho phép, Operartis không chịu trách nhiệm đối với các thiệt hại gián tiếp như mất lợi nhuận, mất doanh thu hoặc gián đoạn kinh doanh, và tổng trách nhiệm của chúng tôi được giới hạn ở mức phí mà tổ chức của bạn đã thanh toán cho dịch vụ trong 12 tháng trước khi phát sinh khiếu nại."
+                            }
+                        ]
+                    },
+                    {
+                        "id": "termination",
+                        "title": "Tạm ngừng và chấm dứt",
+                        "blocks": [
+                            {
+                                "t": "p",
+                                "v": "Bạn có thể ngừng sử dụng dịch vụ bất cứ lúc nào. Chúng tôi có thể tạm ngừng hoặc chấm dứt quyền truy cập nếu các điều khoản này bị vi phạm, phí chưa được thanh toán, hoặc theo yêu cầu của pháp luật. Khi quyền truy cập chấm dứt, quyền sử dụng nền tảng của bạn chấm dứt và dữ liệu của bạn được xoá theo thời hạn lưu trữ của chúng tôi."
+                            }
+                        ]
+                    },
+                    {
+                        "id": "law",
+                        "title": "Luật áp dụng và giải quyết tranh chấp",
+                        "blocks": [
+                            {
+                                "t": "p",
+                                "v": "Các điều khoản này được điều chỉnh bởi pháp luật Việt Nam. Hai bên trước hết giải quyết tranh chấp thông qua thương lượng; nếu không thành, tranh chấp sẽ được giải quyết tại toà án có thẩm quyền của Việt Nam."
+                            },
+                            {
+                                "t": "p",
+                                "v": "Các điều khoản này có nhiều phiên bản ngôn ngữ. Nếu có khác biệt giữa các phiên bản, bản tiếng Việt được ưu tiên áp dụng."
+                            }
+                        ]
+                    },
+                    {
+                        "id": "changes",
+                        "title": "Thay đổi và liên hệ",
+                        "blocks": [
+                            {
+                                "t": "p",
+                                "v": "Chúng tôi có thể cập nhật các điều khoản này khi dịch vụ hoặc pháp luật thay đổi. Phiên bản hiện hành luôn có tại trang này, kèm ngày cập nhật gần nhất ở phía trên. Việc tiếp tục sử dụng dịch vụ sau khi cập nhật đồng nghĩa với việc bạn chấp nhận điều khoản mới."
+                            },
+                            {
+                                "t": "p",
+                                "v": "Mọi câu hỏi về các điều khoản này: info@operartis.io."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "de": {
+                "page_title": "Nutzungsbedingungen",
+                "eyebrow": "Rechtliches",
+                "headline": "Nutzungsbedingungen",
+                "updated": "Stand: 15. November 2026",
+                "lead": "Diese Bedingungen regeln Ihre Nutzung von operartis.io und der Operartis-Plattform für Advanced Planning & Scheduling (APS). Mit der Erstellung eines Kontos oder der Nutzung der Plattform stimmen Sie ihnen zu.",
+                "toc": "Auf dieser Seite",
+                "sections": [
+                    {
+                        "id": "agreement",
+                        "title": "Für wen diese Bedingungen gelten",
+                        "blocks": [
+                            {
+                                "t": "p",
+                                "v": "Der Dienst wird von Operartis Analytics („Operartis“, „wir“) bereitgestellt. „Sie“ bezeichnet die Person, die den Dienst nutzt, und die Organisation, für die Sie handeln."
+                            },
+                            {
+                                "t": "p",
+                                "v": "Hat Ihre Organisation einen gesonderten Vertrag oder ein Angebot mit Operartis geschlossen, geht dieses Dokument bei Abweichungen diesen Bedingungen vor."
+                            }
+                        ]
+                    },
+                    {
+                        "id": "service",
+                        "title": "Der Dienst",
+                        "blocks": [
+                            {
+                                "t": "p",
+                                "v": "Operartis ist eine Software-as-a-Service-Plattform für die Lieferkettenplanung, unter anderem mit Modulen für Bedarfsprognose, ABC-XYZ-Analyse und Bestandsoptimierung. Als Konzept oder Beta gekennzeichnete Module befinden sich noch in Entwicklung und können sich ändern."
+                            },
+                            {
+                                "t": "p",
+                                "v": "Die Plattform unterstützt Ihre Entscheidungen; sie trifft sie nicht für Sie. Die Ergebnisse hängen von den von Ihnen bereitgestellten Daten ab. Sie bleiben dafür verantwortlich, sie zu prüfen, und für Ihre geschäftlichen Entscheidungen."
+                            }
+                        ]
+                    },
+                    {
+                        "id": "accounts",
+                        "title": "Konten",
+                        "blocks": [
+                            {
+                                "t": "ul",
+                                "v": [
+                                    "Machen Sie bei der Registrierung zutreffende Angaben und halten Sie sie aktuell.",
+                                    "Halten Sie Ihr Passwort geheim und informieren Sie uns umgehend, wenn Sie einen unbefugten Zugriff vermuten.",
+                                    "Die Administratoren Ihrer Organisation verwalten deren Nutzer und sind für Aktivitäten unter deren Konten verantwortlich."
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "use",
+                        "title": "Zulässige Nutzung",
+                        "blocks": [
+                            {
+                                "t": "p",
+                                "v": "Sie verpflichten sich, Folgendes zu unterlassen:"
+                            },
+                            {
+                                "t": "ul",
+                                "v": [
+                                    "den Dienst unter Verstoß gegen vietnamesisches Recht oder Rechte Dritter zu nutzen;",
+                                    "Daten hochzuladen, zu deren Nutzung Sie nicht berechtigt sind, oder Schadcode;",
+                                    "Sicherheitsmaßnahmen zu umgehen, den Dienst zu stören oder auf Daten anderer Organisationen zuzugreifen;",
+                                    "die Plattform ohne unsere schriftliche Zustimmung zu kopieren, zurückzuentwickeln oder weiterzuverkaufen."
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "data",
+                        "title": "Ihre Daten",
+                        "blocks": [
+                            {
+                                "t": "p",
+                                "v": "Sie behalten alle Rechte an den von Ihnen hochgeladenen Daten und den daraus berechneten Ergebnissen. Sie gestatten uns, diese Daten ausschließlich zur Erbringung des Dienstes für Ihre Organisation zu verarbeiten."
+                            },
+                            {
+                                "t": "p",
+                                "v": "Hochgeladene Daten und Ergebnisse werden standardmäßig nach 180 Tagen automatisch gelöscht; exportieren Sie daher, was Sie aufbewahren möchten. Personenbezogene Daten werden gemäß unserer Datenschutzerklärung behandelt."
+                            }
+                        ]
+                    },
+                    {
+                        "id": "ip",
+                        "title": "Geistiges Eigentum",
+                        "blocks": [
+                            {
+                                "t": "p",
+                                "v": "Die Plattform, ihre Software, Modelle, Gestaltung und Dokumentation gehören Operartis. Wir räumen Ihnen ein beschränktes, nicht ausschließliches, nicht übertragbares Recht ein, sie für die internen Geschäftszwecke Ihrer Organisation zu nutzen, solange Ihr Zugang besteht."
+                            }
+                        ]
+                    },
+                    {
+                        "id": "fees",
+                        "title": "Entgelte",
+                        "blocks": [
+                            {
+                                "t": "p",
+                                "v": "Entgelte und Zahlungsbedingungen ergeben sich aus dem Vertrag oder Angebot zwischen Operartis und Ihrer Organisation. Preise verstehen sich ohne Umsatzsteuer, sofern nicht anders angegeben."
+                            }
+                        ]
+                    },
+                    {
+                        "id": "liability",
+                        "title": "Verfügbarkeit und Haftung",
+                        "blocks": [
+                            {
+                                "t": "p",
+                                "v": "Wir bemühen uns, den Dienst verfügbar und sicher zu halten, garantieren jedoch keinen unterbrechungs- oder fehlerfreien Betrieb. Wir können Wartungen durchführen sowie Funktionen ändern oder einstellen und kündigen wesentliche Änderungen mit angemessener Frist an."
+                            },
+                            {
+                                "t": "p",
+                                "v": "Soweit nach vietnamesischem Recht zulässig, haftet Operartis nicht für mittelbare Schäden wie entgangenen Gewinn, Umsatzausfall oder Betriebsunterbrechung; unsere Gesamthaftung ist auf die Entgelte begrenzt, die Ihre Organisation in den 12 Monaten vor Entstehung des Anspruchs für den Dienst gezahlt hat."
+                            }
+                        ]
+                    },
+                    {
+                        "id": "termination",
+                        "title": "Sperrung und Beendigung",
+                        "blocks": [
+                            {
+                                "t": "p",
+                                "v": "Sie können die Nutzung des Dienstes jederzeit beenden. Wir können den Zugang sperren oder beenden, wenn gegen diese Bedingungen verstoßen wird, Entgelte unbezahlt bleiben oder das Gesetz es verlangt. Mit dem Ende des Zugangs endet Ihr Nutzungsrecht an der Plattform, und Ihre Daten werden gemäß unseren Speicherfristen gelöscht."
+                            }
+                        ]
+                    },
+                    {
+                        "id": "law",
+                        "title": "Anwendbares Recht und Streitigkeiten",
+                        "blocks": [
+                            {
+                                "t": "p",
+                                "v": "Diese Bedingungen unterliegen dem Recht Vietnams. Streitigkeiten versuchen wir zunächst durch Verhandlung beizulegen; gelingt dies nicht, entscheidet das zuständige Gericht in Vietnam."
+                            },
+                            {
+                                "t": "p",
+                                "v": "Diese Bedingungen liegen in mehreren Sprachen vor. Bei Abweichungen ist die vietnamesische Fassung maßgeblich."
+                            }
+                        ]
+                    },
+                    {
+                        "id": "changes",
+                        "title": "Änderungen und Kontakt",
+                        "blocks": [
+                            {
+                                "t": "p",
+                                "v": "Wir können diese Bedingungen anpassen, wenn sich der Dienst oder die Rechtslage ändert. Die aktuelle Fassung finden Sie stets auf dieser Seite, mit dem Stand oben. Nutzen Sie den Dienst nach einer Änderung weiter, gelten die neuen Bedingungen als angenommen."
+                            },
+                            {
+                                "t": "p",
+                                "v": "Fragen zu diesen Bedingungen: info@operartis.io."
+                            }
+                        ]
+                    }
+                ]
+            }
+        };
+
+        const NAV_HREF = {
+            'proof-foundation': './#proof-foundation',
+            'supply-chain': './#supply-chain',
+            'industry-40': './#industry-40',
+            'analytics': './#analytics',
+            'platform': './#platform',
+            'strategic': './#horizon-strategic',
+            'tactical': './#horizon-tactical',
+            'operational': './#horizon-operational',
+            'cross': './#horizon-cross',
+            'or-process': './#or-process',
+            'about': './#about',
+            'about-why': './#about-why',
+            'contact': './contact',
+        };
+
+        const APS_HORIZON_NAV = {
+            en: [
+                { id: 'strategic', label: 'Strategic' },
+                { id: 'tactical', label: 'Tactical' },
+                { id: 'operational', label: 'Operational' },
+                { id: 'cross', label: 'Cross-Functional' },
+            ],
+            vi: [
+                { id: 'strategic', label: 'Chiến lược' },
+                { id: 'tactical', label: 'Chiến thuật' },
+                { id: 'operational', label: 'Vận hành' },
+                { id: 'cross', label: 'Đa chức năng' },
+            ],
+            de: [
+                { id: 'strategic', label: 'Strategisch' },
+                { id: 'tactical', label: 'Taktisch' },
+                { id: 'operational', label: 'Operativ' },
+                { id: 'cross', label: 'Funktionsübergreifend' },
+            ],
+        };
+
+        const buildPageNavItems = (ui, lang = 'en') => ([
+            {
+                id: 'platform-group',
+                label: ui.nav_platform,
+                children: [
+                    { id: 'supply-chain', label: ui.nav_supply_chain },
+                    { id: 'proof-foundation', label: ui.nav_mathematical_foundation },
+                    { id: 'industry-40', label: ui.nav_industry_40 },
+                    { id: 'analytics', label: ui.nav_analytics },
+                ],
+            },
+            {
+                id: 'solutions-group',
+                label: ui.nav_solutions,
+                children: [
+                    {
+                        id: 'aps-group',
+                        label: ui.nav_aps_system,
+                        children: APS_HORIZON_NAV[lang] || APS_HORIZON_NAV.en,
+                    },
+                    { id: 'or-process', label: ui.nav_implementation_process },
+                ],
+            },
+            { id: 'about', label: ui.nav_about },
+            { id: 'contact', label: ui.nav_contact },
+        ]);
+
+        const navItemContainsId = (item, targetId) => {
+            if (!item || !targetId) return false;
+            if (item.id === targetId) return true;
+            return (item.children || []).some(child => navItemContainsId(child, targetId));
+        };
+
+        const navigateToNavId = (id) => {
+            const href = NAV_HREF[id] || './';
+            if (typeof window.OperartisNavIndicator?.go === 'function') {
+                window.OperartisNavIndicator.go(href);
+                return;
+            }
+            window.location.href = href;
+        };
+
+        const SunIcon = () => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" /><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" /><line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" /><line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+            </svg>
+        );
+        const MoonIcon = () => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+            </svg>
+        );
+        const SystemIcon = () => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <rect width="20" height="14" x="2" y="3" rx="2" /><line x1="8" x2="16" y1="21" y2="21" /><line x1="12" x2="12" y1="17" y2="21" />
+            </svg>
+        );
+        const GlobeIcon = () => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="10" /><line x1="2" y1="12" x2="22" y2="12" /><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+            </svg>
+        );
+        const UserIcon = () => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
+            </svg>
+        );
+        const accountDisplayName = (user) => user?.full_name || user?.email || 'Member';
+        const accountInitials = (user) => {
+            const name = accountDisplayName(user);
+            const parts = name.replace(/@.*/, '').split(/[.\s_-]+/).filter(Boolean);
+            return `${parts[0]?.[0] || 'M'}${parts[1]?.[0] || parts[0]?.[1] || ''}`.toUpperCase();
+        };
+        const AccountAvatar = ({ user }) => {
+            if (user?.avatar_data_url) {
+                return <img className="index-account-avatar-img" src={user.avatar_data_url} alt="" aria-hidden="true" />;
+            }
+            if (user) {
+                return <span className="index-account-avatar-initials" aria-hidden="true">{accountInitials(user)}</span>;
+            }
+            return <span className="header-util-icon" aria-hidden="true"><UserIcon /></span>;
+        };
+        const AccountDashboardIcon = () => (
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <rect width="7" height="9" x="3" y="3" rx="1" /><rect width="7" height="5" x="14" y="3" rx="1" /><rect width="7" height="9" x="14" y="12" rx="1" /><rect width="7" height="5" x="3" y="16" rx="1" />
+            </svg>
+        );
+        const AccountLoginIcon = () => (
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" /><polyline points="10 17 15 12 10 7" /><line x1="15" y1="12" x2="3" y2="12" />
+            </svg>
+        );
+        const AccountLogoutIcon = () => (
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
+        );
+        const MenuIcon = () => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <line x1="4" y1="6" x2="20" y2="6" /><line x1="4" y1="12" x2="20" y2="12" /><line x1="4" y1="18" x2="20" y2="18" />
+            </svg>
+        );
+        const CloseIcon = () => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+        );
+        const ChevronDownIcon = ({ className = '' }) => (
+            <svg className={className} xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <polyline points="6 9 12 15 18 9" />
+            </svg>
+        );
+        const MailIcon = () => (
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <rect x="2" y="4" width="20" height="16" rx="2" /><path d="m22 7-10 7L2 7" />
+            </svg>
+        );
+        const CheckIcon = () => (
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <polyline points="20 6 9 17 4 12" />
+            </svg>
+        );
+
+        const Reveal = ({ children, className = '', delay = 0 }) => {
+            const ref = useRef(null);
+            const [visible, setVisible] = useState(false);
+            useEffect(() => {
+                const el = ref.current;
+                if (!el) return undefined;
+                const obs = new IntersectionObserver(([entry]) => {
+                    if (entry.isIntersecting) {
+                        setVisible(true);
+                        obs.disconnect();
+                    }
+                }, { threshold: 0.16, rootMargin: '0px 0px -32px 0px' });
+                obs.observe(el);
+                return () => obs.disconnect();
+            }, []);
+            return (
+                <div
+                    ref={ref}
+                    className={`contact-reveal ${visible ? 'is-visible' : ''} ${className}`}
+                    style={{ transitionDelay: `${delay}ms` }}
+                >
+                    {children}
+                </div>
+            );
+        };
+
+        /* Same network/grid language as landing LandingCanvasBackground */
+        const ContactCanvas = ({ theme }) => {
+            const canvasRef = useRef(null);
+            const frameRef = useRef(null);
+            const stateRef = useRef({ nodes: [], w: 0, h: 0, linkDist: 130 });
+
+            const isDark = useMemo(() => (
+                theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
+            ), [theme]);
+
+            useEffect(() => {
+                const canvas = canvasRef.current;
+                if (!canvas) return undefined;
+
+                const ctx = canvas.getContext('2d');
+                const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+                const GRID_STEP = 48;
+
+                const getNetworkParams = (w, h) => {
+                    if (w < 768) return { nodeCount: 42, linkDist: 130 };
+                    if (w < 1024) return { nodeCount: 48, linkDist: 140 };
+                    const area = w * h;
+                    const nodeCount = Math.max(52, Math.min(72, Math.round(area / 32000)));
+                    const spacing = Math.sqrt(area / nodeCount);
+                    const linkDist = Math.max(145, Math.min(190, Math.round(spacing * 1.35)));
+                    return { nodeCount, linkDist };
+                };
+
+                const palette = () => (isDark ? {
+                    fill: '#020617',
+                    grid: 'rgba(148, 163, 184, 0.07)',
+                    line: 'rgba(251, 191, 36, 0.42)',
+                    node: 'rgba(245, 158, 11, 0.5)',
+                    vignette: 'rgba(2, 6, 23, 0.4)',
+                } : {
+                    fill: '#ffffff',
+                    grid: 'rgba(148, 163, 184, 0.08)',
+                    line: 'rgba(217, 119, 6, 0.28)',
+                    node: 'rgba(217, 119, 6, 0.32)',
+                    vignette: 'rgba(255, 255, 255, 0.35)',
+                });
+
+                const seedNodes = (w, h, count) => Array.from({ length: count }, (_, i) => {
+                    const isHub = i % 16 === 0;
+                    return {
+                        x: Math.random() * w,
+                        y: Math.random() * h,
+                        vx: (Math.random() - 0.5) * (isHub ? 0.07 : 0.12),
+                        vy: (Math.random() - 0.5) * (isHub ? 0.07 : 0.12),
+                        r: isHub ? 1.8 + Math.random() * 0.8 : 1 + Math.random() * 1.4,
+                        hub: isHub,
+                    };
+                });
+
+                const resize = () => {
+                    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+                    const w = window.innerWidth;
+                    const h = window.innerHeight;
+                    const { nodeCount, linkDist } = getNetworkParams(w, h);
+                    canvas.width = Math.floor(w * dpr);
+                    canvas.height = Math.floor(h * dpr);
+                    canvas.style.width = `${w}px`;
+                    canvas.style.height = `${h}px`;
+                    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+                    const prev = stateRef.current;
+                    const sizeChanged = Math.abs(prev.w - w) > 64 || Math.abs(prev.h - h) > 64;
+                    const countChanged = prev.nodes.length !== nodeCount;
+                    if (!prev.nodes.length || sizeChanged || countChanged) {
+                        stateRef.current.nodes = seedNodes(w, h, nodeCount);
+                    } else {
+                        for (const node of prev.nodes) {
+                            node.x = Math.max(0, Math.min(w, node.x));
+                            node.y = Math.max(0, Math.min(h, node.y));
+                        }
+                    }
+                    stateRef.current.w = w;
+                    stateRef.current.h = h;
+                    stateRef.current.linkDist = linkDist;
+                };
+
+                const draw = () => {
+                    const { w, h, nodes, linkDist } = stateRef.current;
+                    if (!w || !h) return;
+
+                    const colors = palette();
+                    ctx.clearRect(0, 0, w, h);
+                    ctx.fillStyle = colors.fill;
+                    ctx.fillRect(0, 0, w, h);
+
+                    ctx.strokeStyle = colors.grid;
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    for (let x = 0; x <= w; x += GRID_STEP) {
+                        ctx.moveTo(x + 0.5, 0);
+                        ctx.lineTo(x + 0.5, h);
+                    }
+                    for (let y = 0; y <= h; y += GRID_STEP) {
+                        ctx.moveTo(0, y + 0.5);
+                        ctx.lineTo(w, y + 0.5);
+                    }
+                    ctx.stroke();
+
+                    const cx = w / 2;
+                    const cy = h / 2;
+                    const radius = Math.max(w, h) * 0.72;
+                    const vignette = ctx.createRadialGradient(cx, cy, radius * 0.15, cx, cy, radius);
+                    vignette.addColorStop(0, 'rgba(0,0,0,0)');
+                    vignette.addColorStop(1, colors.vignette);
+                    ctx.fillStyle = vignette;
+                    ctx.fillRect(0, 0, w, h);
+
+                    if (!prefersReducedMotion) {
+                        for (const node of nodes) {
+                            node.x += node.vx;
+                            node.y += node.vy;
+                            if (node.x <= 0 || node.x >= w) node.vx *= -1;
+                            if (node.y <= 0 || node.y >= h) node.vy *= -1;
+                            node.x = Math.max(0, Math.min(w, node.x));
+                            node.y = Math.max(0, Math.min(h, node.y));
+                        }
+                    }
+
+                    const maxLink = linkDist || 130;
+                    const hubBonus = w >= 1024 ? maxLink * 0.12 : 0;
+                    for (let i = 0; i < nodes.length; i++) {
+                        for (let j = i + 1; j < nodes.length; j++) {
+                            const dx = nodes[i].x - nodes[j].x;
+                            const dy = nodes[i].y - nodes[j].y;
+                            const dist = Math.hypot(dx, dy);
+                            const reach = maxLink + ((nodes[i].hub || nodes[j].hub) ? hubBonus : 0);
+                            if (dist < reach) {
+                                const fade = 1 - dist / reach;
+                                ctx.globalAlpha = 0.18 + fade * (isDark ? 0.38 : 0.32);
+                                ctx.strokeStyle = colors.line;
+                                ctx.lineWidth = 1;
+                                ctx.beginPath();
+                                ctx.moveTo(nodes[i].x, nodes[i].y);
+                                ctx.lineTo(nodes[j].x, nodes[j].y);
+                                ctx.stroke();
+                            }
+                        }
+                    }
+                    ctx.globalAlpha = 1;
+
+                    for (const node of nodes) {
+                        ctx.beginPath();
+                        ctx.arc(node.x, node.y, node.r, 0, Math.PI * 2);
+                        ctx.fillStyle = colors.node;
+                        ctx.fill();
+                    }
+                };
+
+                const tick = () => {
+                    draw();
+                    frameRef.current = requestAnimationFrame(tick);
+                };
+
+                resize();
+                draw();
+                window.addEventListener('resize', resize);
+                frameRef.current = requestAnimationFrame(tick);
+                return () => {
+                    window.removeEventListener('resize', resize);
+                    if (frameRef.current) cancelAnimationFrame(frameRef.current);
+                };
+            }, [isDark]);
+
+            return <canvas ref={canvasRef} className="contact-canvas-bg" aria-hidden="true" />;
+        };
+
+        const HeaderNav = ({ items, activeId, onNav, navRef, onCollapseChange }) => {
+            const slotRef = useRef(null);
+            const rulerRef = useRef(null);
+            const scrollRef = useRef(null);
+            const trackRef = useRef(null);
+            const tabRefs = useRef({});
+            const triggerRefs = useRef({});
+            const [navFits, setNavFits] = useState(true);
+            const handoffRef = useRef(undefined);
+            if (handoffRef.current === undefined) {
+                handoffRef.current = typeof window.OperartisNavIndicator?.consume === 'function'
+                    ? window.OperartisNavIndicator.consume()
+                    : null;
+            }
+            const handoffPendingRef = useRef(!!handoffRef.current);
+            const [indicator, setIndicator] = useState(() => {
+                const handoff = handoffRef.current;
+                if (handoff) {
+                    return {
+                        left: handoff.left,
+                        top: handoff.top,
+                        width: handoff.width,
+                        height: handoff.height,
+                        ready: true,
+                    };
+                }
+                return { left: 0, top: 0, width: 0, height: 0, ready: false };
+            });
+            const [indicatorAnimated, setIndicatorAnimated] = useState(false);
+            const [openMenuId, setOpenMenuId] = useState(null);
+            const [openNestedId, setOpenNestedId] = useState(null);
+            const [nestedPlacement, setNestedPlacement] = useState('right');
+            const [menuRect, setMenuRect] = useState(null);
+            const menuCloseTimerRef = useRef(null);
+            const nestedTriggerRefs = useRef({});
+
+            const clearMenuCloseTimer = useCallback(() => {
+                if (menuCloseTimerRef.current) {
+                    clearTimeout(menuCloseTimerRef.current);
+                    menuCloseTimerRef.current = null;
+                }
+            }, []);
+
+            const prefersHoverMenus = useCallback(() => {
+                try {
+                    return window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+                } catch (e) {
+                    return true;
+                }
+            }, []);
+
+            const openMenu = useCallback((id) => {
+                clearMenuCloseTimer();
+                setOpenNestedId(null);
+                setOpenMenuId(id);
+            }, [clearMenuCloseTimer]);
+
+            const closeMenu = useCallback(() => {
+                clearMenuCloseTimer();
+                setOpenNestedId(null);
+                setOpenMenuId(null);
+            }, [clearMenuCloseTimer]);
+
+            const scheduleCloseMenu = useCallback(() => {
+                clearMenuCloseTimer();
+                menuCloseTimerRef.current = setTimeout(() => {
+                    menuCloseTimerRef.current = null;
+                    setOpenNestedId(null);
+                    setOpenMenuId(null);
+                }, 160);
+            }, [clearMenuCloseTimer]);
+
+            useEffect(() => () => clearMenuCloseTimer(), [clearMenuCloseTimer]);
+
+            const openMenuItem = useMemo(
+                () => items.find(item => item.id === openMenuId) || null,
+                [items, openMenuId]
+            );
+
+            const indicatorTargetId = useMemo(() => {
+                const match = items.find(item => navItemContainsId(item, activeId));
+                return match ? match.id : null;
+            }, [activeId, items]);
+
+            const isTabActive = useCallback((item) => {
+                if (item.children?.length) {
+                    return navItemContainsId(item, activeId);
+                }
+                return activeId === item.id;
+            }, [activeId]);
+
+            const updateIndicator = useCallback(() => {
+                if (handoffPendingRef.current) return;
+                const track = trackRef.current;
+                const target = tabRefs.current[indicatorTargetId];
+                if (!track || !target) {
+                    setIndicator(prev => (prev.ready ? { ...prev, ready: false } : prev));
+                    return;
+                }
+                const trackRect = track.getBoundingClientRect();
+                const targetRect = target.getBoundingClientRect();
+                setIndicator({
+                    left: targetRect.left - trackRect.left,
+                    top: targetRect.top - trackRect.top,
+                    width: targetRect.width,
+                    height: targetRect.height,
+                    ready: true,
+                });
+                if (!indicatorAnimated) {
+                    requestAnimationFrame(() => setIndicatorAnimated(true));
+                }
+            }, [indicatorTargetId, indicatorAnimated]);
+
+            useLayoutEffect(() => {
+                if (!navFits) return undefined;
+
+                let cancelled = false;
+                let outerRaf = 0;
+                let innerRaf = 0;
+
+                if (handoffPendingRef.current) {
+                    outerRaf = requestAnimationFrame(() => {
+                        if (cancelled) return;
+                        setIndicatorAnimated(true);
+                        innerRaf = requestAnimationFrame(() => {
+                            if (cancelled) return;
+                            handoffPendingRef.current = false;
+                            updateIndicator();
+                        });
+                    });
+                } else {
+                    updateIndicator();
+                }
+
+                const ro = new ResizeObserver(() => {
+                    if (handoffPendingRef.current) return;
+                    updateIndicator();
+                });
+                if (trackRef.current) ro.observe(trackRef.current);
+                Object.values(tabRefs.current).forEach(el => {
+                    if (el) ro.observe(el);
+                });
+                window.addEventListener('resize', updateIndicator);
+                return () => {
+                    cancelled = true;
+                    cancelAnimationFrame(outerRaf);
+                    cancelAnimationFrame(innerRaf);
+                    ro.disconnect();
+                    window.removeEventListener('resize', updateIndicator);
+                };
+            }, [indicatorTargetId, items, navFits, updateIndicator]);
+
+            const setTabRef = useCallback((id, el) => {
+                if (el) tabRefs.current[id] = el;
+                else delete tabRefs.current[id];
+            }, []);
+
+            useEffect(() => {
+                if (navRef) navRef.current = slotRef.current;
+            }, [navRef]);
+
+            useEffect(() => {
+                const measure = () => {
+                    const slot = slotRef.current;
+                    const ruler = rulerRef.current;
+                    if (!slot || !ruler) return;
+                    const fits = ruler.scrollWidth <= slot.clientWidth + 2;
+                    setNavFits(prev => {
+                        if (prev !== fits) onCollapseChange?.(!fits);
+                        return fits;
+                    });
+                };
+                measure();
+                const ro = new ResizeObserver(measure);
+                if (slotRef.current) ro.observe(slotRef.current);
+                if (rulerRef.current) ro.observe(rulerRef.current);
+                window.addEventListener('resize', measure);
+                return () => {
+                    ro.disconnect();
+                    window.removeEventListener('resize', measure);
+                };
+            }, [items, onCollapseChange]);
+
+            useEffect(() => {
+                if (!navFits) setOpenMenuId(null);
+            }, [navFits]);
+
+            const updateMenuRect = useCallback(() => {
+                if (!openMenuId) return;
+                const el = triggerRefs.current[openMenuId];
+                if (!el) return;
+                const r = el.getBoundingClientRect();
+                setMenuRect({
+                    top: r.bottom + 8,
+                    left: r.left,
+                    minWidth: Math.max(r.width, 192),
+                });
+            }, [openMenuId]);
+
+            useEffect(() => {
+                if (!openMenuId) {
+                    setMenuRect(null);
+                    return undefined;
+                }
+                updateMenuRect();
+                const onLayout = () => updateMenuRect();
+                window.addEventListener('resize', onLayout);
+                window.addEventListener('scroll', onLayout, true);
+                return () => {
+                    window.removeEventListener('resize', onLayout);
+                    window.removeEventListener('scroll', onLayout, true);
+                };
+            }, [openMenuId, updateMenuRect]);
+
+            useEffect(() => {
+                if (!openMenuId) {
+                    setOpenNestedId(null);
+                    return undefined;
+                }
+                const onKeyDown = (e) => {
+                    if (e.key !== 'Escape') return;
+                    if (openNestedId) {
+                        setOpenNestedId(null);
+                        return;
+                    }
+                    closeMenu();
+                };
+                window.addEventListener('keydown', onKeyDown);
+                return () => window.removeEventListener('keydown', onKeyDown);
+            }, [openMenuId, openNestedId, closeMenu]);
+
+            useLayoutEffect(() => {
+                if (!openNestedId) {
+                    setNestedPlacement('right');
+                    return undefined;
+                }
+                const el = nestedTriggerRefs.current[openNestedId];
+                if (!el) return undefined;
+                const updatePlacement = () => {
+                    const r = el.getBoundingClientRect();
+                    const spaceRight = window.innerWidth - r.right;
+                    setNestedPlacement(spaceRight < 200 ? 'left' : 'right');
+                };
+                updatePlacement();
+                window.addEventListener('resize', updatePlacement);
+                return () => window.removeEventListener('resize', updatePlacement);
+            }, [openNestedId, menuRect]);
+
+            useEffect(() => {
+                if (!navFits) return undefined;
+                const el = scrollRef.current;
+                if (!el) return;
+                const onWheel = (e) => {
+                    if (el.scrollWidth <= el.clientWidth) return;
+                    if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+                    if (e.deltaY === 0) return;
+                    e.preventDefault();
+                    el.scrollLeft += e.deltaY;
+                };
+                el.addEventListener('wheel', onWheel, { passive: false });
+                return () => el.removeEventListener('wheel', onWheel);
+            }, [items, navFits]);
+
+            const tabClass = (isActive) => `header-nav-tab ${isActive ? 'header-nav-tab-active' : ''}`;
+
+            const toggleMenu = useCallback((id) => {
+                setOpenNestedId(null);
+                setOpenMenuId(prev => (prev === id ? null : id));
+            }, []);
+
+            const closeMenuAndNav = useCallback((id) => {
+                onNav(id);
+                closeMenu();
+            }, [onNav, closeMenu]);
+
+            const toggleNestedMenu = useCallback((id) => {
+                setOpenNestedId(prev => (prev === id ? null : id));
+            }, []);
+
+            const onDropdownTriggerEnter = useCallback((id) => {
+                if (!prefersHoverMenus()) return;
+                openMenu(id);
+            }, [openMenu, prefersHoverMenus]);
+
+            const onDropdownTriggerLeave = useCallback(() => {
+                if (!prefersHoverMenus()) return;
+                scheduleCloseMenu();
+            }, [prefersHoverMenus, scheduleCloseMenu]);
+
+            const onDropdownMenuEnter = useCallback(() => {
+                if (!prefersHoverMenus()) return;
+                clearMenuCloseTimer();
+            }, [clearMenuCloseTimer, prefersHoverMenus]);
+
+            const onDropdownMenuLeave = useCallback(() => {
+                if (!prefersHoverMenus()) return;
+                scheduleCloseMenu();
+            }, [prefersHoverMenus, scheduleCloseMenu]);
+
+            const onPlainTabEnter = useCallback(() => {
+                if (!prefersHoverMenus()) return;
+                if (openMenuId) scheduleCloseMenu();
+            }, [openMenuId, prefersHoverMenus, scheduleCloseMenu]);
+
+            const renderMenuEntries = (entries) => {
+                const nodes = [];
+                entries.forEach((entry) => {
+                    if (entry.children?.length) {
+                        const isNestedOpen = openNestedId === entry.id;
+                        const nestedActive = navItemContainsId(entry, activeId);
+                        nodes.push(
+                            <div
+                                key={entry.id}
+                                className="header-nav-aps-nested-wrap"
+                                onMouseEnter={() => {
+                                    if (prefersHoverMenus()) setOpenNestedId(entry.id);
+                                }}
+                            >
+                                <button
+                                    ref={(el) => {
+                                        if (el) nestedTriggerRefs.current[entry.id] = el;
+                                        else delete nestedTriggerRefs.current[entry.id];
+                                    }}
+                                    type="button"
+                                    role="menuitem"
+                                    aria-expanded={isNestedOpen}
+                                    aria-haspopup="menu"
+                                    onClick={() => toggleNestedMenu(entry.id)}
+                                    className={`${tabClass(nestedActive)} header-nav-child header-nav-aps-nested-trigger`}
+                                >
+                                    <span>{entry.label}</span>
+                                    <ChevronDownIcon className={`header-nav-chevron header-nav-chevron-nested${isNestedOpen ? ' header-nav-chevron-nested-open' : ''}`} />
+                                </button>
+                                {isNestedOpen && (
+                                    <div
+                                        className={`header-nav-aps-nested-menu${nestedPlacement === 'left' ? ' header-nav-aps-nested-menu-left' : ''}`}
+                                        role="menu"
+                                        aria-label={entry.label}
+                                    >
+                                        {entry.children.map(child => (
+                                            <button
+                                                key={child.id}
+                                                type="button"
+                                                role="menuitem"
+                                                onClick={() => closeMenuAndNav(child.id)}
+                                                className={`${tabClass(activeId === child.id)} header-nav-child`}
+                                            >
+                                                {child.label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        );
+                        return;
+                    }
+                    nodes.push(
+                        <button
+                            key={entry.id}
+                            type="button"
+                            role="menuitem"
+                            onClick={() => closeMenuAndNav(entry.id)}
+                            onMouseEnter={() => {
+                                if (prefersHoverMenus()) setOpenNestedId(null);
+                            }}
+                            className={`${tabClass(activeId === entry.id)} header-nav-child`}
+                        >
+                            {entry.label}
+                        </button>
+                    );
+                });
+                return nodes;
+            };
+
+            const renderRulerTabs = () => items.map(item => {
+                if (item.children?.length) {
+                    return (
+                        <span key={item.id} className={`${tabClass(false)} inline-flex items-center`} aria-hidden="true">
+                            <span className="header-nav-tab-label">{item.label}</span>
+                            <ChevronDownIcon className="header-nav-chevron" />
+                        </span>
+                    );
+                }
+                return (
+                    <span key={item.id} className={tabClass(false)} aria-hidden="true">
+                        <span className="header-nav-tab-label">{item.label}</span>
+                    </span>
+                );
+            });
+
+            const dropdownMenu = openMenuId && menuRect && openMenuItem ? ReactDOM.createPortal(
+                <>
+                    {!prefersHoverMenus() ? (
+                        <button
+                            type="button"
+                            className="header-nav-aps-backdrop"
+                            aria-label={`Close ${openMenuItem.label} menu`}
+                            onClick={closeMenu}
+                        />
+                    ) : null}
+                    <div
+                        className="header-nav-aps-menu header-nav-aps-menu-floating"
+                        role="menu"
+                        style={{ top: `${menuRect.top}px`, left: `${menuRect.left}px`, minWidth: `${menuRect.minWidth}px` }}
+                        onMouseEnter={onDropdownMenuEnter}
+                        onMouseLeave={onDropdownMenuLeave}
+                    >
+                        <div className="header-nav-aps-menu-head">{openMenuItem.label}</div>
+                        {renderMenuEntries(openMenuItem.children || [])}
+                    </div>
+                </>,
+                document.body
+            ) : null;
+
+            return (
+                <div ref={slotRef} className="relative flex-1 min-w-0 overflow-hidden h-full flex items-center">
+                    <div
+                        ref={rulerRef}
+                        className="pointer-events-none absolute left-0 top-0 -z-10 w-max opacity-0"
+                        aria-hidden="true"
+                    >
+                        <div className="header-nav-glass-slab header-glass-pill header-glass-pill--wide">
+                            {renderRulerTabs()}
+                        </div>
+                    </div>
+                    {navFits && (
+                        <div ref={scrollRef} className="w-full overflow-hidden">
+                            <div
+                                ref={trackRef}
+                                className="header-nav-glass-slab header-glass-pill header-glass-pill--wide header-nav-tabs-track"
+                            >
+                                <div
+                                    className={`header-nav-glass-indicator${indicatorAnimated ? ' is-animated' : ''}`}
+                                    aria-hidden="true"
+                                    style={{
+                                        transform: `translate3d(${indicator.left}px, ${indicator.top}px, 0)`,
+                                        width: `${indicator.width}px`,
+                                        height: `${indicator.height}px`,
+                                        opacity: indicator.ready ? 1 : 0,
+                                    }}
+                                />
+                                {items.map(item => {
+                                    if (item.children?.length) {
+                                        const highlighted = isTabActive(item);
+                                        const isOpen = openMenuId === item.id;
+                                        return (
+                                            <div
+                                                key={item.id}
+                                                className="header-nav-aps-wrap"
+                                                onMouseEnter={() => onDropdownTriggerEnter(item.id)}
+                                                onMouseLeave={onDropdownTriggerLeave}
+                                            >
+                                                <button
+                                                    ref={(el) => {
+                                                        triggerRefs.current[item.id] = el;
+                                                        setTabRef(item.id, el);
+                                                    }}
+                                                    type="button"
+                                                    aria-expanded={isOpen}
+                                                    aria-haspopup="menu"
+                                                    onClick={() => toggleMenu(item.id)}
+                                                    className={`${tabClass(highlighted)} flex items-center`}
+                                                >
+                                                    <span className="header-nav-tab-label">{item.label}</span>
+                                                    <ChevronDownIcon className={`header-nav-chevron ${isOpen ? 'header-nav-chevron-open' : ''}`} />
+                                                </button>
+                                            </div>
+                                        );
+                                    }
+
+                                    const isActive = isTabActive(item);
+                                    return (
+                                        <button
+                                            key={item.id}
+                                            type="button"
+                                            ref={(el) => setTabRef(item.id, el)}
+                                            onClick={() => onNav(item.id)}
+                                            onMouseEnter={onPlainTabEnter}
+                                            className={tabClass(isActive)}
+                                        >
+                                            <span className="header-nav-tab-label">{item.label}</span>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    )}
+                    {dropdownMenu}
+                </div>
+            );
+        };
+
+        const MobileNavDrawer = ({ items, activeId, onNav, open, onClose }) => {
+            useEffect(() => {
+                if (!open) return undefined;
+                const previousOverflow = document.body.style.overflow;
+                document.body.style.overflow = 'hidden';
+                const onKeyDown = (e) => {
+                    if (e.key === 'Escape') onClose();
+                };
+                window.addEventListener('keydown', onKeyDown);
+                return () => {
+                    document.body.style.overflow = previousOverflow;
+                    window.removeEventListener('keydown', onKeyDown);
+                };
+            }, [open, onClose]);
+
+            if (!open) return null;
+
+            const activate = (id) => {
+                onNav(id);
+                onClose();
+            };
+
+            const buttonClass = (isActive, nested = false) => `
+                w-full min-h-11 rounded-xl border px-3 py-2.5 text-left text-xs font-bold uppercase tracking-wide
+                transition-colors flex items-center gap-3
+                ${nested ? 'pl-4' : ''}
+                ${isActive
+                    ? 'border-brand-gold/40 bg-brand-gold/10 text-brand-gold'
+                    : 'border-slate-200/80 dark:border-slate-800 bg-white/70 dark:bg-slate-900/70 text-slate-600 dark:text-slate-300'}
+            `;
+
+            const renderNavTree = (navItems) => navItems.map(item => {
+                if (item.children?.length) {
+                    const activeGroup = navItemContainsId(item, activeId);
+                    return (
+                        <div
+                            key={item.id}
+                            className={`rounded-2xl border p-2 ${activeGroup ? 'border-brand-gold/35 bg-brand-gold/5' : 'border-slate-200/80 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-950/20'}`}
+                        >
+                            <div className={`px-2 pb-2 text-[10px] font-black uppercase tracking-widest ${activeGroup ? 'text-brand-gold' : 'text-slate-500 dark:text-slate-400'}`}>
+                                {item.label}
+                            </div>
+                            <div className="grid gap-2">
+                                {item.children.map(child => {
+                                    if (child.children?.length) {
+                                        const childActive = navItemContainsId(child, activeId);
+                                        return (
+                                            <div
+                                                key={child.id}
+                                                className={`rounded-xl border p-2 ${childActive ? 'border-brand-gold/30 bg-brand-gold/5' : 'border-slate-200/70 dark:border-slate-800/80'}`}
+                                            >
+                                                <div className={`px-2 pb-1.5 text-[10px] font-bold uppercase tracking-wide ${childActive ? 'text-brand-gold' : 'text-slate-500 dark:text-slate-400'}`}>
+                                                    {child.label}
+                                                </div>
+                                                <div className="grid gap-1.5">
+                                                    {child.children.map(grand => (
+                                                        <button
+                                                            key={grand.id}
+                                                            type="button"
+                                                            onClick={() => activate(grand.id)}
+                                                            className={buttonClass(activeId === grand.id, true)}
+                                                        >
+                                                            <span>{grand.label}</span>
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        );
+                                    }
+                                    return (
+                                        <button
+                                            key={child.id}
+                                            type="button"
+                                            onClick={() => activate(child.id)}
+                                            className={buttonClass(activeId === child.id, true)}
+                                        >
+                                            <span>{child.label}</span>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    );
+                }
+
+                return (
+                    <button
+                        key={item.id}
+                        type="button"
+                        onClick={() => activate(item.id)}
+                        className={buttonClass(activeId === item.id)}
+                    >
+                        <span>{item.label}</span>
+                    </button>
+                );
+            });
+
+            return ReactDOM.createPortal(
+                <div className="fixed inset-0 z-50">
+                    <button
+                        type="button"
+                        className="absolute inset-0 bg-slate-950/55 backdrop-blur-sm"
+                        aria-label="Close navigation"
+                        onClick={onClose}
+                    />
+                    <div className="mobile-nav-panel absolute inset-x-2 bottom-2 rounded-2xl border border-white/50 dark:border-white/10 bg-white/95 dark:bg-[#0f172a]/95 shadow-2xl backdrop-blur-xl overflow-hidden">
+                        <div className="flex items-center justify-between gap-3 border-b border-slate-200/80 dark:border-slate-800 px-4 py-3">
+                            <div className="min-w-0">
+                                <p className="font-black tracking-tight text-brand-gold leading-none">OPERARTIS</p>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={onClose}
+                                aria-label="Close navigation"
+                                className="shrink-0 rounded-full p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
+                            >
+                                <CloseIcon />
+                            </button>
+                        </div>
+                        <div className="max-h-[min(34rem,calc(100dvh-7rem))] overflow-y-auto custom-scrollbar px-3 py-3">
+                            <div className="grid gap-2">
+                                {renderNavTree(items)}
+                            </div>
+                        </div>
+                    </div>
+                </div>,
+                document.body
+            );
+        };
+
+        const FooterAccordion = ({ title, children, defaultOpen = false }) => {
+            const [open, setOpen] = useState(defaultOpen);
+            return (
+                <div className="border-b border-slate-200 dark:border-slate-800/80">
+                    <button
+                        type="button"
+                        onClick={() => setOpen((prev) => !prev)}
+                        aria-expanded={open}
+                        className="flex w-full items-center justify-between gap-3 py-3.5 text-left"
+                    >
+                        <span className="text-sm font-semibold text-slate-900 dark:text-white">{title}</span>
+                        <ChevronDownIcon className={`opus-footer-accordion-chevron shrink-0 ${open ? 'opus-footer-accordion-chevron--open' : ''}`} />
+                    </button>
+                    <div className={`opus-footer-accordion-panel ${open ? 'opus-footer-accordion-panel--open' : ''}`}>
+                        <div className="pb-1">{children}</div>
+                    </div>
+                </div>
+            );
+        };
+
+        const SiteFooter = ({ ui }) => {
+            const year = new Date().getFullYear();
+            const footerLinkClass = 'text-sm text-slate-500 dark:text-slate-400 hover:text-brand-gold transition-colors text-left';
+            const footerMobileLinkClass = `${footerLinkClass} flex min-h-11 w-full items-center`;
+
+            const platformLinks = [
+                { href: './#supply-chain', label: ui.nav_supply_chain },
+                { href: './#proof-foundation', label: ui.nav_mathematical_foundation },
+                { href: './#industry-40', label: ui.nav_industry_40 },
+                { href: './#analytics', label: ui.nav_analytics },
+            ];
+
+            const solutionsLinks = [
+                { href: './#matrix-fit', label: ui.nav_aps_system },
+                { href: './#or-process', label: ui.nav_implementation_process },
+            ];
+
+            const companyLinks = [
+                { href: './#about', label: ui.nav_about },
+                { href: './#about-why', label: ui.cta_why },
+                { href: './contact', label: ui.nav_contact },
+            ];
+
+            const legalLinks = [
+                { href: './privacy', label: ui.footer_privacy },
+                { href: '#', label: ui.footer_imprint },
+                { href: './terms', label: ui.footer_terms },
+            ];
+
+            return (
+                <footer className="opus-site-footer w-full border-t border-slate-300 dark:border-white/10 pt-8 pb-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] md:pt-10 md:pb-8 md:pb-[max(2rem,env(safe-area-inset-bottom))] z-10 shrink-0">
+                    <div className="relative z-10 max-w-7xl mx-auto w-full px-4 sm:px-6 md:px-10">
+                        <div className="md:hidden">
+                            <div className="flex flex-col items-center text-center mb-2">
+                                <div className="flex items-center gap-3 mb-4">
+                                    <img
+                                        src="./icononly_transparent_nobuffer.png"
+                                        alt=""
+                                        className="h-10 w-10 object-contain"
+                                        onError={(e) => { e.target.style.display = 'none'; }}
+                                    />
+                                    <span className="font-bold text-lg tracking-tight text-slate-900 dark:text-white">OPERARTIS</span>
+                                </div>
+                                <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed max-w-sm">{ui.footer_tagline}</p>
+                            </div>
+
+                            <div className="mt-6 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 bg-white/40 dark:bg-slate-900/30 overflow-hidden px-4">
+                                <FooterAccordion title={ui.footer_platform} defaultOpen>
+                                    <ul className="space-y-0.5 pb-3">
+                                        {platformLinks.map((link) => (
+                                            <li key={`${link.href}-${link.label}`}>
+                                                <a href={link.href} className={footerMobileLinkClass}>{link.label}</a>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </FooterAccordion>
+
+                                <FooterAccordion title={ui.footer_solutions}>
+                                    <ul className="space-y-0.5 pb-3">
+                                        {solutionsLinks.map((link) => (
+                                            <li key={`${link.href}-${link.label}`}>
+                                                <a href={link.href} className={footerMobileLinkClass}>{link.label}</a>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </FooterAccordion>
+
+                                <FooterAccordion title={ui.footer_company}>
+                                    <ul className="space-y-0.5 pb-3">
+                                        {companyLinks.map((link, i) => (
+                                            <li key={`${link.label}-${i}`}>
+                                                <a href={link.href} className={footerMobileLinkClass}>{link.label}</a>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </FooterAccordion>
+
+                                <FooterAccordion title={ui.footer_legal}>
+                                    <ul className="space-y-0.5 pb-3">
+                                        {legalLinks.map((link) => (
+                                            <li key={link.label}>
+                                                <a href={link.href} className={footerMobileLinkClass}>{link.label}</a>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </FooterAccordion>
+                            </div>
+
+                            <a
+                                href="./contact"
+                                className="mt-6 flex h-11 w-full items-center justify-center rounded-xl bg-gradient-to-tr from-brand-gold to-brand-dark text-sm font-bold text-white shadow-lg shadow-brand-gold/20 hover:scale-[1.01] active:scale-[0.98] transition-transform"
+                            >
+                                {ui.nav_contact}
+                            </a>
+                        </div>
+
+                        <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-[minmax(0,1.6fr)_repeat(4,minmax(0,1fr))] gap-6 lg:gap-8 xl:gap-10">
+                            <div className="md:col-span-2 lg:col-span-1">
+                                <div className="flex items-center gap-3 mb-5">
+                                    <img
+                                        src="./icononly_transparent_nobuffer.png"
+                                        alt=""
+                                        className="h-11 w-11 md:h-12 md:w-12 object-contain"
+                                        onError={(e) => { e.target.style.display = 'none'; }}
+                                    />
+                                    <span className="font-bold text-lg md:text-xl tracking-tight text-slate-900 dark:text-white">OPERARTIS</span>
+                                </div>
+                                <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed max-w-sm lg:max-w-none">{ui.footer_tagline}</p>
+                            </div>
+
+                            <div>
+                                <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-4">{ui.footer_platform}</h3>
+                                <ul className="space-y-2.5">
+                                    {platformLinks.map((link) => (
+                                        <li key={`${link.href}-${link.label}`}>
+                                            <a href={link.href} className={footerLinkClass}>{link.label}</a>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+
+                            <div>
+                                <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-4">{ui.footer_solutions}</h3>
+                                <ul className="space-y-2.5">
+                                    {solutionsLinks.map((link) => (
+                                        <li key={`${link.href}-${link.label}`}>
+                                            <a href={link.href} className={footerLinkClass}>{link.label}</a>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+
+                            <div>
+                                <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-4">{ui.footer_company}</h3>
+                                <ul className="space-y-2.5">
+                                    {companyLinks.map((link, i) => (
+                                        <li key={`${link.label}-${i}`}>
+                                            <a href={link.href} className={footerLinkClass}>{link.label}</a>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+
+                            <div>
+                                <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-4">{ui.footer_legal}</h3>
+                                <ul className="space-y-2.5">
+                                    {legalLinks.map((link) => (
+                                        <li key={link.label}>
+                                            <a href={link.href} className={footerLinkClass}>{link.label}</a>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div className="opus-site-footer-divider mt-8 md:mt-10 pt-5 md:pt-6 border-t">
+                            <p className="text-xs text-slate-400 dark:text-slate-500 text-center">
+                                © {year} Operartis Analytics. All rights reserved.
+                            </p>
+                        </div>
+                    </div>
+                </footer>
+            );
+        };
+
+        // Render policy text; [[...]] becomes a highlighted placeholder
+        const policyText = (text) => String(text).split(/(\[\[.*?\]\])/g).filter(Boolean).map((part, i) => (
+            part.startsWith('[[') && part.endsWith(']]')
+                ? <mark key={i} className="policy-todo">[{part.slice(2, -2)}]</mark>
+                : <React.Fragment key={i}>{part}</React.Fragment>
+        ));
+
+        const PolicyBlock = ({ block }) => {
+            if (block.t === 'h3') {
+                return <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-100 mt-6 mb-2">{policyText(block.v)}</h3>;
+            }
+            if (block.t === 'ul') {
+                return (
+                    <ul className="policy-list space-y-2.5 mb-4 last:mb-0">
+                        {block.v.map((item, i) => <li key={i}>{policyText(item)}</li>)}
+                    </ul>
+                );
+            }
+            return <p className="mb-4 last:mb-0">{policyText(block.v)}</p>;
+        };
+
+        const App = () => {
+            const [lang, setLang] = useState(() => window.getOperartisLang());
+            const [theme, setThemeState] = useState(() => window.getOperartisTheme());
+            const [navCollapsed, setNavCollapsed] = useState(false);
+            const [mobileNavOpen, setMobileNavOpen] = useState(false);
+            const [authUser, setAuthUser] = useState(() => window.OperartisAuth?.getUser?.() || null);
+            const [accountMenuOpen, setAccountMenuOpen] = useState(false);
+            const headerNavRef = useRef(null);
+            const accountMenuRef = useRef(null);
+            const copy = CONTACT_COPY[lang] || CONTACT_COPY.en;
+            const pageNavItems = useMemo(() => buildPageNavItems(copy, lang), [copy, lang]);
+            const policy = TERMS_COPY[lang] || TERMS_COPY.en;
+            const activeNavId = null;
+            const scrollToSection = (event, id) => {
+                event.preventDefault();
+                const el = document.getElementById(`policy-${id}`);
+                if (!el) return;
+                const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+                el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+            };
+
+            useEffect(() => {
+                const onLang = (event) => setLang((event.detail && event.detail.lang) || window.getOperartisLang());
+                const onTheme = (event) => setThemeState((event.detail && event.detail.theme) || window.getOperartisTheme());
+                window.addEventListener('operartis:lang-change', onLang);
+                window.addEventListener('operartis:theme-change', onTheme);
+                return () => {
+                    window.removeEventListener('operartis:lang-change', onLang);
+                    window.removeEventListener('operartis:theme-change', onTheme);
+                };
+            }, []);
+
+            useEffect(() => {
+                document.title = `Operartis | ${policy.page_title}`;
+                document.documentElement.lang = lang;
+            }, [policy.page_title, lang]);
+
+            useEffect(() => {
+                if (!navCollapsed) setMobileNavOpen(false);
+            }, [navCollapsed]);
+
+            useEffect(() => {
+                const handleAuthState = (event) => {
+                    const user = event.detail?.user || window.OperartisAuth?.getUser?.() || null;
+                    setAuthUser(user);
+                    if (user) setAccountMenuOpen(false);
+                };
+                const handleLoggedOut = () => {
+                    setAuthUser(null);
+                    setAccountMenuOpen(false);
+                };
+                window.addEventListener('operartis:authenticated', handleAuthState);
+                window.addEventListener('operartis:auth-state', handleAuthState);
+                window.addEventListener('operartis:logged-out', handleLoggedOut);
+                window.OperartisAuth?.refresh?.().catch(() => setAuthUser(null));
+                return () => {
+                    window.removeEventListener('operartis:authenticated', handleAuthState);
+                    window.removeEventListener('operartis:auth-state', handleAuthState);
+                    window.removeEventListener('operartis:logged-out', handleLoggedOut);
+                };
+            }, []);
+
+            useEffect(() => {
+                if (!accountMenuOpen) return undefined;
+                const handleOutsideClick = (event) => {
+                    if (!accountMenuRef.current || accountMenuRef.current.contains(event.target)) return;
+                    setAccountMenuOpen(false);
+                };
+                const handleEscape = (event) => {
+                    if (event.key === 'Escape') setAccountMenuOpen(false);
+                };
+                document.addEventListener('mousedown', handleOutsideClick);
+                document.addEventListener('touchstart', handleOutsideClick, { passive: true });
+                document.addEventListener('keydown', handleEscape);
+                return () => {
+                    document.removeEventListener('mousedown', handleOutsideClick);
+                    document.removeEventListener('touchstart', handleOutsideClick);
+                    document.removeEventListener('keydown', handleEscape);
+                };
+            }, [accountMenuOpen]);
+
+            const cycleTheme = () => {
+                const next = theme === 'system' ? 'light' : theme === 'light' ? 'dark' : 'system';
+                window.setOperartisTheme(next);
+                setThemeState(next);
+            };
+
+            const cycleLang = () => {
+                // German kept in CONTACT_COPY; UI toggle is EN ↔ VI only.
+                const order = ['en', 'vi'];
+                const idx = order.indexOf(lang);
+                const next = order[idx === -1 ? 0 : (idx + 1) % order.length];
+                window.setOperartisLang(next);
+                setLang(next);
+            };
+
+            const handleNavCollapse = useCallback((collapsed) => {
+                setNavCollapsed(collapsed);
+            }, []);
+
+            const onNav = useCallback((id) => {
+                navigateToNavId(id);
+            }, []);
+
+            const closeMobileNav = useCallback(() => setMobileNavOpen(false), []);
+
+            const handleAuthButtonClick = useCallback(() => {
+                setAccountMenuOpen((prev) => !prev);
+            }, []);
+
+            const handleDashboardOpen = useCallback(() => {
+                setAccountMenuOpen(false);
+                const canUseAdminDashboard = authUser?.role === 'owner' || authUser?.role === 'admin';
+                window.location.href = canUseAdminDashboard ? './dashboard.html#admin-overview' : './dashboard.html';
+            }, [authUser]);
+
+            const handleLoginOpen = useCallback(() => {
+                setAccountMenuOpen(false);
+                window.OperartisAuth?.showLogin?.();
+            }, []);
+
+            const handleLogout = useCallback(async () => {
+                setAccountMenuOpen(false);
+                await window.OperartisAuth?.logout?.();
+                setAuthUser(null);
+            }, []);
+
+            const trustItems = [copy.trust_4, copy.trust_5, copy.trust_6, copy.trust_3];
+            const assuranceItems = [copy.assurance_1, copy.assurance_2, copy.assurance_3];
+
+            return (
+                <div className="contact-shell h-full bg-white dark:bg-[#020617] transition-colors duration-500">
+                    <ContactCanvas theme={theme} />
+
+                    <nav className="header-bar relative z-30 shrink-0 overflow-visible border-b border-slate-200/50 dark:border-slate-800/50">
+                        <div className="max-w-7xl mx-auto w-full h-16 px-3 sm:px-6 md:px-10 flex items-center gap-2 md:gap-4 overflow-visible">
+                            <div className="header-glass-pill header-glass-pill--wide header-glass-pill--brand">
+                                <a href="./" className="header-brand inline-flex items-center gap-2 sm:gap-3">
+                                    <OperartisLogoMark className="h-8 w-8 md:h-10 md:w-10" />
+                                    <span className="font-bold text-sm sm:text-base md:text-lg tracking-tight text-slate-900 dark:text-white leading-none">OPERARTIS</span>
+                                </a>
+                            </div>
+
+                            <HeaderNav
+                                navRef={headerNavRef}
+                                items={pageNavItems}
+                                activeId={activeNavId}
+                                onNav={onNav}
+                                onCollapseChange={handleNavCollapse}
+                            />
+
+                            {navCollapsed && (
+                                <div className="ml-auto shrink-0 header-glass-pill">
+                                    <button
+                                        type="button"
+                                        onClick={() => setMobileNavOpen(true)}
+                                        aria-expanded={mobileNavOpen}
+                                        aria-label="Open navigation"
+                                        className="header-util-btn h-8 w-8 p-0"
+                                    >
+                                        <span className="header-util-icon" aria-hidden="true"><MenuIcon /></span>
+                                    </button>
+                                </div>
+                            )}
+
+                            <div className="flex items-center gap-1.5 md:gap-6 shrink-0">
+                                <div className="hidden md:flex header-glass-pill header-glass-pill--wide items-center">
+                                    <button
+                                        type="button"
+                                        onClick={cycleTheme}
+                                        className="header-util-btn"
+                                        title={theme === 'light' ? 'Light mode — click for dark' : theme === 'dark' ? 'Dark mode — click for system' : 'System theme — follows OS — click for light'}
+                                    >
+                                        <span className="header-util-icon" aria-hidden="true">
+                                            {theme === 'light' ? <SunIcon /> : theme === 'dark' ? <MoonIcon /> : <SystemIcon />}
+                                        </span>
+                                    </button>
+                                    <span className="w-px h-4 shrink-0 self-center bg-slate-200 dark:bg-slate-700/50" aria-hidden="true" />
+                                    <button type="button" onClick={cycleLang} className="header-util-btn gap-1 font-mono text-xs font-bold px-2">
+                                        <span className="header-util-icon" aria-hidden="true"><GlobeIcon /></span>
+                                        <span>{lang.toUpperCase()}</span>
+                                    </button>
+                                </div>
+
+                                <div className="flex md:hidden items-center gap-1.5">
+                                    <div className="header-glass-pill max-[359px]:hidden">
+                                        <button
+                                            type="button"
+                                            onClick={cycleTheme}
+                                            className="header-util-btn h-8 w-8 p-0"
+                                            title={theme === 'light' ? 'Light mode — click for dark' : theme === 'dark' ? 'Dark mode — click for system' : 'System theme — follows OS — click for light'}
+                                        >
+                                            <span className="header-util-icon" aria-hidden="true">
+                                                {theme === 'light' ? <SunIcon /> : theme === 'dark' ? <MoonIcon /> : <SystemIcon />}
+                                            </span>
+                                        </button>
+                                    </div>
+                                    <div className="header-glass-pill">
+                                        <button type="button" onClick={cycleLang} className="header-util-btn h-8 w-8 p-0" aria-label={`Language: ${lang.toUpperCase()}`}>
+                                            <span className="header-util-icon" aria-hidden="true"><GlobeIcon /></span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div ref={accountMenuRef} className="relative shrink-0">
+                                    <button
+                                        type="button"
+                                        onClick={handleAuthButtonClick}
+                                        aria-expanded={accountMenuOpen}
+                                        aria-haspopup="menu"
+                                        aria-label={authUser ? `Account: ${accountDisplayName(authUser)}` : copy.nav_login}
+                                        title={authUser ? accountDisplayName(authUser) : copy.nav_login}
+                                        className="relative header-auth-btn header-auth-btn--gold h-9 w-9 rounded-full bg-gradient-to-tr from-brand-gold to-brand-dark flex items-center justify-center text-white shrink-0"
+                                    >
+                                        <AccountAvatar user={authUser} />
+                                        <span className={`absolute -right-0.5 -top-0.5 h-3 w-3 rounded-full border-2 border-[#020617] ${authUser ? 'bg-emerald-400 shadow-[0_0_0_2px_rgba(52,211,153,0.28),0_0_12px_rgba(52,211,153,0.9)]' : 'bg-white shadow-[0_0_0_1px_rgba(255,255,255,0.45)]'}`} aria-hidden="true" />
+                                    </button>
+
+                                    {accountMenuOpen && (
+                                        <div role="menu" aria-label="Account menu" className="index-account-menu">
+                                            {authUser && (
+                                                <div className="index-account-menu-head">
+                                                    <p className="index-account-menu-email">{accountDisplayName(authUser)}</p>
+                                                    <p className="index-account-menu-role">{authUser.role}</p>
+                                                </div>
+                                            )}
+                                            <div className="index-account-menu-body">
+                                                <button type="button" role="menuitem" onClick={handleDashboardOpen} className="index-account-menu-item">
+                                                    <span className="index-account-menu-item-icon" aria-hidden="true"><AccountDashboardIcon /></span>
+                                                    <span>{copy.nav_dashboard}</span>
+                                                </button>
+                                                <div className="index-account-menu-divider" role="separator" aria-hidden="true" />
+                                                {authUser ? (
+                                                    <button type="button" role="menuitem" onClick={handleLogout} className="index-account-menu-item index-account-menu-item--danger">
+                                                        <span className="index-account-menu-item-icon" aria-hidden="true"><AccountLogoutIcon /></span>
+                                                        <span>{copy.nav_logout}</span>
+                                                    </button>
+                                                ) : (
+                                                    <button type="button" role="menuitem" onClick={handleLoginOpen} className="index-account-menu-item">
+                                                        <span className="index-account-menu-item-icon" aria-hidden="true"><AccountLoginIcon /></span>
+                                                        <span>{copy.nav_login}</span>
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </nav>
+
+                    <MobileNavDrawer
+                        items={pageNavItems}
+                        activeId={activeNavId}
+                        onNav={onNav}
+                        open={mobileNavOpen}
+                        onClose={closeMobileNav}
+                    />
+
+                    <main className="relative z-10 flex-1 overflow-y-auto min-h-0">
+                        <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 py-8 md:py-12 pb-16">
+                            <section className="contact-hero contact-hero--photo rounded-3xl border border-amber-700/40 dark:border-white/[0.06] ring-0 dark:ring-1 dark:ring-white/[0.04] px-6 py-12 md:px-12 md:py-16 lg:py-20 mb-10 md:mb-12">
+                                <div className="relative z-10 max-w-3xl">
+                                    <p className="text-[10px] font-bold uppercase contact-eyebrow text-brand-gold mb-3">{policy.eyebrow}</p>
+                                    <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-white leading-[1.08] mb-4">
+                                        {policy.headline}
+                                    </h1>
+                                    <p className="font-mono text-xs text-slate-300 mb-4">{policyText(policy.updated)}</p>
+                                    <p className="text-base md:text-lg leading-relaxed text-slate-200">{policy.lead}</p>
+                                </div>
+                            </section>
+
+                            <div className="grid lg:grid-cols-12 gap-6 md:gap-8 items-start">
+                                <Reveal className="lg:col-span-4 policy-toc-sticky" delay={40}>
+                                    <nav aria-label={policy.toc} className="contact-panel border dark:border-white/[0.06] ring-0 dark:ring-1 dark:ring-white/[0.04] p-6 md:p-8">
+                                        <h2 className="text-xs font-bold uppercase contact-eyebrow text-brand-gold mb-4">{policy.toc}</h2>
+                                        <ol className="space-y-1">
+                                            {policy.sections.map((section, i) => (
+                                                <li key={section.id}>
+                                                    <a
+                                                        href={`#policy-${section.id}`}
+                                                        onClick={(event) => scrollToSection(event, section.id)}
+                                                        className="group flex gap-3 py-1.5 text-sm leading-snug text-slate-600 dark:text-slate-400 hover:text-brand-gold dark:hover:text-brand-gold transition-colors"
+                                                    >
+                                                        <span className="font-mono text-[11px] font-bold tabular-nums text-brand-gold/80 pt-px">{String(i + 1).padStart(2, '0')}</span>
+                                                        <span>{section.title}</span>
+                                                    </a>
+                                                </li>
+                                            ))}
+                                        </ol>
+                                    </nav>
+                                </Reveal>
+
+                                {/* Not wrapped in Reveal: the article is far taller than the viewport, so a 16% intersection threshold would never fire */}
+                                <div className="lg:col-span-8">
+                                    <article className="contact-panel border dark:border-white/[0.06] ring-0 dark:ring-1 dark:ring-white/[0.04] p-6 md:p-10 text-[15px] md:text-base leading-relaxed text-slate-600 dark:text-slate-300">
+                                        {policy.sections.map((section, i) => (
+                                            <section key={section.id} id={`policy-${section.id}`} className="policy-section">
+                                                <h2 className="flex items-baseline gap-3 text-xl md:text-2xl font-bold tracking-tight text-slate-900 dark:text-white mb-4">
+                                                    <span className="shrink-0 font-mono text-xs font-bold tabular-nums text-brand-gold">{String(i + 1).padStart(2, '0')}</span>
+                                                    <span>{section.title}</span>
+                                                </h2>
+                                                {section.blocks.map((block, j) => <PolicyBlock key={j} block={block} />)}
+                                            </section>
+                                        ))}
+                                    </article>
+                                </div>
+                            </div>
+                        </div>
+
+                        <SiteFooter ui={copy} />
+                    </main>
+                </div>
+            );
+        };
+
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+
+</html>

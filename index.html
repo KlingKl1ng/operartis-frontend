@@ -5,8 +5,43 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Operartis | An Optimization System For The Entire Supply Chain</title>
+    <meta name="description" content="Operartis is an APS optimization platform that transforms ERP and MES data into actionable plans across the supply chain.">
+    <link rel="canonical" href="https://operartis.io/">
+    <meta name="theme-color" content="#020617">
 
-    <link rel="icon" type="image/png" href="./icononly_transparent_quadratic.png">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Operartis">
+    <meta property="og:url" content="https://operartis.io/">
+    <meta property="og:title" content="Operartis | An Optimization System For The Entire Supply Chain">
+    <meta property="og:description" content="An APS optimization platform that transforms ERP and MES data into actionable plans across the supply chain.">
+    <meta property="og:image" content="https://operartis.io/assets/og-image.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="vi_VN">
+    <meta property="og:locale:alternate" content="de_DE">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Operartis | An Optimization System For The Entire Supply Chain">
+    <meta name="twitter:description" content="An APS optimization platform that transforms ERP and MES data into actionable plans across the supply chain.">
+    <meta name="twitter:image" content="https://operartis.io/assets/og-image.jpg">
+
+    <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="./favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
+    <link rel="manifest" href="./site.webmanifest">
+
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "Operartis",
+        "url": "https://operartis.io/",
+        "logo": "https://operartis.io/android-chrome-512x512.png",
+        "slogan": "Optimizing today, Growing tomorrow.",
+        "description": "An APS optimization platform that transforms ERP and MES data into actionable plans across the supply chain.",
+        "email": "info@operartis.io"
+    }
+    </script>
 
     <script src="./vendor/tailwindcss-3.4.17.js"></script>
     <script>
@@ -46,7 +81,7 @@
     <script src="./operartis-api.js?v=20260910-stable-csrf"></script>
     <script src="./operartis-auth-ui.js?v=20261113-auth-restyle"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=Roboto+Mono:wght@400;500&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Roboto+Mono:wght@400;500&display=swap');
 
         body {
             font-family: 'Inter', sans-serif;
@@ -73,6 +108,24 @@
 
         .header-util-btn:hover {
             background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Touch: single-button header pills and the account button get a 40px+ hit area */
+        .header-glass-pill:not(.header-glass-pill--wide) > .header-util-btn {
+            position: relative;
+        }
+
+        .header-glass-pill:not(.header-glass-pill--wide) > .header-util-btn::after {
+            content: '';
+            position: absolute;
+            inset: -8px -5px;
+        }
+
+        .header-auth-btn::after {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border-radius: 9999px;
         }
 
         .dark .header-util-btn {
@@ -1458,6 +1511,7 @@
 
             .proof-formula-rhs {
                 white-space: nowrap;
+                margin-left: auto;
                 padding-left: 0;
                 font-size: 0.92em;
                 opacity: 0.88;
@@ -2326,13 +2380,13 @@
             isolation: isolate;
             background:
                 linear-gradient(160deg, rgba(255, 255, 255, 0.1) 0%, rgba(248, 250, 252, 0.04) 45%, rgba(241, 245, 249, 0.08) 100%),
-                url('./assets/proof-map-bg-day.jpg') center / cover no-repeat;
+                url('./assets/hero-map-day.jpg') center / cover no-repeat;
         }
 
         .dark .proof-vrp-earth-frame {
             background:
                 linear-gradient(160deg, rgba(2, 6, 23, 0.68) 0%, rgba(15, 23, 42, 0.5) 48%, rgba(2, 6, 23, 0.66) 100%),
-                url('./assets/proof-map-bg-night.jpg') center / cover no-repeat;
+                url('./assets/hero-map-night.jpg') center / cover no-repeat;
         }
 
         .proof-vrp-earth-frame::before {
@@ -3246,6 +3300,24 @@
             clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 11px 50%);
         }
 
+        /* Phones: four chevrons are too narrow for their labels — use a 2 × 2 grid instead */
+        @media (max-width: 639px) {
+            .aa-chevron-track {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 0.375rem;
+            }
+
+            .aa-chevron-seg,
+            .aa-chevron-seg:first-child,
+            .aa-chevron-seg:last-child {
+                margin-left: 0;
+                padding: 0.6rem 0.75rem;
+                clip-path: none;
+                border-radius: 0.625rem;
+            }
+        }
+
         .aa-chevron-seg-inactive {
             background-color: #d6d3d1;
             color: #44403c;
@@ -3523,6 +3595,14 @@
 
             .aa-flow-stage-results {
                 min-height: 8.75rem;
+            }
+        }
+
+        @media (max-width: 389px) {
+            .aa-flow-stage,
+            .aa-flow-stage-results,
+            .aa-flow-stage-body {
+                min-height: 0;
             }
         }
 
@@ -3855,17 +3935,361 @@
             background: linear-gradient(160deg, rgba(120, 53, 15, 0.55), rgba(69, 26, 3, 0.65));
             color: #fbbf24;
         }
+        /* ============================================================
+           LANDING V3 — calmer editorial rhythm on the Operartis DS
+           (gold + slate + glass; larger type, fewer boxes)
+           ============================================================ */
+        .lp3-hero-pill {
+            border: 1px solid rgba(148, 163, 184, 0.35);
+            background: rgba(255, 255, 255, 0.55);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.6);
+        }
+
+        .dark .lp3-hero-pill {
+            border-color: rgba(255, 255, 255, 0.1);
+            background: rgba(15, 23, 42, 0.55);
+            box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+        }
+
+        .lp3-hero-visual {
+            position: relative;
+            isolation: isolate;
+            overflow: hidden;
+            background:
+                radial-gradient(70% 90% at 50% 0%, rgba(245, 158, 11, 0.1), transparent 62%),
+                linear-gradient(180deg, rgba(255, 255, 255, 0.15) 0%, rgba(248, 250, 252, 0) 45%, rgba(248, 250, 252, 0.55) 100%),
+                url('./assets/hero-map-day.jpg') center / cover no-repeat;
+            box-shadow: 0 30px 80px -40px rgba(15, 23, 42, 0.35);
+        }
+
+        .dark .lp3-hero-visual {
+            background:
+                radial-gradient(70% 90% at 50% 0%, rgba(245, 158, 11, 0.12), transparent 62%),
+                linear-gradient(180deg, rgba(2, 6, 23, 0.1) 0%, rgba(2, 6, 23, 0) 45%, rgba(2, 6, 23, 0.7) 100%),
+                url('./assets/hero-map-night.jpg') center / cover no-repeat;
+            box-shadow: 0 30px 80px -40px rgba(0, 0, 0, 0.8);
+        }
+
+        /* Hero console tabs — one glass vessel, one sliding highlight (Liquid Glass, §4.1) */
+        .lp3-console-tabs {
+            position: relative;
+            display: grid;
+            grid-template-columns: repeat(var(--lp3-tab-count, 2), minmax(0, 1fr));
+            min-width: 0;
+            padding: 3px;
+            border-radius: 9999px;
+            border: 1px solid rgba(148, 163, 184, 0.35);
+            background: rgba(241, 245, 249, 0.7);
+            box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.7);
+        }
+
+        .dark .lp3-console-tabs {
+            border-color: rgba(255, 255, 255, 0.08);
+            background: rgba(2, 6, 23, 0.45);
+            box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.06);
+        }
+
+        .lp3-console-tab-indicator {
+            position: absolute;
+            top: 3px;
+            bottom: 3px;
+            left: 3px;
+            width: calc((100% - 6px) / var(--lp3-tab-count, 2));
+            border-radius: 9999px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.7));
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.12), inset 0 1px 0 0 rgba(255, 255, 255, 0.9), 0 0 0 1px rgba(245, 158, 11, 0.25);
+            transform: translateX(calc(100% * var(--lp3-tab-active, 0)));
+            transition: transform 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .dark .lp3-console-tab-indicator {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.05));
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35), inset 0 1px 0 0 rgba(255, 255, 255, 0.16), 0 0 0 1px rgba(245, 158, 11, 0.3);
+        }
+
+        .lp3-console-tab {
+            position: relative;
+            z-index: 1;
+            min-width: 0;
+            min-height: 2.375rem;
+            padding: 0.4rem 0.6rem;
+            border-radius: 9999px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: #64748b;
+            transition: color 0.3s ease;
+        }
+
+        .dark .lp3-console-tab {
+            color: #94a3b8;
+        }
+
+        .lp3-console-tab:hover {
+            color: #0f172a;
+        }
+
+        .dark .lp3-console-tab:hover {
+            color: #f1f5f9;
+        }
+
+        .lp3-console-tab.is-active,
+        .dark .lp3-console-tab.is-active {
+            color: #d97706;
+        }
+
+        .dark .lp3-console-tab.is-active {
+            color: #f59e0b;
+        }
+
+        .lp3-console-tab:focus-visible {
+            outline: 2px solid rgba(245, 158, 11, 0.7);
+            outline-offset: 1px;
+        }
+
+        @media (min-width: 640px) {
+            .lp3-console-tab {
+                min-height: 0;
+                padding: 0.45rem 1.25rem;
+                font-size: 11px;
+                letter-spacing: 0.12em;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .lp3-console-tab-indicator {
+                transition: none;
+            }
+        }
+
+        /* Intro video pop-up */
+        @keyframes lp3-video-fade { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes lp3-video-rise { from { opacity: 0; transform: translateY(18px) scale(0.98); } to { opacity: 1; transform: none; } }
+        .lp3-video-overlay { animation: lp3-video-fade 0.25s ease both; }
+        .lp3-video-frame { animation: lp3-video-rise 0.35s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+        @media (prefers-reduced-motion: reduce) {
+            .lp3-video-overlay,
+            .lp3-video-frame {
+                animation: none;
+            }
+        }
+
+        /* Pagination dots — the visual stays 6px, the hit area grows for touch */
+        .lp3-dot {
+            position: relative;
+        }
+
+        .lp3-dot::after {
+            content: '';
+            position: absolute;
+            inset: -1rem -0.375rem;
+        }
+
+        /* Stats row — hairline dividers instead of a boxed band */
+        .lp3-stat {
+            position: relative;
+            padding: 0.25rem 1rem;
+        }
+
+        @media (min-width: 1024px) {
+            .lp3-stat:not(:first-child)::before {
+                content: '';
+                position: absolute;
+                left: 0;
+                top: 10%;
+                bottom: 10%;
+                width: 1px;
+                background: linear-gradient(180deg, transparent, rgba(148, 163, 184, 0.45), transparent);
+            }
+
+            .dark .lp3-stat:not(:first-child)::before {
+                background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.14), transparent);
+            }
+        }
+
+        /* Decision cards — question first, module that answers it second */
+        .lp3-decision-card {
+            position: relative;
+            isolation: isolate;
+            overflow: hidden;
+            border: 1px solid rgba(203, 213, 225, 0.8);
+            background: linear-gradient(160deg, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.55));
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 8px 32px rgba(15, 23, 42, 0.06), inset 0 1px 0 0 rgba(255, 255, 255, 0.7);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease, box-shadow 0.4s ease;
+        }
+
+        .dark .lp3-decision-card {
+            border-color: rgba(255, 255, 255, 0.08);
+            background: linear-gradient(160deg, rgba(30, 41, 59, 0.5), rgba(15, 23, 42, 0.35));
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+        }
+
+        .lp3-decision-card::before {
+            content: '';
+            position: absolute;
+            z-index: -1;
+            right: -30%;
+            top: -35%;
+            width: 80%;
+            aspect-ratio: 1;
+            border-radius: 9999px;
+            background: radial-gradient(closest-side, rgba(245, 158, 11, 0.16), transparent);
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            pointer-events: none;
+        }
+
+        .lp3-decision-card:hover,
+        .lp3-decision-card:focus-visible {
+            transform: translateY(-4px);
+            border-color: rgba(245, 158, 11, 0.55);
+            box-shadow: 0 18px 48px rgba(180, 83, 9, 0.14), inset 0 1px 0 0 rgba(255, 255, 255, 0.7);
+            outline: none;
+        }
+
+        .dark .lp3-decision-card:hover,
+        .dark .lp3-decision-card:focus-visible {
+            border-color: rgba(245, 158, 11, 0.5);
+            box-shadow: 0 18px 48px rgba(0, 0, 0, 0.45), inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .lp3-decision-card:hover::before,
+        .lp3-decision-card:focus-visible::before {
+            opacity: 1;
+        }
+
+        .lp3-decision-arrow {
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .lp3-decision-card:hover .lp3-decision-arrow,
+        .lp3-decision-card:focus-visible .lp3-decision-arrow {
+            transform: translateX(3px);
+            background-color: #f59e0b;
+            border-color: #f59e0b;
+            color: #fff;
+        }
+
+        /* Photo cards — always dark, photo under a navy scrim */
+        .lp3-decision-card.lp3-decision-card--photo,
+        .dark .lp3-decision-card.lp3-decision-card--photo {
+            border-color: rgba(255, 255, 255, 0.1);
+            background: #020617;
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+            box-shadow: 0 12px 36px rgba(2, 6, 23, 0.35), inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+        }
+
+        .lp3-decision-photo {
+            position: absolute;
+            inset: 0;
+            z-index: -2;
+            background-size: cover;
+            background-position: center;
+            transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .lp3-decision-card--photo::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            z-index: -1;
+            background: linear-gradient(180deg, rgba(2, 6, 23, 0.6) 0%, rgba(2, 6, 23, 0.3) 32%, rgba(2, 6, 23, 0.94) 80%);
+            pointer-events: none;
+        }
+
+        .lp3-decision-card--photo:hover .lp3-decision-photo,
+        .lp3-decision-card--photo:focus-visible .lp3-decision-photo {
+            transform: scale(1.06);
+        }
+
+        .lp3-decision-card.lp3-decision-card--photo:hover,
+        .lp3-decision-card.lp3-decision-card--photo:focus-visible {
+            border-color: rgba(245, 158, 11, 0.6);
+            box-shadow: 0 22px 56px rgba(2, 6, 23, 0.55), inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+        }
+
+        /* Photo bands — always-dark full-width panels */
+        .lp3-photo-band {
+            position: relative;
+            isolation: isolate;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background-color: #020617;
+            background-size: cover;
+            background-repeat: no-repeat;
+            box-shadow: 0 30px 80px -40px rgba(2, 6, 23, 0.9), inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+        }
+
+        .lp3-photo-band--factory {
+            background-image:
+                linear-gradient(90deg, rgba(2, 6, 23, 0.94) 0%, rgba(2, 6, 23, 0.72) 48%, rgba(2, 6, 23, 0.28) 100%),
+                url('./assets/lp-factory.jpg');
+            background-position: center;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .lp3-decision-photo {
+                transition: none;
+            }
+
+            .lp3-decision-card--photo:hover .lp3-decision-photo,
+            .lp3-decision-card--photo:focus-visible .lp3-decision-photo {
+                transform: none;
+            }
+        }
+
+        /* Closing CTA — always-dark band over the night earth */
+        .lp3-cta {
+            position: relative;
+            isolation: isolate;
+            overflow: hidden;
+            background:
+                radial-gradient(60% 80% at 85% 35%, rgba(245, 158, 11, 0.16), transparent 60%),
+                linear-gradient(180deg, rgba(2, 6, 23, 0.55) 0%, rgba(2, 6, 23, 0.35) 45%, rgba(2, 6, 23, 0.85) 100%),
+                url('./assets/cta-earth-night.jpg') center 38% / cover no-repeat,
+                #020617;
+            box-shadow: 0 30px 80px -40px rgba(2, 6, 23, 0.9), inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .lp3-decision-card,
+            .lp3-decision-arrow {
+                transition: none;
+            }
+
+            .lp3-decision-card:hover,
+            .lp3-decision-card:focus-visible {
+                transform: none;
+            }
+        }
     </style>
 
     <script src="./vendor/react-17.0.2.production.min.js"></script>
     <script src="./vendor/react-dom-17.0.2.production.min.js"></script>
     <script src="./vendor/babel-standalone-7.26.10.min.js"></script>
-    <script src="./vendor/lucide-current.min.js"></script>
     <script src="./operartis-logo-mark.js?v=20260815-mobile-scroll-intro"></script>
 </head>
 
 <body class="bg-white dark:bg-[#020617] text-slate-800 dark:text-slate-100 transition-colors duration-500">
 
+    <noscript>
+        <div style="max-width:40rem;margin:0 auto;padding:4rem 1.5rem;font-family:system-ui,sans-serif;line-height:1.6;color:#e2e8f0;background:#020617;min-height:100vh">
+            <h1 style="font-size:2rem;line-height:1.2;margin:0 0 1rem;color:#fff">Operartis — Advanced Planning &amp; Scheduling System</h1>
+            <p>Operartis is an APS optimization platform that transforms ERP and MES data into actionable plans across the supply chain: demand forecasting, inventory optimization, production planning and logistics.</p>
+            <p>This site needs JavaScript to display the full experience. Please enable JavaScript, or contact us at <a href="mailto:info@operartis.io" style="color:#f59e0b">info@operartis.io</a>.</p>
+            <p><a href="/contact" style="color:#f59e0b">Contact Operartis</a></p>
+        </div>
+    </noscript>
     <div id="root" class="h-screen w-screen overflow-hidden flex flex-col"></div>
 
     <script type="text/babel">
@@ -4092,6 +4516,18 @@
                     page_title: "Operartis | An Optimization System For The Entire Supply Chain",
                     system_terminal: "System Terminal",
                     hero_pipeline_label: "APS pipeline for production",
+                    hero_tab_production: "Production",
+                    hero_tab_logistics: "Logistics",
+                    hero_logistics_label: "APS pipeline for logistics",
+                    hero_logistics_steps: ["Orders", "Network", "Fleet", "Loads", "Routes", "Dispatch Plan"],
+                    hero_logistics_events: [
+                        "ingest orders + delivery windows",
+                        "map depots and customers",
+                        "check fleet capacity",
+                        "consolidate loads per vehicle",
+                        "solve vehicle routing scenario",
+                        "publish dispatch plan to drivers"
+                    ],
                     hero_pipeline_steps: ["ERP Data", "Demand", "Capacity", "Inventory", "Schedule", "Optimized Plan"],
                     hero_console_label: "Optimization Console",
                     hero_console_events: [
@@ -4108,6 +4544,7 @@
                     explore: "Explore",
                     quick_view: "Quick View",
                     modules: "Modules",
+                    module: "Module",
                     go_live: "GO-LIVE",
                     launch_tool: "Launch Tool",
                     click_to_open: "Click to Open",
@@ -4212,17 +4649,34 @@
                     ],
                     footer_privacy: "Privacy Policy",
                     footer_imprint: "Imprint",
-                    footer_terms: "Terms of Services",
+                    footer_terms: "Terms of Service",
                     footer_tagline: "An APS optimization platform that transforms ERP and MES data into actionable plans across the supply chain.",
                     footer_platform: "Platform",
                     footer_solutions: "Solutions",
                     footer_legal: "Legal",
+                    footer_rights: "All rights reserved.",
+                    nav_open: "Open navigation",
+                    nav_close: "Close navigation",
+                    nav_account_menu: "Account menu",
                     footer_company: "Company",
                     footer_modules: "APS Modules",
                     cta_explore: "Explore the Platform",
                     cta_why: "Why Operartis",
+                    cta_watch: "Watch the intro",
+                    video_title: "Operartis intro video",
+                    video_close: "Close video",
                     metrics_eyebrow: "Built for measurable impact",
                     metrics_title: "One platform. Every planning horizon.",
+                    decisions_eyebrow: "Decisions, not dashboards",
+                    decisions_title: "Every planning decision moves your numbers.",
+                    decisions_title_muted: "Operartis turns each question into a model you can solve.",
+                    decisions_answered_by: "Answered by",
+                    decisions_items: [
+                        { module: 'forecaster', tag: "Demand", question: "How much will we sell in the coming months?" },
+                        { module: 'vrp', name: "Vehicle Routing", tag: "Routing", question: "Which vehicle visits which customer, and in what order?" },
+                        { module: 'abc', tag: "Assortment", question: "Which items deserve the tightest control?" },
+                        { module: 'inventory', tag: "Inventory", question: "How much safety stock do we need, and when do we reorder?" }
+                    ],
                     proof_eyebrow: "Mathematical foundation",
                     proof_title: "Optimization with proof.",
                     proof_body: "Operartis is an optimization system built from data-driven mathematical models. It helps managers make better decisions. The results are (near)optimal solutions under given constraints that can be proven.",
@@ -4288,7 +4742,7 @@
                     platform_title: "Functional module block",
                     nav_supply_chain: "Supply Chain",
                     nav_industry_40: "Industry 4.0",
-                    nav_platform: "Plattform",
+                    nav_platform: "Platform",
                     nav_mathematical_foundation: "Mathematical Foundation",
                     nav_aps: "APS",
                     nav_solutions: "Solutions",
@@ -4451,6 +4905,18 @@
                     page_title: "Operartis | Hệ Thống Tối Ưu Hóa Cho Toàn Bộ Chuỗi Cung Ứng",
                     system_terminal: "Bảng Điều Hành Hệ Thống",
                     hero_pipeline_label: "Luồng APS cho sản xuất",
+                    hero_tab_production: "Sản xuất",
+                    hero_tab_logistics: "Logistics",
+                    hero_logistics_label: "Luồng APS cho logistics",
+                    hero_logistics_steps: ["Đơn hàng", "Mạng lưới", "Đội xe", "Xếp tải", "Tuyến đường", "Kế hoạch điều phối"],
+                    hero_logistics_events: [
+                        "nạp đơn hàng + khung giờ giao",
+                        "lập bản đồ kho và khách hàng",
+                        "kiểm tra tải trọng đội xe",
+                        "gom hàng theo từng xe",
+                        "giải bài toán định tuyến xe",
+                        "gửi kế hoạch điều phối cho tài xế"
+                    ],
                     hero_pipeline_steps: ["Dữ liệu ERP", "Nhu cầu", "Nguồn Lực", "Tồn kho", "Lịch trình", "Kế hoạch tối ưu"],
                     hero_console_label: "Bảng tối ưu",
                     hero_console_events: [
@@ -4467,6 +4933,7 @@
                     explore: "Khám Phá",
                     quick_view: "Xem Nhanh",
                     modules: "Mô-đun",
+                    module: "Mô-đun",
                     go_live: "HOẠT ĐỘNG",
                     launch_tool: "Mở Công Cụ",
                     click_to_open: "Nhấn để Mở",
@@ -4576,12 +5043,29 @@
                     footer_platform: "Nền tảng",
                     footer_solutions: "Giải pháp",
                     footer_legal: "Pháp lý",
+                    footer_rights: "Bảo lưu mọi quyền.",
+                    nav_open: "Mở menu điều hướng",
+                    nav_close: "Đóng menu điều hướng",
+                    nav_account_menu: "Menu tài khoản",
                     footer_company: "Công ty",
                     footer_modules: "Mô-đun APS",
                     cta_explore: "Khám Phá Nền Tảng",
                     cta_why: "Vì Sao Chọn Operartis",
+                    cta_watch: "Xem video giới thiệu",
+                    video_title: "Video giới thiệu Operartis",
+                    video_close: "Đóng video",
                     metrics_eyebrow: "Được xây dựng để đo lường tác động",
                     metrics_title: "Một nền tảng. Mọi khung hoạch định.",
+                    decisions_eyebrow: "Quyết định, không chỉ báo cáo",
+                    decisions_title: "Mỗi quyết định hoạch định đều tác động đến kết quả kinh doanh.",
+                    decisions_title_muted: "Operartis biến từng câu hỏi thành mô hình có thể giải được.",
+                    decisions_answered_by: "Giải đáp bởi",
+                    decisions_items: [
+                        { module: 'forecaster', tag: "Nhu cầu", question: "Chúng ta sẽ bán được bao nhiêu trong những tháng tới?" },
+                        { module: 'vrp', name: "Định Tuyến Xe", tag: "Định tuyến", question: "Xe nào đến khách hàng nào, và theo thứ tự nào?" },
+                        { module: 'abc', tag: "Danh mục", question: "Mặt hàng nào cần được kiểm soát chặt chẽ nhất?" },
+                        { module: 'inventory', tag: "Tồn kho", question: "Cần bao nhiêu tồn kho an toàn và khi nào nên đặt hàng lại?" }
+                    ],
                     proof_eyebrow: "Nền tảng toán học",
                     proof_title: "Tối ưu hoá có thể chứng minh",
                     proof_body: "Operartis là hệ thống tối ưu hoá xây dựng từ các mô hình toán học dựa trên dữ liệu. Hệ thống hỗ trợ nhà quản lý ra quyết định tốt hơn. Kết quả là các lời giải (cận) tối ưu dưới các điều kiện ràng buộc cho trước có thể chứng minh được.",
@@ -4810,6 +5294,18 @@
                     page_title: "Operartis | Ein Optimierungssystem für die gesamte Lieferkette",
                     system_terminal: "Systemterminal",
                     hero_pipeline_label: "Live-APS-Pipeline",
+                    hero_tab_production: "Produktion",
+                    hero_tab_logistics: "Logistik",
+                    hero_logistics_label: "Live-Logistik-Pipeline",
+                    hero_logistics_steps: ["Aufträge", "Netzwerk", "Flotte", "Beladung", "Routen", "Tourenplan"],
+                    hero_logistics_events: [
+                        "Aufträge + Lieferfenster laden",
+                        "Depots und Kunden abbilden",
+                        "Flottenkapazität prüfen",
+                        "Ladungen je Fahrzeug bündeln",
+                        "Tourenszenario lösen",
+                        "Tourenplan an Fahrer senden"
+                    ],
                     hero_pipeline_steps: ["ERP-Daten", "Bedarf", "Kapazität", "Bestand", "Terminplan", "Optimaler Plan"],
                     hero_console_label: "Optimierungskonsole",
                     hero_console_events: [
@@ -4826,6 +5322,7 @@
                     explore: "Entdecken",
                     quick_view: "Schnellansicht",
                     modules: "Module",
+                    module: "Modul",
                     go_live: "LIVE",
                     launch_tool: "Tool starten",
                     click_to_open: "Zum Öffnen klicken",
@@ -4935,12 +5432,29 @@
                     footer_platform: "Plattform",
                     footer_solutions: "Lösungen",
                     footer_legal: "Rechtliches",
+                    footer_rights: "Alle Rechte vorbehalten.",
+                    nav_open: "Navigation öffnen",
+                    nav_close: "Navigation schließen",
+                    nav_account_menu: "Kontomenü",
                     footer_company: "Unternehmen",
                     footer_modules: "APS-Module",
                     cta_explore: "Plattform entdecken",
                     cta_why: "Warum Operartis",
+                    cta_watch: "Intro ansehen",
+                    video_title: "Operartis Intro-Video",
+                    video_close: "Video schließen",
                     metrics_eyebrow: "Für messbare Wirkung entwickelt",
                     metrics_title: "Eine Plattform. Jeder Planungshorizont.",
+                    decisions_eyebrow: "Entscheidungen statt Dashboards",
+                    decisions_title: "Jede Planungsentscheidung bewegt Ihre Kennzahlen.",
+                    decisions_title_muted: "Operartis macht aus jeder Frage ein lösbares Modell.",
+                    decisions_answered_by: "Beantwortet von",
+                    decisions_items: [
+                        { module: 'forecaster', tag: "Bedarf", question: "Wie viel werden wir in den kommenden Monaten verkaufen?" },
+                        { module: 'vrp', name: "Vehicle Routing", tag: "Touren", question: "Welches Fahrzeug fährt zu welchem Kunden, und in welcher Reihenfolge?" },
+                        { module: 'abc', tag: "Sortiment", question: "Welche Artikel verlangen die engste Steuerung?" },
+                        { module: 'inventory', tag: "Bestand", question: "Wie viel Sicherheitsbestand brauchen wir, und wann bestellen wir nach?" }
+                    ],
                     proof_eyebrow: "Mathematische Grundlage",
                     proof_title: "Optimierung mit Beweis.",
                     proof_body: "Operartis ist ein Optimierungssystem aus datengestützten mathematischen Modellen. Es unterstützt Führungskräfte bei besseren Entscheidungen. Die Ergebnisse sind (nahezu)optimale Lösungen unter gegebenen Restriktionen, die beweisbar sind.",
@@ -5445,7 +5959,7 @@
                                     <div className="flex flex-col items-end gap-1.5 shrink-0">
                                         {subModulesList.length > 0 && (
                                             <span className="text-[10px] px-2 py-0.5 rounded-full font-mono font-bold bg-white/80 dark:bg-brand-gold/20 text-brand-dark dark:text-brand-gold border border-brand-gold/30 dark:border-transparent">
-                                                {liveModules.length}/{subModulesList.length} {content?.ui?.modules || "Modules"}
+                                                {liveModules.length}/{subModulesList.length} {subModulesList.length === 1 ? (content?.ui?.module || "Module") : (content?.ui?.modules || "Modules")}
                                             </span>
                                         )}
                                     </div>
@@ -5467,7 +5981,7 @@
                                     <div className="flex items-center gap-2">
                                         {subModulesList.length > 0 && (
                                             <span className="text-[10px] px-2 py-0.5 rounded-full font-mono bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-300">
-                                                {subModulesList.length} {content?.ui?.modules || "Modules"}
+                                                {subModulesList.length} {subModulesList.length === 1 ? (content?.ui?.module || "Module") : (content?.ui?.modules || "Modules")}
                                             </span>
                                         )}
                                     </div>
@@ -5875,8 +6389,7 @@
 
             return (
                 <section
-                    id="supply-chain"
-                    className="opus-scroll-target relative rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-gradient-to-b from-white/55 via-white/35 to-white/20 dark:from-slate-900/55 dark:via-slate-900/35 dark:to-slate-900/20 backdrop-blur-xl shadow-sm"
+                    className="relative rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-gradient-to-b from-white/55 via-white/35 to-white/20 dark:from-slate-900/55 dark:via-slate-900/35 dark:to-slate-900/20 backdrop-blur-xl shadow-sm"
                     aria-label={content.ui.sc_title}
                 >
                     <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-2xl">
@@ -5885,13 +6398,6 @@
                     </div>
 
                     <div className="w-full px-4 sm:px-5 md:px-6 py-4 md:py-5 relative">
-                        <div className="mb-4 md:mb-5">
-                            <div>
-                                <p className="text-[10px] font-bold uppercase opus-eyebrow text-brand-gold mb-1">{content.ui.sc_eyebrow}</p>
-                                <h2 className="text-sm md:text-base font-bold text-slate-800 dark:text-slate-100 tracking-tight">{content.ui.sc_title}</h2>
-                            </div>
-                        </div>
-
                         <div className="relative sc-flow-scroll -mx-1 px-1 pb-3">
                             <div className="relative w-full pt-6 md:pt-14 pb-6 md:pb-16 overflow-visible" ref={flowTrackRef}>
                                 <div className="hidden md:contents">
@@ -5937,10 +6443,10 @@
                                                     </span>
                                                 </div>
 
-                                                <span className={`mt-1.5 md:mt-2 text-[8px] sm:text-[10px] md:text-xs font-bold uppercase tracking-wide leading-tight line-clamp-2 transition-colors ${isActive ? 'text-brand-gold' : isPast ? 'text-amber-700/80 dark:text-amber-200/80' : 'text-slate-600 dark:text-slate-300'}`}>
+                                                <span className={`mt-1.5 md:mt-2 text-[10px] md:text-xs font-bold uppercase tracking-normal sm:tracking-wide leading-tight line-clamp-2 transition-colors ${isActive ? 'text-brand-gold' : isPast ? 'text-amber-700/80 dark:text-amber-200/80' : 'text-slate-600 dark:text-slate-300'}`}>
                                                     {step.label}
                                                 </span>
-                                                <span className={`mt-0.5 text-[7px] sm:text-[9px] font-mono font-semibold uppercase tracking-wider px-1.5 sm:px-2 py-0.5 rounded-full border transition-colors ${isActive ? 'text-brand-gold border-brand-gold/25 bg-brand-gold/8' : isPast ? 'text-amber-700/70 dark:text-amber-200/70 border-brand-gold/15 bg-brand-gold/5' : 'text-slate-400 border-slate-200/60 dark:border-slate-700/60'}`}>
+                                                <span className={`mt-0.5 text-[9px] font-mono font-semibold uppercase tracking-wider px-1.5 sm:px-2 py-0.5 rounded-full border transition-colors ${isActive ? 'text-brand-gold border-brand-gold/25 bg-brand-gold/8' : isPast ? 'text-amber-700/70 dark:text-amber-200/70 border-brand-gold/15 bg-brand-gold/5' : 'text-slate-400 border-slate-200/60 dark:border-slate-700/60'}`}>
                                                     {step.tag}
                                                 </span>
                                             </button>
@@ -5958,7 +6464,7 @@
                                 <div className="flex flex-wrap items-center gap-2 mb-1">
                                     <span className="text-xs md:text-sm font-bold text-slate-800 dark:text-slate-100">{activeStep.label}</span>
                                     <span className="text-[9px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border text-brand-gold border-brand-gold/25 bg-brand-gold/8">{activeStep.tag}</span>
-                                    <span className="text-[9px] font-mono text-slate-400 dark:text-slate-500">{String(activeIdx + 1).padStart(2, '0')} / {String(steps.length).padStart(2, '0')}</span>
+                                    <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500">{String(activeIdx + 1).padStart(2, '0')} / {String(steps.length).padStart(2, '0')}</span>
                                 </div>
                                 <p className="text-xs md:text-sm text-slate-600 dark:text-slate-400 leading-relaxed min-h-[2.5rem] md:min-h-[3rem]">{activeStep.desc}</p>
                             </div>
@@ -6153,9 +6659,8 @@
 
             return (
                 <section
-                    id="industry-40"
                     ref={sectionRef}
-                    className="opus-scroll-target relative rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-gradient-to-b from-white/55 via-white/35 to-white/20 dark:from-slate-900/55 dark:via-slate-900/35 dark:to-slate-900/20 backdrop-blur-xl shadow-sm overflow-hidden"
+                    className="relative rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-gradient-to-b from-white/55 via-white/35 to-white/20 dark:from-slate-900/55 dark:via-slate-900/35 dark:to-slate-900/20 backdrop-blur-xl shadow-sm overflow-hidden"
                     aria-label={ui.i4l_title}
                 >
                     <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-2xl">
@@ -6165,18 +6670,14 @@
                     </div>
 
                     <div className="w-full px-4 sm:px-5 md:px-6 py-4 md:py-5 relative">
-                        <div className="flex flex-wrap items-end justify-between gap-3 mb-5 md:mb-6">
-                            <div>
-                                <p className="text-[10px] font-bold uppercase opus-eyebrow text-brand-gold mb-1">{ui.i4l_eyebrow}</p>
-                                <h2 className="text-sm md:text-base font-bold text-slate-800 dark:text-slate-100 tracking-tight">{ui.i4l_title}</h2>
-                            </div>
-                            <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-end justify-end gap-3 mb-4 md:mb-5">
+                            <div className="flex items-center gap-3">
                                 {[0, 1].map(i => (
                                     <button
                                         key={i}
                                         type="button"
                                         onClick={() => setPhase(i)}
-                                        className={`h-1.5 rounded-full transition-all duration-500 ${phase === i ? 'w-6 bg-brand-gold' : 'w-1.5 bg-slate-300 dark:bg-slate-700 hover:bg-brand-gold/40'}`}
+                                        className={`lp3-dot h-1.5 rounded-full transition-all duration-500 ${phase === i ? 'w-6 bg-brand-gold' : 'w-1.5 bg-slate-300 dark:bg-slate-700 hover:bg-brand-gold/40'}`}
                                         aria-label={i === 0 ? ui.i4l_phase_gap_badge : ui.i4l_phase_aps_badge}
                                     />
                                 ))}
@@ -6193,7 +6694,7 @@
                                 aria-label={apsVisible ? ui.i4l_phase_aps_badge : ui.i4l_phase_gap_badge}
                             >
                                 <div className="flex justify-end mb-3">
-                                    <span className="text-right text-[8px] font-mono uppercase tracking-wider text-slate-400 dark:text-slate-500">{ui.i4l_tap_hint}</span>
+                                    <span className="text-right text-[10px] font-mono uppercase tracking-wider text-slate-400 dark:text-slate-500">{ui.i4l_tap_hint}</span>
                                 </div>
 
                                 <div className="flex-1 flex items-center justify-center min-w-0 w-full">
@@ -6533,20 +7034,135 @@
         };
 
         // Hero — Odoo-scale headline + active APS pipeline/console visual
+        // Intro video in a pop-up player. The file only downloads once the visitor asks for it.
+        // Vietnamese visitors get the Vietnamese cut; there is no German cut, so German falls back to English.
+        const IntroVideoModal = ({ ui, onClose }) => {
+            const closeRef = React.useRef(null);
+            const cut = (window.getOperartisLang && window.getOperartisLang()) === 'vi' ? 'vi' : 'en';
+            React.useEffect(() => {
+                const previous = document.activeElement;
+                const onKey = (event) => { if (event.key === 'Escape') onClose(); };
+                document.addEventListener('keydown', onKey);
+                if (closeRef.current) closeRef.current.focus();
+                return () => {
+                    document.removeEventListener('keydown', onKey);
+                    if (previous && previous.focus) previous.focus();
+                };
+            }, []);
+            return ReactDOM.createPortal(
+                <div
+                    className="lp3-video-overlay fixed inset-0 z-[200] flex items-center justify-center p-4 sm:p-8 bg-slate-950/85 backdrop-blur-md"
+                    role="dialog"
+                    aria-modal="true"
+                    aria-label={ui.video_title}
+                    onClick={onClose}
+                >
+                    <div className="lp3-video-frame relative w-full max-w-5xl" onClick={(event) => event.stopPropagation()}>
+                        <button
+                            ref={closeRef}
+                            type="button"
+                            onClick={onClose}
+                            aria-label={ui.video_close}
+                            className="absolute -top-12 right-0 flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition-colors hover:bg-white/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-gold"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+                        </button>
+                        <video
+                            className="block mx-auto h-auto w-full max-h-[calc(100vh-7rem)] rounded-2xl border border-white/10 bg-black object-contain shadow-[0_40px_120px_rgba(0,0,0,0.7)]"
+                            src={`./assets/video/operartis-intro-${cut}.mp4`}
+                            poster={`./assets/video/operartis-intro-${cut}-poster.jpg`}
+                            width="1920"
+                            height="1080"
+                            controls
+                            autoPlay
+                            playsInline
+                            preload="metadata"
+                        ></video>
+                    </div>
+                </div>,
+                document.body
+            );
+        };
+
         const HeroSection = ({ content, onExplore, onWhy }) => {
-            const pipelineSteps = content.ui.hero_pipeline_steps || [];
-            const consoleEvents = content.ui.hero_console_events || [];
-            const [activeFlowIdx, setActiveFlowIdx] = useState(0);
+            const [videoOpen, setVideoOpen] = React.useState(false);
+            // Console tabs — each tab simulates one APS pipeline (production / logistics)
+            const pipelines = useMemo(() => [
+                {
+                    id: 'production',
+                    tab: content.ui.hero_tab_production || content.ui.hero_pipeline_label,
+                    label: content.ui.hero_pipeline_label,
+                    steps: content.ui.hero_pipeline_steps || [],
+                    events: content.ui.hero_console_events || []
+                },
+                {
+                    id: 'logistics',
+                    tab: content.ui.hero_tab_logistics,
+                    label: content.ui.hero_logistics_label,
+                    steps: content.ui.hero_logistics_steps || [],
+                    events: content.ui.hero_logistics_events || []
+                }
+            ].filter(pl => pl.tab && pl.steps.length), [content]);
+            const [flow, setFlow] = useState({ tab: 0, idx: 0 });
+            const tabPinnedRef = useRef(false);
+            const activeTabIdx = Math.min(flow.tab, Math.max(pipelines.length - 1, 0));
+            const activePipeline = pipelines[activeTabIdx] || { steps: [], events: [] };
+            const pipelineSteps = activePipeline.steps;
+            const consoleEvents = activePipeline.events;
+            const activeFlowIdx = Math.min(flow.idx, Math.max(pipelineSteps.length - 1, 0));
+            const selectTab = (i) => {
+                tabPinnedRef.current = true;
+                setFlow({ tab: i, idx: 0 });
+            };
+            const titleRef = useRef(null);
+
+            // Keep the headline on exactly two lines at any width / language:
+            // start from the CSS size for the breakpoint, then shrink until the widest line fits.
+            React.useLayoutEffect(() => {
+                const el = titleRef.current;
+                if (!el) return undefined;
+                let lastWidth = -1;
+                const fit = (force) => {
+                    const avail = el.clientWidth;
+                    if (!avail || (!force && avail === lastWidth)) return;
+                    lastWidth = avail;
+                    el.style.fontSize = '';
+                    const base = parseFloat(window.getComputedStyle(el).fontSize) || 40;
+                    let widest = 0;
+                    el.querySelectorAll('[data-hero-line]').forEach(line => {
+                        widest = Math.max(widest, line.getBoundingClientRect().width);
+                    });
+                    if (widest > avail) {
+                        el.style.fontSize = `${Math.floor((base * avail / widest) * 100) / 100}px`;
+                    }
+                };
+                fit(true);
+                const onResize = () => fit(false);
+                window.addEventListener('resize', onResize);
+                const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(onResize) : null;
+                if (ro) ro.observe(el);
+                if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => fit(true));
+                return () => {
+                    window.removeEventListener('resize', onResize);
+                    if (ro) ro.disconnect();
+                };
+            }, [content.ui.header_title_1, content.ui.header_title_2]);
 
             useEffect(() => {
-                if (!pipelineSteps.length) return undefined;
+                if (!pipelines.length) return undefined;
                 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
                 if (prefersReducedMotion) return undefined;
                 const timer = setInterval(() => {
-                    setActiveFlowIdx(prev => (prev + 1) % pipelineSteps.length);
+                    setFlow(prev => {
+                        const tab = Math.min(prev.tab, pipelines.length - 1);
+                        const count = pipelines[tab].steps.length;
+                        if (prev.idx + 1 < count) return { tab, idx: prev.idx + 1 };
+                        // Finished a run: loop this tab if the visitor chose it, otherwise show the next pipeline
+                        return { tab: tabPinnedRef.current ? tab : (tab + 1) % pipelines.length, idx: 0 };
+                    });
                 }, 1550);
                 return () => clearInterval(timer);
-            }, [pipelineSteps.length]);
+            }, [pipelines]);
 
             const flowProgress = pipelineSteps.length > 1
                 ? ((activeFlowIdx + 1) / pipelineSteps.length) * 100
@@ -6556,86 +7172,113 @@
                 : [];
 
             return (
-                <div className="opus-hero-glow relative overflow-hidden rounded-3xl border border-white/40 dark:border-white/10 bg-white/15 dark:bg-brand-obsidian/40 backdrop-blur-xl dark:backdrop-blur-2xl ring-1 ring-white/20 dark:ring-white/5 shadow-[0_8px_32px_rgba(15,23,42,0.08),inset_0_1px_0_0_rgba(255,255,255,0.45)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.12),inset_0_1px_0_0_rgba(255,255,255,0.15)]">
-                    <div className="absolute -top-24 -left-24 w-72 h-72 bg-brand-gold/12 rounded-full blur-3xl animate-blob pointer-events-none"></div>
-                    <div className="absolute -bottom-24 right-10 w-72 h-72 bg-sky-500/10 rounded-full blur-3xl animate-blob animation-delay-2000 pointer-events-none"></div>
-
-                    <div className="relative z-10 grid lg:grid-cols-12 gap-8 lg:gap-6 items-center p-8 md:p-12 lg:p-14">
-                        <div className="lg:col-span-7 text-center lg:text-left">
-                            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-900 dark:text-white tracking-tight leading-[1.05] mb-6">
-                                <span className="md:hidden">
-                                    <span className="block">{content.ui.header_title_1}</span>
-                                    <span className="block">&</span>
-                                    <span className="block opus-sheen">{content.ui.header_title_2}</span>
-                                </span>
-                                <span className="hidden md:inline">
-                                    {content.ui.header_title_1}{' '}&{' '}
-                                    <span className="opus-sheen">{content.ui.header_title_2}</span>
-                                </span>
-                            </h1>
-                            <p className="text-base md:text-lg text-slate-600 dark:text-slate-300 leading-relaxed max-w-xl mx-auto lg:mx-0 mb-8">
-                                {content.ui.header_desc}
-                            </p>
-                            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3">
-                                <button type="button" onClick={onExplore} className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-brand-gold text-white text-sm font-bold shadow-lg shadow-brand-gold/20 hover:bg-amber-600 hover:shadow-brand-gold/40 hover:scale-[1.02] active:scale-95 transition-all">
-                                    {content.ui.cta_explore} <ArrowRightIcon />
-                                </button>
-                                <button type="button" onClick={onWhy} className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-sm font-bold transition-all duration-200 hover:border-brand-gold hover:text-brand-gold hover:bg-brand-gold/5 dark:hover:border-brand-gold dark:hover:text-brand-gold dark:hover:bg-brand-gold/10">
-                                    {content.ui.cta_why}
-                                </button>
-                            </div>
+                <div className="relative pt-2 sm:pt-6 md:pt-12">
+                    <div className="relative z-10 text-center max-w-5xl mx-auto">
+                        <div className="lp3-hero-pill inline-flex items-center gap-2.5 rounded-full px-3.5 py-1.5 mb-6 md:mb-8">
+                            <span className="h-1.5 w-1.5 rounded-full bg-brand-gold shadow-[0_0_10px_rgba(245,158,11,0.9)]" aria-hidden="true"></span>
+                            {/* Brand motto — kept in English per DESIGN_SYSTEM.md */}
+                            <span className="whitespace-nowrap text-[10px] sm:text-[11px] font-mono font-bold uppercase tracking-[0.04em] sm:tracking-[0.18em] text-slate-600 dark:text-slate-300">Optimizing today, Growing tomorrow.</span>
                         </div>
+                        {/* Always exactly two lines: "{title_1} &" / "{title_2}" — font size auto-fits the widest line */}
+                        <h1 ref={titleRef} className="text-[2.5rem] sm:text-6xl lg:text-7xl font-black text-slate-900 dark:text-white tracking-tight leading-[1.12] sm:leading-[1.12] lg:leading-[1.12]">
+                            <span className="block">
+                                <span data-hero-line className="inline-block whitespace-nowrap">{content.ui.header_title_1}{' '}&</span>
+                            </span>
+                            <span className="block">
+                                <span data-hero-line className="inline-block whitespace-nowrap opus-sheen pb-[0.14em] -mb-[0.14em]">{content.ui.header_title_2}</span>
+                            </span>
+                        </h1>
+                        <p className="mt-6 md:mt-7 text-base sm:text-lg md:text-xl text-slate-600 dark:text-slate-300 leading-relaxed max-w-2xl mx-auto">
+                            {content.ui.header_desc}
+                        </p>
+                        <div className="mt-8 md:mt-10 flex flex-wrap items-center justify-center gap-3">
+                            <button type="button" onClick={onExplore} className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-brand-gold text-white text-sm md:text-base font-bold shadow-lg shadow-brand-gold/20 hover:bg-amber-600 hover:shadow-brand-gold/40 hover:scale-[1.02] active:scale-95 transition-all">
+                                {content.ui.cta_explore} <ArrowRightIcon />
+                            </button>
+                            <button type="button" onClick={onWhy} className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl border border-slate-300 dark:border-white/15 bg-white/50 dark:bg-white/[0.04] backdrop-blur-md text-slate-700 dark:text-slate-200 text-sm md:text-base font-bold transition-all duration-200 hover:border-brand-gold hover:text-brand-gold hover:bg-brand-gold/5 dark:hover:border-brand-gold dark:hover:text-brand-gold dark:hover:bg-brand-gold/10">
+                                {content.ui.cta_why}
+                            </button>
+                        </div>
+                        <div className="mt-5 flex justify-center">
+                            <button
+                                type="button"
+                                onClick={() => setVideoOpen(true)}
+                                className="group inline-flex items-center gap-3 rounded-full py-1 pl-1 pr-4 text-sm font-semibold text-slate-600 dark:text-slate-300 transition-colors hover:text-slate-900 dark:hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-gold"
+                            >
+                                <span className="flex h-10 w-10 items-center justify-center rounded-full border border-brand-gold/50 bg-brand-gold/10 text-brand-gold transition-all duration-200 group-hover:scale-105 group-hover:bg-brand-gold group-hover:text-white" aria-hidden="true">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15l13-7.5-13-7.5z" /></svg>
+                                </span>
+                                <span>{content.ui.cta_watch}</span>
+                            </button>
+                        </div>
+                        {videoOpen && <IntroVideoModal ui={content.ui} onClose={() => setVideoOpen(false)} />}
+                    </div>
 
-                        {/* Live APS terminal visual */}
-                        <div className="lg:col-span-5">
-                            <div className="rounded-2xl border border-white/50 dark:border-white/10 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl shadow-2xl overflow-hidden">
-                                <div className="p-5 space-y-4">
-                                    <div>
-                                        <div className="flex items-center mb-3">
-                                            <span className="min-w-0 text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 truncate">{content.ui.hero_pipeline_label}</span>
-                                        </div>
-                                        <div className="mb-3 h-1 rounded-full bg-slate-200/70 dark:bg-slate-800 overflow-hidden">
+                    {/* Live APS pipeline — floating glass console over the network map */}
+                    <div className="lp3-hero-visual mt-12 md:mt-16 rounded-3xl border border-slate-200/80 dark:border-white/10 px-3 py-6 sm:p-8 md:p-12 lg:px-20 lg:py-16">
+                        <div className="relative z-10 max-w-4xl mx-auto rounded-2xl border border-white/70 dark:border-white/10 bg-white/80 dark:bg-slate-900/75 backdrop-blur-xl shadow-[0_24px_64px_rgba(15,23,42,0.16),inset_0_1px_0_0_rgba(255,255,255,0.7)] dark:shadow-[0_24px_64px_rgba(0,0,0,0.55),inset_0_1px_0_0_rgba(255,255,255,0.12)] overflow-hidden text-left">
+                            <div className="flex items-center justify-between gap-3 px-4 sm:px-6 py-3 border-b border-slate-200/70 dark:border-white/[0.06]">
+                                <div className="lp3-console-tabs" role="tablist" style={{ '--lp3-tab-count': pipelines.length, '--lp3-tab-active': activeTabIdx }}>
+                                    <span className="lp3-console-tab-indicator" aria-hidden="true"></span>
+                                    {pipelines.map((pl, i) => (
+                                        <button
+                                            key={pl.id}
+                                            type="button"
+                                            role="tab"
+                                            aria-selected={i === activeTabIdx}
+                                            onClick={() => selectTab(i)}
+                                            className={`lp3-console-tab ${i === activeTabIdx ? 'is-active' : ''}`}
+                                        >
+                                            {pl.tab}
+                                        </button>
+                                    ))}
+                                </div>
+                                <span className="shrink-0 max-[359px]:hidden font-mono text-[10px] font-bold tabular-nums text-slate-400 dark:text-slate-500">
+                                    <span className="text-brand-gold">{String(activeFlowIdx + 1).padStart(2, '0')}</span> / {String(pipelineSteps.length).padStart(2, '0')}
+                                </span>
+                            </div>
+                            <div className="p-4 sm:p-6 space-y-4" role="tabpanel">
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 truncate">{activePipeline.label}</p>
+                                <div className="h-1 rounded-full bg-slate-200/70 dark:bg-slate-800 overflow-hidden">
+                                    <div
+                                        className="h-full rounded-full bg-gradient-to-r from-brand-gold via-amber-400 to-brand-dark transition-[width] duration-700 ease-out"
+                                        style={{ width: `${flowProgress}%` }}
+                                    />
+                                </div>
+                                <div className="grid grid-cols-3 max-[359px]:grid-cols-2 md:grid-cols-6 gap-2">
+                                    {pipelineSteps.map((step, i) => {
+                                        const isActive = i === activeFlowIdx;
+                                        const isDone = i < activeFlowIdx;
+                                        return (
                                             <div
-                                                className="h-full rounded-full bg-gradient-to-r from-brand-gold via-amber-400 to-brand-dark transition-[width] duration-700 ease-out"
-                                                style={{ width: `${flowProgress}%` }}
-                                            />
-                                        </div>
-                                        <div className="grid grid-cols-3 gap-2">
-                                            {pipelineSteps.map((step, i) => {
-                                                const isActive = i === activeFlowIdx;
-                                                const isDone = i < activeFlowIdx;
-                                                return (
-                                                    <div
-                                                        key={step}
-                                                        className={`hero-aps-pipeline-step rounded-xl border px-2.5 py-2 min-h-[3.6rem] transition-colors duration-500 ${isActive ? 'hero-aps-pipeline-step-active border-brand-gold/60 bg-brand-gold/10 text-brand-gold' : isDone ? 'border-brand-gold/25 bg-brand-gold/5 text-slate-700 dark:text-slate-200' : 'border-slate-200/70 dark:border-white/5 bg-slate-50/60 dark:bg-slate-800/35 text-slate-500 dark:text-slate-400'}`}
-                                                    >
-                                                        <div className="relative z-[1] flex items-center justify-between gap-2 mb-1">
-                                                            <span className="text-[9px] font-mono font-bold tabular-nums opacity-70">{String(i + 1).padStart(2, '0')}</span>
-                                                            <span className={`h-1.5 w-1.5 rounded-full ${isActive ? 'bg-brand-gold' : isDone ? 'bg-emerald-400' : 'bg-slate-300 dark:bg-slate-600'}`}></span>
-                                                        </div>
-                                                        <div className="relative z-[1] text-[10px] font-bold uppercase tracking-wide leading-snug">{step}</div>
-                                                    </div>
-                                                );
-                                            })}
-                                        </div>
-                                    </div>
+                                                key={`${activePipeline.id}-${step}`}
+                                                className={`hero-aps-pipeline-step rounded-xl border px-2 sm:px-2.5 py-2 min-h-[3.6rem] md:min-h-[4.25rem] transition-colors duration-500 ${isActive ? 'hero-aps-pipeline-step-active border-brand-gold/60 bg-brand-gold/10 text-brand-gold' : isDone ? 'border-brand-gold/25 bg-brand-gold/5 text-slate-700 dark:text-slate-200' : 'border-slate-200/70 dark:border-white/5 bg-slate-50/60 dark:bg-slate-800/35 text-slate-500 dark:text-slate-400'}`}
+                                            >
+                                                <div className="relative z-[1] flex items-center justify-between gap-2 mb-1">
+                                                    <span className="text-[10px] font-mono font-bold tabular-nums opacity-70">{String(i + 1).padStart(2, '0')}</span>
+                                                    <span className={`h-1.5 w-1.5 rounded-full ${isActive ? 'bg-brand-gold' : isDone ? 'bg-emerald-400' : 'bg-slate-300 dark:bg-slate-600'}`}></span>
+                                                </div>
+                                                <div className="relative z-[1] text-[10px] font-bold uppercase tracking-normal sm:tracking-wide leading-snug">{step}</div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
 
-                                    <div className="rounded-xl border border-slate-200/70 dark:border-white/5 bg-slate-950/[0.03] dark:bg-slate-950/35 p-3">
-                                        <div className="mb-2">
-                                            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">{content.ui.hero_console_label}</span>
-                                        </div>
-                                        <div className="space-y-1.5 font-mono text-[10px] leading-relaxed">
-                                            {visibleEvents.map((event, i) => {
-                                                const isActive = i === 0;
-                                                return (
-                                                    <div key={`${event}-${i}`} className={`flex items-center gap-2 min-w-0 ${isActive ? 'text-slate-700 dark:text-slate-100' : 'text-slate-400 dark:text-slate-500'}`}>
-                                                        <span className={isActive ? 'text-brand-gold' : 'text-slate-300 dark:text-slate-600'}>{isActive ? '>' : '$'}</span>
-                                                        <span className="truncate">{event}</span>
-                                                        {isActive && <span className="hero-console-cursor h-3 w-1 bg-brand-gold shrink-0"></span>}
-                                                    </div>
-                                                );
-                                            })}
-                                        </div>
+                                <div className="rounded-xl border border-slate-200/70 dark:border-white/5 bg-slate-950/[0.03] dark:bg-slate-950/40 p-3 sm:p-4">
+                                    <div className="mb-2">
+                                        <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">{content.ui.hero_console_label}</span>
+                                    </div>
+                                    <div className="space-y-1.5 font-mono text-[10px] sm:text-[11px] leading-relaxed">
+                                        {visibleEvents.map((event, i) => {
+                                            const isActive = i === 0;
+                                            return (
+                                                <div key={`${event}-${i}`} className={`flex items-center gap-2 min-w-0 ${isActive ? 'text-slate-700 dark:text-slate-100' : 'text-slate-400 dark:text-slate-500'}`}>
+                                                    <span className={isActive ? 'text-brand-gold' : 'text-slate-300 dark:text-slate-600'}>{isActive ? '>' : '$'}</span>
+                                                    <span className="truncate">{event}</span>
+                                                    {isActive && <span className="hero-console-cursor h-3 w-1 bg-brand-gold shrink-0"></span>}
+                                                </div>
+                                            );
+                                        })}
                                     </div>
                                 </div>
                             </div>
@@ -6664,23 +7307,87 @@
             );
         };
 
-        // Metrics band — Zentio "measurable impact" strip
+        // Shared section heading — eyebrow + large title + optional lead (Landing V3 type scale)
+        const SectionHeading = ({ eyebrow, title, muted, desc, align = 'left', tone = 'auto', className = '' }) => (
+            <div className={`max-w-4xl mb-8 md:mb-12 ${align === 'center' ? 'mx-auto text-center' : ''} ${className}`}>
+                {eyebrow && <p className="text-[10px] md:text-[11px] font-bold uppercase opus-eyebrow text-brand-gold mb-3 md:mb-4">{eyebrow}</p>}
+                <h2 className={`text-[1.75rem] sm:text-4xl md:text-[2.75rem] font-bold tracking-tight leading-[1.15] md:leading-[1.12] ${tone === 'dark' ? 'text-white' : 'text-slate-900 dark:text-white'}`}>
+                    {title}
+                    {muted && <span className="text-slate-400 dark:text-slate-500">{' '}{muted}</span>}
+                </h2>
+                {desc && (
+                    <p className={`mt-4 md:mt-5 text-base md:text-lg leading-relaxed max-w-2xl ${tone === 'dark' ? 'text-slate-300' : 'text-slate-500 dark:text-slate-400'} ${align === 'center' ? 'mx-auto' : ''}`}>{desc}</p>
+                )}
+            </div>
+        );
+
+        // Metrics — open stats row with hairline dividers
         const MetricsBand = ({ content, stats }) => (
-            <div className="opus-metrics-glass rounded-3xl border border-slate-400/40 dark:border-white/[0.06] ring-0 dark:ring-1 dark:ring-white/[0.04] p-8 md:p-10">
-                <div className="relative z-[1] text-center max-w-2xl mx-auto mb-8">
-                    <p className="text-[10px] font-bold uppercase opus-eyebrow text-brand-gold mb-2">{content.ui.metrics_eyebrow}</p>
-                    <h2 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">{content.ui.metrics_title}</h2>
-                </div>
-                <div className="relative z-[1] grid grid-cols-2 lg:grid-cols-4 gap-y-8 md:gap-y-6">
+            <div>
+                <SectionHeading align="center" eyebrow={content.ui.metrics_eyebrow} title={content.ui.metrics_title} />
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-y-10">
                     {stats.map((s, i) => (
-                        <div key={i} className="opus-metrics-stat text-center px-2">
-                            <div className="text-4xl md:text-5xl font-black font-mono tabular-nums text-transparent bg-clip-text bg-gradient-to-br from-brand-gold to-brand-dark">{s.value}</div>
-                            <div className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mt-2">{s.label}</div>
+                        <div key={i} className="lp3-stat text-center">
+                            <div className="text-5xl md:text-6xl font-black font-mono tabular-nums text-transparent bg-clip-text bg-gradient-to-br from-brand-gold to-brand-dark">{s.value}</div>
+                            <div className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mt-3">{s.label}</div>
                         </div>
                     ))}
                 </div>
             </div>
         );
+
+        // Decisions — the planning questions each live module answers
+        const DECISION_PHOTOS = { forecaster: 'demand', vrp: 'routing', abc: 'assortment', inventory: 'inventory' };
+        // Decision cards that open a post instead of the tool itself
+        const DECISION_POSTS = { forecaster: './blog-ml-forecaster', vrp: './blog-vehicle-routing', inventory: './blog-inventory-optimizer', abc: './blog-abc-xyz-analysis' };
+        const DecisionsSection = ({ content }) => {
+            const ui = content.ui;
+            const items = (ui.decisions_items || []).filter(item => MODULE_STATIC_DATA[item.module]);
+            if (!items.length) return null;
+            return (
+                <div>
+                    <SectionHeading eyebrow={ui.decisions_eyebrow} title={ui.decisions_title} muted={ui.decisions_title_muted} />
+                    <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        {items.map((item, i) => {
+                            const module = MODULE_STATIC_DATA[item.module];
+                            const text = (content.registry && content.registry[item.module]) || { name: item.module };
+                            const isLive = module.status === 'live';
+                            // A card with a post opens the post; otherwise a live module opens the tool
+                            const cardHref = DECISION_POSTS[item.module] || (isLive ? module.href : null);
+                            const Tag = cardHref ? 'a' : 'div';
+                            return (
+                                <Reveal key={item.module} delay={i * 80} className="h-full">
+                                    <Tag
+                                        {...(cardHref ? { href: cardHref } : {})}
+                                        className="lp3-decision-card lp3-decision-card--photo group flex h-full min-h-[15rem] sm:min-h-[19rem] lg:min-h-[23rem] flex-col rounded-2xl p-5 md:p-6"
+                                    >
+                                        {DECISION_PHOTOS[item.module] && (
+                                            <span className="lp3-decision-photo" style={{ backgroundImage: `url('./assets/lp-${DECISION_PHOTOS[item.module]}.jpg')` }} aria-hidden="true"></span>
+                                        )}
+                                        <div className="flex items-center justify-between gap-3">
+                                            <span className="rounded-full border border-white/20 bg-slate-950/45 backdrop-blur-md px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-slate-100">{item.tag}</span>
+                                            {cardHref && (
+                                                <span className="lp3-decision-arrow flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-slate-950/45 backdrop-blur-md text-slate-100 [&>svg]:h-4 [&>svg]:w-4" aria-hidden="true">
+                                                    <ArrowRightIcon />
+                                                </span>
+                                            )}
+                                        </div>
+                                        <p className="mt-auto pt-10 text-xl md:text-[1.375rem] font-bold tracking-tight leading-snug text-white">{item.question}</p>
+                                        <div className="mt-5 pt-4 border-t border-white/15 flex items-center gap-3">
+                                            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-gold/15 text-brand-gold [&>svg]:h-[18px] [&>svg]:w-[18px]" aria-hidden="true">{module.icon}</span>
+                                            <span className="min-w-0">
+                                                <span className="block text-[9px] font-bold uppercase tracking-widest text-slate-400">{ui.decisions_answered_by}</span>
+                                                <span className="block truncate text-sm font-bold text-slate-100 group-hover:text-brand-gold transition-colors">{item.name || text.name}</span>
+                                            </span>
+                                        </div>
+                                    </Tag>
+                                </Reveal>
+                            );
+                        })}
+                    </div>
+                </div>
+            );
+        };
 
         // Render proof formulas: Σ_{k ∈ K}, x_{ij}^{k} → proper sub/sup (readable ∈)
         const renderProofFormula = (line) => {
@@ -6902,14 +7609,14 @@
                         <div className="absolute -bottom-12 right-1/4 w-56 h-28 bg-amber-500/4 rounded-full blur-3xl" />
                     </div>
 
-                    <div className="relative w-full px-3.5 sm:px-5 md:px-8 py-5 sm:py-6 md:py-8">
-                        <div className="grid lg:grid-cols-12 gap-5 sm:gap-8 lg:gap-10 items-start">
+                    <div className="relative w-full px-3.5 sm:px-5 md:px-8 py-5 sm:py-6 md:py-10">
+                        <div className="grid lg:grid-cols-12 gap-5 sm:gap-8 lg:gap-10 items-center">
                             <div className="lg:col-span-5">
-                                <p className="text-[10px] font-bold uppercase opus-eyebrow text-brand-gold mb-2">{ui.proof_eyebrow}</p>
-                                <h2 className="text-[1.35rem] sm:text-xl md:text-2xl font-bold text-slate-900 dark:text-white tracking-tight leading-snug mb-3 sm:mb-4">
+                                <p className="text-[10px] md:text-[11px] font-bold uppercase opus-eyebrow text-brand-gold mb-3 md:mb-4">{ui.proof_eyebrow}</p>
+                                <h2 className="text-[1.75rem] sm:text-4xl md:text-[2.75rem] font-bold text-slate-900 dark:text-white tracking-tight leading-[1.15] md:leading-[1.12] mb-4 sm:mb-5">
                                     {ui.proof_title}
                                 </h2>
-                                <p className="text-[13px] sm:text-sm md:text-[15px] text-slate-600 dark:text-slate-300 leading-relaxed">
+                                <p className="text-sm sm:text-base md:text-lg text-slate-600 dark:text-slate-400 leading-relaxed">
                                     {ui.proof_body}
                                 </p>
                             </div>
@@ -7350,11 +8057,7 @@
 
             return (
                 <div>
-                    <div className="max-w-2xl mb-8">
-                        <p className="text-[10px] font-bold uppercase opus-eyebrow text-brand-gold mb-2">{content.ui.journey_eyebrow}</p>
-                        <h2 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white tracking-tight mb-3">{content.ui.journey_title}</h2>
-                        <p className="text-sm md:text-base text-slate-500 dark:text-slate-400 leading-relaxed">{content.ui.journey_desc}</p>
-                    </div>
+                    <SectionHeading eyebrow={content.ui.journey_eyebrow} title={content.ui.journey_title} desc={content.ui.journey_desc} />
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         {horizons.map((h, i) => {
                             const isSelected = i === selectedIdx;
@@ -7375,7 +8078,7 @@
                                     </div>
                                     <h3 className={`font-bold text-sm mb-1 transition-colors duration-300 ${isSelected ? 'text-brand-gold dark:text-amber-400' : 'text-slate-900 dark:text-white group-hover:text-brand-gold dark:group-hover:text-amber-400'}`}>{h.title}</h3>
                                     <span className="text-[10px] font-bold uppercase tracking-wider text-brand-gold/80 transition-colors duration-300 group-hover:text-brand-gold">
-                                        {h.blocks.length} {content.ui.modules}
+                                        {h.blocks.length} {h.blocks.length === 1 ? (content.ui.module || content.ui.modules) : content.ui.modules}
                                     </span>
                                 </button>
                             );
@@ -8007,7 +8710,7 @@
                     <button
                         type="button"
                         className="absolute inset-0 bg-slate-950/55 backdrop-blur-sm"
-                        aria-label="Close navigation"
+                        aria-label={content.ui.nav_close}
                         onClick={onClose}
                     />
                     <div className="mobile-nav-panel absolute inset-x-2 bottom-2 rounded-2xl border border-white/50 dark:border-white/10 bg-white/95 dark:bg-[#0f172a]/95 shadow-2xl backdrop-blur-xl overflow-hidden">
@@ -8018,7 +8721,7 @@
                             <button
                                 type="button"
                                 onClick={onClose}
-                                aria-label="Close navigation"
+                                aria-label={content.ui.nav_close}
                                 className="shrink-0 rounded-full p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
                             >
                                 <CloseIcon />
@@ -8307,9 +9010,8 @@
 
             return (
                 <section
-                    id="or-process"
                     ref={sectionRef}
-                    className="opus-scroll-target relative rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-gradient-to-b from-white/55 via-white/35 to-white/20 dark:from-slate-900/55 dark:via-slate-900/35 dark:to-slate-900/20 backdrop-blur-xl shadow-sm mb-16 md:mb-20"
+                    className="relative rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-gradient-to-b from-white/55 via-white/35 to-white/20 dark:from-slate-900/55 dark:via-slate-900/35 dark:to-slate-900/20 backdrop-blur-xl shadow-sm mb-16 md:mb-20"
                     aria-label={ui.or_process_title}
                 >
                     <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-2xl">
@@ -8318,12 +9020,6 @@
                     </div>
 
                     <div className="w-full px-4 sm:px-5 md:px-6 py-5 md:py-6 relative">
-                        <div className="mb-6 md:mb-8 max-w-3xl">
-                            <p className="text-[10px] font-bold uppercase opus-eyebrow text-brand-gold mb-2">{ui.or_process_eyebrow}</p>
-                            <h2 className="text-xl md:text-2xl font-bold text-slate-800 dark:text-slate-100 tracking-tight mb-3">{ui.or_process_title}</h2>
-                            <p className="text-sm md:text-base text-slate-600 dark:text-slate-400 leading-relaxed">{ui.or_process_subtitle}</p>
-                        </div>
-
                         <div className="grid lg:grid-cols-[1fr_1fr] gap-8 md:gap-10 items-center">
                             <div className="or-cycle-stage select-none">
                                 <svg className="or-cycle-svg" viewBox={`0 0 ${OR_CYCLE_CFG.vb} ${OR_CYCLE_CFG.vb}`} aria-hidden="true">
@@ -8419,18 +9115,18 @@
                                 </div>
                                 <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed mb-5">{activeStep.desc}</p>
                                 <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">{ui.or_process_loop_label}</p>
-                                <div className="flex flex-wrap gap-1.5 mt-3">
+                                <div className="flex flex-wrap gap-3 mt-3">
                                     {steps.map((step, i) => (
                                         <button
                                             key={step.id}
                                             type="button"
                                             onClick={() => selectStep(i)}
-                                            className={`h-1.5 rounded-full transition-all duration-500 ${activeIdx === i ? 'w-6 bg-brand-gold' : i <= maxRevealedIdx ? 'w-2 bg-brand-gold/45' : 'w-1.5 bg-slate-300 dark:bg-slate-700 hover:bg-brand-gold/40'}`}
+                                            className={`lp3-dot h-1.5 rounded-full transition-all duration-500 ${activeIdx === i ? 'w-6 bg-brand-gold' : i <= maxRevealedIdx ? 'w-2 bg-brand-gold/45' : 'w-1.5 bg-slate-300 dark:bg-slate-700 hover:bg-brand-gold/40'}`}
                                             aria-label={step.label}
                                         />
                                     ))}
                                 </div>
-                                <p className="text-[9px] font-mono uppercase tracking-wider text-slate-400 dark:text-slate-500 mt-4">{ui.or_process_tap_hint}</p>
+                                <p className="text-[10px] font-mono uppercase tracking-wider text-slate-400 dark:text-slate-500 mt-4">{ui.or_process_tap_hint}</p>
                             </div>
                         </div>
                     </div>
@@ -8546,7 +9242,6 @@
 
             return (
                 <section
-                    id="analytics"
                     className="relative rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-gradient-to-b from-white/55 via-white/35 to-white/20 dark:from-slate-900/55 dark:via-slate-900/35 dark:to-slate-900/20 backdrop-blur-xl shadow-sm mb-16 md:mb-20 overflow-hidden"
                     aria-label={ui.analytics_title}
                 >
@@ -8556,13 +9251,8 @@
                     </div>
 
                     <div className="w-full px-4 sm:px-5 md:px-6 py-5 md:py-6 relative">
-                        <div className="flex flex-wrap items-end justify-between gap-3 mb-6 md:mb-8">
-                            <div className="max-w-2xl">
-                                <p className="text-[10px] font-bold uppercase opus-eyebrow text-brand-gold mb-1">{ui.analytics_eyebrow}</p>
-                                <h2 className="text-xl md:text-2xl font-bold text-slate-800 dark:text-slate-100 tracking-tight mb-2">{ui.analytics_title}</h2>
-                                <p className="text-xs md:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">{ui.analytics_subtitle}</p>
-                            </div>
-                            <p className="text-[9px] font-mono uppercase tracking-wider text-slate-400 dark:text-slate-500">{ui.analytics_source_note}</p>
+                        <div className="flex flex-wrap items-end justify-end gap-3 mb-4 md:mb-5">
+                            <p className="text-[10px] font-mono uppercase tracking-wider text-slate-400 dark:text-slate-500">{ui.analytics_source_note}</p>
                         </div>
 
                         {/* Maturity ladder — full width */}
@@ -8575,11 +9265,11 @@
                                     <div ref={chartRef} className="aa-maturity-chart relative h-52 md:h-60 border-l border-b border-slate-300 dark:border-slate-600">
                                         <div className="absolute top-3 left-0 right-0 z-[2] grid grid-cols-4 gap-2 sm:gap-3 px-3 sm:px-4 pointer-events-none">
                                             <div className="relative h-4">
-                                                <span className="aa-band-label-info absolute right-0 top-0 translate-x-1/2 whitespace-nowrap text-[8px] font-bold uppercase tracking-wider">{ui.analytics_band_information}</span>
+                                                <span className="aa-band-label-info absolute right-0 top-0 translate-x-1/2 whitespace-nowrap text-[9px] font-bold uppercase tracking-wider">{ui.analytics_band_information}</span>
                                             </div>
                                             <div />
                                             <div className="relative h-4">
-                                                <span className="absolute right-0 top-0 translate-x-1/2 whitespace-nowrap text-[8px] font-bold uppercase tracking-wider text-brand-gold">{ui.analytics_band_models}</span>
+                                                <span className="absolute right-0 top-0 translate-x-1/2 whitespace-nowrap text-[9px] font-bold uppercase tracking-wider text-brand-gold">{ui.analytics_band_models}</span>
                                             </div>
                                             <div />
                                         </div>
@@ -8598,7 +9288,7 @@
                                                                 style={{ height: `${meta.barH}%` }}
                                                             />
                                                         </div>
-                                                        <span className="aa-maturity-bar-label shrink-0 text-[8px] sm:text-[9px] md:text-[10px] font-bold uppercase tracking-[0.03em] md:tracking-wide text-slate-600 dark:text-slate-400" title={level.name}>
+                                                        <span className="aa-maturity-bar-label shrink-0 text-[9px] md:text-[10px] font-bold uppercase tracking-[0.03em] md:tracking-wide text-slate-600 dark:text-slate-400" title={level.name}>
                                                             <span className="md:hidden">{level.chartName || level.name}</span>
                                                             <span className="hidden md:inline">{level.name}</span>
                                                         </span>
@@ -8684,14 +9374,8 @@
                                                 onClick={() => setActiveIdx(i)}
                                                 className={`aa-chevron-seg ${isLevelActive ? `aa-chevron-seg-active ${meta.chevronActive}` : 'aa-chevron-seg-inactive'}`}
                                             >
-                                                <p className={`text-[8px] sm:text-[9px] font-bold tracking-wider mb-0.5 truncate ${isLevelActive ? 'opacity-80' : 'opacity-80'}`}>
-                                                    <span className="sm:hidden normal-case">{level.nameShort || level.name}</span>
-                                                    <span className="hidden sm:inline uppercase">{level.name}</span>
-                                                </p>
-                                                <p className="text-[10px] sm:text-xs md:text-sm font-bold leading-tight line-clamp-2">
-                                                    <span className="sm:hidden">{level.questionShort || level.question}</span>
-                                                    <span className="hidden sm:inline">{level.question}</span>
-                                                </p>
+                                                <p className="text-[10px] sm:text-[9px] font-bold uppercase tracking-normal sm:tracking-wider mb-0.5 truncate opacity-80">{level.name}</p>
+                                                <p className="text-xs md:text-sm font-bold leading-tight line-clamp-2">{level.question}</p>
                                             </button>
                                         );
                                     })}
@@ -8727,7 +9411,7 @@
                                                                 onClick={() => setPrescriptiveMode('support')}
                                                                 aria-label={ui.analytics_prescriptive_support}
                                                                 title={ui.analytics_prescriptive_support}
-                                                                className={`aa-prescriptive-toggle-button px-1.5 py-1 rounded text-[8px] font-bold uppercase tracking-wide leading-tight transition-colors ${prescriptiveMode === 'support' ? 'is-active' : 'text-slate-600 dark:text-slate-300'}`}
+                                                                className={`aa-prescriptive-toggle-button px-1.5 py-1 rounded text-[9px] font-bold uppercase tracking-wide leading-tight transition-colors ${prescriptiveMode === 'support' ? 'is-active' : 'text-slate-600 dark:text-slate-300'}`}
                                                             >
                                                                 {ui.analytics_prescriptive_support_short || ui.analytics_prescriptive_support}
                                                             </button>
@@ -8736,7 +9420,7 @@
                                                                 onClick={() => setPrescriptiveMode('auto')}
                                                                 aria-label={ui.analytics_prescriptive_auto}
                                                                 title={ui.analytics_prescriptive_auto}
-                                                                className={`aa-prescriptive-toggle-button px-1.5 py-1 rounded text-[8px] font-bold uppercase tracking-wide leading-tight transition-colors ${prescriptiveMode === 'auto' ? 'is-active' : 'text-slate-600 dark:text-slate-300'}`}
+                                                                className={`aa-prescriptive-toggle-button px-1.5 py-1 rounded text-[9px] font-bold uppercase tracking-wide leading-tight transition-colors ${prescriptiveMode === 'auto' ? 'is-active' : 'text-slate-600 dark:text-slate-300'}`}
                                                             >
                                                                 {ui.analytics_prescriptive_auto_short || ui.analytics_prescriptive_auto}
                                                             </button>
@@ -8841,15 +9525,15 @@
                 </div>
 
                 <Reveal delay={300}>
-                    <div className="mt-16 text-center rounded-2xl border border-brand-gold/20 bg-brand-gold/5 p-6 md:p-8">
-                        <p className="text-slate-800 dark:text-slate-200 font-medium max-w-2xl md:max-w-4xl mx-auto text-base md:text-lg leading-relaxed md:whitespace-nowrap">{content.ui.invite_text}</p>
-                        <p className="text-brand-gold font-bold uppercase tracking-widest mt-5 text-xs">Let’s optimize today — so you can grow stronger tomorrow.</p>
+                    <div className="lp3-cta mt-20 md:mt-28 rounded-3xl border border-white/10 px-6 py-16 sm:px-10 md:py-24 lg:py-28 text-center">
+                        <p className="text-brand-gold font-bold uppercase tracking-widest text-[10px] md:text-xs mb-5 md:mb-6">Let’s optimize today — so you can grow stronger tomorrow.</p>
+                        <h2 className="text-[1.75rem] sm:text-4xl md:text-5xl font-bold text-white tracking-tight leading-[1.15] max-w-4xl mx-auto">{content.ui.invite_text}</h2>
                         <button
                             type="button"
                             onClick={() => onNav?.('contact')}
-                            className="inline-flex items-center justify-center gap-2 mt-6 px-6 py-3 rounded-xl bg-brand-gold text-white text-sm font-bold shadow-lg shadow-brand-gold/20 hover:bg-amber-600 hover:shadow-brand-gold/40 hover:scale-[1.02] active:scale-95 transition-all"
+                            className="inline-flex items-center justify-center gap-2 mt-8 md:mt-10 px-7 py-3.5 rounded-xl bg-brand-gold text-white text-sm md:text-base font-bold shadow-lg shadow-brand-gold/30 hover:bg-amber-600 hover:shadow-brand-gold/50 hover:scale-[1.02] active:scale-95 transition-all"
                         >
-                            {content.ui.contact_operartis}
+                            {content.ui.contact_operartis} <ArrowRightIcon />
                         </button>
                     </div>
                 </Reveal>
@@ -8902,9 +9586,9 @@
             ];
 
             const legalLinks = [
-                { href: '#about', label: ui.footer_privacy },
+                { href: './privacy', label: ui.footer_privacy },
                 { href: '#', label: ui.footer_imprint },
-                { href: '#', label: ui.footer_terms },
+                { href: './terms', label: ui.footer_terms },
             ];
 
             return (
@@ -9055,7 +9739,7 @@
 
                         <div className="opus-site-footer-divider mt-8 md:mt-10 pt-5 md:pt-6 border-t">
                             <p className="text-xs text-slate-400 dark:text-slate-500 text-center">
-                                © {year} Operartis Analytics. All rights reserved.
+                                © {year} Operartis Analytics. {ui.footer_rights}
                             </p>
                         </div>
                     </div>
@@ -9445,7 +10129,7 @@
                                     type="button"
                                     onClick={() => setMobileNavOpen(true)}
                                     aria-expanded={mobileNavOpen}
-                                    aria-label="Open navigation"
+                                    aria-label={content.ui.nav_open}
                                     className="header-util-btn h-8 w-8 p-0"
                                 >
                                     <span className="header-util-icon" aria-hidden="true"><MenuIcon /></span>
@@ -9476,7 +10160,7 @@
                             </div>
 
                             <div className="flex md:hidden items-center gap-1.5">
-                                <div className="header-glass-pill">
+                                <div className="header-glass-pill max-[359px]:hidden">
                                     <button
                                         onClick={toggleTheme}
                                         className="header-util-btn h-8 w-8 p-0"
@@ -9511,7 +10195,7 @@
                                 {accountMenuOpen && (
                                     <div
                                         role="menu"
-                                        aria-label="Account menu"
+                                        aria-label={content.ui.nav_account_menu}
                                         className="index-account-menu"
                                     >
                                         {authUser && (
@@ -9575,40 +10259,45 @@
                                 <HeroSection content={content} onExplore={() => scrollToId('matrix-fit')} onWhy={() => scrollToId('about-why')} />
                             </Reveal>
 
-                            <div className="mt-10 md:mt-14">
+                            <div className="mt-8 md:mt-10">
                                 <CapabilityRibbon content={content} />
                             </div>
 
-                            <div className="mt-14 md:mt-20">
+                            <div className="mt-20 md:mt-28">
                                 <Reveal><MetricsBand content={content} stats={stats} /></Reveal>
                             </div>
 
-                            <div className="mt-14 md:mt-16">
+                            <div className="mt-24 md:mt-32">
+                                <Reveal><DecisionsSection content={content} /></Reveal>
+                            </div>
+
+                            <div id="supply-chain" className="opus-scroll-target mt-24 md:mt-32">
+                                <Reveal><SectionHeading eyebrow={content.ui.sc_eyebrow} title={content.ui.sc_title} /></Reveal>
                                 <Reveal delay={100}><SupplyChainFlow content={content} /></Reveal>
                             </div>
 
-                            <div className="mt-16 md:mt-20">
+                            <div className="mt-24 md:mt-32">
                                 <Reveal delay={125}><ProofFoundationSection content={content} /></Reveal>
                             </div>
-                            <div className="mt-16 md:mt-20">
+
+                            <div id="industry-40" className="opus-scroll-target mt-24 md:mt-32">
+                                <Reveal><SectionHeading eyebrow={content.ui.i4l_eyebrow} title={content.ui.i4l_title} /></Reveal>
                                 <SystemIntegrationLoop content={content} />
                             </div>
 
-                            <Reveal delay={200}>
-                                <div className="opus-scroll-target pt-12 md:pt-16 mt-4 md:mt-8 border-t border-slate-200/70 dark:border-white/5">
-                                    <AnalyticsMaturitySection content={content} />
-                                </div>
-                            </Reveal>
+                            <div id="analytics" className="opus-scroll-target mt-24 md:mt-32">
+                                <Reveal><SectionHeading eyebrow={content.ui.analytics_eyebrow} title={content.ui.analytics_title} desc={content.ui.analytics_subtitle} /></Reveal>
+                                <Reveal delay={100}><AnalyticsMaturitySection content={content} /></Reveal>
+                            </div>
 
-                            <div id="matrix-fit" className="opus-scroll-target mt-16 md:mt-24">
+                            <div id="matrix-fit" className="opus-scroll-target mt-8 md:mt-12">
                                 <Reveal><JourneyStrip content={content} horizons={content.matrix} onNav={scrollToHorizon} /></Reveal>
                             </div>
 
-                            <div id="platform" className="opus-scroll-target mt-16 md:mt-24">
+                            <div id="platform" className="opus-scroll-target mt-24 md:mt-32">
                                 <Reveal>
-                                    <div className="mb-8">
-                                        <p className="text-[10px] font-bold uppercase opus-eyebrow text-brand-gold mb-2">{content.ui.platform_eyebrow}</p>
-                                        <h2 className="text-2xl md:text-4xl font-bold text-slate-900 dark:text-white tracking-tight">{content.ui.platform_title}</h2>
+                                    <div className="lp3-photo-band lp3-photo-band--factory rounded-3xl flex items-end min-h-[15rem] md:min-h-[22rem] px-6 py-8 sm:px-10 md:px-14 md:py-12 mb-10 md:mb-16">
+                                        <SectionHeading tone="dark" className="!mb-0" eyebrow={content.ui.platform_eyebrow} title={content.ui.platform_title} />
                                     </div>
                                 </Reveal>
                             </div>
@@ -9627,11 +10316,10 @@
                                 ))}
                             </div>
 
-                            <Reveal delay={175}>
-                                <div className="pt-12 md:pt-16 mt-4 md:mt-8 border-t border-slate-200/70 dark:border-white/5">
-                                    <OrProcessSection content={content} />
-                                </div>
-                            </Reveal>
+                            <div id="or-process" className="opus-scroll-target mt-16 md:mt-24">
+                                <Reveal><SectionHeading eyebrow={content.ui.or_process_eyebrow} title={content.ui.or_process_title} desc={content.ui.or_process_subtitle} /></Reveal>
+                                <Reveal delay={100}><OrProcessSection content={content} /></Reveal>
+                            </div>
 
                             <AboutSection content={content} onNav={scrollToNavItem} />
                         </div>
