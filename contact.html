@@ -72,6 +72,20 @@
         .dark .header-util-btn { color: rgb(148 163 184); }
         .dark .header-util-btn:hover { background-color: rgba(255, 255, 255, 0.05); }
 
+        /* Touch: single-button header pills and the account button get a 40px+ hit area */
+        .header-glass-pill:not(.header-glass-pill--wide) > .header-util-btn { position: relative; }
+        .header-glass-pill:not(.header-glass-pill--wide) > .header-util-btn::after {
+            content: '';
+            position: absolute;
+            inset: -8px -5px;
+        }
+        .header-auth-btn::after {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border-radius: 9999px;
+        }
+
         .header-util-icon {
             display: inline-flex;
             align-items: center;
@@ -1031,6 +1045,14 @@
             outline: none;
             transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
+        /* 16px on phones — iOS Safari zooms the page when a focused field is smaller */
+        @media (max-width: 767px) {
+            .contact-field input,
+            .contact-field textarea {
+                font-size: 1rem;
+            }
+        }
+
         .dark .contact-field input,
         .dark .contact-field textarea {
             border-color: rgba(148, 163, 184, 0.22);
@@ -2727,7 +2749,7 @@
                                 </div>
 
                                 <div className="flex md:hidden items-center gap-1.5">
-                                    <div className="header-glass-pill">
+                                    <div className="header-glass-pill max-[359px]:hidden">
                                         <button
                                             type="button"
                                             onClick={cycleTheme}
