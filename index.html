@@ -4321,6 +4321,22 @@
             outline-offset: 1px;
         }
 
+        /* "Without APS" state of the Industry 4.0 switch: red, like the rest of that view */
+        .lp3-console-tabs--gap .lp3-console-tab.is-active { color: #e11d48; }
+        .dark .lp3-console-tabs--gap .lp3-console-tab.is-active { color: #fb7185; }
+
+        .lp3-console-tabs--gap .lp3-console-tab-indicator {
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.12), inset 0 1px 0 0 rgba(255, 255, 255, 0.9), 0 0 0 1px rgba(244, 63, 94, 0.35);
+        }
+
+        .dark .lp3-console-tabs--gap .lp3-console-tab-indicator {
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35), inset 0 1px 0 0 rgba(255, 255, 255, 0.16), 0 0 0 1px rgba(251, 113, 133, 0.4);
+        }
+
+        .lp3-console-tabs--gap .lp3-console-tab:focus-visible { outline-color: rgba(244, 63, 94, 0.7); }
+
+        .i4l2-timer.i4l2-timer--gap { background: linear-gradient(90deg, #be123c, #f43f5e); }
+
         @media (min-width: 640px) {
             .lp3-console-tab {
                 min-height: 0;
@@ -8417,9 +8433,9 @@
                     </div>
 
                     <div className="w-full px-4 sm:px-5 md:px-6 py-4 md:py-5 relative">
-                        {started && <span key={`${phase}-${cycle}`} className="i4l2-timer" aria-hidden="true"></span>}
+                        {started && <span key={`${phase}-${cycle}`} className={`i4l2-timer${apsVisible ? '' : ' i4l2-timer--gap'}`} aria-hidden="true"></span>}
                         <div className="flex flex-wrap items-center justify-between gap-3 mb-4 md:mb-6">
-                            <div className="lp3-console-tabs" role="tablist" aria-label={ui.i4l_title} style={{ '--lp3-tab-count': 2, '--lp3-tab-active': phase }}>
+                            <div className={`lp3-console-tabs${apsVisible ? '' : ' lp3-console-tabs--gap'}`} role="tablist" aria-label={ui.i4l_title} style={{ '--lp3-tab-count': 2, '--lp3-tab-active': phase }}>
                                 <span className="lp3-console-tab-indicator" aria-hidden="true"></span>
                                 {[ui.i4l_phase_gap_badge, ui.i4l_phase_aps_badge].map((label, i) => (
                                     <button
