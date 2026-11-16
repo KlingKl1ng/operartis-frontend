@@ -3413,7 +3413,7 @@
         /* Sits behind the bars (z-index 2), so the trend line never crosses a column */
         .aa-maturity-arrow-svg {
             pointer-events: none;
-            z-index: 1;
+            z-index: 3;
         }
 
         .aa-maturity-arrow-line {
@@ -5930,7 +5930,7 @@
                     analytics_operartis_desc: "Operartis bridges diagnostic visibility with predictive and prescriptive APS — turning ERP and MES data into optimized plans, simulations and decision support.",
                     analytics_tap_hint: "Select a level to explore",
                     or_process_eyebrow: "Deployment Process for an APS System",
-                    or_process_title: "Build Your Own APS — Together With Operartis",
+                    or_process_title: "Build Your Own APS",
                     or_process_subtitle: "Want to build your own APS system or optimized scenario-based solution with Operartis? Here is how we work together to reach your purpose.",
                     or_process_model_world: "Operartis",
                     or_process_real_world: "Customer",
@@ -6334,7 +6334,7 @@
                     analytics_operartis_desc: "Operartis tập trung vào dự báo và đề xuất quyết định với APS  — biến dữ liệu ERP và MES thành kế hoạch tối ưu, mô phỏng và hỗ trợ việc đưa quyết định cuối cùng.",
                     analytics_tap_hint: "Chọn cấp độ để xem chi tiết",
                     or_process_eyebrow: "Quy trình triển khai hệ thống APS",
-                    or_process_title: "Xây dựng APS của riêng bạn — Cùng Operartis",
+                    or_process_title: "Xây dựng APS của riêng bạn",
                     or_process_subtitle: "Xây dựng hệ thống APS riêng biệt hoặc giải pháp tối ưu theo kịch bản cùng Operartis? Đây là quy trình chúng tôi thực hiện để đạt mục tiêu của bạn.",
                     or_process_model_world: "Operartis",
                     or_process_real_world: "Khách hàng",
@@ -6738,7 +6738,7 @@
                     analytics_operartis_desc: "Operartis verbindet diagnostische Transparenz mit prädiktiver und präskriptiver APS — und verwandelt ERP- und Shopfloor-Daten in optimierte Pläne, Simulationen und Entscheidungsunterstützung.",
                     analytics_tap_hint: "Stufe auswählen",
                     or_process_eyebrow: "Deployment-Prozess für ein APS-System",
-                    or_process_title: "Ihr eigenes APS — gemeinsam mit Operartis",
+                    or_process_title: "Bauen Sie Ihr eigenes APS",
                     or_process_subtitle: "Sie möchten Ihr eigenes APS-System oder eine optimierte szenariobasierte Lösung mit Operartis entwickeln? So arbeiten wir zusammen, um Ihr Ziel zu erreichen.",
                     or_process_model_world: "Operartis",
                     or_process_real_world: "Kunde",
@@ -10925,31 +10925,56 @@
             const [activeIdx, setActiveIdx] = useState(2);
             const [prescriptiveMode, setPrescriptiveMode] = useState('support');
             const chartRef = useRef(null);
-            const descriptiveBarRef = useRef(null);
-            const prescriptiveBarRef = useRef(null);
             const [arrowLine, setArrowLine] = useState(null);
 
             const updateMaturityArrow = useCallback(() => {
                 const chart = chartRef.current;
-                const tailBar = descriptiveBarRef.current;
-                const headBar = prescriptiveBarRef.current;
-                if (!chart || !tailBar || !headBar) return;
-
+                if (!chart) return;
                 const chartRect = chart.getBoundingClientRect();
-                const tailRect = tailBar.getBoundingClientRect();
-                const headRect = headBar.getBoundingClientRect();
                 if (!chartRect.width || !chartRect.height) return;
 
-                const x1 = tailRect.right - chartRect.left;
-                const y1 = tailRect.top - chartRect.top;
-                const x2 = headRect.left - chartRect.left;
-                const y2 = headRect.top - chartRect.top;
+                // Column tops from layout (bottom of the column's slot minus its height), so a hover lift doesn't move the arrow
+                const bars = [...chart.querySelectorAll('.aa2-bar')].map((bar) => {
+                    const slot = bar.parentElement.getBoundingClientRect();
+                    return {
+                        left: slot.left - chartRect.left,
+                        right: slot.right - chartRect.left,
+                        top: slot.bottom - chartRect.top - bar.offsetHeight,
+                    };
+                });
+                if (bars.length < 2 || bars.some(bar => !(bar.right > bar.left))) return;
+
+                // The arrow runs over the column tops, from above the first column's centre to the last column's
+                // top-left corner (pointing at it, and clear of the zone label above that column).
+                // Among the straight lines that clear every column corner by CLEAR px, take the one that hugs the
+                // columns most closely (smallest total gap above the column centres).
+                const CLEAR = 12;
+                const first = bars[0], last = bars[bars.length - 1];
+                const x1 = (first.left + first.right) / 2;
+                const x2 = last.left;
+                const corners = [];
+                bars.forEach((bar) => {
+                    [bar.left, bar.right, (bar.left + bar.right) / 2].forEach((x) => {
+                        if (x >= x1 && x <= x2) corners.push([x, bar.top - CLEAR]);
+                    });
+                });
+                const centres = bars.map(bar => [(bar.left + bar.right) / 2, bar.top - CLEAR]);
+                let best = null;
+                for (let k = 0; k <= 240; k++) {
+                    const m = -2 + (k / 240) * 2;                      // slopes from steep rise to flat
+                    const c = Math.min(...corners.map(([x, y]) => y - m * x));
+                    const gap = centres.reduce((sum, [x, y]) => sum + (y - (m * x + c)), 0);
+                    if (!best || gap < best.gap) best = { m, c, gap };
+                }
+                const y1 = best.m * x1 + best.c;
+                const y2 = best.m * x2 + best.c;
+                if (!(x2 > x1) || !Number.isFinite(y1) || !Number.isFinite(y2)) return;   // columns not laid out yet
 
                 // Pixel coordinates: the SVG is drawn 1:1, so the arrowhead keeps its shape at any chart size
                 const len = Math.hypot(x2 - x1, y2 - y1) || 1;
                 const ux = (x2 - x1) / len, uy = (y2 - y1) / len;
-                const HEAD = 13, HALF = 5.5, GAP = 3;
-                const tipX = x2 - ux * GAP, tipY = y2 - uy * GAP;         // stop just short of the last bar
+                const HEAD = 13, HALF = 5.5;
+                const tipX = x2, tipY = y2;
                 const baseX = tipX - ux * HEAD, baseY = tipY - uy * HEAD;
                 setArrowLine({
                     w: chartRect.width,
@@ -11030,7 +11055,6 @@
                                                         >
                                                             <span className="flex flex-1 w-full min-h-0 items-end">
                                                                 <span
-                                                                    ref={i === 0 ? descriptiveBarRef : i === 3 ? prescriptiveBarRef : null}
                                                                     className={`aa-bar aa2-bar block w-full rounded-t-lg ${meta.barFlat}`}
                                                                     style={{ height: `${meta.barH}%` }}
                                                                 >
