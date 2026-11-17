@@ -3021,6 +3021,60 @@
             .or2-node-label { display: block; }
         }
 
+        /* Phones: the two lanes stand side by side and the steps run downwards, one row per step,
+           with the name next to each icon; the loop runs back up the left edge */
+        @media (max-width: 639px) {
+            .or2-track {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 8px;
+                padding-top: 0;
+                padding-left: 24px;
+            }
+
+            .or2-lane { padding: 28px 8px 6px; }
+
+            .or2-lane > .or2-lane-grid { grid-template-columns: minmax(0, 1fr); }
+            .or2-lane-grid > .or2-slot { height: 56px; }
+            .or2-lane-grid > .or2-slot--handoff { margin-top: 12px; }
+
+            .or2-node {
+                flex-direction: row;
+                justify-self: start;
+                align-self: center;
+                gap: 13px;
+                max-width: 100%;
+            }
+
+            /* Normal case is much narrower than capitals, so whole words fit next to the icon */
+            .or2-node-label {
+                display: block;
+                text-align: left;
+                white-space: normal;
+                overflow-wrap: break-word;
+                hyphens: auto;
+                line-height: 1.15;
+                font-size: 12px;
+                letter-spacing: 0;
+                text-transform: none;
+            }
+
+            .or2-lane--customer .or2-lane-label {
+                left: 12px;
+                top: 8px;
+                transform: none;
+            }
+        }
+
+        /* Narrowest phones: tighter lanes and a slightly smaller step name so long German words still fit */
+        @media (max-width: 359px) {
+            .or2-track { padding-left: 18px; gap: 6px; }
+            .or2-lane { padding-left: 4px; padding-right: 4px; }
+            .or2-node { gap: 10px; }
+            .or2-node-icon { width: 30px; height: 30px; border-radius: 10px; }
+            .or2-node-icon svg { width: 14px; height: 14px; }
+            .or2-node-label { font-size: 10px; }
+        }
+
         .or2-link,
         .or2-loop path {
             fill: none;
@@ -3179,7 +3233,11 @@
             opacity: 0;
             transform: translateY(8px);
             pointer-events: none;
+            transition-duration: 0.18s;
         }
+
+        /* The incoming text waits for the outgoing text to clear, so the two never sit on top of each other */
+        .sc2-layer:not(.is-off) { transition-delay: 0.16s; }
 
         .sc2-play {
             display: flex;
@@ -10926,27 +10984,53 @@
             if (geom) {
                 const R = 8, GAP = 4;
                 const n = geom.nodes;
+                // Phones stack the lanes side by side and run the steps downwards
+                const vertical = n.length > 1 && Math.abs(n[1].y - n[0].y) > Math.abs(n[1].x - n[0].x);
                 for (let i = 0; i < n.length - 1; i++) {
                     const a = n[i], b = n[i + 1];
-                    const x1 = a.x + a.r + GAP, x2 = b.x - b.r - GAP;
                     let d;
-                    if (Math.abs(a.y - b.y) < 1) {
-                        d = `M${x1},${a.y} H${x2}`;
+                    if (!vertical) {
+                        const x1 = a.x + a.r + GAP, x2 = b.x - b.r - GAP;
+                        if (Math.abs(a.y - b.y) < 1) {
+                            d = `M${x1},${a.y} H${x2}`;
+                        } else {
+                            // Hand-off between lanes: across, down or up, across
+                            const xm = (a.x + b.x) / 2, dir = b.y > a.y ? 1 : -1;
+                            d = `M${x1},${a.y} H${xm - R} Q${xm},${a.y} ${xm},${a.y + dir * R} V${b.y - dir * R} Q${xm},${b.y} ${xm + R},${b.y} H${x2}`;
+                        }
                     } else {
-                        // Hand-off between lanes: across, down or up, across
-                        const xm = (a.x + b.x) / 2, dir = b.y > a.y ? 1 : -1;
-                        d = `M${x1},${a.y} H${xm - R} Q${xm},${a.y} ${xm},${a.y + dir * R} V${b.y - dir * R} Q${xm},${b.y} ${xm + R},${b.y} H${x2}`;
+                        const y1 = a.y + a.r + GAP, y2 = b.y - b.r - GAP;
+                        if (Math.abs(a.x - b.x) < 1) {
+                            d = `M${a.x},${y1} V${y2}`;
+                        } else {
+                            // Hand-off between lanes: a short drop, across, then a straight drop into the next step
+                            // so the arrowhead sits on a vertical line
+                            const rr = 6, dir = b.x > a.x ? 1 : -1;
+                            const ym = y1 + rr + 2;
+                            d = `M${a.x},${y1} V${ym - rr} Q${a.x},${ym} ${a.x + dir * rr},${ym} H${b.x - dir * rr} Q${b.x},${ym} ${b.x},${ym + rr} V${y2}`;
+                        }
                     }
                     links.push({ d, i });
                 }
-                // Back from the last step to the first, over the top of the customer lane
                 const first = n[0], last = n[n.length - 1];
-                const top = Math.min(...n.map(p => p.y - p.r)) - 22;
-                loop = {
-                    d: `M${last.x},${last.y - last.r - GAP} V${top + R} Q${last.x},${top} ${last.x - R},${top} H${first.x + R} Q${first.x},${top} ${first.x},${top + R} V${first.y - first.r - GAP}`,
-                    labelX: (first.x + last.x) / 2,
-                    labelY: top - 6,
-                };
+                if (!vertical) {
+                    // Back from the last step to the first, over the top of the customer lane
+                    const top = Math.min(...n.map(p => p.y - p.r)) - 22;
+                    loop = {
+                        d: `M${last.x},${last.y - last.r - GAP} V${top + R} Q${last.x},${top} ${last.x - R},${top} H${first.x + R} Q${first.x},${top} ${first.x},${top + R} V${first.y - first.r - GAP}`,
+                        labelX: (first.x + last.x) / 2,
+                        labelY: top - 6,
+                    };
+                } else {
+                    // Back up the left edge, from the last step to the first
+                    const left = Math.min(...n.map(p => p.x - p.r)) - 18;
+                    loop = {
+                        d: `M${last.x - last.r - GAP},${last.y} H${left + R} Q${left},${last.y} ${left},${last.y - R} V${first.y + R} Q${left},${first.y} ${left + R},${first.y} H${first.x - first.r - GAP}`,
+                        labelX: left - 5,
+                        labelY: (first.y + last.y) / 2,
+                        rotate: true,
+                    };
+                }
             }
 
             const activeStep = steps[activeIdx];
@@ -10969,7 +11053,7 @@
                                     {loop && (
                                         <g className={`or2-loop${activeIdx === steps.length - 1 ? ' is-next' : ''}`}>
                                             <path d={loop.d} markerEnd={`url(#or2-head-${activeIdx === steps.length - 1 ? 'done' : 'todo'})`} />
-                                            <text x={loop.labelX} y={loop.labelY} textAnchor="middle">↻ {ui.or_process_loop_label}</text>
+                                            <text x={loop.labelX} y={loop.labelY} textAnchor="middle" transform={loop.rotate ? `rotate(-90 ${loop.labelX} ${loop.labelY})` : undefined}>↻ {ui.or_process_loop_label}</text>
                                         </g>
                                     )}
                                     {links.map(({ d, i }) => {
@@ -10981,9 +11065,10 @@
                             {lanes.map(lane => (
                                 <div key={lane.id} className={`or2-lane or2-lane--${lane.id}`}>
                                     <span className="or2-lane-label">{lane.label}</span>
-                                    <div className="grid grid-cols-8">
+                                    <div className="or2-lane-grid grid grid-cols-8">
                                         {steps.map((step, i) => {
-                                            if (laneOf(step) !== lane.id) return <span key={step.id} aria-hidden="true"></span>;
+                                            const handoff = i > 0 && laneOf(step) !== laneOf(steps[i - 1]) ? ' or2-slot--handoff' : '';
+                                            if (laneOf(step) !== lane.id) return <span key={step.id} className={`or2-slot${handoff}`} aria-hidden="true"></span>;
                                             const Icon = OR_PROCESS_ICONS[step.id] || BoxIcon;
                                             const state = i === activeIdx ? 'is-active' : i < activeIdx ? 'is-done' : '';
                                             return (
@@ -10993,7 +11078,7 @@
                                                     onClick={() => selectStep(i)}
                                                     aria-pressed={i === activeIdx}
                                                     aria-label={`${pad2(i + 1)} ${step.label}`}
-                                                    className={`or2-node ${state}`}
+                                                    className={`or2-slot or2-node ${state}${handoff}`}
                                                 >
                                                     <span ref={el => { iconRefs.current[i] = el; }} className="or2-node-icon">
                                                         <Icon />
