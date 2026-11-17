@@ -2856,6 +2856,304 @@
             font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
         }
 
+        /* Deployment process: customer / Operartis swimlanes */
+        .or2-track {
+            position: relative;
+            isolation: isolate;
+            display: grid;
+            gap: 10px;
+            padding-top: 34px;
+        }
+
+        .or2-links {
+            position: absolute;
+            left: 0;
+            top: 0;
+            z-index: 1;
+            overflow: visible;
+            pointer-events: none;
+        }
+
+        .or2-lane {
+            position: relative;
+            border-radius: 14px;
+            border: 1px solid rgba(148, 163, 184, 0.28);
+            background: rgba(148, 163, 184, 0.07);
+            padding: 24px 2px 10px;
+        }
+
+        .dark .or2-lane { border-color: rgba(148, 163, 184, 0.14); background: rgba(148, 163, 184, 0.05); }
+
+        .or2-lane--operartis {
+            border-color: rgba(217, 119, 6, 0.3);
+            background: rgba(245, 158, 11, 0.07);
+        }
+
+        .dark .or2-lane--operartis { border-color: rgba(245, 158, 11, 0.22); background: rgba(245, 158, 11, 0.05); }
+
+        .or2-lane-label {
+            position: absolute;
+            left: 12px;
+            top: 7px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: #64748b;
+        }
+
+        .dark .or2-lane-label { color: #94a3b8; }
+
+        /* The customer lane only has steps at both ends (the loop arrow comes down onto step 1), so its label sits
+           in the empty middle, level with the step icons (lane top padding + half an icon) */
+        .or2-lane--customer .or2-lane-label {
+            left: 50%;
+            top: calc(24px + 17px);
+            transform: translate(-50%, -50%);
+            white-space: nowrap;
+        }
+
+        @media (min-width: 768px) {
+            .or2-lane--customer .or2-lane-label { top: calc(28px + 23px); }
+        }
+        .or2-lane--operartis .or2-lane-label { color: #b45309; }
+        .dark .or2-lane--operartis .or2-lane-label { color: #fbbf24; }
+
+        .or2-node {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            min-width: 0;
+            flex-direction: column;
+            align-items: center;
+            gap: 7px;
+            justify-self: center;
+            border-radius: 12px;
+        }
+
+        .or2-node:focus-visible { outline: 2px solid rgba(245, 158, 11, 0.75); outline-offset: 3px; }
+
+        .or2-node-icon {
+            position: relative;
+            display: flex;
+            width: 34px;
+            height: 34px;
+            align-items: center;
+            justify-content: center;
+            border-radius: 11px;
+            border: 1px solid #e2e8f0;
+            background: #ffffff;
+            color: #94a3b8;
+            transition: color 0.35s ease, background-color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+        }
+
+        .or2-node-icon svg { width: 16px; height: 16px; }
+
+        .dark .or2-node-icon { border-color: rgba(255, 255, 255, 0.1); background: #0f172a; color: #64748b; }
+
+        .or2-node:hover .or2-node-icon { border-color: rgba(217, 119, 6, 0.55); color: #b45309; }
+        .dark .or2-node:hover .or2-node-icon { color: #fbbf24; }
+
+        .or2-node.is-done .or2-node-icon { border-color: rgba(217, 119, 6, 0.45); background: #fffbeb; color: #b45309; }
+        .dark .or2-node.is-done .or2-node-icon { border-color: rgba(245, 158, 11, 0.32); background: #1c1917; color: #fbbf24; }
+
+        .or2-node.is-active .or2-node-icon {
+            border-color: #d97706;
+            background: #fef3c7;
+            color: #b45309;
+            box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.18), 0 8px 18px rgba(217, 119, 6, 0.2);
+        }
+
+        .dark .or2-node.is-active .or2-node-icon {
+            border-color: #f59e0b;
+            background: #451a03;
+            color: #fbbf24;
+            box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.16), 0 8px 18px rgba(0, 0, 0, 0.4);
+        }
+
+        .or2-node-num {
+            position: absolute;
+            top: -7px;
+            right: -7px;
+            display: flex;
+            min-width: 15px;
+            height: 15px;
+            align-items: center;
+            justify-content: center;
+            border-radius: 9999px;
+            border: 1px solid #e2e8f0;
+            background: #ffffff;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 8.5px;
+            font-weight: 800;
+            color: #64748b;
+        }
+
+        .dark .or2-node-num { border-color: rgba(255, 255, 255, 0.12); background: #1e293b; color: #94a3b8; }
+        .or2-node.is-active .or2-node-num { border-color: #d97706; background: #d97706; color: #ffffff; }
+        .dark .or2-node.is-active .or2-node-num { border-color: #f59e0b; background: #f59e0b; color: #1c1917; }
+
+        .or2-node-label {
+            display: none;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: #64748b;
+        }
+
+        .dark .or2-node-label { color: #94a3b8; }
+        .or2-node.is-done .or2-node-label { color: #92400e; }
+        .dark .or2-node.is-done .or2-node-label { color: #fcd34d; }
+        .or2-node.is-active .or2-node-label { color: #b45309; }
+        .dark .or2-node.is-active .or2-node-label { color: #fbbf24; }
+
+        @media (min-width: 768px) {
+            .or2-track { gap: 14px; padding-top: 38px; }
+            .or2-lane { padding: 28px 4px 14px; }
+            .or2-node-icon { width: 46px; height: 46px; border-radius: 14px; }
+            .or2-node-icon svg { width: 20px; height: 20px; }
+            .or2-node-label { display: block; }
+        }
+
+        /* Phones: the two lanes stand side by side and the steps run downwards, one row per step,
+           with the name next to each icon; the loop runs back up the left edge */
+        @media (max-width: 639px) {
+            .or2-track {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 8px;
+                padding-top: 0;
+                padding-left: 24px;
+            }
+
+            .or2-lane { padding: 28px 8px 6px; }
+
+            .or2-lane > .or2-lane-grid { grid-template-columns: minmax(0, 1fr); }
+            .or2-lane-grid > .or2-slot { height: 56px; }
+            .or2-lane-grid > .or2-slot--handoff { margin-top: 12px; }
+
+            .or2-node {
+                flex-direction: row;
+                justify-self: start;
+                align-self: center;
+                gap: 13px;
+                max-width: 100%;
+            }
+
+            /* Normal case is much narrower than capitals, so whole words fit next to the icon */
+            .or2-node-label {
+                display: block;
+                text-align: left;
+                white-space: normal;
+                overflow-wrap: break-word;
+                hyphens: auto;
+                line-height: 1.15;
+                font-size: 12px;
+                letter-spacing: 0;
+                text-transform: none;
+            }
+
+            .or2-lane--customer .or2-lane-label {
+                left: 12px;
+                top: 8px;
+                transform: none;
+            }
+        }
+
+        /* Narrowest phones: tighter lanes and a slightly smaller step name so long German words still fit */
+        @media (max-width: 359px) {
+            .or2-track { padding-left: 18px; gap: 6px; }
+            .or2-lane { padding-left: 4px; padding-right: 4px; }
+            .or2-node { gap: 10px; }
+            .or2-node-icon { width: 30px; height: 30px; border-radius: 10px; }
+            .or2-node-icon svg { width: 14px; height: 14px; }
+            .or2-node-label { font-size: 10px; }
+        }
+
+        .or2-link,
+        .or2-loop path {
+            fill: none;
+            stroke: rgba(148, 163, 184, 0.65);
+            stroke-width: 1.6;
+            stroke-dasharray: 4 4;
+            stroke-linecap: round;
+            transition: stroke 0.4s ease;
+        }
+
+        .dark .or2-link,
+        .dark .or2-loop path { stroke: rgba(148, 163, 184, 0.4); }
+
+        .or2-link.is-done { stroke: #d97706; stroke-dasharray: none; }
+        .dark .or2-link.is-done { stroke: #f59e0b; }
+
+        .or2-link.is-next,
+        .or2-loop.is-next path {
+            stroke: #f59e0b;
+            stroke-dasharray: 5 4;
+            animation: sc-flow-dash 0.9s linear infinite;
+        }
+
+        .or2-head { fill: rgba(148, 163, 184, 0.75); }
+        .dark .or2-head { fill: rgba(148, 163, 184, 0.5); }
+        .or2-head--done,
+        .dark .or2-head--done { fill: #f59e0b; }
+
+        .or2-loop text {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            fill: #64748b;
+        }
+
+        .dark .or2-loop text { fill: #94a3b8; }
+        .or2-loop.is-next text { fill: #b45309; }
+        .dark .or2-loop.is-next text { fill: #fbbf24; }
+
+        .or2-detail-icon {
+            display: flex;
+            width: 44px;
+            height: 44px;
+            flex: none;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            border: 1px solid rgba(148, 163, 184, 0.4);
+            background: #ffffff;
+            color: #475569;
+        }
+
+        .dark .or2-detail-icon { border-color: rgba(255, 255, 255, 0.12); background: #0f172a; color: #cbd5e1; }
+        .or2-detail-icon--operartis { border-color: rgba(217, 119, 6, 0.5); background: #fef3c7; color: #b45309; }
+        .dark .or2-detail-icon--operartis { border-color: rgba(245, 158, 11, 0.4); background: #451a03; color: #fbbf24; }
+
+        .or2-lane-chip {
+            padding: 0.15rem 0.55rem;
+            border-radius: 9999px;
+            border: 1px solid rgba(148, 163, 184, 0.45);
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: #475569;
+        }
+
+        .dark .or2-lane-chip { border-color: rgba(148, 163, 184, 0.3); color: #cbd5e1; }
+        .or2-lane-chip--operartis { border-color: rgba(217, 119, 6, 0.45); background: rgba(245, 158, 11, 0.1); color: #b45309; }
+        .dark .or2-lane-chip--operartis { border-color: rgba(245, 158, 11, 0.4); color: #fbbf24; }
+
+        @media (prefers-reduced-motion: reduce) {
+            .or2-link.is-next,
+            .or2-loop.is-next path { animation: none; }
+        }
+
         /* Supply chain block: stage panel under the flow diagram */
         .sc2-panel {
             position: relative;
@@ -2935,7 +3233,11 @@
             opacity: 0;
             transform: translateY(8px);
             pointer-events: none;
+            transition-duration: 0.18s;
         }
+
+        /* The incoming text waits for the outgoing text to clear, so the two never sit on top of each other */
+        .sc2-layer:not(.is-off) { transition-delay: 0.16s; }
 
         .sc2-play {
             display: flex;
@@ -3413,7 +3715,7 @@
         /* Sits behind the bars (z-index 2), so the trend line never crosses a column */
         .aa-maturity-arrow-svg {
             pointer-events: none;
-            z-index: 1;
+            z-index: 3;
         }
 
         .aa-maturity-arrow-line {
@@ -4320,6 +4622,22 @@
             outline: 2px solid rgba(245, 158, 11, 0.7);
             outline-offset: 1px;
         }
+
+        /* "Without APS" state of the Industry 4.0 switch: red, like the rest of that view */
+        .lp3-console-tabs--gap .lp3-console-tab.is-active { color: #e11d48; }
+        .dark .lp3-console-tabs--gap .lp3-console-tab.is-active { color: #fb7185; }
+
+        .lp3-console-tabs--gap .lp3-console-tab-indicator {
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.12), inset 0 1px 0 0 rgba(255, 255, 255, 0.9), 0 0 0 1px rgba(244, 63, 94, 0.35);
+        }
+
+        .dark .lp3-console-tabs--gap .lp3-console-tab-indicator {
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35), inset 0 1px 0 0 rgba(255, 255, 255, 0.16), 0 0 0 1px rgba(251, 113, 133, 0.4);
+        }
+
+        .lp3-console-tabs--gap .lp3-console-tab:focus-visible { outline-color: rgba(244, 63, 94, 0.7); }
+
+        .i4l2-timer.i4l2-timer--gap { background: linear-gradient(90deg, #be123c, #f43f5e); }
 
         @media (min-width: 640px) {
             .lp3-console-tab {
@@ -5930,12 +6248,13 @@
                     analytics_operartis_desc: "Operartis bridges diagnostic visibility with predictive and prescriptive APS — turning ERP and MES data into optimized plans, simulations and decision support.",
                     analytics_tap_hint: "Select a level to explore",
                     or_process_eyebrow: "Deployment Process for an APS System",
-                    or_process_title: "Build Your Own APS — Together With Operartis",
+                    or_process_title: "Build Your Own APS",
                     or_process_subtitle: "Want to build your own APS system or optimized scenario-based solution with Operartis? Here is how we work together to reach your purpose.",
                     or_process_model_world: "Operartis",
                     or_process_real_world: "Customer",
                     or_process_tap_hint: "Click a step to explore",
                     or_process_loop_label: "APS - Iterative cycle",
+                    or_process_step: "Step",
                     or_process_steps: [
                         { id: 'problem', label: 'Problem', desc: 'Framing your business challenge — capacity, cost, service level or network design — and define measurable objectives together.' },
                         { id: 'data', label: 'Data', desc: 'Consolidating ERP, MES and external data into a reliable foundation for modeling and validation.' },
@@ -6334,12 +6653,13 @@
                     analytics_operartis_desc: "Operartis tập trung vào dự báo và đề xuất quyết định với APS  — biến dữ liệu ERP và MES thành kế hoạch tối ưu, mô phỏng và hỗ trợ việc đưa quyết định cuối cùng.",
                     analytics_tap_hint: "Chọn cấp độ để xem chi tiết",
                     or_process_eyebrow: "Quy trình triển khai hệ thống APS",
-                    or_process_title: "Xây dựng APS của riêng bạn — Cùng Operartis",
+                    or_process_title: "Xây dựng APS của riêng bạn",
                     or_process_subtitle: "Xây dựng hệ thống APS riêng biệt hoặc giải pháp tối ưu theo kịch bản cùng Operartis? Đây là quy trình chúng tôi thực hiện để đạt mục tiêu của bạn.",
                     or_process_model_world: "Operartis",
                     or_process_real_world: "Khách hàng",
                     or_process_tap_hint: "Nhấn vào bước để xem chi tiết",
                     or_process_loop_label: "Vòng lặp triển khai APS",
+                    or_process_step: "Bước",
                     or_process_steps: [
                         { id: 'problem', label: 'Vấn đề', desc: 'Xác định vấn đề — năng lực sản xuất, chi phí sản xuất, mức dịch vụ hay thiết kế mạng lưới cung ứng — và đặt mục tiêu đo lường.' },
                         { id: 'data', label: 'Dữ liệu', desc: 'Củng cố dữ liệu ERP, MES và nguồn bên ngoài thành nền tảng dữ liệu cần thiết cho bước mô hình hóa.' },
@@ -6738,12 +7058,13 @@
                     analytics_operartis_desc: "Operartis verbindet diagnostische Transparenz mit prädiktiver und präskriptiver APS — und verwandelt ERP- und Shopfloor-Daten in optimierte Pläne, Simulationen und Entscheidungsunterstützung.",
                     analytics_tap_hint: "Stufe auswählen",
                     or_process_eyebrow: "Deployment-Prozess für ein APS-System",
-                    or_process_title: "Ihr eigenes APS — gemeinsam mit Operartis",
+                    or_process_title: "Bauen Sie Ihr eigenes APS",
                     or_process_subtitle: "Sie möchten Ihr eigenes APS-System oder eine optimierte szenariobasierte Lösung mit Operartis entwickeln? So arbeiten wir zusammen, um Ihr Ziel zu erreichen.",
                     or_process_model_world: "Operartis",
                     or_process_real_world: "Kunde",
                     or_process_tap_hint: "Schritt anklicken",
                     or_process_loop_label: "Iterativer Optimierungszyklus",
+                    or_process_step: "Schritt",
                     or_process_steps: [
                         { id: 'problem', label: 'Problem', desc: 'Wir definieren Ihre geschäftliche Herausforderung — Kapazität, Kosten, Servicelevel oder Netzwerkdesign — und legen messbare Ziele fest.' },
                         { id: 'data', label: 'Daten', desc: 'Wir konsolidieren ERP-, Shopfloor- und externe Daten als belastbare Grundlage für Modellierung und Validierung.' },
@@ -8417,9 +8738,9 @@
                     </div>
 
                     <div className="w-full px-4 sm:px-5 md:px-6 py-4 md:py-5 relative">
-                        {started && <span key={`${phase}-${cycle}`} className="i4l2-timer" aria-hidden="true"></span>}
+                        {started && <span key={`${phase}-${cycle}`} className={`i4l2-timer${apsVisible ? '' : ' i4l2-timer--gap'}`} aria-hidden="true"></span>}
                         <div className="flex flex-wrap items-center justify-between gap-3 mb-4 md:mb-6">
-                            <div className="lp3-console-tabs" role="tablist" aria-label={ui.i4l_title} style={{ '--lp3-tab-count': 2, '--lp3-tab-active': phase }}>
+                            <div className={`lp3-console-tabs${apsVisible ? '' : ' lp3-console-tabs--gap'}`} role="tablist" aria-label={ui.i4l_title} style={{ '--lp3-tab-count': 2, '--lp3-tab-active': phase }}>
                                 <span className="lp3-console-tab-indicator" aria-hidden="true"></span>
                                 {[ui.i4l_phase_gap_badge, ui.i4l_phase_aps_badge].map((label, i) => (
                                     <button
@@ -10577,341 +10898,247 @@
         const ANALYTICS_HUMAN_W_AUTO = 6;
         const ANALYTICS_SOURCE_ICONS = [BoxIcon, FactoryIcon, GlobeIcon];
 
-        const OR_PROCESS_ANGLES = [225, 270, 315, 0, 45, 90, 135, 180];
+        // Who leads each step: Operartis builds the model and solution, the customer frames, validates and deploys
         const OR_PROCESS_MODEL_IDS = new Set(['model', 'algorithm', 'prototype', 'solution']);
-        const OR_CYCLE_CFG = { vb: 440, cx: 220, cy: 220, r: 158 };
-        const OR_WORLD_DIVIDER_ANGLES = [292.5, 112.5];
+        const OR_STEP_MS = 5000;
 
-        const orCyclePoint = (angleDeg, cfg = OR_CYCLE_CFG, radius = cfg.r) => {
-            const rad = (angleDeg - 90) * (Math.PI / 180);
-            return {
-                x: cfg.cx + radius * Math.cos(rad),
-                y: cfg.cy + radius * Math.sin(rad),
-            };
-        };
-
-        const orWorldDividerEndpoints = (cfg = OR_CYCLE_CFG) => {
-            const extend = cfg.vb / 2 - 10;
-            return OR_WORLD_DIVIDER_ANGLES.map(a => orCyclePoint(a, cfg, extend));
-        };
-
-        const orCycleArcPath = (fromAngle, toAngle, cfg = OR_CYCLE_CFG) => {
-            const start = orCyclePoint(fromAngle, cfg);
-            const end = orCyclePoint(toAngle, cfg);
-            const delta = ((toAngle - fromAngle + 360) % 360) || 360;
-            const largeArc = delta > 180 ? 1 : 0;
-            return `M ${start.x.toFixed(2)} ${start.y.toFixed(2)} A ${cfg.r} ${cfg.r} 0 ${largeArc} 1 ${end.x.toFixed(2)} ${end.y.toFixed(2)}`;
-        };
-
-        const orCycleNodePos = (angleDeg, cfg = OR_CYCLE_CFG) => {
-            const pt = orCyclePoint(angleDeg, cfg);
-            return {
-                left: (pt.x / cfg.vb) * 100,
-                top: (pt.y / cfg.vb) * 100,
-            };
-        };
-
-        const orWorldLabelPos = (half, cfg = OR_CYCLE_CFG) => {
-            const offset = (4 * cfg.r) / (3 * Math.PI);
-            const angle = half === 'model' ? 0 : 180;
-            const rad = (angle - 90) * (Math.PI / 180);
-            return {
-                x: cfg.cx + offset * Math.cos(rad),
-                y: cfg.cy + offset * Math.sin(rad),
-            };
-        };
-
-        const orSegmentVisible = (i, maxRevealedIdx, total) => (
-            i + 1 <= maxRevealedIdx || (i === total - 1 && maxRevealedIdx >= total - 1)
-        );
-
-        const orSegmentIsActive = (i, activeIdx, total) => (
-            i === ((activeIdx - 1 + total) % total)
-        );
-
-        const OR_STEP_DWELL_MS = 4200;
-        const OR_TRAVEL_MS = 700;
-        const OR_NODE_ANIM_MS = 700;
-
-        const OrProcessNode = ({ step, isActive, isLit, isVisible, isEntering, isPopping, pos, onSelect }) => {
-            if (!isVisible) return null;
-            const Icon = OR_PROCESS_ICONS[step.id] || BoxIcon;
-            return (
-                <button
-                    type="button"
-                    onClick={onSelect}
-                    className={`or-node ${isActive ? 'or-node-active' : ''} ${isLit ? 'or-node-lit' : ''} ${isEntering ? 'or-node-enter' : isPopping ? 'or-node-pop' : ''}`}
-                    style={{ left: `${pos.left}%`, top: `${pos.top}%` }}
-                    aria-pressed={isActive}
-                    aria-label={step.label}
-                >
-                    <div className={`or-node-icon ${isActive ? 'or-node-icon-active' : isLit ? 'or-node-icon-lit' : ''}`}>
-                        <Icon />
-                    </div>
-                    <span className="or-node-label">{step.label}</span>
-                </button>
-            );
-        };
-
+        // Deployment process as two swimlanes (customer / Operartis) with the hand-offs drawn between them,
+        // a loop back to the start, and a detail panel for the selected step
         const OrProcessSection = ({ content }) => {
             const ui = content.ui;
             const steps = ui.or_process_steps;
             const [activeIdx, setActiveIdx] = useState(0);
-            const [maxRevealedIdx, setMaxRevealedIdx] = useState(0);
-            const [enterIdx, setEnterIdx] = useState(null);
-            const [popIdx, setPopIdx] = useState(null);
-            const [travel, setTravel] = useState(null);
-            const [closePhase, setClosePhase] = useState(null);
+            const [cycle, setCycle] = useState(0);
+            const [playing, setPlaying] = useState(() => {
+                try { return !window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return true; }
+            });
             const [started, setStarted] = useState(false);
+            const [geom, setGeom] = useState(null);
             const sectionRef = useRef(null);
-            const prevRevealedRef = useRef(0);
-            const activeIdxRef = useRef(0);
-            const prevActiveAnimRef = useRef(0);
-            const skipNextActiveAnimRef = useRef(true);
+            const trackRef = useRef(null);
+            const iconRefs = useRef([]);
 
-            const selectStep = useCallback((idx) => {
+            const laneOf = (step) => (OR_PROCESS_MODEL_IDS.has(step.id) ? 'operartis' : 'customer');
+            const lanes = [
+                { id: 'customer', label: ui.or_process_real_world },
+                { id: 'operartis', label: ui.or_process_model_world },
+            ];
+
+            const selectStep = (idx) => {
                 setActiveIdx(idx);
-                setMaxRevealedIdx(prev => Math.max(prev, idx));
-            }, []);
+                setCycle(c => c + 1);
+            };
 
-            const resetCycle = useCallback(() => {
-                setActiveIdx(0);
-                setMaxRevealedIdx(0);
-                setEnterIdx(null);
-                setPopIdx(null);
-                setTravel(null);
-                setClosePhase(null);
-                prevRevealedRef.current = 0;
-                activeIdxRef.current = 0;
-                prevActiveAnimRef.current = 0;
-            }, []);
-
-            const advanceCycle = useCallback(() => {
-                const i = activeIdxRef.current;
-                const lastIdx = steps.length - 1;
-                if (i >= lastIdx) return;
-                const next = i + 1;
-                setActiveIdx(next);
-                setMaxRevealedIdx(prev => Math.max(prev, next));
-            }, [steps.length]);
-
-            useEffect(() => {
-                activeIdxRef.current = activeIdx;
-            }, [activeIdx]);
-
+            // Start the walkthrough once the block is on screen
             useEffect(() => {
                 const el = sectionRef.current;
-                if (!el) return undefined;
+                if (!el || typeof IntersectionObserver === 'undefined') { setStarted(true); return undefined; }
                 const observer = new IntersectionObserver(([entry]) => {
                     if (entry.isIntersecting) {
                         setStarted(true);
                         observer.disconnect();
                     }
-                }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+                }, { threshold: 0.15 });
                 observer.observe(el);
                 return () => observer.disconnect();
             }, []);
 
             useEffect(() => {
-                setMaxRevealedIdx(prev => Math.max(prev, activeIdx));
-            }, [activeIdx]);
+                if (!started || !playing || !steps.length) return undefined;
+                const timer = setTimeout(() => setActiveIdx(i => (i + 1) % steps.length), OR_STEP_MS);
+                return () => clearTimeout(timer);
+            }, [started, playing, activeIdx, cycle, steps.length]);
 
-            useEffect(() => {
-                if (maxRevealedIdx > prevRevealedRef.current && maxRevealedIdx > 0) {
-                    setEnterIdx(maxRevealedIdx);
+            // Connector geometry in track pixels, from the measured step icons
+            const measure = useCallback(() => {
+                const track = trackRef.current;
+                if (!track) return;
+                const t = track.getBoundingClientRect();
+                if (!t.width) return;
+                const nodes = iconRefs.current.slice(0, steps.length).map((el) => {
+                    if (!el) return null;
+                    const r = el.getBoundingClientRect();
+                    return { x: r.left - t.left + r.width / 2, y: r.top - t.top + r.height / 2, r: r.width / 2 };
+                });
+                if (nodes.some(n => !n || !n.r)) return;
+                setGeom({ w: t.width, h: t.height, nodes });
+            }, [steps.length]);
+
+            useLayoutEffect(() => {
+                measure();
+                const track = trackRef.current;
+                if (!track) return undefined;
+                const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(() => measure()) : null;
+                if (ro) ro.observe(track);
+                window.addEventListener('resize', measure);
+                const late = setTimeout(measure, 400);
+                return () => {
+                    if (ro) ro.disconnect();
+                    window.removeEventListener('resize', measure);
+                    clearTimeout(late);
+                };
+            }, [measure, content]);
+
+            const links = [];
+            let loop = null;
+            if (geom) {
+                const R = 8, GAP = 4;
+                const n = geom.nodes;
+                // Phones stack the lanes side by side and run the steps downwards
+                const vertical = n.length > 1 && Math.abs(n[1].y - n[0].y) > Math.abs(n[1].x - n[0].x);
+                for (let i = 0; i < n.length - 1; i++) {
+                    const a = n[i], b = n[i + 1];
+                    let d;
+                    if (!vertical) {
+                        const x1 = a.x + a.r + GAP, x2 = b.x - b.r - GAP;
+                        if (Math.abs(a.y - b.y) < 1) {
+                            d = `M${x1},${a.y} H${x2}`;
+                        } else {
+                            // Hand-off between lanes: across, down or up, across
+                            const xm = (a.x + b.x) / 2, dir = b.y > a.y ? 1 : -1;
+                            d = `M${x1},${a.y} H${xm - R} Q${xm},${a.y} ${xm},${a.y + dir * R} V${b.y - dir * R} Q${xm},${b.y} ${xm + R},${b.y} H${x2}`;
+                        }
+                    } else {
+                        const y1 = a.y + a.r + GAP, y2 = b.y - b.r - GAP;
+                        if (Math.abs(a.x - b.x) < 1) {
+                            d = `M${a.x},${y1} V${y2}`;
+                        } else {
+                            // Hand-off between lanes: a short drop, across, then a straight drop into the next step
+                            // so the arrowhead sits on a vertical line
+                            const rr = 6, dir = b.x > a.x ? 1 : -1;
+                            const ym = y1 + rr + 2;
+                            d = `M${a.x},${y1} V${ym - rr} Q${a.x},${ym} ${a.x + dir * rr},${ym} H${b.x - dir * rr} Q${b.x},${ym} ${b.x},${ym + rr} V${y2}`;
+                        }
+                    }
+                    links.push({ d, i });
                 }
-                prevRevealedRef.current = maxRevealedIdx;
-            }, [maxRevealedIdx]);
-
-            useEffect(() => {
-                if (enterIdx === null) return undefined;
-                const timer = setTimeout(() => setEnterIdx(null), OR_NODE_ANIM_MS);
-                return () => clearTimeout(timer);
-            }, [enterIdx]);
-
-            useEffect(() => {
-                if (skipNextActiveAnimRef.current) {
-                    skipNextActiveAnimRef.current = false;
-                    prevActiveAnimRef.current = activeIdx;
-                    return undefined;
+                const first = n[0], last = n[n.length - 1];
+                if (!vertical) {
+                    // Back from the last step to the first, over the top of the customer lane
+                    const top = Math.min(...n.map(p => p.y - p.r)) - 22;
+                    loop = {
+                        d: `M${last.x},${last.y - last.r - GAP} V${top + R} Q${last.x},${top} ${last.x - R},${top} H${first.x + R} Q${first.x},${top} ${first.x},${top + R} V${first.y - first.r - GAP}`,
+                        labelX: (first.x + last.x) / 2,
+                        labelY: top - 6,
+                    };
+                } else {
+                    // Back up the left edge, from the last step to the first
+                    const left = Math.min(...n.map(p => p.x - p.r)) - 18;
+                    loop = {
+                        d: `M${last.x - last.r - GAP},${last.y} H${left + R} Q${left},${last.y} ${left},${last.y - R} V${first.y + R} Q${left},${first.y} ${left + R},${first.y} H${first.x - first.r - GAP}`,
+                        labelX: left - 5,
+                        labelY: (first.y + last.y) / 2,
+                        rotate: true,
+                    };
                 }
-                const prev = prevActiveAnimRef.current;
-                if (prev === activeIdx) return undefined;
-                const nextKey = Date.now();
-                setPopIdx(activeIdx);
-                setTravel({ fromIdx: prev, toIdx: activeIdx, key: nextKey });
-                const lastIdx = steps.length - 1;
-                if (activeIdx === lastIdx && prev === lastIdx - 1) {
-                    setClosePhase('to-deployment');
-                }
-                prevActiveAnimRef.current = activeIdx;
-                return undefined;
-            }, [activeIdx, steps.length]);
-
-            useEffect(() => {
-                if (popIdx === null) return undefined;
-                const timer = setTimeout(() => setPopIdx(null), OR_NODE_ANIM_MS);
-                return () => clearTimeout(timer);
-            }, [popIdx]);
-
-            useEffect(() => {
-                if (!travel) return undefined;
-                const timer = setTimeout(() => setTravel(null), OR_TRAVEL_MS);
-                return () => clearTimeout(timer);
-            }, [travel]);
-
-            useEffect(() => {
-                if (closePhase !== 'to-deployment') return undefined;
-                const timer = setTimeout(() => {
-                    skipNextActiveAnimRef.current = true;
-                    setActiveIdx(0);
-                    activeIdxRef.current = 0;
-                    prevActiveAnimRef.current = 0;
-                    setPopIdx(0);
-                    setClosePhase('to-problem');
-                }, OR_STEP_DWELL_MS);
-                return () => clearTimeout(timer);
-            }, [closePhase]);
-
-            useEffect(() => {
-                if (closePhase !== 'to-problem') return undefined;
-                const timer = setTimeout(() => {
-                    resetCycle();
-                }, OR_STEP_DWELL_MS);
-                return () => clearTimeout(timer);
-            }, [closePhase, resetCycle]);
-
-            useEffect(() => {
-                if (!started || !steps.length || closePhase) return undefined;
-                const lastIdx = steps.length - 1;
-                if (activeIdxRef.current >= lastIdx) return undefined;
-                const timer = setInterval(advanceCycle, OR_STEP_DWELL_MS);
-                return () => clearInterval(timer);
-            }, [started, steps.length, advanceCycle, closePhase, activeIdx]);
+            }
 
             const activeStep = steps[activeIdx];
-            const ActiveIcon = OR_PROCESS_ICONS[activeStep.id] || BoxIcon;
-            const [worldDividerA, worldDividerB] = orWorldDividerEndpoints();
+            const pad2 = (v) => String(v).padStart(2, '0');
 
             return (
                 <section
                     ref={sectionRef}
-                    className="relative rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-gradient-to-b from-white/55 via-white/35 to-white/20 dark:from-slate-900/55 dark:via-slate-900/35 dark:to-slate-900/20 backdrop-blur-xl shadow-sm mb-16 md:mb-20"
+                    className="relative overflow-hidden rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white/45 dark:bg-slate-900/35 backdrop-blur-sm mb-16 md:mb-20"
                     aria-label={ui.or_process_title}
                 >
-                    <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-2xl">
-                        <div className="absolute -top-12 left-1/4 w-72 h-36 bg-brand-gold/6 rounded-full blur-3xl" />
-                        <div className="absolute bottom-0 right-1/4 w-64 h-32 bg-sky-500/5 rounded-full blur-3xl" />
+                    <div className="px-3 sm:px-5 md:px-6 pt-4 md:pt-6 pb-5 md:pb-7">
+                        <div ref={trackRef} className="or2-track">
+                            {geom && (
+                                <svg className="or2-links" viewBox={`0 0 ${geom.w} ${geom.h}`} width={geom.w} height={geom.h} aria-hidden="true">
+                                    <defs>
+                                        <marker id="or2-head-done" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L8,4 L0,8 z" className="or2-head or2-head--done" /></marker>
+                                        <marker id="or2-head-todo" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L8,4 L0,8 z" className="or2-head" /></marker>
+                                    </defs>
+                                    {loop && (
+                                        <g className={`or2-loop${activeIdx === steps.length - 1 ? ' is-next' : ''}`}>
+                                            <path d={loop.d} markerEnd={`url(#or2-head-${activeIdx === steps.length - 1 ? 'done' : 'todo'})`} />
+                                            <text x={loop.labelX} y={loop.labelY} textAnchor="middle" transform={loop.rotate ? `rotate(-90 ${loop.labelX} ${loop.labelY})` : undefined}>↻ {ui.or_process_loop_label}</text>
+                                        </g>
+                                    )}
+                                    {links.map(({ d, i }) => {
+                                        const state = i < activeIdx ? 'is-done' : i === activeIdx ? 'is-next' : '';
+                                        return <path key={i} d={d} className={`or2-link ${state}`} markerEnd={`url(#or2-head-${i < activeIdx ? 'done' : 'todo'})`} />;
+                                    })}
+                                </svg>
+                            )}
+                            {lanes.map(lane => (
+                                <div key={lane.id} className={`or2-lane or2-lane--${lane.id}`}>
+                                    <span className="or2-lane-label">{lane.label}</span>
+                                    <div className="or2-lane-grid grid grid-cols-8">
+                                        {steps.map((step, i) => {
+                                            const handoff = i > 0 && laneOf(step) !== laneOf(steps[i - 1]) ? ' or2-slot--handoff' : '';
+                                            if (laneOf(step) !== lane.id) return <span key={step.id} className={`or2-slot${handoff}`} aria-hidden="true"></span>;
+                                            const Icon = OR_PROCESS_ICONS[step.id] || BoxIcon;
+                                            const state = i === activeIdx ? 'is-active' : i < activeIdx ? 'is-done' : '';
+                                            return (
+                                                <button
+                                                    key={step.id}
+                                                    type="button"
+                                                    onClick={() => selectStep(i)}
+                                                    aria-pressed={i === activeIdx}
+                                                    aria-label={`${pad2(i + 1)} ${step.label}`}
+                                                    className={`or2-slot or2-node ${state}${handoff}`}
+                                                >
+                                                    <span ref={el => { iconRefs.current[i] = el; }} className="or2-node-icon">
+                                                        <Icon />
+                                                        <b className="or2-node-num">{i + 1}</b>
+                                                    </span>
+                                                    <span className="or2-node-label">{step.label}</span>
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     </div>
 
-                    <div className="w-full px-4 sm:px-5 md:px-6 py-5 md:py-6 relative">
-                        <div className="grid lg:grid-cols-[1fr_1fr] gap-8 md:gap-10 items-center">
-                            <div className="or-cycle-stage select-none">
-                                <svg className="or-cycle-svg" viewBox={`0 0 ${OR_CYCLE_CFG.vb} ${OR_CYCLE_CFG.vb}`} aria-hidden="true">
-                                    <defs>
-                                        <linearGradient id="or-gold-grad" x1="0%" y1="0%" x2="100%" y2="0%">
-                                            <stop offset="0%" stopColor="#f59e0b" />
-                                            <stop offset="100%" stopColor="#d97706" />
-                                        </linearGradient>
-                                    </defs>
-                                    <circle className="or-cycle-track" cx={OR_CYCLE_CFG.cx} cy={OR_CYCLE_CFG.cy} r={OR_CYCLE_CFG.r} />
-                                    {OR_PROCESS_ANGLES.map((fromAngle, i) => {
-                                        const toAngle = OR_PROCESS_ANGLES[(i + 1) % OR_PROCESS_ANGLES.length];
-                                        const lastSegIdx = steps.length - 1;
-                                        const visible = orSegmentVisible(i, maxRevealedIdx, steps.length);
-                                        let isActive = visible && orSegmentIsActive(i, activeIdx, steps.length);
-                                        let isPast = visible && !isActive;
-                                        if (closePhase === 'to-deployment' && i === lastSegIdx) {
-                                            isActive = false;
-                                            isPast = false;
-                                        }
-                                        return (
-                                            <path
-                                                key={`seg-${i}`}
-                                                className={`or-cycle-segment ${visible ? '' : 'or-cycle-segment-hidden'} ${isActive ? 'or-cycle-segment-active' : isPast ? 'or-cycle-segment-past' : 'or-cycle-segment-idle'}`}
-                                                d={orCycleArcPath(fromAngle, toAngle)}
-                                            />
-                                        );
-                                    })}
-                                    {OR_PROCESS_ANGLES.map((angle, i) => {
-                                        const pt = orCyclePoint(angle);
-                                        const visible = i <= maxRevealedIdx;
-                                        const isActive = activeIdx === i;
-                                        const isLit = visible && !isActive;
-                                        return (
-                                            <circle
-                                                key={`dot-${i}`}
-                                                className={`or-cycle-node-dot ${visible ? '' : 'or-cycle-node-dot-hidden'} ${isActive ? 'or-cycle-node-dot-active' : isLit ? 'or-cycle-node-dot-past' : ''}`}
-                                                cx={pt.x}
-                                                cy={pt.y}
-                                                r={isActive ? 5 : isLit ? 4 : 3.5}
-                                            />
-                                        );
-                                    })}
-                                    <line
-                                        className="or-world-split"
-                                        x1={worldDividerA.x}
-                                        y1={worldDividerA.y}
-                                        x2={worldDividerB.x}
-                                        y2={worldDividerB.y}
-                                    />
-                                    <text className="or-world-label" x={orWorldLabelPos('model').x} y={orWorldLabelPos('model').y} textAnchor="middle" dominantBaseline="middle">{ui.or_process_model_world}</text>
-                                    <text className="or-world-label" x={orWorldLabelPos('real').x} y={orWorldLabelPos('real').y} textAnchor="middle" dominantBaseline="middle">{ui.or_process_real_world}</text>
-                                    {travel && travel.fromIdx !== travel.toIdx && (
-                                        <circle key={travel.key} className="or-cycle-travel-dot" r="5" fill="#f59e0b">
-                                            <animateMotion
-                                                dur={`${OR_TRAVEL_MS}ms`}
-                                                fill="freeze"
-                                                calcMode="spline"
-                                                keyTimes="0;1"
-                                                keySplines="0.16 1 0.3 1"
-                                                path={orCycleArcPath(OR_PROCESS_ANGLES[travel.fromIdx], OR_PROCESS_ANGLES[travel.toIdx])}
-                                            />
-                                        </circle>
-                                    )}
-                                </svg>
-                                {steps.map((step, i) => (
-                                    <OrProcessNode
-                                        key={step.id}
-                                        step={step}
-                                        isActive={activeIdx === i && !(closePhase === 'to-deployment' && i === 0)}
-                                        isLit={i <= maxRevealedIdx}
-                                        isVisible={i <= maxRevealedIdx}
-                                        isEntering={enterIdx === i}
-                                        isPopping={popIdx === i && !(closePhase === 'to-deployment' && i === 0)}
-                                        pos={orCycleNodePos(OR_PROCESS_ANGLES[i])}
-                                        onSelect={() => selectStep(i)}
-                                    />
-                                ))}
-                            </div>
-
-                            <div className="rounded-xl border border-slate-200/70 dark:border-slate-800/80 bg-white/55 dark:bg-slate-900/45 backdrop-blur-sm p-5 md:p-6">
-                                <div className="flex items-center justify-between gap-3 mb-4">
-                                    <span className="text-[10px] font-mono font-bold text-slate-400">{String(activeIdx + 1).padStart(2, '0')} / {String(steps.length).padStart(2, '0')}</span>
-                                    <span className={`text-[9px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border ${OR_PROCESS_MODEL_IDS.has(activeStep.id) ? 'text-brand-gold bg-brand-gold/10 border-brand-gold/25' : 'text-slate-500 bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700'}`}>
-                                        {OR_PROCESS_MODEL_IDS.has(activeStep.id) ? ui.or_process_model_world : ui.or_process_real_world}
-                                    </span>
-                                </div>
-                                <div className="flex items-center gap-3 mb-3">
-                                    <div className="or-detail-icon" aria-hidden="true">
-                                        <ActiveIcon />
-                                    </div>
-                                    <h3 className="text-lg md:text-xl font-bold text-brand-gold capitalize">{activeStep.label}</h3>
-                                </div>
-                                <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed mb-5">{activeStep.desc}</p>
-                                <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">{ui.or_process_loop_label}</p>
-                                <div className="flex flex-wrap gap-3 mt-3">
-                                    {steps.map((step, i) => (
-                                        <button
-                                            key={step.id}
-                                            type="button"
-                                            onClick={() => selectStep(i)}
-                                            className={`lp3-dot h-1.5 rounded-full transition-all duration-500 ${activeIdx === i ? 'w-6 bg-brand-gold' : i <= maxRevealedIdx ? 'w-2 bg-brand-gold/45' : 'w-1.5 bg-slate-300 dark:bg-slate-700 hover:bg-brand-gold/40'}`}
-                                            aria-label={step.label}
+                    <div className="sc2-panel">
+                        {playing && started && <span key={`${activeIdx}-${cycle}`} className="sc2-timer" style={{ animationDuration: `${OR_STEP_MS}ms` }} aria-hidden="true"></span>}
+                        <div className="sc2-col">
+                            <p className="sc2-kicker">
+                                <span>{ui.or_process_step}</span>
+                                <b>{pad2(activeIdx + 1)}</b>
+                                <span>/ {pad2(steps.length)}</span>
+                                <span className="ml-auto flex items-center gap-1" aria-hidden="true">
+                                    {steps.map((_, idx) => (
+                                        <span
+                                            key={idx}
+                                            className={`h-1.5 rounded-full transition-all duration-500 ${idx === activeIdx ? 'w-5 bg-brand-gold' : idx < activeIdx ? 'w-1.5 bg-brand-gold/40' : 'w-1.5 bg-slate-300 dark:bg-slate-700'}`}
                                         />
                                     ))}
-                                </div>
-                                <p className="text-[10px] font-mono uppercase tracking-wider text-slate-400 dark:text-slate-500 mt-4">{ui.or_process_tap_hint}</p>
+                                </span>
+                                <button
+                                    type="button"
+                                    onClick={() => { setPlaying(on => !on); setCycle(c => c + 1); }}
+                                    aria-pressed={playing}
+                                    aria-label={playing ? ui.proof_autoplay_pause : ui.proof_autoplay_play}
+                                    title={playing ? ui.proof_autoplay_pause : ui.proof_autoplay_play}
+                                    className="sc2-play ml-2"
+                                >
+                                    {playing
+                                        ? <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1"></rect><rect x="14" y="5" width="4" height="14" rx="1"></rect></svg>
+                                        : <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"></path></svg>}
+                                </button>
+                            </p>
+                            <div className="sc2-stack mt-3">
+                                {steps.map((step, idx) => {
+                                    const Icon = OR_PROCESS_ICONS[step.id] || BoxIcon;
+                                    const lane = laneOf(step);
+                                    return (
+                                        <div key={step.id} className={`sc2-layer flex items-start gap-3.5 md:gap-4${idx === activeIdx ? '' : ' is-off'}`} aria-hidden={idx !== activeIdx}>
+                                            <span className={`or2-detail-icon or2-detail-icon--${lane}`}><Icon /></span>
+                                            <div className="min-w-0">
+                                                <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
+                                                    <h3 className="text-lg md:text-xl font-black tracking-tight text-slate-900 dark:text-white">{step.label}</h3>
+                                                    <span className={`or2-lane-chip or2-lane-chip--${lane}`}>{lane === 'operartis' ? ui.or_process_model_world : ui.or_process_real_world}</span>
+                                                </div>
+                                                <p className="mt-1.5 text-sm md:text-[15px] leading-relaxed text-slate-600 dark:text-slate-300 max-w-3xl">{step.desc}</p>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
                             </div>
                         </div>
                     </div>
@@ -10925,31 +11152,56 @@
             const [activeIdx, setActiveIdx] = useState(2);
             const [prescriptiveMode, setPrescriptiveMode] = useState('support');
             const chartRef = useRef(null);
-            const descriptiveBarRef = useRef(null);
-            const prescriptiveBarRef = useRef(null);
             const [arrowLine, setArrowLine] = useState(null);
 
             const updateMaturityArrow = useCallback(() => {
                 const chart = chartRef.current;
-                const tailBar = descriptiveBarRef.current;
-                const headBar = prescriptiveBarRef.current;
-                if (!chart || !tailBar || !headBar) return;
-
+                if (!chart) return;
                 const chartRect = chart.getBoundingClientRect();
-                const tailRect = tailBar.getBoundingClientRect();
-                const headRect = headBar.getBoundingClientRect();
                 if (!chartRect.width || !chartRect.height) return;
 
-                const x1 = tailRect.right - chartRect.left;
-                const y1 = tailRect.top - chartRect.top;
-                const x2 = headRect.left - chartRect.left;
-                const y2 = headRect.top - chartRect.top;
+                // Column tops from layout (bottom of the column's slot minus its height), so a hover lift doesn't move the arrow
+                const bars = [...chart.querySelectorAll('.aa2-bar')].map((bar) => {
+                    const slot = bar.parentElement.getBoundingClientRect();
+                    return {
+                        left: slot.left - chartRect.left,
+                        right: slot.right - chartRect.left,
+                        top: slot.bottom - chartRect.top - bar.offsetHeight,
+                    };
+                });
+                if (bars.length < 2 || bars.some(bar => !(bar.right > bar.left))) return;
+
+                // The arrow runs over the column tops, from above the first column's centre to the last column's
+                // top-left corner (pointing at it, and clear of the zone label above that column).
+                // Among the straight lines that clear every column corner by CLEAR px, take the one that hugs the
+                // columns most closely (smallest total gap above the column centres).
+                const CLEAR = 12;
+                const first = bars[0], last = bars[bars.length - 1];
+                const x1 = (first.left + first.right) / 2;
+                const x2 = last.left;
+                const corners = [];
+                bars.forEach((bar) => {
+                    [bar.left, bar.right, (bar.left + bar.right) / 2].forEach((x) => {
+                        if (x >= x1 && x <= x2) corners.push([x, bar.top - CLEAR]);
+                    });
+                });
+                const centres = bars.map(bar => [(bar.left + bar.right) / 2, bar.top - CLEAR]);
+                let best = null;
+                for (let k = 0; k <= 240; k++) {
+                    const m = -2 + (k / 240) * 2;                      // slopes from steep rise to flat
+                    const c = Math.min(...corners.map(([x, y]) => y - m * x));
+                    const gap = centres.reduce((sum, [x, y]) => sum + (y - (m * x + c)), 0);
+                    if (!best || gap < best.gap) best = { m, c, gap };
+                }
+                const y1 = best.m * x1 + best.c;
+                const y2 = best.m * x2 + best.c;
+                if (!(x2 > x1) || !Number.isFinite(y1) || !Number.isFinite(y2)) return;   // columns not laid out yet
 
                 // Pixel coordinates: the SVG is drawn 1:1, so the arrowhead keeps its shape at any chart size
                 const len = Math.hypot(x2 - x1, y2 - y1) || 1;
                 const ux = (x2 - x1) / len, uy = (y2 - y1) / len;
-                const HEAD = 13, HALF = 5.5, GAP = 3;
-                const tipX = x2 - ux * GAP, tipY = y2 - uy * GAP;         // stop just short of the last bar
+                const HEAD = 13, HALF = 5.5;
+                const tipX = x2, tipY = y2;
                 const baseX = tipX - ux * HEAD, baseY = tipY - uy * HEAD;
                 setArrowLine({
                     w: chartRect.width,
@@ -11030,7 +11282,6 @@
                                                         >
                                                             <span className="flex flex-1 w-full min-h-0 items-end">
                                                                 <span
-                                                                    ref={i === 0 ? descriptiveBarRef : i === 3 ? prescriptiveBarRef : null}
                                                                     className={`aa-bar aa2-bar block w-full rounded-t-lg ${meta.barFlat}`}
                                                                     style={{ height: `${meta.barH}%` }}
                                                                 >
