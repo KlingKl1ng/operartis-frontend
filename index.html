@@ -6070,6 +6070,95 @@
             .lp3-ptn:not(.is-visible) .lp3-ptn-tile { opacity: 1; }
         }
 
+        /* ---- Q&A accordion: same card surface as the integration and partner tiles ---- */
+        .lp3-faq-item {
+            border-radius: 1rem;
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            background: linear-gradient(180deg, #ffffff, #f8fafc);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 14px 30px -24px rgba(15, 23, 42, 0.3);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .lp3-faq-item:hover { border-color: rgba(245, 158, 11, 0.35); }
+        .lp3-faq-item.is-open {
+            border-color: rgba(245, 158, 11, 0.5);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 22px 40px -26px rgba(180, 83, 9, 0.35);
+        }
+        .lp3-faq-q {
+            display: flex;
+            width: 100%;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 1.1rem 1.25rem;
+            text-align: left;
+            font-size: 1rem;
+            font-weight: 600;
+            line-height: 1.4;
+            color: #0f172a;
+            border-radius: 1rem;
+        }
+        .lp3-faq-q:focus-visible { outline: 2px solid #f59e0b; outline-offset: 2px; }
+        .lp3-faq-icon {
+            position: relative;
+            flex: 0 0 1.75rem;
+            height: 1.75rem;
+            border-radius: 999px;
+            background: rgba(245, 158, 11, 0.12);
+            transition: transform 0.3s ease, background-color 0.3s ease;
+        }
+        .lp3-faq-icon::before,
+        .lp3-faq-icon::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 0.7rem;
+            height: 2px;
+            border-radius: 2px;
+            background: #d97706;
+            transform: translate(-50%, -50%);
+            transition: background-color 0.3s ease;
+        }
+        .lp3-faq-icon::after { transform: translate(-50%, -50%) rotate(90deg); }
+        .lp3-faq-item.is-open .lp3-faq-icon { transform: rotate(45deg); background: #f59e0b; }
+        .lp3-faq-item.is-open .lp3-faq-icon::before,
+        .lp3-faq-item.is-open .lp3-faq-icon::after { background: #fff; }
+        /* Height animates through the grid row (0fr to 1fr), so answers of any length open smoothly */
+        .lp3-faq-a {
+            display: grid;
+            grid-template-rows: 0fr;
+            transition: grid-template-rows 0.35s ease;
+        }
+        .lp3-faq-item.is-open .lp3-faq-a { grid-template-rows: 1fr; }
+        .lp3-faq-a-clip { min-height: 0; overflow: hidden; }
+        .lp3-faq-a-body {
+            padding: 0 1.25rem 1.25rem;
+            font-size: 0.9375rem;
+            line-height: 1.65;
+            color: #475569;
+        }
+        .lp3-faq-link { color: #b45309; }
+        .lp3-faq-link:hover { color: #d97706; }
+        .lp3-faq-link svg { transition: transform 0.2s ease; }
+        .lp3-faq-link:hover svg { transform: translateX(3px); }
+        .dark .lp3-faq-item {
+            border-color: rgba(255, 255, 255, 0.08);
+            background: linear-gradient(180deg, rgba(30, 41, 59, 0.72), rgba(15, 23, 42, 0.72));
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 14px 30px -24px rgba(0, 0, 0, 0.8);
+        }
+        .dark .lp3-faq-item:hover { border-color: rgba(245, 158, 11, 0.3); }
+        .dark .lp3-faq-item.is-open { border-color: rgba(245, 158, 11, 0.45); }
+        .dark .lp3-faq-q { color: #f1f5f9; }
+        .dark .lp3-faq-a-body { color: #cbd5e1; }
+        .dark .lp3-faq-link { color: #fbbf24; }
+        @media (min-width: 768px) {
+            .lp3-faq-q { padding: 1.25rem 1.5rem; font-size: 1.0625rem; }
+            .lp3-faq-a-body { padding: 0 1.5rem 1.4rem; font-size: 1rem; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .lp3-faq-a, .lp3-faq-icon { transition: none; }
+        }
+
         /* ---- Integrations wall: logo tiles framing the heading (9 x 5 on desktop, a wrapped list below) ---- */
         .lp3-int-grid {
             display: flex;
@@ -6499,7 +6588,8 @@
         const WHY_APS_NAV_IDS = ['proof-foundation', 'industry-40', 'analytics', 'why-aps-top'];
         // Nav ids that mean "the top of that page": linked without a hash from the other pages
         const PAGE_TOP_NAV_IDS = ['matrix-fit', 'why-aps-top'];
-        const HOME_NAV_IDS = ['supply-chain', 'or-process', 'platform-overview'];
+        // Home sections that scroll in place (partners, integrations and Q&A included, or they would fall through to the platform page)
+        const HOME_NAV_IDS = ['supply-chain', 'or-process', 'platform-overview', 'partners', 'integrations', 'faq'];
         // Everything else in the menu (the planning horizons, the matrix itself) lives on the platform page
         const navPageOf = (navId) => (
             WHY_APS_NAV_IDS.includes(navId) ? 'why-aps' : HOME_NAV_IDS.includes(navId) ? 'home' : 'platform'
@@ -6611,7 +6701,7 @@
         };
 
         const getNavTargetId = (navId) => {
-            if (['proof-foundation', 'supply-chain', 'industry-40', 'analytics', 'or-process', 'matrix-fit', 'platform-overview', 'why-aps-top'].includes(navId)) return navId;
+            if (WHY_APS_NAV_IDS.includes(navId) || HOME_NAV_IDS.includes(navId) || navId === 'matrix-fit') return navId;
             return `horizon-${navId}`;
         };
 
@@ -6811,6 +6901,20 @@
                     ptn_beauty: "Beauty",
                     ptn_haircare: "Hair care",
                     ptn_research: "University research",
+                    faq_eyebrow: "Q&A",
+                    faq_title: "Frequently asked questions",
+                    faq_desc: "The questions planning teams ask us most before they start.",
+                    faq_integrations_link: "See all integrations",
+                    faq_items: [
+                        { q: "Do we have to replace our ERP or MES?", a: "No. Operartis works on top of the systems you already run. It takes data from your ERP, MES and spreadsheets, computes the plans and hands the results back, while your existing systems remain the system of record." },
+                        { q: "Which systems can Operartis connect to?", a: "ERP systems such as SAP, Microsoft Dynamics 365, Oracle and Odoo, as well as Excel files, emails and PDF or XML documents. If your system is not on the list, we confirm the connection during the evaluation.", link: 'integrations' },
+                        { q: "What data do we need to get started?", a: "Usually data you already have: sales history for demand forecasts, stock levels and lead times for inventory, customer locations and vehicles for route planning. You can start with an Excel export in our template format, before any system integration." },
+                        { q: "How quickly will we see first results?", a: "With the ready-made modules, you upload your data and get forecasts, inventory policies or routes in the same session. For a tailored APS solution, we start with a working prototype that your planners can test, and agree on the timeline with you once the problem is scoped." },
+                        { q: "Where is our data stored, and who can access it?", a: "On servers in Germany. Connections are encrypted, passwords are stored hashed, and access is role-based and separated by organization. You can delete uploaded planning data and results at any time. Your operational data stays yours.", link: 'privacy' },
+                        { q: "Do we need our own data scientists or optimization experts?", a: "No. The modules are built for planners: you work with forecasts, plans and scenarios, while the mathematical models run in the background. In tailored projects, our operations research team builds and validates the model together with your team." },
+                        { q: "Can we see a demo before we decide?", a: "Yes. Request a demo or book a consulting appointment, in Vietnamese, English or German. In tailored projects, the prototype phase lets you test the solution on your own data before the full rollout.", link: 'contact' },
+                        { q: "How is Operartis priced?", a: "Pricing depends on the modules you use and the scope of the project. Tell us about your planning challenge, and we will send you an offer that fits it." },
+                    ],
                     int_eyebrow: "Integrations",
                     int_title_a: "Works with the systems",
                     int_title_b: "you already run.",
@@ -6868,7 +6972,7 @@
                     ],
                     proof_eyebrow: "Mathematical foundation",
                     proof_title: "Optimization with proof.",
-                    proof_body: "Operartis is an optimization system built from data-driven mathematical models. It helps managers make better decisions. The results are (near)optimal solutions under given constraints that can be proven.",
+                    proof_body: "Operartis is an optimization system built from data-driven mathematical models. It helps managers make better decisions.",
                     proof_pillars: [
                         { label: "Models from data", text: "Recommendations rest on quantitative models grounded in operational data — not intuition alone." },
                         { label: "Decision support", text: "Built to help managers act under real constraints: capacity, cost, service, and time." },
@@ -7235,6 +7339,20 @@
                     ptn_beauty: "Làm đẹp",
                     ptn_haircare: "Chăm sóc tóc",
                     ptn_research: "Nghiên cứu đại học",
+                    faq_eyebrow: "Hỏi & Đáp",
+                    faq_title: "Câu hỏi thường gặp",
+                    faq_desc: "Những câu hỏi các đội ngũ kế hoạch thường đặt ra trước khi bắt đầu.",
+                    faq_integrations_link: "Xem tất cả tích hợp",
+                    faq_items: [
+                        { q: "Chúng tôi có phải thay thế hệ thống ERP hoặc MES không?", a: "Không. Operartis hoạt động trên nền các hệ thống bạn đang sử dụng. Operartis lấy dữ liệu từ ERP, MES và bảng tính của bạn, tính toán kế hoạch rồi trả kết quả về, trong khi các hệ thống hiện có vẫn là nguồn dữ liệu gốc." },
+                        { q: "Operartis có thể kết nối với những hệ thống nào?", a: "Các hệ thống ERP như SAP, Microsoft Dynamics 365, Oracle và Odoo, cùng với tệp Excel, email và tài liệu PDF hoặc XML. Nếu hệ thống của bạn chưa có trong danh sách, chúng tôi xác nhận khả năng kết nối trong giai đoạn đánh giá.", link: 'integrations' },
+                        { q: "Chúng tôi cần những dữ liệu gì để bắt đầu?", a: "Thường là những dữ liệu bạn đã có: lịch sử bán hàng cho dự báo nhu cầu, mức tồn kho và thời gian chờ hàng cho tối ưu tồn kho, vị trí khách hàng và đội xe cho định tuyến. Bạn có thể bắt đầu bằng một tệp Excel theo mẫu của chúng tôi, trước khi tích hợp hệ thống." },
+                        { q: "Khi nào chúng tôi thấy kết quả đầu tiên?", a: "Với các mô-đun có sẵn, bạn tải dữ liệu lên và nhận dự báo, chính sách tồn kho hoặc lộ trình ngay trong cùng phiên làm việc. Với giải pháp APS thiết kế riêng, chúng tôi bắt đầu bằng một bản mẫu chạy được để đội ngũ kế hoạch của bạn thử nghiệm, và thống nhất tiến độ với bạn sau khi xác định rõ bài toán." },
+                        { q: "Dữ liệu của chúng tôi được lưu ở đâu và ai có quyền truy cập?", a: "Trên máy chủ đặt tại Đức. Kết nối được mã hóa, mật khẩu được lưu dưới dạng băm, quyền truy cập được phân theo vai trò và tách biệt theo từng tổ chức. Bạn có thể xóa dữ liệu kế hoạch và kết quả đã tải lên bất cứ lúc nào. Dữ liệu vận hành của bạn luôn thuộc về bạn.", link: 'privacy' },
+                        { q: "Chúng tôi có cần chuyên gia dữ liệu hoặc chuyên gia tối ưu riêng không?", a: "Không. Các mô-đun được thiết kế cho người lập kế hoạch: bạn làm việc với dự báo, kế hoạch và kịch bản, còn các mô hình toán học chạy ở phía sau. Trong các dự án thiết kế riêng, đội ngũ vận trù học của chúng tôi xây dựng và kiểm chứng mô hình cùng đội ngũ của bạn." },
+                        { q: "Chúng tôi có thể xem demo trước khi quyết định không?", a: "Có. Bạn có thể đăng ký demo hoặc đặt lịch tư vấn bằng tiếng Việt, tiếng Anh hoặc tiếng Đức. Với dự án thiết kế riêng, giai đoạn bản mẫu cho phép bạn thử nghiệm giải pháp trên dữ liệu của chính mình trước khi triển khai toàn bộ.", link: 'contact' },
+                        { q: "Chi phí sử dụng Operartis được tính như thế nào?", a: "Chi phí phụ thuộc vào các mô-đun bạn sử dụng và phạm vi dự án. Hãy chia sẻ bài toán kế hoạch của bạn, chúng tôi sẽ gửi báo giá phù hợp." },
+                    ],
                     int_eyebrow: "Tích hợp",
                     int_title_a: "Hoạt động cùng các hệ thống",
                     int_title_b: "bạn đang sử dụng.",
@@ -7292,7 +7410,7 @@
                     ],
                     proof_eyebrow: "Nền tảng toán học",
                     proof_title: "Tối ưu hoá có thể chứng minh",
-                    proof_body: "Operartis là hệ thống tối ưu hoá xây dựng từ các mô hình toán học dựa trên dữ liệu. Hệ thống hỗ trợ nhà quản lý ra quyết định tốt hơn. Kết quả là các lời giải (cận) tối ưu dưới các điều kiện ràng buộc cho trước có thể chứng minh được.",
+                    proof_body: "Operartis là hệ thống tối ưu hoá xây dựng từ các mô hình toán học dựa trên dữ liệu. Hệ thống hỗ trợ nhà quản lý ra quyết định tốt hơn.",
                     proof_pillars: [
                         { label: "Mô hình từ dữ liệu", text: "Mọi đề xuất dựa trên mô hình định lượng gắn với dữ liệu vận hành — không chỉ dựa vào trực giác." },
                         { label: "Hỗ trợ quyết định", text: "Được thiết kế để giúp nhà quản lý ra quyết định hành động tối ưu nhất có thể dưới các điều kiện ràng buộc thực tế: nguồn lực, chi phí, dịch vụ và thời gian." },
@@ -7659,6 +7777,20 @@
                     ptn_beauty: "Kosmetik",
                     ptn_haircare: "Haarpflege",
                     ptn_research: "Universitäre Forschung",
+                    faq_eyebrow: "Fragen & Antworten",
+                    faq_title: "Häufige Fragen",
+                    faq_desc: "Die Fragen, die Planungsteams uns vor dem Start am häufigsten stellen.",
+                    faq_integrations_link: "Alle Integrationen ansehen",
+                    faq_items: [
+                        { q: "Müssen wir unser ERP- oder MES-System ersetzen?", a: "Nein. Operartis setzt auf den Systemen auf, die Sie bereits nutzen. Es übernimmt Daten aus ERP, MES und Tabellen, berechnet die Pläne und gibt die Ergebnisse zurück. Ihre bestehenden Systeme bleiben das führende System." },
+                        { q: "Mit welchen Systemen kann sich Operartis verbinden?", a: "Mit ERP-Systemen wie SAP, Microsoft Dynamics 365, Oracle und Odoo sowie mit Excel-Dateien, E-Mails und PDF- oder XML-Dokumenten. Ist Ihr System nicht aufgeführt, bestätigen wir die Anbindung während der Evaluierung.", link: 'integrations' },
+                        { q: "Welche Daten brauchen wir für den Start?", a: "Meist Daten, die Sie bereits haben: Absatzhistorie für die Bedarfsprognose, Bestände und Wiederbeschaffungszeiten für die Bestandsoptimierung, Kundenstandorte und Fahrzeuge für die Tourenplanung. Sie können mit einem Excel-Export in unserem Vorlagenformat starten, noch vor jeder Systemanbindung." },
+                        { q: "Wie schnell sehen wir erste Ergebnisse?", a: "Mit den fertigen Modulen laden Sie Ihre Daten hoch und erhalten Prognosen, Bestandsstrategien oder Touren in derselben Sitzung. Bei einer maßgeschneiderten APS-Lösung beginnen wir mit einem funktionsfähigen Prototyp, den Ihre Planer testen können, und stimmen den Zeitplan mit Ihnen ab, sobald die Aufgabenstellung geklärt ist." },
+                        { q: "Wo werden unsere Daten gespeichert, und wer hat Zugriff?", a: "Auf Servern in Deutschland. Verbindungen sind verschlüsselt, Passwörter werden gehasht gespeichert, und der Zugriff ist rollenbasiert und nach Organisation getrennt. Hochgeladene Planungsdaten und Ergebnisse können Sie jederzeit löschen. Ihre Betriebsdaten bleiben Ihre Daten.", link: 'privacy' },
+                        { q: "Brauchen wir eigene Data Scientists oder Optimierungsexperten?", a: "Nein. Die Module sind für Planer gebaut: Sie arbeiten mit Prognosen, Plänen und Szenarien, die mathematischen Modelle laufen im Hintergrund. In maßgeschneiderten Projekten entwickelt und validiert unser Operations-Research-Team das Modell gemeinsam mit Ihrem Team." },
+                        { q: "Können wir vor der Entscheidung eine Demo sehen?", a: "Ja. Fordern Sie eine Demo an oder buchen Sie einen Beratungstermin, auf Vietnamesisch, Englisch oder Deutsch. In maßgeschneiderten Projekten testen Sie die Lösung in der Prototypphase mit Ihren eigenen Daten, bevor sie vollständig eingeführt wird.", link: 'contact' },
+                        { q: "Wie wird Operartis bepreist?", a: "Der Preis hängt von den genutzten Modulen und dem Projektumfang ab. Schildern Sie uns Ihre Planungsaufgabe, und wir senden Ihnen ein passendes Angebot." },
+                    ],
                     int_eyebrow: "Integrationen",
                     int_title_a: "Arbeitet mit den Systemen,",
                     int_title_b: "die Sie bereits nutzen.",
@@ -7716,7 +7848,7 @@
                     ],
                     proof_eyebrow: "Mathematische Grundlage",
                     proof_title: "Optimierung mit Beweis.",
-                    proof_body: "Operartis ist ein Optimierungssystem aus datengestützten mathematischen Modellen. Es unterstützt Führungskräfte bei besseren Entscheidungen. Die Ergebnisse sind (nahezu)optimale Lösungen unter gegebenen Restriktionen, die beweisbar sind.",
+                    proof_body: "Operartis ist ein Optimierungssystem aus datengestützten mathematischen Modellen. Es unterstützt Führungskräfte bei besseren Entscheidungen.",
                     proof_pillars: [
                         { label: "Modelle aus Daten", text: "Empfehlungen beruhen auf quantitativen Modellen aus Betriebsdaten — nicht allein auf Intuition." },
                         { label: "Entscheidungsunterstützung", text: "Gebaut, damit Manager unter realen Restriktionen handeln: Kapazität, Kosten, Service und Zeit." },
@@ -12595,6 +12727,65 @@
 
         // Compact APS matrix for the home page: one card per planning horizon.
         // The full matrix (module tiles, quick views) lives on platform.html.
+        // Q&A before the closing call to action: heading on the left (sticky on desktop), accordion on
+        // the right. One answer is open at a time; the facts in the answers come from the privacy policy and the site copy.
+        const FaqSection = ({ content, onScrollTo }) => {
+            const ui = content.ui;
+            const items = ui.faq_items || [];
+            const [open, setOpen] = useState(0);
+            const linkClass = 'lp3-faq-link mt-3 inline-flex items-center gap-1.5 text-sm font-semibold [&>svg]:h-3.5 [&>svg]:w-3.5';
+            const renderLink = (item, isOpen) => {
+                const tab = isOpen ? undefined : -1;
+                if (item.link === 'integrations') {
+                    return <button type="button" tabIndex={tab} onClick={() => onScrollTo?.('integrations')} className={linkClass}>{ui.faq_integrations_link} <ArrowRightIcon /></button>;
+                }
+                if (item.link === 'privacy') return <a href="./privacy" tabIndex={tab} className={linkClass}>{ui.footer_privacy} <ArrowRightIcon /></a>;
+                if (item.link === 'contact') return <a href="./contact" tabIndex={tab} className={linkClass}>{ui.contact_operartis} <ArrowRightIcon /></a>;
+                return null;
+            };
+            return (
+                <section aria-labelledby="faq-title" className="grid gap-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,8fr)] lg:gap-14">
+                    <div className="lg:sticky lg:top-28 self-start">
+                        <p className="text-[10px] md:text-[11px] font-bold uppercase opus-eyebrow text-brand-gold mb-3 md:mb-4">{ui.faq_eyebrow}</p>
+                        <h2 id="faq-title" className="text-[1.75rem] sm:text-4xl md:text-[2.75rem] font-bold tracking-tight leading-[1.15] md:leading-[1.12] text-slate-900 dark:text-white">{ui.faq_title}</h2>
+                        <p className="mt-4 md:mt-5 text-base md:text-lg leading-relaxed text-slate-500 dark:text-slate-400">{ui.faq_desc}</p>
+                    </div>
+                    <div>
+                        <ul className="space-y-3">
+                            {items.map((item, i) => {
+                                const isOpen = open === i;
+                                return (
+                                    <li key={i} className={`lp3-faq-item ${isOpen ? 'is-open' : ''}`}>
+                                        <h3>
+                                            <button
+                                                type="button"
+                                                id={`faq-q-${i}`}
+                                                aria-expanded={isOpen}
+                                                aria-controls={`faq-a-${i}`}
+                                                onClick={() => setOpen(isOpen ? -1 : i)}
+                                                className="lp3-faq-q"
+                                            >
+                                                <span>{item.q}</span>
+                                                <span className="lp3-faq-icon" aria-hidden="true" />
+                                            </button>
+                                        </h3>
+                                        <div id={`faq-a-${i}`} role="region" aria-labelledby={`faq-q-${i}`} aria-hidden={!isOpen} className="lp3-faq-a">
+                                            <div className="lp3-faq-a-clip">
+                                                <div className="lp3-faq-a-body">
+                                                    <p>{item.a}</p>
+                                                    {item.link && renderLink(item, isOpen)}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                );
+                            })}
+                        </ul>
+                    </div>
+                </section>
+            );
+        };
+
         // Partner tiles under the hero. DHL's four units share one wide tile, so the row is not four near-identical logos.
         // Desktop: DHL and the logistics partners on the first row, industry and research partners on the second.
         const PARTNERS = [
@@ -13755,6 +13946,11 @@
                                     <div id="or-process" className="opus-scroll-target mt-24 md:mt-32">
                                         <Reveal><SectionHeading eyebrow={content.ui.or_process_eyebrow} title={content.ui.or_process_title} desc={content.ui.or_process_subtitle} /></Reveal>
                                         <Reveal delay={100}><OrProcessSection content={content} /></Reveal>
+                                    </div>
+
+                                    {/* Q&A: the last questions before the closing call to action */}
+                                    <div id="faq" className="opus-scroll-target mt-24 md:mt-32">
+                                        <Reveal><FaqSection content={content} onScrollTo={scrollToId} /></Reveal>
                                     </div>
                                 </>
                             )}
