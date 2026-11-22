@@ -5893,6 +5893,198 @@
             }
         }
 
+        /* ---- Origin band: made in Germany, now available in Vietnam. Follows the page theme ---- */
+        .lp3-origin {
+            position: relative;
+            isolation: isolate;
+            overflow: hidden;
+            border-color: rgba(217, 119, 6, 0.38);
+            background:
+                radial-gradient(42% 46% at 15% 38%, rgba(245, 158, 11, 0.16), transparent 64%),
+                radial-gradient(40% 46% at 77% 62%, rgba(245, 158, 11, 0.14), transparent 62%),
+                linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(255, 251, 235, 0.92));
+            box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.1), 0 50px 120px -60px rgba(180, 83, 9, 0.5);
+        }
+
+        .dark .lp3-origin {
+            border-color: rgba(255, 255, 255, 0.1);
+            background:
+                radial-gradient(42% 46% at 15% 38%, rgba(245, 158, 11, 0.16), transparent 64%),
+                radial-gradient(40% 46% at 77% 62%, rgba(245, 158, 11, 0.14), transparent 62%),
+                #020617;
+            box-shadow: 0 30px 80px -40px rgba(2, 6, 23, 0.9), inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+        }
+
+        /* The map is one path of zero-length segments; round caps turn each into a dot */
+        .lp3-origin-dots {
+            fill: none;
+            stroke: rgba(100, 116, 139, 0.34);
+            stroke-width: 5;
+            stroke-linecap: round;
+        }
+
+        .dark .lp3-origin-dots { stroke: rgba(148, 163, 184, 0.3); }
+
+        /* The network: every connection, faint */
+        .lp3-origin-edge {
+            fill: none;
+            stroke: rgba(100, 116, 139, 0.4);
+            stroke-width: 1.5;
+            stroke-linecap: round;
+        }
+
+        .dark .lp3-origin-edge { stroke: rgba(148, 163, 184, 0.3); }
+
+        /* The search: a wave leaves Germany and runs along the connections at constant speed.
+           Delay and duration per connection come from Dijkstra's distances (inline styles). */
+        .lp3-origin-scan {
+            fill: none;
+            stroke: rgba(217, 119, 6, 0.6);
+            stroke-width: 2.25;
+            stroke-linecap: round;
+            stroke-dasharray: 1;
+            stroke-dashoffset: 1;
+        }
+
+        .dark .lp3-origin-scan { stroke: rgba(251, 191, 36, 0.55); }
+
+        /* The result: the shortest path, drawn connection by connection */
+        .lp3-origin-path {
+            fill: none;
+            stroke: url(#lp3-origin-arc-grad);
+            stroke-width: 4.5;
+            stroke-linecap: round;
+            stroke-dasharray: 1;
+            stroke-dashoffset: 1;
+            filter: drop-shadow(0 0 5px rgba(217, 119, 6, 0.35));
+        }
+
+        .dark .lp3-origin-path { filter: drop-shadow(0 0 7px rgba(245, 158, 11, 0.6)); }
+
+        .lp3-origin.is-visible .lp3-origin-scan,
+        .lp3-origin.is-visible .lp3-origin-path {
+            animation-name: lp3-origin-draw;
+            animation-timing-function: linear;
+            animation-fill-mode: forwards;
+        }
+
+        @keyframes lp3-origin-draw { to { stroke-dashoffset: 0; } }
+
+        /* Once the shortest path stands, everything else in the network fades away */
+        .lp3-origin.is-visible .lp3-origin-network {
+            animation: lp3-origin-leave 1.1s ease forwards;
+        }
+
+        @keyframes lp3-origin-leave { to { opacity: 0; } }
+
+        .lp3-origin-stop-edge { stop-color: #d97706; }
+        .lp3-origin-stop-mid { stop-color: #f59e0b; }
+        .dark .lp3-origin-stop-edge { stop-color: #f59e0b; }
+        .dark .lp3-origin-stop-mid { stop-color: #fde68a; }
+
+        /* Hubs: grey until the search reaches them, amber once visited, gold on the shortest path */
+        .lp3-origin-node {
+            fill: #ffffff;
+            stroke: rgba(100, 116, 139, 0.75);
+            stroke-width: 2;
+        }
+
+        .dark .lp3-origin-node { fill: #020617; stroke: rgba(148, 163, 184, 0.6); }
+
+        .lp3-origin.is-visible .lp3-origin-node--visited {
+            animation: lp3-origin-node-visit 0.35s ease forwards;
+        }
+
+        .lp3-origin.is-visible .lp3-origin-node--path {
+            animation: lp3-origin-node-visit 0.35s ease forwards, lp3-origin-node-path 0.4s ease forwards;
+        }
+
+        @keyframes lp3-origin-node-visit { to { stroke: #d97706; } }
+        @keyframes lp3-origin-node-path { to { fill: #f59e0b; stroke: #f59e0b; } }
+
+        .lp3-origin-marker {
+            offset-distance: 0%;
+            opacity: 0;
+            fill: #b45309;
+            filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.85));
+        }
+
+        .dark .lp3-origin-marker {
+            fill: #fef3c7;
+            filter: drop-shadow(0 0 8px rgba(253, 230, 138, 0.95));
+        }
+
+        .lp3-origin.is-visible .lp3-origin-marker {
+            animation: lp3-origin-travel 4.2s linear infinite;
+        }
+
+        @keyframes lp3-origin-travel {
+            0% { offset-distance: 0%; opacity: 0; }
+            6% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { offset-distance: 100%; opacity: 0; }
+        }
+
+        /* Each country: a solid dot inside a thin ring, with a soft pulse leaving the ring */
+        .lp3-origin-ring { fill: rgba(255, 255, 255, 0.94); stroke: #d97706; stroke-width: 2; }
+        .dark .lp3-origin-ring { fill: rgba(2, 6, 23, 0.88); stroke: #fbbf24; }
+
+        .lp3-origin-point { fill: #f59e0b; filter: drop-shadow(0 0 5px rgba(245, 158, 11, 0.55)); }
+        .dark .lp3-origin-point { fill: #fbbf24; filter: drop-shadow(0 0 7px rgba(245, 158, 11, 0.8)); }
+
+        .lp3-origin-pulse {
+            fill: none;
+            stroke: #d97706;
+            stroke-width: 1.5;
+            transform-box: fill-box;
+            transform-origin: center;
+            animation: lp3-origin-pulse 2.8s ease-out infinite;
+        }
+
+        .dark .lp3-origin-pulse { stroke: #fbbf24; }
+
+        .lp3-origin-pulse--late { animation-delay: 1.4s; }
+
+        @keyframes lp3-origin-pulse {
+            from { transform: scale(1); opacity: 0.7; }
+            to { transform: scale(2.4); opacity: 0; }
+        }
+
+        .lp3-origin-place { fill: #b45309; }
+        .dark .lp3-origin-place { fill: #fcd34d; }
+
+        .lp3-origin-card {
+            border: 1px solid rgba(148, 163, 184, 0.32);
+            background: rgba(255, 255, 255, 0.84);
+            box-shadow: 0 14px 34px rgba(15, 23, 42, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+        }
+
+        .lp3-origin-card--new {
+            border-color: rgba(217, 119, 6, 0.48);
+            box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.12), 0 14px 34px rgba(180, 83, 9, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+        }
+
+        .dark .lp3-origin-card {
+            border-color: rgba(255, 255, 255, 0.1);
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.82), rgba(2, 6, 23, 0.78));
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+        }
+
+        .dark .lp3-origin-card--new {
+            border-color: rgba(245, 158, 11, 0.38);
+            box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .lp3-origin .lp3-origin-scan,
+            .lp3-origin .lp3-origin-path { animation: none; stroke-dashoffset: 0; }
+            .lp3-origin .lp3-origin-node--visited { animation: none; stroke: #d97706; }
+            .lp3-origin .lp3-origin-node--path { animation: none; fill: #f59e0b; stroke: #f59e0b; }
+            .lp3-origin .lp3-origin-marker { animation: none; opacity: 0; }
+            .lp3-origin .lp3-origin-pulse { animation: none; opacity: 0; }
+            .lp3-origin .lp3-origin-network { animation: none; opacity: 0; }
+        }
+
         /* Closing CTA — always-dark band over the night earth */
         .lp3-cta {
             position: relative;
@@ -6434,6 +6626,25 @@
                     whyaps_desc: "Where ERP and MES stop, how analytics grows from describing to deciding, and why the results of optimization can be proven.",
                     whyaps_teaser_body: "ERP and MES record and execute. They do not decide. Read where they stop, how analytics grows from describing to deciding, and why the results of optimization can be proven.",
                     whyaps_teaser_cta: "Read the background",
+                    origin_eyebrow: "German engineering",
+                    origin_title_b: "Now available in Vietnam.",
+                    origin_map_alt: "Map of Europe and Asia: a network of hubs with the shortest path from Germany to Vietnam highlighted",
+                    origin_de_place: "Germany",
+                    origin_vn_place: "Vietnam",
+                    origin_de_label: "Origin",
+                    origin_de_facts: [
+                        "Developed in Germany",
+                        "Built on operations research: exact approaches, heuristics, or simulations",
+                        "Strict data protection: your operational data stays yours"
+                    ],
+                    origin_vn_label: "Availability",
+                    origin_vn_badge: "New",
+                    origin_vn_title: "Now available in Vietnam",
+                    origin_vn_facts: [
+                        "Fully Vietnamese interface",
+                        "Consulting and deployment for companies in Vietnam, fully in Vietnamese",
+                        "Request a demo or book a consulting appointment, fully in Vietnamese"
+                    ],
                     whyaps_teaser_items: [
                         { id: 'industry-40', text: "Where ERP and MES stop" },
                         { id: 'analytics', text: "From describing to deciding" },
@@ -6823,6 +7034,25 @@
                     whyaps_desc: "ERP và MES dừng lại ở đâu, phân tích dữ liệu phát triển từ mô tả đến ra quyết định như thế nào, và vì sao kết quả tối ưu hoá có thể chứng minh được.",
                     whyaps_teaser_body: "ERP và MES ghi nhận và thực thi, nhưng không ra quyết định. Tìm hiểu chúng dừng lại ở đâu, phân tích dữ liệu phát triển từ mô tả đến ra quyết định như thế nào, và vì sao kết quả tối ưu hoá có thể chứng minh được.",
                     whyaps_teaser_cta: "Đọc kiến thức nền tảng",
+                    origin_eyebrow: "Công nghệ Đức",
+                    origin_title_b: "Nay đã có mặt tại Việt Nam.",
+                    origin_map_alt: "Bản đồ châu Âu và châu Á: mạng lưới các điểm trung chuyển với đường đi ngắn nhất từ Đức đến Việt Nam được làm nổi bật",
+                    origin_de_place: "Đức",
+                    origin_vn_place: "Việt Nam",
+                    origin_de_label: "Xuất xứ",
+                    origin_de_facts: [
+                        "Phát triển tại Đức",
+                        "Dựa trên vận trù học: phương pháp chính xác, heuristic hoặc mô phỏng",
+                        "Bảo vệ dữ liệu nghiêm ngặt: dữ liệu vận hành luôn thuộc về bạn"
+                    ],
+                    origin_vn_label: "Hiện diện",
+                    origin_vn_badge: "Mới",
+                    origin_vn_title: "Nay đã có mặt tại Việt Nam",
+                    origin_vn_facts: [
+                        "Giao diện hoàn toàn bằng tiếng Việt",
+                        "Tư vấn và triển khai cho doanh nghiệp tại Việt Nam, hoàn toàn bằng tiếng Việt",
+                        "Đăng ký demo hoặc đặt lịch tư vấn, hoàn toàn bằng tiếng Việt"
+                    ],
                     whyaps_teaser_items: [
                         { id: 'industry-40', text: "ERP và MES dừng lại ở đâu" },
                         { id: 'analytics', text: "Từ mô tả đến ra quyết định" },
@@ -7212,6 +7442,25 @@
                     whyaps_desc: "Wo ERP und MES aufhören, wie Analytics vom Beschreiben zum Entscheiden reift und warum sich die Ergebnisse der Optimierung beweisen lassen.",
                     whyaps_teaser_body: "ERP und MES erfassen und führen aus. Sie entscheiden nicht. Lesen Sie, wo sie aufhören, wie Analytics vom Beschreiben zum Entscheiden reift und warum sich die Ergebnisse der Optimierung beweisen lassen.",
                     whyaps_teaser_cta: "Hintergrund lesen",
+                    origin_eyebrow: "Deutsche Ingenieurskunst",
+                    origin_title_b: "Jetzt in Vietnam verfügbar.",
+                    origin_map_alt: "Karte von Europa und Asien: ein Netz von Knoten, der kürzeste Weg von Deutschland nach Vietnam ist hervorgehoben",
+                    origin_de_place: "Deutschland",
+                    origin_vn_place: "Vietnam",
+                    origin_de_label: "Herkunft",
+                    origin_de_facts: [
+                        "In Deutschland entwickelt",
+                        "Auf Operations Research gebaut: exakte Verfahren, Heuristiken oder Simulationen",
+                        "Strenger Datenschutz: Ihre Betriebsdaten bleiben Ihre"
+                    ],
+                    origin_vn_label: "Verfügbarkeit",
+                    origin_vn_badge: "Neu",
+                    origin_vn_title: "Jetzt in Vietnam verfügbar",
+                    origin_vn_facts: [
+                        "Vollständig vietnamesische Benutzeroberfläche",
+                        "Beratung und Einführung für Unternehmen in Vietnam, vollständig auf Vietnamesisch",
+                        "Demo anfragen oder Beratungstermin buchen, vollständig auf Vietnamesisch"
+                    ],
                     whyaps_teaser_items: [
                         { id: 'industry-40', text: "Wo ERP und MES aufhören" },
                         { id: 'analytics', text: "Vom Beschreiben zum Entscheiden" },
@@ -11402,6 +11651,305 @@
             );
         };
 
+        // Dotted Europe–Asia map for the origin band: coarse hand-traced outlines rasterised on a 1.5° grid.
+        // Each path is a run of zero-length segments, drawn as dots by round line caps. 10 units = 1°, origin 14°W 62°N.
+        const ORIGIN_MAP = {
+            width: 1560,
+            height: 560,
+            land: "M202 8h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m60 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0M195 20h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m135 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0M218 33h0m44 0h0m16 0h0m14 0h0m16 0h0m74 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0M90 46h0m15 0h0m15 0h0m120 0h0m30 0h0m15 0h0m15 0h0m90 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0M98 59h0m14 0h0m120 0h0m16 0h0m30 0h0m14 0h0m60 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0M60 72h0m45 0h0m15 0h0m210 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0M52 85h0m16 0h0m44 0h0m16 0h0m14 0h0m60 0h0m90 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0M45 98h0m15 0h0m30 0h0m15 0h0m15 0h0m15 0h0m15 0h0m45 0h0m105 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0M112 111h0m16 0h0m30 0h0m14 0h0m16 0h0m104 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0M135 124h0m15 0h0m15 0h0m15 0h0m15 0h0m90 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0M98 137h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m90 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0M120 150h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0M128 163h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m104 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m74 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0M135 176h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m45 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m105 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m60 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0M52 189h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m76 0h0m14 0h0m16 0h0m44 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m136 0h0m14 0h0m16 0h0m14 0h0m16 0h0m44 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m90 0h0M60 202h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m120 0h0m15 0h0m15 0h0m45 0h0m15 0h0m15 0h0m15 0h0m15 0h0m60 0h0m15 0h0m75 0h0m15 0h0m15 0h0m15 0h0m15 0h0m60 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m105 0h0M52 215h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m90 0h0m60 0h0m16 0h0m30 0h0m14 0h0m16 0h0m44 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m60 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m134 0h0M60 228h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m90 0h0m75 0h0m45 0h0m15 0h0m45 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m45 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m75 0h0m15 0h0m135 0h0M52 241h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m150 0h0m14 0h0m76 0h0m44 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m60 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m74 0h0m16 0h0m120 0h0M90 254h0m15 0h0m60 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m195 0h0m30 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m60 0h0m15 0h0m90 0h0m15 0h0M82 267h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m270 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m90 0h0m60 0h0m14 0h0m16 0h0m14 0h0M75 280h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m255 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m120 0h0M68 293h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m240 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m106 0h0M45 306h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m45 0h0m15 0h0m15 0h0m15 0h0m15 0h0m45 0h0m45 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0M52 319h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m30 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0M30 332h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m45 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0M22 345h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m30 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m46 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0M15 358h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m30 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m90 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0M8 371h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m30 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m46 0h0m120 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m30 0h0M15 384h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m30 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m105 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m45 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m45 0h0M8 397h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m30 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m104 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m30 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m74 0h0m16 0h0m14 0h0m16 0h0M15 410h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m30 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m135 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m60 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0M8 423h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m46 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m166 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m106 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m76 0h0M15 436h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m45 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m165 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m120 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m180 0h0M8 449h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m44 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m196 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m136 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m180 0h0M15 462h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m45 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m225 0h0m15 0h0m15 0h0m15 0h0m15 0h0m180 0h0m15 0h0m15 0h0m15 0h0m15 0h0m165 0h0M8 475h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m30 0h0m14 0h0m16 0h0m14 0h0m270 0h0m16 0h0m14 0h0m16 0h0m180 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0M15 488h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m30 0h0m315 0h0m15 0h0m15 0h0m195 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m165 0h0M8 501h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m330 0h0m16 0h0m14 0h0m16 0h0m194 0h0m46 0h0m14 0h0M15 514h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m30 0h0m15 0h0m15 0h0m15 0h0m255 0h0m15 0h0m15 0h0M8 527h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m270 0h0m14 0h0m210 0h0M30 540h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0m315 0h0m180 0h0m15 0h0m240 0h0m15 0h0M38 553h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0m14 0h0m330 0h0m196 0h0m240 0h0",
+            germany: "M225 72h0m15 0h0M218 85h0m14 0h0m16 0h0m14 0h0m16 0h0M210 98h0m15 0h0m15 0h0m15 0h0m15 0h0m15 0h0M202 111h0m16 0h0m14 0h0m16 0h0m14 0h0m16 0h0M210 124h0m15 0h0m15 0h0m15 0h0m15 0h0M218 137h0m14 0h0m16 0h0m14 0h0m16 0h0",
+            vietnam: "M1185 384h0m15 0h0M1162 397h0m16 0h0m14 0h0m16 0h0M1170 410h0m15 0h0m15 0h0M1178 423h0m14 0h0M1185 436h0m15 0h0M1192 449h0m16 0h0M1200 462h0m15 0h0M1208 475h0m14 0h0M1215 488h0m15 0h0M1208 501h0m14 0h0M1200 514h0M1192 527h0",
+        };
+
+        // A network of hubs between Germany and Vietnam, in map units. The positions are roughly those of large
+        // cities, but the picture is an illustration of the method, not a route plan. Hubs are kept clear of
+        // connections they do not belong to, so every line visibly runs from one hub to another.
+        const ORIGIN_NETWORK = {
+            source: 'de',
+            target: 'vn',
+            nodes: {
+                de: [244, 108], vn: [1203, 435],
+                // Europe
+                par: [163, 131], mad: [103, 216], rom: [265, 201], sto: [320, 27], hel: [443, 21], waw: [350, 100],
+                kie: [445, 125], ath: [377, 240], ist: [430, 210], mow: [516, 63],
+                // North Africa and the Middle East
+                alg: [170, 253], tun: [242, 255], tip: [272, 295], cai: [452, 320], bgw: [584, 287], jed: [532, 405],
+                ruh: [607, 373], dxb: [693, 368], bak: [639, 216], thr: [654, 263],
+                // Russia and Central Asia
+                kzn: [746, 52], ast: [854, 108], nsk: [969, 70], irk: [1183, 97], tas: [833, 207], alm: [909, 188],
+                kbl: [832, 275], urc: [1016, 182],
+                // South Asia
+                khi: [810, 371], del: [912, 334], bom: [869, 429], maa: [943, 489], ccu: [1024, 394], lhs: [1051, 323],
+                // East and South-East Asia
+                ulb: [1209, 141], pek: [1304, 221], xia: [1229, 277], sha: [1355, 308], kmg: [1167, 370], can: [1273, 389],
+                rgn: [1102, 452], bkk: [1145, 482],
+            },
+            edges: [
+                // Europe
+                ['de', 'par'], ['de', 'sto'], ['de', 'waw'], ['de', 'rom'], ['de', 'ist'], ['par', 'mad'], ['par', 'rom'],
+                ['mad', 'alg'], ['sto', 'hel'], ['sto', 'waw'], ['hel', 'mow'], ['waw', 'mow'], ['waw', 'kie'], ['kie', 'mow'],
+                ['kie', 'ist'], ['rom', 'tun'], ['rom', 'ath'], ['ath', 'ist'],
+                // North Africa and the Middle East
+                ['alg', 'tun'], ['tun', 'tip'], ['tip', 'ath'], ['tip', 'cai'], ['ath', 'cai'], ['cai', 'bgw'], ['cai', 'jed'],
+                ['ist', 'bgw'], ['ist', 'bak'], ['ist', 'thr'], ['bgw', 'thr'], ['bgw', 'ruh'], ['jed', 'ruh'], ['ruh', 'dxb'],
+                ['mow', 'bak'], ['bak', 'thr'], ['bak', 'tas'], ['thr', 'dxb'],
+                // Russia and Central Asia
+                ['mow', 'kzn'], ['mow', 'ast'], ['kzn', 'ast'], ['kzn', 'nsk'], ['ast', 'nsk'], ['ast', 'tas'], ['ast', 'alm'],
+                ['ast', 'urc'], ['nsk', 'urc'], ['nsk', 'irk'], ['tas', 'alm'], ['alm', 'urc'], ['thr', 'tas'], ['thr', 'kbl'],
+                ['kbl', 'tas'],
+                // South Asia
+                ['thr', 'del'], ['tas', 'del'], ['kbl', 'del'], ['kbl', 'khi'], ['dxb', 'khi'], ['dxb', 'bom'], ['khi', 'del'],
+                ['khi', 'bom'], ['bom', 'del'], ['bom', 'ccu'], ['bom', 'maa'], ['maa', 'ccu'], ['maa', 'rgn'], ['del', 'ccu'],
+                ['del', 'lhs'], ['lhs', 'urc'], ['lhs', 'ccu'], ['lhs', 'kmg'],
+                // East and South-East Asia
+                ['irk', 'ulb'], ['ulb', 'urc'], ['ulb', 'pek'], ['ulb', 'xia'], ['urc', 'xia'], ['urc', 'kmg'], ['pek', 'xia'],
+                ['pek', 'sha'], ['sha', 'xia'], ['sha', 'can'], ['xia', 'kmg'], ['xia', 'can'], ['can', 'kmg'], ['can', 'vn'],
+                ['ccu', 'kmg'], ['ccu', 'rgn'], ['ccu', 'vn'], ['rgn', 'kmg'], ['rgn', 'bkk'], ['kmg', 'vn'], ['bkk', 'vn'],
+            ],
+        };
+
+        // Dijkstra's shortest-path algorithm on ORIGIN_NETWORK (edge weight = straight-line length), stopped when
+        // the target is settled. Returns what the animation shows: when the search wave reaches each hub, which
+        // connections it runs along and in which direction, and the shortest path itself.
+        const solveOriginNetwork = ({ nodes, edges, source, target }) => {
+            const length = (a, b) => Math.hypot(nodes[a][0] - nodes[b][0], nodes[a][1] - nodes[b][1]);
+            const neighbours = {};
+            Object.keys(nodes).forEach((id) => { neighbours[id] = []; });
+            edges.forEach(([a, b]) => { neighbours[a].push(b); neighbours[b].push(a); });
+
+            const dist = {};
+            const previous = {};
+            const settled = new Set();
+            Object.keys(nodes).forEach((id) => { dist[id] = Infinity; });
+            dist[source] = 0;
+            while (!settled.has(target)) {
+                let current = null;
+                Object.keys(nodes).forEach((id) => {
+                    if (!settled.has(id) && (current === null || dist[id] < dist[current])) current = id;
+                });
+                if (current === null || dist[current] === Infinity) break;
+                settled.add(current);
+                neighbours[current].forEach((next) => {
+                    const candidate = dist[current] + length(current, next);
+                    if (candidate < dist[next]) {
+                        dist[next] = candidate;
+                        previous[next] = current;
+                    }
+                });
+            }
+
+            const path = [target];
+            while (path[0] !== source) path.unshift(previous[path[0]]);
+            const pathEdges = path.slice(1).map((id, i) => ({ from: path[i], to: id, length: length(path[i], id) }));
+
+            // A connection is searched from whichever end was settled first; unsettled hubs search nothing
+            const scanned = [];
+            edges.forEach(([a, b]) => {
+                const starts = [a, b].filter((id) => settled.has(id)).sort((x, y) => dist[x] - dist[y]);
+                if (!starts.length) return;
+                const from = starts[0];
+                scanned.push({ from, to: from === a ? b : a, start: dist[from], length: length(a, b) });
+            });
+            return { dist, settled, path, pathEdges, scanned, total: dist[target] };
+        };
+
+        const ORIGIN_SOLUTION = solveOriginNetwork(ORIGIN_NETWORK);
+
+        const OriginFlagGermany = () => (
+            <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true" className="shrink-0 rounded-full ring-1 ring-slate-900/10 dark:ring-white/20">
+                <rect width="22" height="7.4" fill="#111827" /><rect y="7.3" width="22" height="7.4" fill="#dc2626" /><rect y="14.6" width="22" height="7.4" fill="#fbbf24" />
+            </svg>
+        );
+
+        const OriginFlagVietnam = () => (
+            <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true" className="shrink-0 rounded-full ring-1 ring-slate-900/10 dark:ring-white/20">
+                <rect width="22" height="22" fill="#dc2626" />
+                <polygon fill="#fde047" points="11,5.2 12.4,9.3 16.7,9.3 13.2,11.9 14.5,16 11,13.5 7.5,16 8.8,11.9 5.3,9.3 9.6,9.3" />
+            </svg>
+        );
+
+        // Origin band: "Made in Germany. Now available in Vietnam." — a route across the map, one card per country
+        const OriginSection = ({ content }) => {
+            const ui = content.ui;
+            const sectionRef = useRef(null);
+            const [visible, setVisible] = useState(false);
+            useEffect(() => {
+                const el = sectionRef.current;
+                if (!el) return undefined;
+                const observer = new IntersectionObserver(([entry]) => {
+                    if (entry.isIntersecting) {
+                        setVisible(true);
+                        observer.disconnect();
+                    }
+                }, { threshold: 0.25 });
+                observer.observe(el);
+                return () => observer.disconnect();
+            }, []);
+
+            const cards = [
+                { id: 'de', flag: <OriginFlagGermany />, label: ui.origin_de_label, title: 'Made in Germany', facts: ui.origin_de_facts },
+                { id: 'vn', flag: <OriginFlagVietnam />, label: ui.origin_vn_label, title: ui.origin_vn_title, facts: ui.origin_vn_facts, badge: ui.origin_vn_badge },
+            ];
+
+            // Timeline (seconds): the search wave runs for SEARCH_S, then the shortest path is drawn in PATH_S
+            const SEARCH_S = 2.6;
+            const PATH_START_S = SEARCH_S + 0.3;
+            const PATH_S = 1.5;
+            const NETWORK_FADE_S = PATH_START_S + PATH_S + 0.7;   // the rest of the network leaves once the path stands
+            const { nodes } = ORIGIN_NETWORK;
+            const solution = ORIGIN_SOLUTION;
+            const perUnit = SEARCH_S / solution.total;
+            const from = { x: nodes[ORIGIN_NETWORK.source][0], y: nodes[ORIGIN_NETWORK.source][1] };
+            const to = { x: nodes[ORIGIN_NETWORK.target][0], y: nodes[ORIGIN_NETWORK.target][1] };
+            const line = (a, b) => `M${nodes[a][0]} ${nodes[a][1]}L${nodes[b][0]} ${nodes[b][1]}`;
+            const pathD = `M${solution.path.map((id) => nodes[id].join(' ')).join('L')}`;
+            const hubIds = Object.keys(nodes).filter((id) => id !== ORIGIN_NETWORK.source && id !== ORIGIN_NETWORK.target);
+            let pathElapsed = 0;
+            const pathSegments = solution.pathEdges.map((edge) => {
+                const duration = (edge.length / solution.total) * PATH_S;
+                const segment = { ...edge, delay: PATH_START_S + pathElapsed, duration };
+                pathElapsed += duration;
+                return segment;
+            });
+            const pathArrival = { [ORIGIN_NETWORK.source]: PATH_START_S };
+            pathSegments.forEach((segment) => { pathArrival[segment.to] = segment.delay + segment.duration; });
+
+            return (
+                <section ref={sectionRef} aria-labelledby="origin-title" className={`lp3-origin rounded-3xl border ${visible ? 'is-visible' : ''}`}>
+                    <div className="relative z-10 text-center px-6 pt-10 sm:px-10 md:pt-14">
+                        <p className="text-[10px] md:text-[11px] font-bold uppercase opus-eyebrow text-brand-gold mb-3 md:mb-4">{ui.origin_eyebrow}</p>
+                        {/* "Made in Germany" stays English in every language: it is a recognised label */}
+                        <h2 id="origin-title" className="text-[1.75rem] sm:text-4xl md:text-[2.75rem] font-bold tracking-tight leading-[1.15] md:leading-[1.12] text-slate-900 dark:text-white">
+                            <span className="block">Made in Germany.</span>
+                            <span className="block opus-sheen pb-[0.14em] -mb-[0.14em]">{ui.origin_title_b}</span>
+                        </h2>
+                    </div>
+
+                    <div className="relative mt-4 md:-mt-4">
+                        <svg
+                            viewBox={`0 0 ${ORIGIN_MAP.width} ${ORIGIN_MAP.height}`}
+                            role="img"
+                            aria-label={ui.origin_map_alt}
+                            className="relative block w-full h-auto"
+                        >
+                            <defs>
+                                <linearGradient id="lp3-origin-arc-grad" gradientUnits="userSpaceOnUse" x1={from.x} y1={from.y} x2={to.x} y2={to.y}>
+                                    <stop offset="0" className="lp3-origin-stop-edge" />
+                                    <stop offset="0.5" className="lp3-origin-stop-mid" />
+                                    <stop offset="1" className="lp3-origin-stop-edge" />
+                                </linearGradient>
+                            </defs>
+                            <path className="lp3-origin-dots" d={ORIGIN_MAP.land} />
+                            <path className="lp3-origin-dots" d={ORIGIN_MAP.germany} />
+                            <path className="lp3-origin-dots" d={ORIGIN_MAP.vietnam} />
+
+                            {/* Everything that is not the answer: all connections, the search wave and the hubs off the path.
+                                Once the shortest path is drawn, this group fades away and only the path remains. */}
+                            <g className="lp3-origin-network" style={{ animationDelay: `${NETWORK_FADE_S.toFixed(2)}s` }}>
+                                {/* 1. the network */}
+                                {ORIGIN_NETWORK.edges.map(([a, b]) => (
+                                    <path key={`${a}-${b}`} className="lp3-origin-edge" d={line(a, b)} />
+                                ))}
+
+                                {/* 2. the search wave, timed by Dijkstra's distances */}
+                                {solution.scanned.map((edge) => (
+                                    <path
+                                        key={`scan-${edge.from}-${edge.to}`}
+                                        className="lp3-origin-scan"
+                                        d={line(edge.from, edge.to)}
+                                        pathLength="1"
+                                        style={{ animationDelay: `${(edge.start * perUnit).toFixed(2)}s`, animationDuration: `${(edge.length * perUnit).toFixed(2)}s` }}
+                                    />
+                                ))}
+
+                                {hubIds.filter((id) => pathArrival[id] === undefined).map((id) => {
+                                    const visited = solution.settled.has(id);
+                                    return (
+                                        <circle
+                                            key={id}
+                                            className={`lp3-origin-node ${visited ? 'lp3-origin-node--visited' : ''}`}
+                                            cx={nodes[id][0]}
+                                            cy={nodes[id][1]}
+                                            r="6.5"
+                                            style={visited ? { animationDelay: `${(solution.dist[id] * perUnit).toFixed(2)}s` } : undefined}
+                                        />
+                                    );
+                                })}
+                            </g>
+
+                            {/* 3. the shortest path and its hubs, which stay */}
+                            {pathSegments.map((segment) => (
+                                <path
+                                    key={`path-${segment.from}-${segment.to}`}
+                                    className="lp3-origin-path"
+                                    d={line(segment.from, segment.to)}
+                                    pathLength="1"
+                                    style={{ animationDelay: `${segment.delay.toFixed(2)}s`, animationDuration: `${segment.duration.toFixed(2)}s` }}
+                                />
+                            ))}
+                            {hubIds.filter((id) => pathArrival[id] !== undefined).map((id) => (
+                                <circle
+                                    key={id}
+                                    className="lp3-origin-node lp3-origin-node--path"
+                                    cx={nodes[id][0]}
+                                    cy={nodes[id][1]}
+                                    r="6.5"
+                                    style={{ animationDelay: `${(solution.dist[id] * perUnit).toFixed(2)}s, ${pathArrival[id].toFixed(2)}s` }}
+                                />
+                            ))}
+
+                            {[from, to].map((point, i) => (
+                                <g key={i}>
+                                    <circle className={`lp3-origin-pulse ${i ? 'lp3-origin-pulse--late' : ''}`} cx={point.x} cy={point.y} r="19" />
+                                    <circle className="lp3-origin-ring" cx={point.x} cy={point.y} r="19" />
+                                    <circle className="lp3-origin-point" cx={point.x} cy={point.y} r="9" />
+                                </g>
+                            ))}
+                            <circle
+                                className="lp3-origin-marker"
+                                r="6.5"
+                                style={{ offsetPath: `path('${pathD}')`, animationDelay: `${(NETWORK_FADE_S + 0.9).toFixed(2)}s` }}
+                            />
+
+                            {/* Place names. The map scales with the screen, so phones get their own, larger type:
+                                50 map units is about 11px on a phone-width map, 21 units about 16px on desktop */}
+                            <g className="hidden md:block font-mono lp3-origin-place" fontSize="21" fontWeight="700" letterSpacing="3.5">
+                                <text x={from.x} y={from.y - 36} textAnchor="middle">{String(ui.origin_de_place).toUpperCase()}</text>
+                                <text x={to.x + 36} y={to.y + 8}>{String(ui.origin_vn_place).toUpperCase()}</text>
+                            </g>
+                            <g className="md:hidden font-mono lp3-origin-place" fontSize="50" fontWeight="700" letterSpacing="5">
+                                <text x={from.x} y={from.y - 44} textAnchor="middle">{String(ui.origin_de_place).toUpperCase()}</text>
+                                <text x={to.x + 40} y={to.y + 18}>{String(ui.origin_vn_place).toUpperCase()}</text>
+                            </g>
+                        </svg>
+                    </div>
+
+                    <div className="relative z-10 grid md:grid-cols-2 gap-4 md:gap-6 px-5 pb-6 pt-4 sm:px-8 md:px-12 md:pb-12 md:pt-0">
+                        {cards.map((card) => (
+                            <div key={card.id} className={`lp3-origin-card rounded-2xl p-6 md:p-7 ${card.badge ? 'lp3-origin-card--new' : ''}`}>
+                                <div className="flex items-center gap-2.5 mb-3">
+                                    {card.flag}
+                                    <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">{card.label}</span>
+                                    {card.badge && (
+                                        <span className="ml-auto inline-flex items-center rounded-full bg-brand-gold/15 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-700 dark:text-brand-gold ring-1 ring-brand-gold/40 dark:ring-brand-gold/30">{card.badge}</span>
+                                    )}
+                                </div>
+                                <h3 className="text-xl md:text-2xl font-bold tracking-tight text-slate-900 dark:text-white mb-4">{card.title}</h3>
+                                <ul className="space-y-2.5">
+                                    {card.facts.map((fact, i) => (
+                                        <li key={i} className="flex items-start gap-2.5 text-sm md:text-[0.95rem] leading-snug text-slate-600 dark:text-slate-300">
+                                            <span className="mt-0.5 shrink-0 text-brand-gold [&>svg]:h-[1.05rem] [&>svg]:w-[1.05rem]" aria-hidden="true"><CheckCircleIcon /></span>
+                                            <span>{fact}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        ))}
+                    </div>
+                </section>
+            );
+        };
+
         // Teaser for the background page (why-aps.html), where the three teaching sections now live
         const WhyApsTeaser = ({ content }) => {
             const ui = content.ui;
@@ -12263,6 +12811,11 @@
 
                                     <div className="mt-20 md:mt-28">
                                         <Reveal><MetricsBand content={content} stats={stats} /></Reveal>
+                                    </div>
+
+                                    {/* Where the product comes from and where it is now available */}
+                                    <div className="mt-24 md:mt-32">
+                                        <Reveal><OriginSection content={content} /></Reveal>
                                     </div>
 
                                     <div className="mt-24 md:mt-32">
