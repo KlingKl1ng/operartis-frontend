@@ -12557,8 +12557,10 @@
                 else setTheme('system');
             };
 
+            // The language button steps through English, Vietnamese and German
             const toggleLang = () => {
-                setLang(prev => prev === 'vi' ? 'en' : 'vi');
+                const order = ['en', 'vi', 'de'];
+                setLang(prev => order[(order.indexOf(prev) + 1) % order.length]);
             };
 
             const handleBlockClick = (block) => {
