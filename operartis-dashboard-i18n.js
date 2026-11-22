@@ -472,6 +472,10 @@
                     label: 'ABC-XYZ Analysis',
                     desc: 'Portfolio segmentation and matrix analysis.',
                 },
+                VR: {
+                    label: 'Vehicle Routing',
+                    desc: 'Multi-depot route planning with trips and time windows.',
+                },
             },
             module_names: {
                 sales_forecaster: 'ML Forecaster',
@@ -479,6 +483,7 @@
                 inventory_optimizer: 'Inventory Optimizer',
                 inventory: 'Inventory Optimizer',
                 abcxyz: 'ABC-XYZ Analysis',
+                vrp: 'Vehicle Routing',
             },
             messages: {
                 lang_saved: 'Language preference saved.',
@@ -981,6 +986,10 @@
                     label: 'Phân tích ABC-XYZ',
                     desc: 'Phân khúc danh mục và phân tích ma trận.',
                 },
+                VR: {
+                    label: 'Định Tuyến Phương Tiện',
+                    desc: 'Lập tuyến đa kho với nhiều chuyến và khung thời gian.',
+                },
             },
             module_names: {
                 sales_forecaster: 'Dự Báo Học Máy',
@@ -988,6 +997,7 @@
                 inventory_optimizer: 'Tối Ưu Hóa Tồn Kho',
                 inventory: 'Tối Ưu Hóa Tồn Kho',
                 abcxyz: 'Phân tích ABC-XYZ',
+                vrp: 'Định Tuyến Phương Tiện',
             },
             messages: {
                 lang_saved: 'Đã lưu tùy chọn ngôn ngữ.',
@@ -1490,6 +1500,10 @@
                     label: 'ABC-XYZ-Analyse',
                     desc: 'Portfolio-Segmentierung und Matrixanalyse.',
                 },
+                VR: {
+                    label: 'Fahrzeugroutenplanung',
+                    desc: 'Mehrdepot-Routenplanung mit Fahrten und Zeitfenstern.',
+                },
             },
             module_names: {
                 sales_forecaster: 'ML-Prognose',
@@ -1497,6 +1511,7 @@
                 inventory_optimizer: 'Bestandsoptimierer',
                 inventory: 'Bestandsoptimierer',
                 abcxyz: 'ABC-XYZ-Analyse',
+                vrp: 'Fahrzeugroutenplanung',
             },
             messages: {
                 lang_saved: 'Spracheinstellung gespeichert.',

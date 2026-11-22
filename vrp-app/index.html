@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#0f172a" />
+    <base href="/" />
+    <title>Operartis | Vehicle Routing</title>
+    <link rel="icon" type="image/png" href="/icononly_transparent_quadratic.png" />
+    <script src="/operartis-theme.js?v=20260623-theme-sync"></script>
+    <script src="/operartis-lang.js"></script>
+    <script src="/operartis-security.js"></script>
+    <script>
+      window.OPERARTIS_AUTH_AUTO_PROMPT = false;
+      window.OPERARTIS_AUTH_FLOATING_ACCOUNT = false;
+      window.OPERARTIS_AUTH_DISMISSIBLE = true;
+      window.OPERARTIS_AUTH_TOPBAR_SLOT = '#operartis-auth-topbar-slot';
+      window.OPERARTIS_ACCESS_GATE = {
+        appSelector: '#root',
+        backHref: '/dashboard',
+        moduleKey: 'vrp',
+        subtitle: 'Vehicle Routing',
+        enabled: !['localhost', '127.0.0.1', '::1'].includes(window.location.hostname),
+      };
+    </script>
+    <link rel="stylesheet" href="/operartis-access-shell.css?v=20260622-access-mobile-full" />
+    <script src="/operartis-api.js?v=20260622-auth-session-sync"></script>
+    <script src="/operartis-auth-ui.js?v=20260623-display-name"></script>
+    <script src="/operartis-access-gate.js?v=20260622-access-mobile-full"></script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

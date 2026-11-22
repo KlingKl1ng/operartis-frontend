@@ -3794,12 +3794,14 @@
             inventory_optimizer: { label: 'Inventory Optimizer', href: './inventory.html', code: 'IO' },
             inventory: { label: 'Inventory Optimizer', href: './inventory.html', code: 'IO' },
             abcxyz: { label: 'ABC-XYZ Analysis', href: './abcxyz.html', code: 'AX' },
+            vrp: { label: 'Vehicle Routing', href: './vrp/', code: 'VR' },
         };
         const shortcuts = [
             { href: './forecaster.html', code: 'SF' },
             { href: './mlforecaster.html', code: 'ML' },
             { href: './inventory.html', code: 'IO' },
             { href: './abcxyz.html', code: 'AX' },
+            { href: './vrp/', code: 'VR' },
         ];
 
         const shortcutThemes = {
@@ -3807,12 +3809,14 @@
             ML: 'shortcut-theme-gold',
             IO: 'shortcut-theme-gold',
             AX: 'shortcut-theme-gold',
+            VR: 'shortcut-theme-gold',
         };
         const moduleIconSvg = {
             SF: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>',
             ML: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20h20"/><path d="M4 17c2-4 4-7 7-7 2 0 3 2 5 2 2.5 0 3.5-4 6-5"/><path d="m4 8 3.5 3.5"/><path d="m14 3.5 3.5 3.5"/><circle cx="17.5" cy="7" r="1.5"/><circle cx="7.5" cy="11.5" r="1.5"/></svg>',
             IO: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>',
             AX: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>',
+            VR: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M6 17V8a3 3 0 0 1 3-3h7"/><path d="m13 14 3 3 5-5"/></svg>',
         };
 
         function createShortcutIcon(code) {

@@ -292,7 +292,7 @@
             '.op-auth-account[data-open="true"]{display:flex}',
             '.op-auth-logout{border:0;border-radius:999px;background:#334155;color:#fff;font-weight:800;font-size:11px;padding:6px 9px;cursor:pointer}',
             '.op-auth-topbar{position:relative;display:flex;align-items:center;flex-shrink:0}',
-            '.op-auth-topbar-btn{position:relative;display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border:0;border-radius:999px;background:linear-gradient(to top right,#f59e0b,#b45309);color:#fff;cursor:pointer;box-shadow:0 4px 14px rgba(245,158,11,.28);transition:transform .2s ease,box-shadow .2s ease,filter .2s ease}',
+            '.op-auth-topbar-btn{position:relative;display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;margin:0;padding:0;border:0;border-radius:999px;background:linear-gradient(to top right,#f59e0b,#b45309);color:#fff;cursor:pointer;box-shadow:0 4px 14px rgba(245,158,11,.28);transition:transform .2s ease,box-shadow .2s ease,filter .2s ease}',
             '.op-auth-topbar-btn:hover{transform:scale(1.06);filter:brightness(1.1);box-shadow:0 8px 28px rgba(245,158,11,.5),0 0 0 2px rgba(251,191,36,.35)}',
             '.op-auth-topbar-btn:active{transform:scale(.94);filter:brightness(1)}',
             '.op-auth-topbar-btn:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(245,158,11,.55)}',
