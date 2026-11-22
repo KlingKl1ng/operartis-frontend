@@ -2862,7 +2862,7 @@
             isolation: isolate;
             display: grid;
             gap: 10px;
-            padding-top: 34px;
+            padding-top: 10px;
         }
 
         .or2-links {
@@ -3014,7 +3014,7 @@
         .dark .or2-node.is-active .or2-node-label { color: #fbbf24; }
 
         @media (min-width: 768px) {
-            .or2-track { gap: 14px; padding-top: 38px; }
+            .or2-track { gap: 14px; padding-top: 12px; }
             .or2-lane { padding: 28px 4px 14px; }
             .or2-node-icon { width: 46px; height: 46px; border-radius: 14px; }
             .or2-node-icon svg { width: 20px; height: 20px; }
@@ -3103,18 +3103,23 @@
         .or2-head--done,
         .dark .or2-head--done { fill: #f59e0b; }
 
-        .or2-loop text {
+        /* Title of the process box, above both lanes */
+        .or2-title {
+            margin: 0 0 12px;
+            text-align: center;
             font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-            font-size: 9px;
+            font-size: 13px;
             font-weight: 700;
-            letter-spacing: 0.12em;
+            letter-spacing: 0.16em;
             text-transform: uppercase;
-            fill: #64748b;
+            color: #475569;
         }
 
-        .dark .or2-loop text { fill: #94a3b8; }
-        .or2-loop.is-next text { fill: #b45309; }
-        .dark .or2-loop.is-next text { fill: #fbbf24; }
+        .dark .or2-title { color: #cbd5e1; }
+
+        @media (min-width: 768px) {
+            .or2-title { margin-bottom: 16px; font-size: 16px; }
+        }
 
         .or2-detail-icon {
             display: flex;
@@ -6253,7 +6258,7 @@
                     or_process_model_world: "Operartis",
                     or_process_real_world: "Customer",
                     or_process_tap_hint: "Click a step to explore",
-                    or_process_loop_label: "APS - Iterative cycle",
+                    or_process_box_title: "APS - Deployment Process",
                     or_process_step: "Step",
                     or_process_steps: [
                         { id: 'problem', label: 'Problem', desc: 'Framing your business challenge — capacity, cost, service level or network design — and define measurable objectives together.' },
@@ -6658,7 +6663,7 @@
                     or_process_model_world: "Operartis",
                     or_process_real_world: "Khách hàng",
                     or_process_tap_hint: "Nhấn vào bước để xem chi tiết",
-                    or_process_loop_label: "Vòng lặp triển khai APS",
+                    or_process_box_title: "APS - Quy trình triển khai",
                     or_process_step: "Bước",
                     or_process_steps: [
                         { id: 'problem', label: 'Vấn đề', desc: 'Xác định vấn đề — năng lực sản xuất, chi phí sản xuất, mức dịch vụ hay thiết kế mạng lưới cung ứng — và đặt mục tiêu đo lường.' },
@@ -7063,7 +7068,7 @@
                     or_process_model_world: "Operartis",
                     or_process_real_world: "Kunde",
                     or_process_tap_hint: "Schritt anklicken",
-                    or_process_loop_label: "Iterativer Optimierungszyklus",
+                    or_process_box_title: "APS - Einführungsprozess",
                     or_process_step: "Schritt",
                     or_process_steps: [
                         { id: 'problem', label: 'Problem', desc: 'Wir definieren Ihre geschäftliche Herausforderung — Kapazität, Kosten, Servicelevel oder Netzwerkdesign — und legen messbare Ziele fest.' },
@@ -11018,17 +11023,12 @@
                     const top = Math.min(...n.map(p => p.y - p.r)) - 22;
                     loop = {
                         d: `M${last.x},${last.y - last.r - GAP} V${top + R} Q${last.x},${top} ${last.x - R},${top} H${first.x + R} Q${first.x},${top} ${first.x},${top + R} V${first.y - first.r - GAP}`,
-                        labelX: (first.x + last.x) / 2,
-                        labelY: top - 6,
                     };
                 } else {
                     // Back up the left edge, from the last step to the first
                     const left = Math.min(...n.map(p => p.x - p.r)) - 18;
                     loop = {
                         d: `M${last.x - last.r - GAP},${last.y} H${left + R} Q${left},${last.y} ${left},${last.y - R} V${first.y + R} Q${left},${first.y} ${left + R},${first.y} H${first.x - first.r - GAP}`,
-                        labelX: left - 5,
-                        labelY: (first.y + last.y) / 2,
-                        rotate: true,
                     };
                 }
             }
@@ -11043,6 +11043,7 @@
                     aria-label={ui.or_process_title}
                 >
                     <div className="px-3 sm:px-5 md:px-6 pt-4 md:pt-6 pb-5 md:pb-7">
+                        <h3 className="or2-title">{ui.or_process_box_title}</h3>
                         <div ref={trackRef} className="or2-track">
                             {geom && (
                                 <svg className="or2-links" viewBox={`0 0 ${geom.w} ${geom.h}`} width={geom.w} height={geom.h} aria-hidden="true">
@@ -11053,7 +11054,6 @@
                                     {loop && (
                                         <g className={`or2-loop${activeIdx === steps.length - 1 ? ' is-next' : ''}`}>
                                             <path d={loop.d} markerEnd={`url(#or2-head-${activeIdx === steps.length - 1 ? 'done' : 'todo'})`} />
-                                            <text x={loop.labelX} y={loop.labelY} textAnchor="middle" transform={loop.rotate ? `rotate(-90 ${loop.labelX} ${loop.labelY})` : undefined}>↻ {ui.or_process_loop_label}</text>
                                         </g>
                                     )}
                                     {links.map(({ d, i }) => {
