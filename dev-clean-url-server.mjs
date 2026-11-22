@@ -11,6 +11,7 @@ const apiPort = Number(process.env.API_PORT || 8000);
 
 const cleanRoutes = new Set([
   'abcxyz',
+  'about',
   'accept-invite',
   'admin',
   'blog-abc-xyz-analysis',
@@ -23,10 +24,12 @@ const cleanRoutes = new Set([
   'index',
   'inventory',
   'mlforecaster',
+  'platform',
   'privacy',
   'reset-password',
   'terminal',
   'terms',
+  'why-aps',
 ]);
 
 const mimeTypes = {
@@ -159,5 +162,5 @@ const server = createServer((req, res) => {
 server.listen(port, host, () => {
   console.log(`Operartis frontend server running at http://${host}:${port}/`);
   console.log(`API proxy: /auth, /contact, and other backend routes → http://${apiHost}:${apiPort}`);
-  console.log('Clean URLs enabled: /forecaster, /mlforecaster, /inventory, /abcxyz, /dashboard, /contact');
+  console.log('Clean URLs enabled: /platform, /why-aps, /about, /contact, /forecaster, /mlforecaster, /inventory, /abcxyz, /dashboard');
 });

@@ -1,0 +1,2902 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Operartis | About Us</title>
+    <meta name="description" content="Who Operartis is, what we do, our vision and philosophy, and why companies choose us for supply chain optimization and APS.">
+    <link rel="canonical" href="https://operartis.io/about">
+    <meta name="theme-color" content="#020617">
+    <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="./favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
+    <link rel="manifest" href="./site.webmanifest">
+    <script src="./vendor/tailwindcss-3.4.17.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            gold: '#f59e0b',
+                            dark: '#b45309',
+                            obsidian: '#0f172a',
+                            slate: '#1e293b'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        mono: ['Roboto Mono', 'monospace'],
+                    }
+                }
+            }
+        };
+    </script>
+    <script src="./operartis-theme.js?v=20260623-theme-sync"></script>
+    <script src="./operartis-lang.js"></script>
+    <script src="./operartis-nav-indicator.js?v=20261115-border-align"></script>
+    <script>
+        window.OPERARTIS_AUTH_AUTO_PROMPT = false;
+        window.OPERARTIS_AUTH_FLOATING_ACCOUNT = false;
+    </script>
+    <script src="./operartis-api.js?v=20260910-stable-csrf"></script>
+    <script src="./operartis-auth-ui.js?v=20260623-display-name"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=Roboto+Mono:wght@400;500&display=swap');
+
+        html, body, #root { height: 100%; }
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: #ffffff;
+            color: #0f172a;
+            -webkit-font-smoothing: antialiased;
+        }
+        .dark body { background: #020617; color: #f8fafc; }
+
+        /* —— Header chrome (from index) —— */
+        .header-bar { background: transparent; }
+
+        .header-util-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.375rem;
+            border-radius: 9999px;
+            color: rgb(100 116 139);
+            transition: color 0.2s ease, background-color 0.2s ease;
+        }
+        .header-util-btn:hover { background-color: rgba(255, 255, 255, 0.2); }
+        .dark .header-util-btn { color: rgb(148 163 184); }
+        .dark .header-util-btn:hover { background-color: rgba(255, 255, 255, 0.05); }
+
+        /* Touch: single-button header pills and the account button get a 40px+ hit area */
+        .header-glass-pill:not(.header-glass-pill--wide) > .header-util-btn { position: relative; }
+        .header-glass-pill:not(.header-glass-pill--wide) > .header-util-btn::after {
+            content: '';
+            position: absolute;
+            inset: -8px -5px;
+        }
+        .header-auth-btn::after {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border-radius: 9999px;
+        }
+
+        .header-util-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.25rem;
+            height: 1.25rem;
+            flex-shrink: 0;
+        }
+        .header-util-icon svg {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .header-auth-btn {
+            transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+        }
+        .header-auth-btn:hover {
+            transform: scale(1.06);
+            filter: brightness(1.1);
+        }
+        .header-auth-btn:active {
+            transform: scale(0.94);
+            filter: brightness(1);
+        }
+        .header-auth-btn--gold {
+            box-shadow: 0 4px 14px rgba(245, 158, 11, 0.28);
+        }
+        .header-auth-btn--gold:hover {
+            box-shadow: 0 8px 28px rgba(245, 158, 11, 0.5), 0 0 0 2px rgba(251, 191, 36, 0.35);
+        }
+        .header-auth-btn:focus-visible {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.55);
+        }
+        .index-account-avatar-img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            border-radius: 999px;
+            object-fit: cover;
+        }
+        .index-account-avatar-initials {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            border-radius: 999px;
+            color: #08111f;
+            font-size: 0.75rem;
+            font-weight: 900;
+            letter-spacing: 0;
+            background: radial-gradient(circle at 30% 25%, rgba(251, 191, 36, 0.98), rgba(217, 119, 6, 0.9));
+        }
+        .index-account-menu {
+            position: absolute;
+            right: 0;
+            top: calc(100% + 10px);
+            z-index: 100;
+            width: 240px;
+            overflow: visible;
+            border-radius: 10px;
+            border: 1px solid rgba(148, 163, 184, 0.28);
+            background: rgba(255, 255, 255, 0.98);
+            box-shadow: 0 8px 32px rgba(15, 23, 42, 0.08);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            -webkit-font-smoothing: antialiased;
+            transform-origin: top right;
+            animation: indexAccountMenuIn 0.18s ease-out;
+        }
+        @keyframes indexAccountMenuIn {
+            from { opacity: 0; transform: translateY(-6px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .index-account-menu::before {
+            content: "";
+            position: absolute;
+            top: -6px;
+            right: 13px;
+            width: 12px;
+            height: 12px;
+            background: rgba(255, 255, 255, 0.98);
+            border-left: 1px solid rgba(148, 163, 184, 0.28);
+            border-top: 1px solid rgba(148, 163, 184, 0.28);
+            transform: rotate(45deg);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .dark .index-account-menu {
+            border-color: rgba(148, 163, 184, 0.18);
+            background: rgba(15, 23, 42, 0.96);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+        }
+        .dark .index-account-menu::before {
+            background: rgba(15, 23, 42, 0.96);
+            border-left-color: rgba(148, 163, 184, 0.18);
+            border-top-color: rgba(148, 163, 184, 0.18);
+        }
+        .index-account-menu-head {
+            padding: 12px 14px 10px;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.28);
+            background: transparent;
+            position: relative;
+            z-index: 1;
+            border-radius: 10px 10px 0 0;
+        }
+        .dark .index-account-menu-head { border-bottom-color: rgba(148, 163, 184, 0.18); }
+        .index-account-menu-email {
+            margin: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0;
+            color: #0f172a;
+        }
+        .dark .index-account-menu-email { color: #f8fafc; }
+        .index-account-menu-role {
+            margin: 3px 0 0;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #64748b;
+        }
+        .dark .index-account-menu-role { color: #94a3b8; }
+        .index-account-menu-body {
+            padding: 6px;
+            position: relative;
+            z-index: 1;
+            border-radius: 0 0 10px 10px;
+        }
+        .index-account-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            padding: 10px 12px;
+            border: 0;
+            border-radius: 10px;
+            background: transparent;
+            color: #0f172a;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            text-align: left;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+        }
+        .dark .index-account-menu-item { color: #f8fafc; }
+        .index-account-menu-item-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 15px;
+            height: 15px;
+            flex-shrink: 0;
+            color: currentColor;
+            opacity: 0.88;
+            transition: color 0.15s ease, opacity 0.15s ease;
+        }
+        .dark .index-account-menu-item-icon { opacity: 0.92; }
+        .index-account-menu-item-icon svg { display: block; width: 100%; height: 100%; }
+        .index-account-menu-item:hover {
+            background: rgba(245, 158, 11, 0.12);
+            color: #b45309;
+            transform: translateX(1px);
+        }
+        .dark .index-account-menu-item:hover {
+            background: rgba(245, 158, 11, 0.14);
+            color: #fbbf24;
+        }
+        .index-account-menu-item--danger:hover {
+            background: rgba(239, 68, 68, 0.1);
+            color: #b91c1c;
+            transform: translateX(1px);
+        }
+        .dark .index-account-menu-item--danger:hover {
+            background: rgba(248, 113, 113, 0.12);
+            color: #fca5a5;
+        }
+        .index-account-menu-divider {
+            height: 1px;
+            margin: 4px 10px;
+            background: linear-gradient(90deg, transparent, rgba(148, 163, 184, 0.35), transparent);
+        }
+        .dark .index-account-menu-divider {
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.14), transparent);
+        }
+
+        .header-glass-pill {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.5rem;
+            height: 2.5rem;
+            padding: 0.25rem;
+            flex-shrink: 0;
+            border-radius: 9999px;
+            /* Visible slate edge in light mode — white border disappears on Safari/light */
+            border: 1px solid rgba(100, 116, 139, 0.32);
+            background-image: linear-gradient(to bottom right, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.2));
+            box-shadow:
+                0 4px 16px rgba(15, 23, 42, 0.08),
+                0 0 0 1px rgba(148, 163, 184, 0.18),
+                inset 0 1px 0 0 rgba(255, 255, 255, 0.55);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .dark .header-glass-pill {
+            border-color: rgba(255, 255, 255, 0.1);
+            background-image: linear-gradient(to bottom right, rgba(30, 41, 59, 0.3), rgba(15, 23, 42, 0.1));
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1), inset 0 1px 0 0 rgba(255, 255, 255, 0.2);
+        }
+        /* Safari light: strengthen continuous pill outline (partial top/bottom edges otherwise) */
+        @supports (-webkit-touch-callout: none) {
+            html:not(.dark) .header-glass-pill {
+                border-color: rgba(100, 116, 139, 0.42);
+                box-shadow:
+                    0 4px 16px rgba(15, 23, 42, 0.08),
+                    inset 0 0 0 1px rgba(100, 116, 139, 0.28),
+                    inset 0 1px 0 0 rgba(255, 255, 255, 0.5);
+            }
+        }
+        .header-glass-pill--wide {
+            width: auto;
+            height: 2.5rem;
+            gap: 0.25rem;
+            padding-left: 0.35rem;
+            padding-right: 0.35rem;
+        }
+
+        .header-glass-pill--brand {
+            height: auto;
+            min-height: 2.5rem;
+            justify-content: flex-start;
+            padding: 0.375rem 0.75rem 0.375rem 0.375rem;
+        }
+
+        @media (min-width: 640px) {
+            .header-glass-pill--brand {
+                padding-right: 1rem;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .header-glass-pill--brand {
+                padding-right: 1.25rem;
+            }
+        }
+
+        .header-nav-glass-slab {
+            width: max-content;
+            max-width: 100%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .header-nav-glass-slab .header-nav-tab {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 1.75rem;
+            min-height: 1.75rem;
+            padding: 0 0.75rem;
+            line-height: 1;
+            box-sizing: border-box;
+            text-align: center;
+            border-radius: 9999px;
+        }
+        .header-nav-glass-slab .header-nav-tab-label {
+            display: block;
+            line-height: 1;
+            transform: none;
+        }
+        .header-nav-tabs-track {
+            position: relative;
+            align-items: center;
+        }
+        .header-nav-glass-indicator {
+            position: absolute;
+            top: 0;
+            left: 0;
+            box-sizing: border-box;
+            border-radius: 9999px;
+            border: 1px solid rgba(245, 158, 11, 0.22);
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(180, 83, 9, 0.06));
+            box-shadow:
+                0 2px 8px rgba(245, 158, 11, 0.28),
+                0 1px 3px rgba(15, 23, 42, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            pointer-events: none;
+            z-index: 0;
+            transition: opacity 0.2s ease;
+            will-change: transform, width;
+        }
+        .header-nav-glass-indicator.is-animated {
+            transition:
+                transform 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+                width 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+                height 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+                opacity 0.2s ease;
+        }
+        .dark .header-nav-glass-indicator {
+            border-color: rgba(245, 158, 11, 0.28);
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(15, 23, 42, 0.35));
+            box-shadow:
+                0 2px 10px rgba(245, 158, 11, 0.32),
+                0 1px 4px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .header-nav-tab {
+            position: relative;
+            z-index: 1;
+            flex-shrink: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.375rem 0.75rem;
+            border-radius: 9999px;
+            border: 1px solid transparent;
+            font-size: 0.625rem;
+            font-weight: 700;
+            line-height: 1;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            text-align: center;
+            box-sizing: border-box;
+            cursor: pointer;
+            background: transparent;
+            box-shadow: none;
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+            color: #64748b;
+            transition: color 0.2s ease;
+            appearance: none;
+            -webkit-appearance: none;
+            margin: 0;
+            font-family: inherit;
+        }
+        .dark .header-nav-tab { color: #94a3b8; }
+        .header-nav-tab:hover { color: #d97706; }
+        .dark .header-nav-tab:hover { color: #fbbf24; }
+        .header-nav-tab-active { color: #d97706; }
+        .dark .header-nav-tab-active { color: #fbbf24; }
+
+        .header-nav-aps-menu .header-nav-tab-active {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(180, 83, 9, 0.06));
+            box-shadow:
+                0 2px 8px rgba(245, 158, 11, 0.28),
+                0 1px 3px rgba(15, 23, 42, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+        .dark .header-nav-aps-menu .header-nav-tab-active {
+            box-shadow:
+                0 2px 10px rgba(245, 158, 11, 0.32),
+                0 1px 4px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .header-nav-child {
+            width: 100%;
+            justify-content: flex-start;
+            text-align: left;
+            font-size: 0.625rem;
+            padding: 0.45rem 0.65rem;
+            border-radius: 0.5rem;
+        }
+        .header-nav-aps-menu .header-nav-child {
+            justify-content: flex-start;
+            text-align: left;
+        }
+        .header-nav-aps-menu .header-nav-child.header-nav-aps-nested-trigger {
+            justify-content: space-between;
+        }
+
+        .header-nav-aps-wrap {
+            position: relative;
+            flex-shrink: 0;
+            display: inline-flex;
+            align-items: center;
+            height: 1.75rem;
+        }
+        .header-nav-aps-wrap::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 100%;
+            height: 12px;
+        }
+        .header-nav-aps-menu {
+            min-width: 11.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+            padding: 0.35rem;
+            border-radius: 0.75rem;
+            background: rgba(255, 255, 255, 0.96);
+            border: 1px solid rgba(245, 158, 11, 0.22);
+            box-shadow:
+                0 12px 32px rgba(15, 23, 42, 0.14),
+                0 0 0 1px rgba(255, 255, 255, 0.06) inset;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            animation: header-nav-menu-in 0.18s ease-out;
+        }
+        .header-nav-aps-menu-floating {
+            position: fixed;
+            z-index: 60;
+        }
+        .header-nav-aps-backdrop {
+            position: fixed;
+            inset: 0;
+            z-index: 15;
+            background: rgba(2, 6, 23, 0.18);
+            backdrop-filter: blur(1px);
+            -webkit-backdrop-filter: blur(1px);
+            animation: header-nav-backdrop-in 0.15s ease-out;
+        }
+        .dark .header-nav-aps-backdrop { background: rgba(2, 6, 23, 0.42); }
+        @keyframes header-nav-backdrop-in {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .header-nav-aps-menu-head {
+            padding: 0.35rem 0.65rem 0.25rem;
+            font-size: 0.5625rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: #b45309;
+            border-bottom: 1px solid rgba(245, 158, 11, 0.15);
+            margin-bottom: 0.15rem;
+        }
+        .header-nav-aps-menu-subhead {
+            border-bottom: none;
+            margin-bottom: 0;
+            margin-top: 0.15rem;
+            color: #92400e;
+            opacity: 0.9;
+        }
+        /* A group whose label opens its page (Platform, Why APS) */
+        button.header-nav-aps-menu-head.header-nav-aps-menu-head-link {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            transition: color 0.15s ease;
+        }
+        button.header-nav-aps-menu-head.header-nav-aps-menu-head-link:hover,
+        button.header-nav-aps-menu-head.header-nav-aps-menu-head-link:focus-visible {
+            color: #f59e0b;
+        }
+        button.header-nav-aps-menu-head {
+            width: 100%;
+            display: block;
+            text-align: left;
+            cursor: pointer;
+            background: transparent;
+            border: none;
+            font-family: inherit;
+            appearance: none;
+            -webkit-appearance: none;
+        }
+        button.header-nav-aps-nested-trigger {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        button.header-nav-aps-menu-subhead:hover { opacity: 1; }
+        button.header-nav-aps-menu-subhead:focus-visible {
+            outline: 2px solid rgba(245, 158, 11, 0.45);
+            outline-offset: 1px;
+        }
+        .header-nav-aps-menu-divider {
+            height: 1px;
+            margin: 0.35rem 0.35rem 0.25rem;
+            background: rgba(245, 158, 11, 0.15);
+        }
+        .header-nav-aps-nested-wrap { position: relative; }
+        .header-nav-aps-nested-trigger {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
+            text-align: left;
+            cursor: pointer;
+            background: transparent;
+            border: none;
+            font-family: inherit;
+            appearance: none;
+            -webkit-appearance: none;
+            border-radius: 0.5rem;
+            transition: background-color 0.15s ease, opacity 0.15s ease;
+        }
+        .header-nav-aps-nested-trigger:hover:not(.header-nav-tab-active),
+        .header-nav-aps-nested-trigger[aria-expanded="true"]:not(.header-nav-tab-active) {
+            opacity: 1;
+            background: transparent;
+            box-shadow: none;
+        }
+        .header-nav-aps-nested-trigger:focus-visible {
+            outline: 2px solid rgba(245, 158, 11, 0.45);
+            outline-offset: 1px;
+        }
+        .header-nav-aps-nested-menu {
+            position: absolute;
+            top: 0;
+            left: calc(100% + 0.35rem);
+            z-index: 2;
+            min-width: 11.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+            padding: 0.35rem;
+            border-radius: 0.75rem;
+            background: rgba(255, 255, 255, 0.96);
+            border: 1px solid rgba(245, 158, 11, 0.22);
+            box-shadow:
+                0 12px 32px rgba(15, 23, 42, 0.14),
+                0 0 0 1px rgba(255, 255, 255, 0.06) inset;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            animation: header-nav-nested-in 0.16s ease-out;
+        }
+        .header-nav-aps-nested-menu-left {
+            left: auto;
+            right: calc(100% + 0.35rem);
+        }
+        .dark .header-nav-aps-menu-head { color: #fbbf24; }
+        .dark .header-nav-aps-menu-subhead { color: #fcd34d; }
+        .dark .header-nav-aps-menu-divider { background: rgba(245, 158, 11, 0.2); }
+        .dark .header-nav-aps-menu {
+            background: rgba(15, 23, 42, 0.96);
+            border-color: rgba(245, 158, 11, 0.2);
+            box-shadow:
+                0 12px 32px rgba(0, 0, 0, 0.45),
+                0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+        }
+        .dark .header-nav-aps-nested-trigger:hover:not(.header-nav-tab-active),
+        .dark .header-nav-aps-nested-trigger[aria-expanded="true"]:not(.header-nav-tab-active) {
+            background: transparent;
+            box-shadow: none;
+        }
+        .dark .header-nav-aps-nested-menu {
+            background: rgba(15, 23, 42, 0.96);
+            border-color: rgba(245, 158, 11, 0.2);
+            box-shadow:
+                0 12px 32px rgba(0, 0, 0, 0.45),
+                0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+        }
+        @keyframes header-nav-menu-in {
+            from { opacity: 0; transform: translateY(-4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes header-nav-nested-in {
+            from { opacity: 0; transform: translateX(-4px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .header-nav-aps-menu,
+            .header-nav-aps-nested-menu { animation: none; }
+        }
+
+        .header-nav-chevron {
+            display: inline-block;
+            margin-left: 0.2rem;
+            opacity: 0.65;
+            transition: transform 0.2s ease;
+            flex-shrink: 0;
+        }
+        .header-nav-chevron-open { transform: rotate(180deg); }
+        .header-nav-chevron-nested {
+            margin-left: 0;
+            transform: rotate(-90deg);
+        }
+        .header-nav-chevron-nested-open { transform: rotate(90deg); }
+
+        .mobile-nav-nested-trigger {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
+            min-height: 2.75rem;
+            border-radius: 0.75rem;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            background: rgba(255, 255, 255, 0.7);
+            padding: 0.625rem 0.75rem;
+            text-align: left;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: rgb(71 85 105);
+            transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
+        }
+        .dark .mobile-nav-nested-trigger {
+            border-color: rgb(30 41 59);
+            background: rgba(15, 23, 42, 0.7);
+            color: rgb(203 213 225);
+        }
+        .mobile-nav-nested-trigger[aria-expanded="true"],
+        .mobile-nav-nested-trigger.is-active {
+            border-color: rgba(245, 158, 11, 0.4);
+            background: rgba(245, 158, 11, 0.1);
+            color: #d97706;
+        }
+        .dark .mobile-nav-nested-trigger[aria-expanded="true"],
+        .dark .mobile-nav-nested-trigger.is-active { color: #fbbf24; }
+        .mobile-nav-nested-children {
+            display: grid;
+            gap: 0.5rem;
+            padding-left: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .mobile-nav-panel {
+            max-height: calc(100dvh - 1rem - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+            animation: mobileNavIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            padding-bottom: max(1rem, env(safe-area-inset-bottom));
+        }
+        @keyframes mobileNavIn {
+            from { opacity: 0; transform: translateY(18px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 2px;
+        }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #475569; }
+
+        /* —— Footer chrome (from index) —— */
+        .opus-site-footer {
+            position: relative;
+            overflow-x: hidden;
+            flex-shrink: 0;
+            isolation: isolate;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            background: linear-gradient(
+                180deg,
+                rgba(255, 255, 255, 0.2) 0%,
+                rgba(248, 250, 252, 0.52) 32%,
+                rgba(241, 245, 249, 0.76) 100%
+            );
+            box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.4);
+        }
+        .dark .opus-site-footer {
+            background: linear-gradient(
+                180deg,
+                rgba(2, 6, 23, 0.12) 0%,
+                rgba(2, 6, 23, 0.5) 28%,
+                rgba(2, 6, 23, 0.76) 100%
+            );
+            box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.07);
+        }
+        .opus-site-footer::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background-image:
+                radial-gradient(50% 80% at 8% 100%, rgba(245, 158, 11, 0.12), transparent 68%),
+                radial-gradient(42% 60% at 92% 15%, rgba(14, 165, 233, 0.06), transparent 62%);
+        }
+        .opus-site-footer::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            pointer-events: none;
+            background: linear-gradient(
+                90deg,
+                transparent 0%,
+                rgba(245, 158, 11, 0.42) 22%,
+                rgba(100, 116, 139, 0.5) 50%,
+                rgba(245, 158, 11, 0.35) 78%,
+                transparent 100%
+            );
+        }
+        .dark .opus-site-footer::after {
+            background: linear-gradient(
+                90deg,
+                transparent 0%,
+                rgba(245, 158, 11, 0.28) 22%,
+                rgba(148, 163, 184, 0.22) 50%,
+                rgba(245, 158, 11, 0.2) 78%,
+                transparent 100%
+            );
+        }
+        .opus-site-footer-divider { border-color: rgb(203 213 225); }
+        .dark .opus-site-footer-divider { border-color: rgb(30 41 59); }
+
+        .opus-footer-accordion-panel {
+            display: grid;
+            grid-template-rows: 0fr;
+            transition: grid-template-rows 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .opus-footer-accordion-panel > div { overflow: hidden; }
+        .opus-footer-accordion-panel--open { grid-template-rows: 1fr; }
+        .opus-footer-accordion-chevron {
+            color: rgb(100 116 139);
+            transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .opus-footer-accordion-chevron--open { transform: rotate(180deg); }
+        .dark .opus-footer-accordion-chevron { color: rgb(148 163 184); }
+
+        /* —— Contact page content —— */
+        .contact-canvas-bg {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            width: 100%;
+            height: 100%;
+        }
+
+        .contact-shell {
+            position: relative;
+            z-index: auto;
+            min-height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .contact-eyebrow { letter-spacing: 0.18em; }
+
+        /*
+         * Contact glass slabs — same see-through + edge language in light and dark.
+         * No backdrop-filter: main is overflow:auto (backdrop root), so blur would
+         * frost the empty scroll surface instead of the network canvas.
+         */
+        .contact-hero,
+        .contact-panel {
+            position: relative;
+            overflow: hidden;
+            border-radius: 1.5rem;
+            border: 1px solid transparent;
+            background: transparent;
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+        }
+
+        /* Hero — MetricsBand amber → sky edge (light) */
+        .contact-hero {
+            /* Real border (Safari light often drops masked ::after rings) */
+            border-color: rgba(180, 83, 9, 0.42);
+            box-shadow:
+                0 0 0 1px rgba(245, 158, 11, 0.28),
+                0 14px 34px rgba(15, 23, 42, 0.05),
+                inset 0 1px 0 rgba(255, 255, 255, 0.55),
+                inset 0 -1px 0 rgba(148, 163, 184, 0.08);
+        }
+
+        .contact-hero::before {
+            content: '';
+            position: absolute;
+            inset: 1px;
+            border-radius: inherit;
+            background:
+                radial-gradient(ellipse 72% 55% at 50% 0%, rgba(255, 255, 255, 0.42), transparent 64%),
+                linear-gradient(135deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.05) 56%, rgba(245, 158, 11, 0.04));
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .contact-hero::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            padding: 1px;
+            background:
+                linear-gradient(135deg, rgba(255, 255, 255, 0.85), rgba(245, 158, 11, 0.55) 40%, rgba(56, 189, 248, 0.32) 70%, rgba(148, 163, 184, 0.35));
+            -webkit-mask:
+                linear-gradient(#000 0 0) content-box,
+                linear-gradient(#000 0 0);
+            -webkit-mask-composite: xor;
+            mask:
+                linear-gradient(#000 0 0) content-box,
+                linear-gradient(#000 0 0);
+            mask-composite: exclude;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Safari: mask-composite exclude is unreliable — keep solid amber rim */
+        @supports (-webkit-touch-callout: none) {
+            html:not(.dark) .contact-hero {
+                border-color: rgba(180, 83, 9, 0.48);
+                box-shadow:
+                    0 0 0 1px rgba(217, 119, 6, 0.35),
+                    0 14px 34px rgba(15, 23, 42, 0.05),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+                    inset 0 -1px 0 rgba(148, 163, 184, 0.08);
+            }
+
+            html:not(.dark) .contact-hero::after {
+                /* Fallback ring without mask — Safari paints this as a soft amber frame */
+                padding: 0;
+                background: transparent;
+                -webkit-mask: none;
+                mask: none;
+                box-shadow: inset 0 0 0 1px rgba(217, 119, 6, 0.4);
+            }
+        }
+
+        /* Panels — neutral rim (light), same as dark language without gold */
+        .contact-panel {
+            border-color: rgba(148, 163, 184, 0.28);
+            box-shadow:
+                0 0 0 1px rgba(148, 163, 184, 0.14),
+                0 14px 34px rgba(15, 23, 42, 0.05),
+                inset 0 1px 0 rgba(255, 255, 255, 0.55),
+                inset 0 -1px 0 rgba(148, 163, 184, 0.08);
+        }
+
+        .contact-panel::before {
+            content: '';
+            position: absolute;
+            inset: 1px;
+            border-radius: inherit;
+            background:
+                radial-gradient(ellipse 72% 55% at 50% 0%, rgba(255, 255, 255, 0.42), transparent 64%),
+                linear-gradient(135deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.05) 56%, transparent);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .contact-panel::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            padding: 1px;
+            background:
+                linear-gradient(135deg, rgba(255, 255, 255, 0.7), rgba(148, 163, 184, 0.32) 48%, rgba(148, 163, 184, 0.18));
+            -webkit-mask:
+                linear-gradient(#000 0 0) content-box,
+                linear-gradient(#000 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .dark .contact-hero {
+            border-color: rgba(245, 158, 11, 0.2);
+            box-shadow:
+                0 0 0 1px rgba(245, 158, 11, 0.12),
+                0 14px 34px rgba(0, 0, 0, 0.18),
+                inset 0 1px 0 rgba(255, 255, 255, 0.055),
+                inset 0 -1px 0 rgba(255, 255, 255, 0.012);
+        }
+
+        .dark .contact-panel {
+            border-color: rgba(255, 255, 255, 0.06);
+            box-shadow:
+                0 0 0 1px rgba(255, 255, 255, 0.04),
+                0 14px 34px rgba(0, 0, 0, 0.18),
+                inset 0 1px 0 rgba(255, 255, 255, 0.055),
+                inset 0 -1px 0 rgba(255, 255, 255, 0.012);
+        }
+
+        .dark .contact-hero::before {
+            background:
+                radial-gradient(ellipse 72% 55% at 50% 0%, rgba(255, 255, 255, 0.028), transparent 64%),
+                linear-gradient(135deg, rgba(255, 255, 255, 0.025), rgba(255, 255, 255, 0.008) 56%, rgba(245, 158, 11, 0.012));
+        }
+
+        .dark .contact-panel::before {
+            background:
+                radial-gradient(ellipse 72% 55% at 50% 0%, rgba(255, 255, 255, 0.028), transparent 64%),
+                linear-gradient(135deg, rgba(255, 255, 255, 0.025), rgba(255, 255, 255, 0.008) 56%, transparent);
+        }
+
+        .dark .contact-hero::after {
+            background:
+                linear-gradient(135deg, rgba(255, 255, 255, 0.16), rgba(245, 158, 11, 0.48) 40%, rgba(56, 189, 248, 0.14) 70%, rgba(255, 255, 255, 0.1));
+        }
+
+        .dark .contact-panel::after {
+            background:
+                linear-gradient(135deg, rgba(255, 255, 255, 0.14), rgba(148, 163, 184, 0.18) 45%, rgba(255, 255, 255, 0.08));
+        }
+
+        /* Hero photo — always-dark panel: night port under a navy scrim (see assets/PHOTO_CREDITS.md) */
+        .contact-hero.contact-hero--photo,
+        .dark .contact-hero.contact-hero--photo {
+            background:
+                linear-gradient(90deg, rgba(2, 6, 23, 0.92) 0%, rgba(2, 6, 23, 0.62) 45%, rgba(2, 6, 23, 0.1) 100%),
+                linear-gradient(180deg, rgba(2, 6, 23, 0.2) 0%, rgba(2, 6, 23, 0) 40%, rgba(2, 6, 23, 0.35) 100%),
+                url('./assets/contact-hero.jpg') right 62% / cover no-repeat,
+                #020617;
+            border-color: rgba(245, 158, 11, 0.28);
+            box-shadow:
+                0 0 0 1px rgba(245, 158, 11, 0.12),
+                0 30px 80px -40px rgba(2, 6, 23, 0.9),
+                inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        }
+
+        .contact-hero.contact-hero--photo::before,
+        .dark .contact-hero.contact-hero--photo::before {
+            background: radial-gradient(ellipse 60% 70% at 12% 0%, rgba(245, 158, 11, 0.1), transparent 62%);
+        }
+
+        .contact-hero.contact-hero--photo::after,
+        .dark .contact-hero.contact-hero--photo::after {
+            background:
+                linear-gradient(135deg, rgba(255, 255, 255, 0.16), rgba(245, 158, 11, 0.48) 40%, rgba(56, 189, 248, 0.14) 70%, rgba(255, 255, 255, 0.1));
+        }
+
+        @media (max-width: 639px) {
+            .contact-hero.contact-hero--photo,
+            .dark .contact-hero.contact-hero--photo {
+                background:
+                    linear-gradient(180deg, rgba(2, 6, 23, 0.9) 0%, rgba(2, 6, 23, 0.7) 55%, rgba(2, 6, 23, 0.45) 100%),
+                    url('./assets/contact-hero.jpg') 70% 62% / cover no-repeat,
+                    #020617;
+            }
+        }
+
+        .contact-hero > *,
+        .contact-panel > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .contact-field label {
+            display: block;
+            margin-bottom: 0.4rem;
+            font-size: 0.6875rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #334155;
+        }
+        .dark .contact-field label { color: #cbd5e1; }
+
+        .contact-field input,
+        .contact-field textarea {
+            width: 100%;
+            border-radius: 0.75rem;
+            border: 1px solid rgba(148, 163, 184, 0.4);
+            background: rgba(255, 255, 255, 0.92);
+            color: #0f172a;
+            padding: 0.7rem 0.9rem;
+            font-size: 0.9375rem;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        /* 16px on phones — iOS Safari zooms the page when a focused field is smaller */
+        @media (max-width: 767px) {
+            .contact-field input,
+            .contact-field textarea {
+                font-size: 1rem;
+            }
+        }
+
+        .dark .contact-field input,
+        .dark .contact-field textarea {
+            border-color: rgba(148, 163, 184, 0.22);
+            background: rgba(2, 6, 23, 0.72);
+            color: #f8fafc;
+        }
+        .contact-field input:focus,
+        .contact-field textarea:focus {
+            border-color: rgba(245, 158, 11, 0.65);
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.18);
+        }
+        .contact-field textarea {
+            min-height: 140px;
+            resize: vertical;
+        }
+
+        .contact-reveal {
+            opacity: 0;
+            transform: translateY(18px);
+            filter: blur(5px);
+            transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1), transform 0.65s cubic-bezier(0.16, 1, 0.3, 1), filter 0.65s ease;
+        }
+        .contact-reveal.is-visible {
+            opacity: 1;
+            transform: none;
+            filter: none;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .contact-reveal {
+                opacity: 1;
+                transform: none;
+                filter: none;
+                transition: none;
+            }
+        }
+        /* ---- About page ---- */
+        .about-scroll-target { scroll-margin-top: 1.5rem; }
+
+        @media (min-width: 1024px) {
+            .about-sticky { position: sticky; top: 1.5rem; }
+        }
+
+        /* Hero photo: the night city map from the landing hero, under a navy scrim */
+        .contact-hero.contact-hero--photo.about-hero--photo,
+        .dark .contact-hero.contact-hero--photo.about-hero--photo {
+            background:
+                linear-gradient(90deg, rgba(2, 6, 23, 0.9) 0%, rgba(2, 6, 23, 0.55) 50%, rgba(2, 6, 23, 0.15) 100%),
+                url('./assets/hero-map-night.jpg') center 45% / cover no-repeat,
+                #020617;
+        }
+
+        @media (max-width: 639px) {
+            .contact-hero.contact-hero--photo.about-hero--photo,
+            .dark .contact-hero.contact-hero--photo.about-hero--photo {
+                background:
+                    linear-gradient(180deg, rgba(2, 6, 23, 0.85) 0%, rgba(2, 6, 23, 0.6) 55%, rgba(2, 6, 23, 0.4) 100%),
+                    url('./assets/hero-map-night.jpg') center 45% / cover no-repeat,
+                    #020617;
+            }
+        }
+
+        .about-toc a {
+            display: block;
+            margin-left: -1px;
+            padding: 0.5rem 0 0.5rem 1rem;
+            border-left: 2px solid transparent;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #64748b;
+            transition: color 0.2s ease, border-color 0.2s ease;
+        }
+
+        .dark .about-toc a { color: #94a3b8; }
+
+        .about-toc a:hover,
+        .about-toc a:focus-visible {
+            color: #f59e0b;
+            border-left-color: #f59e0b;
+        }
+
+        /* Closing CTA — always-dark band over the night earth (same as the landing page) */
+        .about-cta {
+            position: relative;
+            isolation: isolate;
+            overflow: hidden;
+            background:
+                radial-gradient(60% 80% at 85% 35%, rgba(245, 158, 11, 0.16), transparent 60%),
+                linear-gradient(180deg, rgba(2, 6, 23, 0.55) 0%, rgba(2, 6, 23, 0.35) 45%, rgba(2, 6, 23, 0.85) 100%),
+                url('./assets/cta-earth-night.jpg') center 38% / cover no-repeat,
+                #020617;
+            box-shadow: 0 30px 80px -40px rgba(2, 6, 23, 0.9), inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+        }
+    </style>
+</head>
+
+<body>
+    <div id="root"></div>
+
+    <script src="./vendor/react-17.0.2.production.min.js"></script>
+    <script src="./vendor/react-dom-17.0.2.production.min.js"></script>
+    <script src="./vendor/babel-standalone-7.26.10.min.js"></script>
+    <script src="./operartis-logo-mark.js?v=20260815-mobile-scroll-intro"></script>
+    <script type="text/babel">
+        const { useState, useEffect, useLayoutEffect, useMemo, useRef, useCallback } = React;
+        const OperartisLogoMark = window.OperartisLogoMark;
+
+        // Shell labels match contact.html; the About text was moved here from the landing page (index.html).
+        const ABOUT_COPY = {
+            en: {
+                page_title: 'About Us',
+                about_title: "About Operartis",
+                about_who: "Who We Are",
+                about_what: "What We Do",
+                about_vision: "Vision & Philosophy",
+                about_why: "Why Choose Operartis",
+                about_who_text: [
+                    "Operartis is a specialized consulting and technology firm dedicated to helping enterprises streamline, optimize, and transform their operations.",
+                    "We combine deep expertise in supply chain, logistics, production, warehousing and manufacturing processes with advanced quantitative-optimization and simulation methods to deliver meaningful, measurable improvements.",
+                    "At Operartis, we understand that having data in an Enterprise Resource Planning (ERP) system is only the first step. True operational excellence requires turning that data into actionable planning, forecasting and scheduling insights. That’s why we focus on building, developing, and continuously improving a tailored Advanced Planning and Scheduling System (APS) — helping our clients leverage their data not just for record-keeping, but for real operational advantage."
+                ],
+                about_what_text: [
+                    "We consult with businesses to thoroughly analyze their supply chain, warehousing, logistics and production workflows — identifying inefficiencies, bottlenecks, and opportunities for optimization.",
+                    "We design and implement APS systems that integrate with existing ERPs (or, where needed, stand-alone), enabling advanced planning, simulation, demand forecasting, capacity planning and production scheduling.",
+                    "We support companies through all stages: from initial assessment and system design, to deployment, staff training, and continuous improvement — ensuring sustainable value over time.",
+                    "Our quantitative-driven approach allows clients to make data-backed decisions, reduce operational costs, minimize waste, shorten lead times and improve overall efficiency."
+                ],
+                about_vision_text: [
+                    "We aim to democratize operational and supply-chain optimization. We believe that every enterprise — whether small, medium or large — deserves access to powerful tools and expert guidance at reasonable price levels.",
+                    "We envision a world in which companies can guarantee that their entire supply chain works efficiently and in an optimized manner — saving time, effort, and costs, while ensuring smooth operations and high customer satisfaction.",
+                    "By embedding advanced optimization methods into an all-in-one APS system, Operartis helps unlock hidden potential in operational data — transforming raw information into strategic advantage, sustainable growth, and robust competitiveness."
+                ],
+                about_why_items: [
+                    { title: "Specialization & Expertise", text: "We are not a generalist IT or consulting firm. Our core competence lies in operations, supply-chain optimization, and APS/ERP integration." },
+                    { title: "Quantitative & Data-Driven", text: "Our approaches rely on simulation, modeling and data analytics — not guesswork. This ensures improvements are measurable and repeatable." },
+                    { title: "Tailored & Pragmatic Solutions", text: "We design APS systems that reflect your real-world constraints. What we build fits your operations — not the other way around." },
+                    { title: "Affordability & Value", text: "We strive to provide our services at reasonable price levels, making high-quality optimization accessible to a broad range of enterprises." },
+                    { title: "Commitment to Results", text: "Our mission is not just to deliver a system, but to help you achieve real improvements in efficiency, cost savings, and operational resilience." },
+                    { title: "Privacy Policy", text: "Your operational data stays protected. Operartis applies strict confidentiality, least-privilege access, and transparent handling — so responsible privacy becomes a trust advantage in every partnership." }
+                ],
+                invite_text: "Ready to build competitive advantages with a comprehensive optimization system?",
+                contact_operartis: "Contact Operartis",
+                nav_platform: 'Platform',
+                nav_solutions: 'Solutions',
+                nav_why_aps: 'Why APS',
+                nav_mathematical_foundation: 'Mathematical Foundation',
+                nav_supply_chain: 'Supply Chain',
+                nav_industry_40: 'Industry 4.0',
+                nav_analytics: 'Analytics Levels',
+                nav_aps_system: 'APS-System',
+                nav_implementation_process: 'Custom Deployment',
+                nav_about: 'About Us',
+                nav_contact: 'Contact',
+                nav_login: 'Login',
+                nav_dashboard: 'Dashboard',
+                nav_logout: 'Logout',
+                footer_tagline: 'An APS optimization platform that transforms ERP and MES data into actionable plans across the supply chain.',
+                footer_platform: 'Platform',
+                footer_solutions: 'Solutions',
+                footer_legal: 'Legal',
+                footer_company: 'Company',
+                footer_privacy: 'Privacy Policy',
+                footer_imprint: 'Imprint',
+                footer_terms: 'Terms of Service',
+                cta_why: 'Why Operartis',
+            },
+            vi: {
+                page_title: 'Về chúng tôi',
+                about_title: "Về Operartis",
+                about_who: "Chúng Tôi Là Ai",
+                about_what: "Chúng Tôi Làm Gì",
+                about_vision: "Tầm Nhìn & Triết Lý",
+                about_why: "Tại Sao Chọn Operartis",
+                about_who_text: [
+                    "Operartis là đơn vị tư vấn và công nghệ, hỗ trợ doanh nghiệp xây dựng một hệ thống vận hành trơn tru và tối ưu hóa quy trình.",
+                    "Chúng tôi kết hợp chuyên môn về chuỗi cung ứng, từ logistics, sản xuất đến kho bãi với các phương pháp định lượng và mô phỏng tiên tiến để mang lại cải tiến rõ rệt, có thể đo lường.",
+                    "Tại Operartis, chúng tôi hiểu rằng dữ liệu trong hệ thống ERP chỉ là bước đầu. Sự tối ưu trong vận hành đòi hỏi phải biến dữ liệu đó thành thông tin chi tiết cho dự báo, hoạch định ngắn trung và ngắn hạn, tới lập kế hoạch dài hạn. Đó là lý do chúng tôi tập trung phát triển Hệ thống Lập kế hoạch và Tối ưu hoá vận hành (APS) riêng biệt — giúp khách hàng tận dụng dữ liệu không chỉ để lưu trữ mà còn tạo lợi thế cạnh tranh nhờ vào quy trình vận hành được tối ưu."
+                ],
+                about_what_text: [
+                    "Chúng tôi tư vấn doanh nghiệp phân tích kỹ lưỡng quy trình vận hành toàn chuỗi cung ứng từ kho bãi, logistics và sản xuất, tới dự báo và tồn kho — nhận diện các điểm nghẽn, kém hiệu quả và cơ hội tối ưu hóa.",
+                    "Chúng tôi thiết kế và triển khai hệ thống APS được đóng gói sẵn hoặc tuỳ chỉnh theo yêu cầu có thể tích hợp với hệ thống ERP và MES hiện có của doanh nghiệp, cho phép lập kế hoạch chuyên sâu, mô phỏng, dự báo nhu cầu, hoạch định năng lực và lịch trình sản xuất, tối ưu hoá quản lý tồn kho, và vận tải.",
+                    "Chúng tôi đồng hành cùng khách hàng qua mọi giai đoạn: từ đánh giá ban đầu, tư vấn, thiết kế hệ thống, đến triển khai, đào tạo nhân sự và cải tiến liên tục — đảm bảo giá trị bền vững.",
+                    "Cách tiếp cận dựa trên định lượng của chúng tôi giúp khách hàng ra quyết định dựa trên dữ liệu và chứng minh, không phải cảm tính, giúp cắt giảm lãng phí, rút ngắn thời gian vận hành, và nâng cao hiệu quả tổng thể."
+                ],
+                about_vision_text: [
+                    "Chúng tôi hướng đến việc phổ cập tối ưu hóa vận hành và chuỗi cung ứng. Chúng tôi tin rằng mọi doanh nghiệp — dù nhỏ, vừa hay lớn — đều xứng đáng tiếp cận các công cụ mạnh mẽ và chuyên nghiệp với chi phí hợp lý.",
+                    "Chúng tôi hình dung một thế giới nơi các công ty có thể an tâm rằng toàn chuỗi cung ứng hoạt động hiệu quả và tối ưu — tiết kiệm thời gian, công sức và chi phí, đồng thời đảm bảo vận hành trơn tru và sự hài lòng cao của khách hàng.",
+                    "Bằng cách tích hợp các phương pháp tối ưu hóa tiên tiến vào hệ thống APS tất cả trong một, Operartis giúp khai phá tiềm năng ẩn trong dữ liệu vận hành — biến thông tin thô thành lợi thế chiến lược, tăng trưởng bền vững và năng lực cạnh tranh mạnh mẽ."
+                ],
+                about_why_items: [
+                    { title: "Chuyên Môn & Kinh Nghiệm", text: "Năng lực cốt lõi của chúng tôi nằm ở tư vấn vận hành, tối ưu hóa chuỗi cung ứng, xây dựng và tích hợp các hệ thống APS/ERP." },
+                    { title: "Định Lượng & Dựa Trên Dữ liệu", text: "Phương pháp của chúng tôi dựa trên mô phỏng, mô hình hóa và phân tích dữ liệu, xây dựng thuật toán tối ưu hoá — không phỏng đoán. Điều này đảm bảo cải tiến có thể đo lường và bền vững." },
+                    { title: "Giải Pháp Thực Tế & Chuyên Biệt", text: "Chúng tôi thiết kế hệ thống APS đáp ứng đúng với điều kiện thực tế của doanh nghiệp. Những gì chúng tôi xây dựng phù hợp với thực tế vận hành của doanh nghiệp." },
+                    { title: "Chi Phí Hợp Lý & Giá Trị", text: "Chúng tôi nỗ lực cung cấp dịch vụ với mức giá hợp lý, giúp việc triển khai các phương pháp tối ưu hóa chất lượng cao tiếp cận được với nhiều doanh nghiệp nhất có thể." },
+                    { title: "Cam Kết Kết Quả", text: "Sứ mệnh của chúng tôi không chỉ là bàn giao hệ thống, mà là giúp doanh nghiệp đạt được cải thiện thực sự về hiệu quả, và sự bền bỉ trong vận hành, cũng như tiết kiệm chi phí." },
+                    { title: "Chính sách Bảo mật", text: "Dữ liệu vận hành của bạn được bảo vệ nghiêm ngặt. Operartis áp dụng bảo mật thông tin, quyền truy cập tối thiểu và xử lý minh bạch — quyền riêng tư được tôn trọn chính là chìa khoá tin cậy trong mọi quan hệ đối tác." }
+                ],
+                invite_text: "Sẵn sàng xây dựng lợi thế cạnh tranh với một hệ thống tối ưu hóa toàn diện?",
+                contact_operartis: "Liên hệ Operartis",
+                nav_platform: 'Nền tảng',
+                nav_solutions: 'Giải pháp',
+                nav_why_aps: 'Vì sao cần APS',
+                nav_mathematical_foundation: 'Nền tảng toán học',
+                nav_supply_chain: 'Chuỗi cung ứng',
+                nav_industry_40: 'Công nghiệp 4.0',
+                nav_analytics: 'Cấp độ phân tích',
+                nav_aps_system: 'Hệ thống APS',
+                nav_implementation_process: 'Triển khai tùy chỉnh',
+                nav_about: 'Về chúng tôi',
+                nav_contact: 'Liên hệ',
+                nav_login: 'Đăng nhập',
+                nav_dashboard: 'Bảng điều khiển',
+                nav_logout: 'Đăng xuất',
+                footer_tagline: 'Nền tảng tối ưu APS biến dữ liệu ERP và MES thành kế hoạch khả thi trên toàn chuỗi cung ứng.',
+                footer_platform: 'Nền tảng',
+                footer_solutions: 'Giải pháp',
+                footer_legal: 'Pháp lý',
+                footer_company: 'Công ty',
+                footer_privacy: 'Chính sách bảo mật',
+                footer_imprint: 'Thông tin pháp lý',
+                footer_terms: 'Điều khoản dịch vụ',
+                cta_why: 'Vì Sao Chọn Operartis',
+            },
+            de: {
+                page_title: 'Über uns',
+                about_title: "Über Operartis",
+                about_who: "Wer wir sind",
+                about_what: "Was wir tun",
+                about_vision: "Vision & Philosophie",
+                about_why: "Warum Operartis",
+                about_who_text: [
+                    "Operartis ist ein spezialisiertes Beratungs- und Technologieunternehmen, das Unternehmen dabei unterstützt, ihre Abläufe zu straffen, zu optimieren und zu transformieren.",
+                    "Wir verbinden tiefes Fachwissen in Supply Chain, Logistik, Produktion, Lagerhaltung und Fertigung mit fortgeschrittenen quantitativen Optimierungs- und Simulationsmethoden, um messbare Verbesserungen zu erzielen.",
+                    "Bei Operartis wissen wir, dass Daten im ERP-System nur der erste Schritt sind. Echte operative Exzellenz erfordert, diese Daten in umsetzbare Planungs-, Prognose- und Terminierungserkenntnisse zu verwandeln. Deshalb entwickeln wir ein maßgeschneidertes Advanced Planning and Scheduling System (APS) — damit unsere Kunden ihre Daten nicht nur zur Dokumentation, sondern für echten operativen Vorteil nutzen."
+                ],
+                about_what_text: [
+                    "Wir beraten Unternehmen bei der gründlichen Analyse ihrer Supply-Chain-, Lager-, Logistik- und Produktionsabläufe — und identifizieren Ineffizienzen, Engpässe und Optimierungspotenziale.",
+                    "Wir entwerfen und implementieren APS-Systeme, die in bestehende ERPs integriert werden (oder bei Bedarf eigenständig arbeiten), und ermöglichen erweiterte Planung, Simulation, Nachfrageprognose, Kapazitätsplanung und Produktionsterminierung.",
+                    "Wir begleiten Unternehmen in allen Phasen: von der Erstbewertung und Systemgestaltung über die Einführung und Schulung bis zur kontinuierlichen Verbesserung — für nachhaltigen Mehrwert.",
+                    "Unser quantitativer Ansatz ermöglicht datenbasierte Entscheidungen, senkt Betriebskosten, reduziert Verschwendung, verkürzt Durchlaufzeiten und steigert die Gesamteffizienz."
+                ],
+                about_vision_text: [
+                    "Wir wollen operative und Supply-Chain-Optimierung demokratisieren. Jedes Unternehmen — ob klein, mittel oder groß — verdient Zugang zu leistungsstarken Tools und fachkundiger Beratung zu angemessenen Preisen.",
+                    "Wir stellen uns eine Welt vor, in der Unternehmen sicher sein können, dass ihre gesamte Supply Chain effizient und optimiert arbeitet — Zeit, Aufwand und Kosten spart und gleichzeitig reibungslose Abläufe und hohe Kundenzufriedenheit sicherstellt.",
+                    "Durch die Einbettung fortgeschrittener Optimierungsmethoden in ein All-in-One-APS-System hilft Operartis, verborgenes Potenzial in Betriebsdaten freizusetzen — und Rohinformationen in strategischen Vorteil, nachhaltiges Wachstum und starke Wettbewerbsfähigkeit zu verwandeln."
+                ],
+                about_why_items: [
+                    { title: "Spezialisierung & Expertise", text: "Wir sind keine allgemeine IT- oder Beratungsfirma. Unsere Kernkompetenz liegt in Operations, Supply-Chain-Optimierung und APS/ERP-Integration." },
+                    { title: "Quantitativ & datengetrieben", text: "Unsere Ansätze basieren auf Simulation, Modellierung und Datenanalyse — nicht auf Vermutungen. So sind Verbesserungen messbar und wiederholbar." },
+                    { title: "Maßgeschneiderte & pragmatische Lösungen", text: "Wir entwickeln APS-Systeme, die Ihre realen Rahmenbedingungen widerspiegeln. Was wir bauen, passt zu Ihren Abläufen — nicht umgekehrt." },
+                    { title: "Erschwinglichkeit & Mehrwert", text: "Wir streben angemessene Preise an und machen hochwertige Optimierung für ein breites Spektrum von Unternehmen zugänglich." },
+                    { title: "Ergebnisorientierung", text: "Unsere Mission ist nicht nur die Lieferung eines Systems, sondern echte Verbesserungen in Effizienz, Kosteneinsparung und operativer Resilienz." },
+                    { title: "Datenschutz", text: "Ihre Betriebsdaten bleiben geschützt. Operartis setzt auf strikte Vertraulichkeit, minimalen Zugriff und transparente Handhabung — verantwortungsvoller Datenschutz als Vertrauensvorteil in jeder Partnerschaft." }
+                ],
+                invite_text: "Bereit, Wettbewerbsvorteile mit einem umfassenden Optimierungssystem aufzubauen?",
+                contact_operartis: "Operartis kontaktieren",
+                nav_platform: 'Plattform',
+                nav_solutions: 'Lösungen',
+                nav_why_aps: 'Warum APS',
+                nav_mathematical_foundation: 'Mathematische Grundlage',
+                nav_supply_chain: 'Lieferkette',
+                nav_industry_40: 'Industry 4.0',
+                nav_analytics: 'Analytics-Stufen',
+                nav_aps_system: 'APS-System',
+                nav_implementation_process: 'Individuelles Deployment',
+                nav_about: 'Über uns',
+                nav_contact: 'Kontakt',
+                nav_login: 'Anmelden',
+                nav_dashboard: 'Ihr Dashboard',
+                nav_logout: 'Abmelden',
+                footer_tagline: 'Eine APS-Optimierungsplattform, die ERP- und MES-Daten in umsetzbare Pläne über die gesamte Lieferkette verwandelt.',
+                footer_platform: 'Plattform',
+                footer_solutions: 'Lösungen',
+                footer_legal: 'Rechtliches',
+                footer_company: 'Unternehmen',
+                footer_privacy: 'Datenschutz',
+                footer_imprint: 'Impressum',
+                footer_terms: 'Nutzungsbedingungen',
+                cta_why: 'Warum Operartis',
+            },
+        };
+
+        const NAV_HREF = {
+            'proof-foundation': './why-aps#proof-foundation',
+            'supply-chain': './#supply-chain',
+            'industry-40': './why-aps#industry-40',
+            'analytics': './why-aps#analytics',
+            'platform': './platform',
+            'matrix-fit': './platform',
+            'why-aps-top': './why-aps',
+            'strategic': './platform#horizon-strategic',
+            'tactical': './platform#horizon-tactical',
+            'operational': './platform#horizon-operational',
+            'cross': './platform#horizon-cross',
+            'or-process': './#or-process',
+            'about': './about',
+            'about-why': './about#about-why',
+            'contact': './contact',
+        };
+
+        const APS_HORIZON_NAV = {
+            en: [
+                { id: 'strategic', label: 'Strategic' },
+                { id: 'tactical', label: 'Tactical' },
+                { id: 'operational', label: 'Operational' },
+                { id: 'cross', label: 'Cross-Functional' },
+            ],
+            vi: [
+                { id: 'strategic', label: 'Chiến lược' },
+                { id: 'tactical', label: 'Chiến thuật' },
+                { id: 'operational', label: 'Vận hành' },
+                { id: 'cross', label: 'Đa chức năng' },
+            ],
+            de: [
+                { id: 'strategic', label: 'Strategisch' },
+                { id: 'tactical', label: 'Taktisch' },
+                { id: 'operational', label: 'Operativ' },
+                { id: 'cross', label: 'Funktionsübergreifend' },
+            ],
+        };
+
+        // The menu mirrors the pages: Platform (platform.html), Why APS (why-aps.html), About Us, Contact.
+        // A group's navId is where its label leads; its children are sections of that page.
+        const buildPageNavItems = (ui, lang = 'en') => ([
+            {
+                id: 'platform-group',
+                label: ui.nav_platform,
+                navId: 'matrix-fit',
+                children: APS_HORIZON_NAV[lang] || APS_HORIZON_NAV.en,
+            },
+            {
+                id: 'why-aps-group',
+                label: ui.nav_why_aps,
+                navId: 'why-aps-top',
+                children: [
+                    { id: 'industry-40', label: ui.nav_industry_40 },
+                    { id: 'analytics', label: ui.nav_analytics },
+                    { id: 'proof-foundation', label: ui.nav_mathematical_foundation },
+                ],
+            },
+            { id: 'about', label: ui.nav_about },
+            { id: 'contact', label: ui.nav_contact },
+        ]);
+
+        const navItemContainsId = (item, targetId) => {
+            if (!item || !targetId) return false;
+            if (item.id === targetId) return true;
+            return (item.children || []).some(child => navItemContainsId(child, targetId));
+        };
+
+        const navigateToNavId = (id) => {
+            const href = NAV_HREF[id] || './';
+            if (id === 'about') {
+                document.querySelector('main')?.scrollTo({ top: 0, behavior: 'smooth' });
+                return;
+            }
+            if (typeof window.OperartisNavIndicator?.go === 'function') {
+                window.OperartisNavIndicator.go(href);
+                return;
+            }
+            window.location.href = href;
+        };
+
+        const SunIcon = () => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" /><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" /><line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" /><line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+            </svg>
+        );
+        const MoonIcon = () => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+            </svg>
+        );
+        const SystemIcon = () => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <rect width="20" height="14" x="2" y="3" rx="2" /><line x1="8" x2="16" y1="21" y2="21" /><line x1="12" x2="12" y1="17" y2="21" />
+            </svg>
+        );
+        const GlobeIcon = () => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="10" /><line x1="2" y1="12" x2="22" y2="12" /><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+            </svg>
+        );
+        const UserIcon = () => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
+            </svg>
+        );
+        const accountDisplayName = (user) => user?.full_name || user?.email || 'Member';
+        const accountInitials = (user) => {
+            const name = accountDisplayName(user);
+            const parts = name.replace(/@.*/, '').split(/[.\s_-]+/).filter(Boolean);
+            return `${parts[0]?.[0] || 'M'}${parts[1]?.[0] || parts[0]?.[1] || ''}`.toUpperCase();
+        };
+        const AccountAvatar = ({ user }) => {
+            if (user?.avatar_data_url) {
+                return <img className="index-account-avatar-img" src={user.avatar_data_url} alt="" aria-hidden="true" />;
+            }
+            if (user) {
+                return <span className="index-account-avatar-initials" aria-hidden="true">{accountInitials(user)}</span>;
+            }
+            return <span className="header-util-icon" aria-hidden="true"><UserIcon /></span>;
+        };
+        const AccountDashboardIcon = () => (
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <rect width="7" height="9" x="3" y="3" rx="1" /><rect width="7" height="5" x="14" y="3" rx="1" /><rect width="7" height="9" x="14" y="12" rx="1" /><rect width="7" height="5" x="3" y="16" rx="1" />
+            </svg>
+        );
+        const AccountLoginIcon = () => (
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" /><polyline points="10 17 15 12 10 7" /><line x1="15" y1="12" x2="3" y2="12" />
+            </svg>
+        );
+        const AccountLogoutIcon = () => (
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
+        );
+        const MenuIcon = () => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <line x1="4" y1="6" x2="20" y2="6" /><line x1="4" y1="12" x2="20" y2="12" /><line x1="4" y1="18" x2="20" y2="18" />
+            </svg>
+        );
+        const CloseIcon = () => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+        );
+        const ChevronDownIcon = ({ className = '' }) => (
+            <svg className={className} xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <polyline points="6 9 12 15 18 9" />
+            </svg>
+        );
+
+        const Reveal = ({ children, className = '', delay = 0 }) => {
+            const ref = useRef(null);
+            const [visible, setVisible] = useState(false);
+            useEffect(() => {
+                const el = ref.current;
+                if (!el) return undefined;
+                const obs = new IntersectionObserver(([entry]) => {
+                    if (entry.isIntersecting) {
+                        setVisible(true);
+                        obs.disconnect();
+                    }
+                }, { threshold: 0.16, rootMargin: '0px 0px -32px 0px' });
+                obs.observe(el);
+                return () => obs.disconnect();
+            }, []);
+            return (
+                <div
+                    ref={ref}
+                    className={`contact-reveal ${visible ? 'is-visible' : ''} ${className}`}
+                    style={{ transitionDelay: `${delay}ms` }}
+                >
+                    {children}
+                </div>
+            );
+        };
+
+        /* Same network/grid language as landing LandingCanvasBackground */
+        const ContactCanvas = ({ theme }) => {
+            const canvasRef = useRef(null);
+            const frameRef = useRef(null);
+            const stateRef = useRef({ nodes: [], w: 0, h: 0, linkDist: 130 });
+
+            const isDark = useMemo(() => (
+                theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
+            ), [theme]);
+
+            useEffect(() => {
+                const canvas = canvasRef.current;
+                if (!canvas) return undefined;
+
+                const ctx = canvas.getContext('2d');
+                const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+                const GRID_STEP = 48;
+
+                const getNetworkParams = (w, h) => {
+                    if (w < 768) return { nodeCount: 42, linkDist: 130 };
+                    if (w < 1024) return { nodeCount: 48, linkDist: 140 };
+                    const area = w * h;
+                    const nodeCount = Math.max(52, Math.min(72, Math.round(area / 32000)));
+                    const spacing = Math.sqrt(area / nodeCount);
+                    const linkDist = Math.max(145, Math.min(190, Math.round(spacing * 1.35)));
+                    return { nodeCount, linkDist };
+                };
+
+                const palette = () => (isDark ? {
+                    fill: '#020617',
+                    grid: 'rgba(148, 163, 184, 0.07)',
+                    line: 'rgba(251, 191, 36, 0.42)',
+                    node: 'rgba(245, 158, 11, 0.5)',
+                    vignette: 'rgba(2, 6, 23, 0.4)',
+                } : {
+                    fill: '#ffffff',
+                    grid: 'rgba(148, 163, 184, 0.08)',
+                    line: 'rgba(217, 119, 6, 0.28)',
+                    node: 'rgba(217, 119, 6, 0.32)',
+                    vignette: 'rgba(255, 255, 255, 0.35)',
+                });
+
+                const seedNodes = (w, h, count) => Array.from({ length: count }, (_, i) => {
+                    const isHub = i % 16 === 0;
+                    return {
+                        x: Math.random() * w,
+                        y: Math.random() * h,
+                        vx: (Math.random() - 0.5) * (isHub ? 0.07 : 0.12),
+                        vy: (Math.random() - 0.5) * (isHub ? 0.07 : 0.12),
+                        r: isHub ? 1.8 + Math.random() * 0.8 : 1 + Math.random() * 1.4,
+                        hub: isHub,
+                    };
+                });
+
+                const resize = () => {
+                    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+                    const w = window.innerWidth;
+                    const h = window.innerHeight;
+                    const { nodeCount, linkDist } = getNetworkParams(w, h);
+                    canvas.width = Math.floor(w * dpr);
+                    canvas.height = Math.floor(h * dpr);
+                    canvas.style.width = `${w}px`;
+                    canvas.style.height = `${h}px`;
+                    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+                    const prev = stateRef.current;
+                    const sizeChanged = Math.abs(prev.w - w) > 64 || Math.abs(prev.h - h) > 64;
+                    const countChanged = prev.nodes.length !== nodeCount;
+                    if (!prev.nodes.length || sizeChanged || countChanged) {
+                        stateRef.current.nodes = seedNodes(w, h, nodeCount);
+                    } else {
+                        for (const node of prev.nodes) {
+                            node.x = Math.max(0, Math.min(w, node.x));
+                            node.y = Math.max(0, Math.min(h, node.y));
+                        }
+                    }
+                    stateRef.current.w = w;
+                    stateRef.current.h = h;
+                    stateRef.current.linkDist = linkDist;
+                };
+
+                const draw = () => {
+                    const { w, h, nodes, linkDist } = stateRef.current;
+                    if (!w || !h) return;
+
+                    const colors = palette();
+                    ctx.clearRect(0, 0, w, h);
+                    ctx.fillStyle = colors.fill;
+                    ctx.fillRect(0, 0, w, h);
+
+                    ctx.strokeStyle = colors.grid;
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    for (let x = 0; x <= w; x += GRID_STEP) {
+                        ctx.moveTo(x + 0.5, 0);
+                        ctx.lineTo(x + 0.5, h);
+                    }
+                    for (let y = 0; y <= h; y += GRID_STEP) {
+                        ctx.moveTo(0, y + 0.5);
+                        ctx.lineTo(w, y + 0.5);
+                    }
+                    ctx.stroke();
+
+                    const cx = w / 2;
+                    const cy = h / 2;
+                    const radius = Math.max(w, h) * 0.72;
+                    const vignette = ctx.createRadialGradient(cx, cy, radius * 0.15, cx, cy, radius);
+                    vignette.addColorStop(0, 'rgba(0,0,0,0)');
+                    vignette.addColorStop(1, colors.vignette);
+                    ctx.fillStyle = vignette;
+                    ctx.fillRect(0, 0, w, h);
+
+                    if (!prefersReducedMotion) {
+                        for (const node of nodes) {
+                            node.x += node.vx;
+                            node.y += node.vy;
+                            if (node.x <= 0 || node.x >= w) node.vx *= -1;
+                            if (node.y <= 0 || node.y >= h) node.vy *= -1;
+                            node.x = Math.max(0, Math.min(w, node.x));
+                            node.y = Math.max(0, Math.min(h, node.y));
+                        }
+                    }
+
+                    const maxLink = linkDist || 130;
+                    const hubBonus = w >= 1024 ? maxLink * 0.12 : 0;
+                    for (let i = 0; i < nodes.length; i++) {
+                        for (let j = i + 1; j < nodes.length; j++) {
+                            const dx = nodes[i].x - nodes[j].x;
+                            const dy = nodes[i].y - nodes[j].y;
+                            const dist = Math.hypot(dx, dy);
+                            const reach = maxLink + ((nodes[i].hub || nodes[j].hub) ? hubBonus : 0);
+                            if (dist < reach) {
+                                const fade = 1 - dist / reach;
+                                ctx.globalAlpha = 0.18 + fade * (isDark ? 0.38 : 0.32);
+                                ctx.strokeStyle = colors.line;
+                                ctx.lineWidth = 1;
+                                ctx.beginPath();
+                                ctx.moveTo(nodes[i].x, nodes[i].y);
+                                ctx.lineTo(nodes[j].x, nodes[j].y);
+                                ctx.stroke();
+                            }
+                        }
+                    }
+                    ctx.globalAlpha = 1;
+
+                    for (const node of nodes) {
+                        ctx.beginPath();
+                        ctx.arc(node.x, node.y, node.r, 0, Math.PI * 2);
+                        ctx.fillStyle = colors.node;
+                        ctx.fill();
+                    }
+                };
+
+                const tick = () => {
+                    draw();
+                    frameRef.current = requestAnimationFrame(tick);
+                };
+
+                resize();
+                draw();
+                window.addEventListener('resize', resize);
+                frameRef.current = requestAnimationFrame(tick);
+                return () => {
+                    window.removeEventListener('resize', resize);
+                    if (frameRef.current) cancelAnimationFrame(frameRef.current);
+                };
+            }, [isDark]);
+
+            return <canvas ref={canvasRef} className="contact-canvas-bg" aria-hidden="true" />;
+        };
+
+        const HeaderNav = ({ items, activeId, onNav, navRef, onCollapseChange }) => {
+            const slotRef = useRef(null);
+            const rulerRef = useRef(null);
+            const scrollRef = useRef(null);
+            const trackRef = useRef(null);
+            const tabRefs = useRef({});
+            const triggerRefs = useRef({});
+            const [navFits, setNavFits] = useState(true);
+            const handoffRef = useRef(undefined);
+            if (handoffRef.current === undefined) {
+                handoffRef.current = typeof window.OperartisNavIndicator?.consume === 'function'
+                    ? window.OperartisNavIndicator.consume()
+                    : null;
+            }
+            const handoffPendingRef = useRef(!!handoffRef.current);
+            const [indicator, setIndicator] = useState(() => {
+                const handoff = handoffRef.current;
+                if (handoff) {
+                    return {
+                        left: handoff.left,
+                        top: handoff.top,
+                        width: handoff.width,
+                        height: handoff.height,
+                        ready: true,
+                    };
+                }
+                return { left: 0, top: 0, width: 0, height: 0, ready: false };
+            });
+            const [indicatorAnimated, setIndicatorAnimated] = useState(false);
+            const [openMenuId, setOpenMenuId] = useState(null);
+            const [openNestedId, setOpenNestedId] = useState(null);
+            const [nestedPlacement, setNestedPlacement] = useState('right');
+            const [menuRect, setMenuRect] = useState(null);
+            const menuCloseTimerRef = useRef(null);
+            const nestedTriggerRefs = useRef({});
+
+            const clearMenuCloseTimer = useCallback(() => {
+                if (menuCloseTimerRef.current) {
+                    clearTimeout(menuCloseTimerRef.current);
+                    menuCloseTimerRef.current = null;
+                }
+            }, []);
+
+            const prefersHoverMenus = useCallback(() => {
+                try {
+                    return window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+                } catch (e) {
+                    return true;
+                }
+            }, []);
+
+            const openMenu = useCallback((id) => {
+                clearMenuCloseTimer();
+                setOpenNestedId(null);
+                setOpenMenuId(id);
+            }, [clearMenuCloseTimer]);
+
+            const closeMenu = useCallback(() => {
+                clearMenuCloseTimer();
+                setOpenNestedId(null);
+                setOpenMenuId(null);
+            }, [clearMenuCloseTimer]);
+
+            const scheduleCloseMenu = useCallback(() => {
+                clearMenuCloseTimer();
+                menuCloseTimerRef.current = setTimeout(() => {
+                    menuCloseTimerRef.current = null;
+                    setOpenNestedId(null);
+                    setOpenMenuId(null);
+                }, 160);
+            }, [clearMenuCloseTimer]);
+
+            useEffect(() => () => clearMenuCloseTimer(), [clearMenuCloseTimer]);
+
+            const openMenuItem = useMemo(
+                () => items.find(item => item.id === openMenuId) || null,
+                [items, openMenuId]
+            );
+
+            const indicatorTargetId = useMemo(() => {
+                const match = items.find(item => navItemContainsId(item, activeId));
+                return match ? match.id : null;
+            }, [activeId, items]);
+
+            const isTabActive = useCallback((item) => {
+                if (item.children?.length) {
+                    return navItemContainsId(item, activeId);
+                }
+                return activeId === item.id;
+            }, [activeId]);
+
+            const updateIndicator = useCallback(() => {
+                if (handoffPendingRef.current) return;
+                const track = trackRef.current;
+                const target = tabRefs.current[indicatorTargetId];
+                if (!track || !target) {
+                    setIndicator(prev => (prev.ready ? { ...prev, ready: false } : prev));
+                    return;
+                }
+                const trackRect = track.getBoundingClientRect();
+                const targetRect = target.getBoundingClientRect();
+                setIndicator({
+                    // the highlight is positioned inside the bar's 1px border, so measure from there
+                    left: targetRect.left - trackRect.left - track.clientLeft,
+                    top: targetRect.top - trackRect.top - track.clientTop,
+                    width: targetRect.width,
+                    height: targetRect.height,
+                    ready: true,
+                });
+                if (!indicatorAnimated) {
+                    requestAnimationFrame(() => setIndicatorAnimated(true));
+                }
+            }, [indicatorTargetId, indicatorAnimated]);
+
+            useLayoutEffect(() => {
+                if (!navFits) return undefined;
+
+                let cancelled = false;
+                let outerRaf = 0;
+                let innerRaf = 0;
+
+                if (handoffPendingRef.current) {
+                    outerRaf = requestAnimationFrame(() => {
+                        if (cancelled) return;
+                        setIndicatorAnimated(true);
+                        innerRaf = requestAnimationFrame(() => {
+                            if (cancelled) return;
+                            handoffPendingRef.current = false;
+                            updateIndicator();
+                        });
+                    });
+                } else {
+                    updateIndicator();
+                }
+
+                const ro = new ResizeObserver(() => {
+                    if (handoffPendingRef.current) return;
+                    updateIndicator();
+                });
+                if (trackRef.current) ro.observe(trackRef.current);
+                Object.values(tabRefs.current).forEach(el => {
+                    if (el) ro.observe(el);
+                });
+                window.addEventListener('resize', updateIndicator);
+                return () => {
+                    cancelled = true;
+                    cancelAnimationFrame(outerRaf);
+                    cancelAnimationFrame(innerRaf);
+                    ro.disconnect();
+                    window.removeEventListener('resize', updateIndicator);
+                };
+            }, [indicatorTargetId, items, navFits, updateIndicator]);
+
+            const setTabRef = useCallback((id, el) => {
+                if (el) tabRefs.current[id] = el;
+                else delete tabRefs.current[id];
+            }, []);
+
+            useEffect(() => {
+                if (navRef) navRef.current = slotRef.current;
+            }, [navRef]);
+
+            useEffect(() => {
+                const measure = () => {
+                    const slot = slotRef.current;
+                    const ruler = rulerRef.current;
+                    if (!slot || !ruler) return;
+                    const fits = ruler.scrollWidth <= slot.clientWidth + 2;
+                    setNavFits(prev => {
+                        if (prev !== fits) onCollapseChange?.(!fits);
+                        return fits;
+                    });
+                };
+                measure();
+                const ro = new ResizeObserver(measure);
+                if (slotRef.current) ro.observe(slotRef.current);
+                if (rulerRef.current) ro.observe(rulerRef.current);
+                window.addEventListener('resize', measure);
+                return () => {
+                    ro.disconnect();
+                    window.removeEventListener('resize', measure);
+                };
+            }, [items, onCollapseChange]);
+
+            useEffect(() => {
+                if (!navFits) setOpenMenuId(null);
+            }, [navFits]);
+
+            const updateMenuRect = useCallback(() => {
+                if (!openMenuId) return;
+                const el = triggerRefs.current[openMenuId];
+                if (!el) return;
+                const r = el.getBoundingClientRect();
+                setMenuRect({
+                    top: r.bottom + 8,
+                    left: r.left,
+                    minWidth: Math.max(r.width, 192),
+                });
+            }, [openMenuId]);
+
+            useEffect(() => {
+                if (!openMenuId) {
+                    setMenuRect(null);
+                    return undefined;
+                }
+                updateMenuRect();
+                const onLayout = () => updateMenuRect();
+                window.addEventListener('resize', onLayout);
+                window.addEventListener('scroll', onLayout, true);
+                return () => {
+                    window.removeEventListener('resize', onLayout);
+                    window.removeEventListener('scroll', onLayout, true);
+                };
+            }, [openMenuId, updateMenuRect]);
+
+            useEffect(() => {
+                if (!openMenuId) {
+                    setOpenNestedId(null);
+                    return undefined;
+                }
+                const onKeyDown = (e) => {
+                    if (e.key !== 'Escape') return;
+                    if (openNestedId) {
+                        setOpenNestedId(null);
+                        return;
+                    }
+                    closeMenu();
+                };
+                window.addEventListener('keydown', onKeyDown);
+                return () => window.removeEventListener('keydown', onKeyDown);
+            }, [openMenuId, openNestedId, closeMenu]);
+
+            useLayoutEffect(() => {
+                if (!openNestedId) {
+                    setNestedPlacement('right');
+                    return undefined;
+                }
+                const el = nestedTriggerRefs.current[openNestedId];
+                if (!el) return undefined;
+                const updatePlacement = () => {
+                    const r = el.getBoundingClientRect();
+                    const spaceRight = window.innerWidth - r.right;
+                    setNestedPlacement(spaceRight < 200 ? 'left' : 'right');
+                };
+                updatePlacement();
+                window.addEventListener('resize', updatePlacement);
+                return () => window.removeEventListener('resize', updatePlacement);
+            }, [openNestedId, menuRect]);
+
+            useEffect(() => {
+                if (!navFits) return undefined;
+                const el = scrollRef.current;
+                if (!el) return;
+                const onWheel = (e) => {
+                    if (el.scrollWidth <= el.clientWidth) return;
+                    if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+                    if (e.deltaY === 0) return;
+                    e.preventDefault();
+                    el.scrollLeft += e.deltaY;
+                };
+                el.addEventListener('wheel', onWheel, { passive: false });
+                return () => el.removeEventListener('wheel', onWheel);
+            }, [items, navFits]);
+
+            const tabClass = (isActive) => `header-nav-tab ${isActive ? 'header-nav-tab-active' : ''}`;
+
+            const toggleMenu = useCallback((id) => {
+                setOpenNestedId(null);
+                setOpenMenuId(prev => (prev === id ? null : id));
+            }, []);
+
+            const closeMenuAndNav = useCallback((id) => {
+                onNav(id);
+                closeMenu();
+            }, [onNav, closeMenu]);
+
+            const toggleNestedMenu = useCallback((id) => {
+                setOpenNestedId(prev => (prev === id ? null : id));
+            }, []);
+
+            const onDropdownTriggerEnter = useCallback((id) => {
+                if (!prefersHoverMenus()) return;
+                openMenu(id);
+            }, [openMenu, prefersHoverMenus]);
+
+            const onDropdownTriggerLeave = useCallback(() => {
+                if (!prefersHoverMenus()) return;
+                scheduleCloseMenu();
+            }, [prefersHoverMenus, scheduleCloseMenu]);
+
+            const onDropdownMenuEnter = useCallback(() => {
+                if (!prefersHoverMenus()) return;
+                clearMenuCloseTimer();
+            }, [clearMenuCloseTimer, prefersHoverMenus]);
+
+            const onDropdownMenuLeave = useCallback(() => {
+                if (!prefersHoverMenus()) return;
+                scheduleCloseMenu();
+            }, [prefersHoverMenus, scheduleCloseMenu]);
+
+            const onPlainTabEnter = useCallback(() => {
+                if (!prefersHoverMenus()) return;
+                if (openMenuId) scheduleCloseMenu();
+            }, [openMenuId, prefersHoverMenus, scheduleCloseMenu]);
+
+            const renderMenuEntries = (entries) => {
+                const nodes = [];
+                entries.forEach((entry) => {
+                    if (entry.children?.length) {
+                        const isNestedOpen = openNestedId === entry.id;
+                        const nestedActive = navItemContainsId(entry, activeId);
+                        nodes.push(
+                            <div
+                                key={entry.id}
+                                className="header-nav-aps-nested-wrap"
+                                onMouseEnter={() => {
+                                    if (prefersHoverMenus()) setOpenNestedId(entry.id);
+                                }}
+                            >
+                                <button
+                                    ref={(el) => {
+                                        if (el) nestedTriggerRefs.current[entry.id] = el;
+                                        else delete nestedTriggerRefs.current[entry.id];
+                                    }}
+                                    type="button"
+                                    role="menuitem"
+                                    aria-expanded={isNestedOpen}
+                                    aria-haspopup="menu"
+                                    onClick={() => toggleNestedMenu(entry.id)}
+                                    className={`${tabClass(nestedActive)} header-nav-child header-nav-aps-nested-trigger`}
+                                >
+                                    <span>{entry.label}</span>
+                                    <ChevronDownIcon className={`header-nav-chevron header-nav-chevron-nested${isNestedOpen ? ' header-nav-chevron-nested-open' : ''}`} />
+                                </button>
+                                {isNestedOpen && (
+                                    <div
+                                        className={`header-nav-aps-nested-menu${nestedPlacement === 'left' ? ' header-nav-aps-nested-menu-left' : ''}`}
+                                        role="menu"
+                                        aria-label={entry.label}
+                                    >
+                                        {entry.children.map(child => (
+                                            <button
+                                                key={child.id}
+                                                type="button"
+                                                role="menuitem"
+                                                onClick={() => closeMenuAndNav(child.id)}
+                                                className={`${tabClass(activeId === child.id)} header-nav-child`}
+                                            >
+                                                {child.label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        );
+                        return;
+                    }
+                    nodes.push(
+                        <button
+                            key={entry.id}
+                            type="button"
+                            role="menuitem"
+                            onClick={() => closeMenuAndNav(entry.id)}
+                            onMouseEnter={() => {
+                                if (prefersHoverMenus()) setOpenNestedId(null);
+                            }}
+                            className={`${tabClass(activeId === entry.id)} header-nav-child`}
+                        >
+                            {entry.label}
+                        </button>
+                    );
+                });
+                return nodes;
+            };
+
+            const renderRulerTabs = () => items.map(item => {
+                if (item.children?.length) {
+                    return (
+                        <span key={item.id} className={`${tabClass(false)} inline-flex items-center`} aria-hidden="true">
+                            <span className="header-nav-tab-label">{item.label}</span>
+                            <ChevronDownIcon className="header-nav-chevron" />
+                        </span>
+                    );
+                }
+                return (
+                    <span key={item.id} className={tabClass(false)} aria-hidden="true">
+                        <span className="header-nav-tab-label">{item.label}</span>
+                    </span>
+                );
+            });
+
+            const dropdownMenu = openMenuId && menuRect && openMenuItem ? ReactDOM.createPortal(
+                <>
+                    {!prefersHoverMenus() ? (
+                        <button
+                            type="button"
+                            className="header-nav-aps-backdrop"
+                            aria-label={`Close ${openMenuItem.label} menu`}
+                            onClick={closeMenu}
+                        />
+                    ) : null}
+                    <div
+                        className="header-nav-aps-menu header-nav-aps-menu-floating"
+                        role="menu"
+                        style={{ top: `${menuRect.top}px`, left: `${menuRect.left}px`, minWidth: `${menuRect.minWidth}px` }}
+                        onMouseEnter={onDropdownMenuEnter}
+                        onMouseLeave={onDropdownMenuLeave}
+                    >
+                        {openMenuItem.navId ? (
+                            <button
+                                type="button"
+                                role="menuitem"
+                                className="header-nav-aps-menu-head header-nav-aps-menu-head-link"
+                                onClick={() => closeMenuAndNav(openMenuItem.navId)}
+                            >
+                                <span>{openMenuItem.label}</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+                            </button>
+                        ) : (
+                            <div className="header-nav-aps-menu-head">{openMenuItem.label}</div>
+                        )}
+                        {renderMenuEntries(openMenuItem.children || [])}
+                    </div>
+                </>,
+                document.body
+            ) : null;
+
+            return (
+                <div ref={slotRef} className="relative flex-1 min-w-0 overflow-hidden h-full flex items-center">
+                    <div
+                        ref={rulerRef}
+                        className="pointer-events-none absolute left-0 top-0 -z-10 w-max opacity-0"
+                        aria-hidden="true"
+                    >
+                        <div className="header-nav-glass-slab header-glass-pill header-glass-pill--wide">
+                            {renderRulerTabs()}
+                        </div>
+                    </div>
+                    {navFits && (
+                        <div ref={scrollRef} className="w-full overflow-hidden">
+                            <div
+                                ref={trackRef}
+                                className="header-nav-glass-slab header-glass-pill header-glass-pill--wide header-nav-tabs-track"
+                            >
+                                <div
+                                    className={`header-nav-glass-indicator${indicatorAnimated ? ' is-animated' : ''}`}
+                                    aria-hidden="true"
+                                    style={{
+                                        transform: `translate3d(${indicator.left}px, ${indicator.top}px, 0)`,
+                                        width: `${indicator.width}px`,
+                                        height: `${indicator.height}px`,
+                                        opacity: indicator.ready ? 1 : 0,
+                                    }}
+                                />
+                                {items.map(item => {
+                                    if (item.children?.length) {
+                                        const highlighted = isTabActive(item);
+                                        const isOpen = openMenuId === item.id;
+                                        return (
+                                            <div
+                                                key={item.id}
+                                                className="header-nav-aps-wrap"
+                                                onMouseEnter={() => onDropdownTriggerEnter(item.id)}
+                                                onMouseLeave={onDropdownTriggerLeave}
+                                            >
+                                                <button
+                                                    ref={(el) => {
+                                                        triggerRefs.current[item.id] = el;
+                                                        setTabRef(item.id, el);
+                                                    }}
+                                                    type="button"
+                                                    aria-expanded={isOpen}
+                                                    aria-haspopup="menu"
+                                                    onClick={() => (item.navId && prefersHoverMenus() ? closeMenuAndNav(item.navId) : toggleMenu(item.id))}
+                                                    className={`${tabClass(highlighted)} flex items-center`}
+                                                >
+                                                    <span className="header-nav-tab-label">{item.label}</span>
+                                                    <ChevronDownIcon className={`header-nav-chevron ${isOpen ? 'header-nav-chevron-open' : ''}`} />
+                                                </button>
+                                            </div>
+                                        );
+                                    }
+
+                                    const isActive = isTabActive(item);
+                                    return (
+                                        <button
+                                            key={item.id}
+                                            type="button"
+                                            ref={(el) => setTabRef(item.id, el)}
+                                            onClick={() => onNav(item.id)}
+                                            onMouseEnter={onPlainTabEnter}
+                                            className={tabClass(isActive)}
+                                        >
+                                            <span className="header-nav-tab-label">{item.label}</span>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    )}
+                    {dropdownMenu}
+                </div>
+            );
+        };
+
+        const MobileNavDrawer = ({ items, activeId, onNav, open, onClose }) => {
+            useEffect(() => {
+                if (!open) return undefined;
+                const previousOverflow = document.body.style.overflow;
+                document.body.style.overflow = 'hidden';
+                const onKeyDown = (e) => {
+                    if (e.key === 'Escape') onClose();
+                };
+                window.addEventListener('keydown', onKeyDown);
+                return () => {
+                    document.body.style.overflow = previousOverflow;
+                    window.removeEventListener('keydown', onKeyDown);
+                };
+            }, [open, onClose]);
+
+            if (!open) return null;
+
+            const activate = (id) => {
+                onNav(id);
+                onClose();
+            };
+
+            const buttonClass = (isActive, nested = false) => `
+                w-full min-h-11 rounded-xl border px-3 py-2.5 text-left text-xs font-bold uppercase tracking-wide
+                transition-colors flex items-center gap-3
+                ${nested ? 'pl-4' : ''}
+                ${isActive
+                    ? 'border-brand-gold/40 bg-brand-gold/10 text-brand-gold'
+                    : 'border-slate-200/80 dark:border-slate-800 bg-white/70 dark:bg-slate-900/70 text-slate-600 dark:text-slate-300'}
+            `;
+
+            const renderNavTree = (navItems) => navItems.map(item => {
+                if (item.children?.length) {
+                    const activeGroup = navItemContainsId(item, activeId);
+                    return (
+                        <div
+                            key={item.id}
+                            className={`rounded-2xl border p-2 ${activeGroup ? 'border-brand-gold/35 bg-brand-gold/5' : 'border-slate-200/80 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-950/20'}`}
+                        >
+                            {item.navId ? (
+                                <button
+                                    type="button"
+                                    onClick={() => activate(item.navId)}
+                                    className={`flex w-full items-center justify-between gap-3 px-2 pb-2 text-left text-[10px] font-black uppercase tracking-widest ${activeGroup ? 'text-brand-gold' : 'text-slate-500 dark:text-slate-400'}`}
+                                >
+                                    <span>{item.label}</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+                                </button>
+                            ) : (
+                                <div className={`px-2 pb-2 text-[10px] font-black uppercase tracking-widest ${activeGroup ? 'text-brand-gold' : 'text-slate-500 dark:text-slate-400'}`}>
+                                    {item.label}
+                                </div>
+                            )}
+                            <div className="grid gap-2">
+                                {item.children.map(child => {
+                                    if (child.children?.length) {
+                                        const childActive = navItemContainsId(child, activeId);
+                                        return (
+                                            <div
+                                                key={child.id}
+                                                className={`rounded-xl border p-2 ${childActive ? 'border-brand-gold/30 bg-brand-gold/5' : 'border-slate-200/70 dark:border-slate-800/80'}`}
+                                            >
+                                                <div className={`px-2 pb-1.5 text-[10px] font-bold uppercase tracking-wide ${childActive ? 'text-brand-gold' : 'text-slate-500 dark:text-slate-400'}`}>
+                                                    {child.label}
+                                                </div>
+                                                <div className="grid gap-1.5">
+                                                    {child.children.map(grand => (
+                                                        <button
+                                                            key={grand.id}
+                                                            type="button"
+                                                            onClick={() => activate(grand.id)}
+                                                            className={buttonClass(activeId === grand.id, true)}
+                                                        >
+                                                            <span>{grand.label}</span>
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        );
+                                    }
+                                    return (
+                                        <button
+                                            key={child.id}
+                                            type="button"
+                                            onClick={() => activate(child.id)}
+                                            className={buttonClass(activeId === child.id, true)}
+                                        >
+                                            <span>{child.label}</span>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    );
+                }
+
+                return (
+                    <button
+                        key={item.id}
+                        type="button"
+                        onClick={() => activate(item.id)}
+                        className={buttonClass(activeId === item.id)}
+                    >
+                        <span>{item.label}</span>
+                    </button>
+                );
+            });
+
+            return ReactDOM.createPortal(
+                <div className="fixed inset-0 z-50">
+                    <button
+                        type="button"
+                        className="absolute inset-0 bg-slate-950/55 backdrop-blur-sm"
+                        aria-label="Close navigation"
+                        onClick={onClose}
+                    />
+                    <div className="mobile-nav-panel absolute inset-x-2 bottom-2 rounded-2xl border border-white/50 dark:border-white/10 bg-white/95 dark:bg-[#0f172a]/95 shadow-2xl backdrop-blur-xl overflow-hidden">
+                        <div className="flex items-center justify-between gap-3 border-b border-slate-200/80 dark:border-slate-800 px-4 py-3">
+                            <div className="min-w-0">
+                                <p className="font-black tracking-tight text-brand-gold leading-none">OPERARTIS</p>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={onClose}
+                                aria-label="Close navigation"
+                                className="shrink-0 rounded-full p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
+                            >
+                                <CloseIcon />
+                            </button>
+                        </div>
+                        <div className="max-h-[min(34rem,calc(100dvh-7rem))] overflow-y-auto custom-scrollbar px-3 py-3">
+                            <div className="grid gap-2">
+                                {renderNavTree(items)}
+                            </div>
+                        </div>
+                    </div>
+                </div>,
+                document.body
+            );
+        };
+
+        const FooterAccordion = ({ title, children, defaultOpen = false }) => {
+            const [open, setOpen] = useState(defaultOpen);
+            return (
+                <div className="border-b border-slate-200 dark:border-slate-800/80">
+                    <button
+                        type="button"
+                        onClick={() => setOpen((prev) => !prev)}
+                        aria-expanded={open}
+                        className="flex w-full items-center justify-between gap-3 py-3.5 text-left"
+                    >
+                        <span className="text-sm font-semibold text-slate-900 dark:text-white">{title}</span>
+                        <ChevronDownIcon className={`opus-footer-accordion-chevron shrink-0 ${open ? 'opus-footer-accordion-chevron--open' : ''}`} />
+                    </button>
+                    <div className={`opus-footer-accordion-panel ${open ? 'opus-footer-accordion-panel--open' : ''}`}>
+                        <div className="pb-1">{children}</div>
+                    </div>
+                </div>
+            );
+        };
+
+        const SiteFooter = ({ ui }) => {
+            const year = new Date().getFullYear();
+            const footerLinkClass = 'text-sm text-slate-500 dark:text-slate-400 hover:text-brand-gold transition-colors text-left';
+            const footerMobileLinkClass = `${footerLinkClass} flex min-h-11 w-full items-center`;
+
+            const platformLinks = [
+                { href: './platform', label: ui.nav_aps_system },
+                { href: './#supply-chain', label: ui.nav_supply_chain },
+                { href: './#or-process', label: ui.nav_implementation_process },
+            ];
+
+            const whyApsLinks = [
+                { href: './why-aps#industry-40', label: ui.nav_industry_40 },
+                { href: './why-aps#analytics', label: ui.nav_analytics },
+                { href: './why-aps#proof-foundation', label: ui.nav_mathematical_foundation },
+            ];
+
+            const companyLinks = [
+                { href: './about', label: ui.nav_about },
+                { href: './about#about-why', label: ui.cta_why },
+                { href: './contact', label: ui.nav_contact },
+            ];
+
+            const legalLinks = [
+                { href: './privacy', label: ui.footer_privacy },
+                { href: '#', label: ui.footer_imprint },
+                { href: './terms', label: ui.footer_terms },
+            ];
+
+            return (
+                <footer className="opus-site-footer w-full border-t border-slate-300 dark:border-white/10 pt-8 pb-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] md:pt-10 md:pb-8 md:pb-[max(2rem,env(safe-area-inset-bottom))] z-10 shrink-0">
+                    <div className="relative z-10 max-w-7xl mx-auto w-full px-4 sm:px-6 md:px-10">
+                        <div className="md:hidden">
+                            <div className="flex flex-col items-center text-center mb-2">
+                                <div className="flex items-center gap-3 mb-4">
+                                    <img
+                                        src="./icononly_transparent_nobuffer.png"
+                                        alt=""
+                                        className="h-10 w-10 object-contain"
+                                        onError={(e) => { e.target.style.display = 'none'; }}
+                                    />
+                                    <span className="font-bold text-lg tracking-tight text-slate-900 dark:text-white">OPERARTIS</span>
+                                </div>
+                                <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed max-w-sm">{ui.footer_tagline}</p>
+                            </div>
+
+                            <div className="mt-6 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 bg-white/40 dark:bg-slate-900/30 overflow-hidden px-4">
+                                <FooterAccordion title={ui.footer_platform} defaultOpen>
+                                    <ul className="space-y-0.5 pb-3">
+                                        {platformLinks.map((link) => (
+                                            <li key={`${link.href}-${link.label}`}>
+                                                <a href={link.href} className={footerMobileLinkClass}>{link.label}</a>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </FooterAccordion>
+
+                                <FooterAccordion title={ui.nav_why_aps}>
+                                    <ul className="space-y-0.5 pb-3">
+                                        {whyApsLinks.map((link) => (
+                                            <li key={`${link.href}-${link.label}`}>
+                                                <a href={link.href} className={footerMobileLinkClass}>{link.label}</a>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </FooterAccordion>
+
+                                <FooterAccordion title={ui.footer_company}>
+                                    <ul className="space-y-0.5 pb-3">
+                                        {companyLinks.map((link, i) => (
+                                            <li key={`${link.label}-${i}`}>
+                                                <a href={link.href} className={footerMobileLinkClass}>{link.label}</a>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </FooterAccordion>
+
+                                <FooterAccordion title={ui.footer_legal}>
+                                    <ul className="space-y-0.5 pb-3">
+                                        {legalLinks.map((link) => (
+                                            <li key={link.label}>
+                                                <a href={link.href} className={footerMobileLinkClass}>{link.label}</a>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </FooterAccordion>
+                            </div>
+
+                            <a
+                                href="./contact"
+                                className="mt-6 flex h-11 w-full items-center justify-center rounded-xl bg-gradient-to-tr from-brand-gold to-brand-dark text-sm font-bold text-white shadow-lg shadow-brand-gold/20 hover:scale-[1.01] active:scale-[0.98] transition-transform"
+                            >
+                                {ui.nav_contact}
+                            </a>
+                        </div>
+
+                        <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-[minmax(0,1.6fr)_repeat(4,minmax(0,1fr))] gap-6 lg:gap-8 xl:gap-10">
+                            <div className="md:col-span-2 lg:col-span-1">
+                                <div className="flex items-center gap-3 mb-5">
+                                    <img
+                                        src="./icononly_transparent_nobuffer.png"
+                                        alt=""
+                                        className="h-11 w-11 md:h-12 md:w-12 object-contain"
+                                        onError={(e) => { e.target.style.display = 'none'; }}
+                                    />
+                                    <span className="font-bold text-lg md:text-xl tracking-tight text-slate-900 dark:text-white">OPERARTIS</span>
+                                </div>
+                                <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed max-w-sm lg:max-w-none">{ui.footer_tagline}</p>
+                            </div>
+
+                            <div>
+                                <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-4">{ui.footer_platform}</h3>
+                                <ul className="space-y-2.5">
+                                    {platformLinks.map((link) => (
+                                        <li key={`${link.href}-${link.label}`}>
+                                            <a href={link.href} className={footerLinkClass}>{link.label}</a>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+
+                            <div>
+                                <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-4">{ui.nav_why_aps}</h3>
+                                <ul className="space-y-2.5">
+                                    {whyApsLinks.map((link) => (
+                                        <li key={`${link.href}-${link.label}`}>
+                                            <a href={link.href} className={footerLinkClass}>{link.label}</a>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+
+                            <div>
+                                <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-4">{ui.footer_company}</h3>
+                                <ul className="space-y-2.5">
+                                    {companyLinks.map((link, i) => (
+                                        <li key={`${link.label}-${i}`}>
+                                            <a href={link.href} className={footerLinkClass}>{link.label}</a>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+
+                            <div>
+                                <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-4">{ui.footer_legal}</h3>
+                                <ul className="space-y-2.5">
+                                    {legalLinks.map((link) => (
+                                        <li key={link.label}>
+                                            <a href={link.href} className={footerLinkClass}>{link.label}</a>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div className="opus-site-footer-divider mt-8 md:mt-10 pt-5 md:pt-6 border-t">
+                            <p className="text-xs text-slate-400 dark:text-slate-500 text-center">
+                                © {year} Operartis Analytics. All rights reserved.
+                            </p>
+                        </div>
+                    </div>
+                </footer>
+            );
+        };
+
+        const App = () => {
+            const [lang, setLang] = useState(() => window.getOperartisLang());
+            const [theme, setThemeState] = useState(() => window.getOperartisTheme());
+            const [navCollapsed, setNavCollapsed] = useState(false);
+            const [mobileNavOpen, setMobileNavOpen] = useState(false);
+            const [authUser, setAuthUser] = useState(() => window.OperartisAuth?.getUser?.() || null);
+            const [accountMenuOpen, setAccountMenuOpen] = useState(false);
+            const headerNavRef = useRef(null);
+            const accountMenuRef = useRef(null);
+            const copy = ABOUT_COPY[lang] || ABOUT_COPY.en;
+            const pageNavItems = useMemo(() => buildPageNavItems(copy, lang), [copy, lang]);
+            const activeNavId = 'about';
+
+            useEffect(() => {
+                const onLang = (event) => setLang((event.detail && event.detail.lang) || window.getOperartisLang());
+                const onTheme = (event) => setThemeState((event.detail && event.detail.theme) || window.getOperartisTheme());
+                window.addEventListener('operartis:lang-change', onLang);
+                window.addEventListener('operartis:theme-change', onTheme);
+                return () => {
+                    window.removeEventListener('operartis:lang-change', onLang);
+                    window.removeEventListener('operartis:theme-change', onTheme);
+                };
+            }, []);
+
+            useEffect(() => {
+                document.title = `Operartis | ${copy.page_title}`;
+                document.documentElement.lang = lang;
+            }, [copy.page_title, lang]);
+
+            useEffect(() => {
+                if (!navCollapsed) setMobileNavOpen(false);
+            }, [navCollapsed]);
+
+            useEffect(() => {
+                const handleAuthState = (event) => {
+                    const user = event.detail?.user || window.OperartisAuth?.getUser?.() || null;
+                    setAuthUser(user);
+                    if (user) setAccountMenuOpen(false);
+                };
+                const handleLoggedOut = () => {
+                    setAuthUser(null);
+                    setAccountMenuOpen(false);
+                };
+                window.addEventListener('operartis:authenticated', handleAuthState);
+                window.addEventListener('operartis:auth-state', handleAuthState);
+                window.addEventListener('operartis:logged-out', handleLoggedOut);
+                window.OperartisAuth?.refresh?.().catch(() => setAuthUser(null));
+                return () => {
+                    window.removeEventListener('operartis:authenticated', handleAuthState);
+                    window.removeEventListener('operartis:auth-state', handleAuthState);
+                    window.removeEventListener('operartis:logged-out', handleLoggedOut);
+                };
+            }, []);
+
+            useEffect(() => {
+                if (!accountMenuOpen) return undefined;
+                const handleOutsideClick = (event) => {
+                    if (!accountMenuRef.current || accountMenuRef.current.contains(event.target)) return;
+                    setAccountMenuOpen(false);
+                };
+                const handleEscape = (event) => {
+                    if (event.key === 'Escape') setAccountMenuOpen(false);
+                };
+                document.addEventListener('mousedown', handleOutsideClick);
+                document.addEventListener('touchstart', handleOutsideClick, { passive: true });
+                document.addEventListener('keydown', handleEscape);
+                return () => {
+                    document.removeEventListener('mousedown', handleOutsideClick);
+                    document.removeEventListener('touchstart', handleOutsideClick);
+                    document.removeEventListener('keydown', handleEscape);
+                };
+            }, [accountMenuOpen]);
+
+            const cycleTheme = () => {
+                const next = theme === 'system' ? 'light' : theme === 'light' ? 'dark' : 'system';
+                window.setOperartisTheme(next);
+                setThemeState(next);
+            };
+
+            const cycleLang = () => {
+                // German kept in ABOUT_COPY; UI toggle is EN ↔ VI only.
+                const order = ['en', 'vi'];
+                const idx = order.indexOf(lang);
+                const next = order[idx === -1 ? 0 : (idx + 1) % order.length];
+                window.setOperartisLang(next);
+                setLang(next);
+            };
+
+            const handleNavCollapse = useCallback((collapsed) => {
+                setNavCollapsed(collapsed);
+            }, []);
+
+            const onNav = useCallback((id) => {
+                navigateToNavId(id);
+            }, []);
+
+            const closeMobileNav = useCallback(() => setMobileNavOpen(false), []);
+
+            const handleAuthButtonClick = useCallback(() => {
+                setAccountMenuOpen((prev) => !prev);
+            }, []);
+
+            const handleDashboardOpen = useCallback(() => {
+                setAccountMenuOpen(false);
+                const canUseAdminDashboard = authUser?.role === 'owner' || authUser?.role === 'admin';
+                window.location.href = canUseAdminDashboard ? './dashboard.html#admin-overview' : './dashboard.html';
+            }, [authUser]);
+
+            const handleLoginOpen = useCallback(() => {
+                setAccountMenuOpen(false);
+                window.OperartisAuth?.showLogin?.();
+            }, []);
+
+            const handleLogout = useCallback(async () => {
+                setAccountMenuOpen(false);
+                await window.OperartisAuth?.logout?.();
+                setAuthUser(null);
+            }, []);
+
+            const aboutSections = [
+                { id: 'about-who', label: copy.about_who },
+                { id: 'about-what', label: copy.about_what },
+                { id: 'about-vision', label: copy.about_vision },
+                { id: 'about-why', label: copy.about_why },
+            ];
+
+            // Links such as ./about#about-why arrive before React has rendered the section
+            useEffect(() => {
+                const id = String(window.location.hash || '').replace(/^#/, '');
+                if (!id) return undefined;
+                const timer = setTimeout(() => document.getElementById(id)?.scrollIntoView({ block: 'start' }), 150);
+                return () => clearTimeout(timer);
+            }, []);
+
+            return (
+                <div className="contact-shell h-full bg-white dark:bg-[#020617] transition-colors duration-500">
+                    <ContactCanvas theme={theme} />
+
+                    <nav className="header-bar relative z-30 shrink-0 overflow-visible border-b border-slate-200/50 dark:border-slate-800/50">
+                        <div className="max-w-7xl mx-auto w-full h-16 px-3 sm:px-6 md:px-10 flex items-center gap-2 md:gap-4 overflow-visible">
+                            <div className="header-glass-pill header-glass-pill--wide header-glass-pill--brand">
+                                <a href="./" className="header-brand inline-flex items-center gap-2 sm:gap-3">
+                                    <OperartisLogoMark className="h-8 w-8 md:h-10 md:w-10" />
+                                    <span className="font-bold text-sm sm:text-base md:text-lg tracking-tight text-slate-900 dark:text-white leading-none">OPERARTIS</span>
+                                </a>
+                            </div>
+
+                            <HeaderNav
+                                navRef={headerNavRef}
+                                items={pageNavItems}
+                                activeId={activeNavId}
+                                onNav={onNav}
+                                onCollapseChange={handleNavCollapse}
+                            />
+
+                            {navCollapsed && (
+                                <div className="ml-auto shrink-0 header-glass-pill">
+                                    <button
+                                        type="button"
+                                        onClick={() => setMobileNavOpen(true)}
+                                        aria-expanded={mobileNavOpen}
+                                        aria-label="Open navigation"
+                                        className="header-util-btn h-8 w-8 p-0"
+                                    >
+                                        <span className="header-util-icon" aria-hidden="true"><MenuIcon /></span>
+                                    </button>
+                                </div>
+                            )}
+
+                            <div className="flex items-center gap-1.5 md:gap-6 shrink-0">
+                                <div className="hidden md:flex header-glass-pill header-glass-pill--wide items-center">
+                                    <button
+                                        type="button"
+                                        onClick={cycleTheme}
+                                        className="header-util-btn"
+                                        title={theme === 'light' ? 'Light mode — click for dark' : theme === 'dark' ? 'Dark mode — click for system' : 'System theme — follows OS — click for light'}
+                                    >
+                                        <span className="header-util-icon" aria-hidden="true">
+                                            {theme === 'light' ? <SunIcon /> : theme === 'dark' ? <MoonIcon /> : <SystemIcon />}
+                                        </span>
+                                    </button>
+                                    <span className="w-px h-4 shrink-0 self-center bg-slate-200 dark:bg-slate-700/50" aria-hidden="true" />
+                                    <button type="button" onClick={cycleLang} className="header-util-btn gap-1 font-mono text-xs font-bold px-2">
+                                        <span className="header-util-icon" aria-hidden="true"><GlobeIcon /></span>
+                                        <span>{lang.toUpperCase()}</span>
+                                    </button>
+                                </div>
+
+                                <div className="flex md:hidden items-center gap-1.5">
+                                    <div className="header-glass-pill max-[359px]:hidden">
+                                        <button
+                                            type="button"
+                                            onClick={cycleTheme}
+                                            className="header-util-btn h-8 w-8 p-0"
+                                            title={theme === 'light' ? 'Light mode — click for dark' : theme === 'dark' ? 'Dark mode — click for system' : 'System theme — follows OS — click for light'}
+                                        >
+                                            <span className="header-util-icon" aria-hidden="true">
+                                                {theme === 'light' ? <SunIcon /> : theme === 'dark' ? <MoonIcon /> : <SystemIcon />}
+                                            </span>
+                                        </button>
+                                    </div>
+                                    <div className="header-glass-pill">
+                                        <button type="button" onClick={cycleLang} className="header-util-btn h-8 w-8 p-0" aria-label={`Language: ${lang.toUpperCase()}`}>
+                                            <span className="header-util-icon" aria-hidden="true"><GlobeIcon /></span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div ref={accountMenuRef} className="relative shrink-0">
+                                    <button
+                                        type="button"
+                                        onClick={handleAuthButtonClick}
+                                        aria-expanded={accountMenuOpen}
+                                        aria-haspopup="menu"
+                                        aria-label={authUser ? `Account: ${accountDisplayName(authUser)}` : copy.nav_login}
+                                        title={authUser ? accountDisplayName(authUser) : copy.nav_login}
+                                        className="relative header-auth-btn header-auth-btn--gold h-9 w-9 rounded-full bg-gradient-to-tr from-brand-gold to-brand-dark flex items-center justify-center text-white shrink-0"
+                                    >
+                                        <AccountAvatar user={authUser} />
+                                        <span className={`absolute -right-0.5 -top-0.5 h-3 w-3 rounded-full border-2 border-[#020617] ${authUser ? 'bg-emerald-400 shadow-[0_0_0_2px_rgba(52,211,153,0.28),0_0_12px_rgba(52,211,153,0.9)]' : 'bg-white shadow-[0_0_0_1px_rgba(255,255,255,0.45)]'}`} aria-hidden="true" />
+                                    </button>
+
+                                    {accountMenuOpen && (
+                                        <div role="menu" aria-label="Account menu" className="index-account-menu">
+                                            {authUser && (
+                                                <div className="index-account-menu-head">
+                                                    <p className="index-account-menu-email">{accountDisplayName(authUser)}</p>
+                                                    <p className="index-account-menu-role">{authUser.role}</p>
+                                                </div>
+                                            )}
+                                            <div className="index-account-menu-body">
+                                                <button type="button" role="menuitem" onClick={handleDashboardOpen} className="index-account-menu-item">
+                                                    <span className="index-account-menu-item-icon" aria-hidden="true"><AccountDashboardIcon /></span>
+                                                    <span>{copy.nav_dashboard}</span>
+                                                </button>
+                                                <div className="index-account-menu-divider" role="separator" aria-hidden="true" />
+                                                {authUser ? (
+                                                    <button type="button" role="menuitem" onClick={handleLogout} className="index-account-menu-item index-account-menu-item--danger">
+                                                        <span className="index-account-menu-item-icon" aria-hidden="true"><AccountLogoutIcon /></span>
+                                                        <span>{copy.nav_logout}</span>
+                                                    </button>
+                                                ) : (
+                                                    <button type="button" role="menuitem" onClick={handleLoginOpen} className="index-account-menu-item">
+                                                        <span className="index-account-menu-item-icon" aria-hidden="true"><AccountLoginIcon /></span>
+                                                        <span>{copy.nav_login}</span>
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </nav>
+
+                    <MobileNavDrawer
+                        items={pageNavItems}
+                        activeId={activeNavId}
+                        onNav={onNav}
+                        open={mobileNavOpen}
+                        onClose={closeMobileNav}
+                    />
+
+                    <main className="relative z-10 flex-1 overflow-y-auto min-h-0">
+                        <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 py-8 md:py-12 pb-16">
+                            <section className="contact-hero contact-hero--photo about-hero--photo rounded-3xl border border-amber-700/40 dark:border-white/[0.06] ring-0 dark:ring-1 dark:ring-white/[0.04] px-6 py-14 md:px-12 md:py-20 lg:py-24 mb-12 md:mb-16">
+                                <div className="relative z-10 max-w-3xl">
+                                    <p className="text-[10px] font-bold uppercase contact-eyebrow text-brand-gold mb-3">{copy.nav_about}</p>
+                                    <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-white leading-[1.08] mb-4">
+                                        {copy.about_title}
+                                    </h1>
+                                    {/* Brand motto — kept in English per DESIGN_SYSTEM.md */}
+                                    <p className="text-brand-gold font-bold italic text-lg md:text-xl leading-snug">“Optimizing today, Growing tomorrow.”</p>
+                                </div>
+                            </section>
+
+                            <div className="grid lg:grid-cols-12 gap-8 lg:gap-12">
+                                {/* Sticky rail: logo + in-page contents */}
+                                <aside className="lg:col-span-4">
+                                    <div className="about-sticky">
+                                        <Reveal>
+                                            <a href="./" className="block hover:opacity-80 transition-opacity">
+                                                <img src="./fulllogo_transparent_nobuffer.png" alt="Operartis" className="w-full max-w-[260px] object-contain mx-auto lg:mx-0" onError={(e) => e.target.style.display = 'none'} />
+                                            </a>
+                                            <nav aria-label={copy.about_title} className="about-toc hidden lg:block mt-8 border-l border-slate-200 dark:border-white/10">
+                                                {aboutSections.map((section) => (
+                                                    <a key={section.id} href={`#${section.id}`}>{section.label}</a>
+                                                ))}
+                                            </nav>
+                                        </Reveal>
+                                    </div>
+                                </aside>
+
+                                {/* Narrative */}
+                                <div className="lg:col-span-8 space-y-12 md:space-y-14">
+                                    <Reveal delay={60}>
+                                        <section id="about-who" className="about-scroll-target">
+                                            <h2 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white tracking-tight mb-4">{copy.about_who}</h2>
+                                            <div className="space-y-4 text-base leading-relaxed text-slate-600 dark:text-slate-400">
+                                                {copy.about_who_text.map((text, i) => (
+                                                    <p key={i} className={i === 0 ? 'text-lg text-slate-800 dark:text-slate-200 font-medium' : ''}>{text}</p>
+                                                ))}
+                                            </div>
+                                        </section>
+                                    </Reveal>
+
+                                    <Reveal delay={90}>
+                                        <section id="about-what" className="about-scroll-target">
+                                            <h2 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white tracking-tight mb-4">{copy.about_what}</h2>
+                                            <div className="space-y-4 text-base leading-relaxed text-slate-600 dark:text-slate-400">
+                                                {copy.about_what_text.map((text, i) => (
+                                                    <p key={i}>{text}</p>
+                                                ))}
+                                            </div>
+                                        </section>
+                                    </Reveal>
+
+                                    <Reveal delay={90}>
+                                        <section id="about-vision" className="about-scroll-target">
+                                            <h2 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white tracking-tight mb-4">{copy.about_vision}</h2>
+                                            <div className="space-y-4 text-base leading-relaxed text-slate-600 dark:text-slate-400">
+                                                {copy.about_vision_text.map((text, i) => (
+                                                    <p key={i}>{text}</p>
+                                                ))}
+                                            </div>
+                                        </section>
+                                    </Reveal>
+
+                                    <Reveal delay={90}>
+                                        <section id="about-why" className="about-scroll-target">
+                                            <h2 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white tracking-tight mb-5">{copy.about_why}</h2>
+                                            <div className="grid sm:grid-cols-2 gap-4">
+                                                {copy.about_why_items.map((item, i) => (
+                                                    <div key={i} className="h-full rounded-xl border border-slate-200 dark:border-white/5 bg-white/80 dark:bg-slate-900/50 p-5 hover:border-brand-gold/40 transition-colors">
+                                                        <div className="flex items-center gap-2 mb-2">
+                                                            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-brand-gold/10 text-brand-gold font-mono text-xs font-bold">{String(i + 1).padStart(2, '0')}</span>
+                                                            <strong className="text-base font-bold text-slate-900 dark:text-white">{item.title}</strong>
+                                                        </div>
+                                                        <p className="text-sm leading-relaxed text-slate-500 dark:text-slate-400">{item.text}</p>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </section>
+                                    </Reveal>
+                                </div>
+                            </div>
+
+                            <Reveal delay={60}>
+                                <div className="about-cta mt-16 md:mt-24 rounded-3xl border border-white/10 px-6 py-14 sm:px-10 md:py-20 text-center">
+                                    <p className="text-brand-gold font-bold uppercase tracking-widest text-[10px] md:text-xs mb-5 md:mb-6">Let’s optimize today — so you can grow stronger tomorrow.</p>
+                                    <h2 className="text-[1.75rem] sm:text-4xl md:text-5xl font-bold text-white tracking-tight leading-[1.15] max-w-4xl mx-auto">{copy.invite_text}</h2>
+                                    <a
+                                        href="./contact"
+                                        className="inline-flex items-center justify-center gap-2 mt-8 md:mt-10 px-7 py-3.5 rounded-xl bg-brand-gold text-white text-sm md:text-base font-bold shadow-lg shadow-brand-gold/30 hover:bg-amber-600 hover:shadow-brand-gold/50 hover:scale-[1.02] active:scale-95 transition-all"
+                                    >
+                                        {copy.contact_operartis}
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+                                    </a>
+                                </div>
+                            </Reveal>
+                        </div>
+
+                        <SiteFooter ui={copy} />
+                    </main>
+                </div>
+            );
+        };
+
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+
+</html>

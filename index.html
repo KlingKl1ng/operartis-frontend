@@ -43,6 +43,31 @@
     }
     </script>
 
+    <script>
+        // Sections that moved to their own pages: keep old in-page links (/#about, /#analytics, /#horizon-tactical ...) working.
+        // This file also serves why-aps.html and platform.html (see build-landing-pages.mjs), hence the data-page check.
+        (function () {
+            var page = document.documentElement.getAttribute('data-page') || 'home';
+            var pages = { home: './', 'why-aps': './why-aps', platform: './platform' };
+            function targetFor(hash) {
+                var id = String(hash || '').replace(/^#/, '');
+                if (id === 'about') return './about';
+                if (id === 'about-why') return './about#about-why';
+                var dest = null;
+                if (id === 'proof-foundation' || id === 'industry-40' || id === 'analytics') dest = 'why-aps';
+                else if (id === 'platform' || id === 'matrix-fit' || id.indexOf('horizon-') === 0) dest = 'platform';
+                else if (id === 'supply-chain' || id === 'or-process' || id === 'platform-overview') dest = 'home';
+                if (!dest || dest === page) return null;
+                return pages[dest] + '#' + id;
+            }
+            function redirectMovedHash() {
+                var target = targetFor(window.location.hash);
+                if (target) window.location.replace(target);
+            }
+            redirectMovedHash();
+            window.addEventListener('hashchange', redirectMovedHash);
+        })();
+    </script>
     <script src="./vendor/tailwindcss-3.4.17.js"></script>
     <script>
         tailwind.config = {
@@ -752,6 +777,18 @@
             opacity: 0.9;
         }
 
+        /* A group whose label opens its page (Platform, Why APS) */
+        button.header-nav-aps-menu-head.header-nav-aps-menu-head-link {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            transition: color 0.15s ease;
+        }
+        button.header-nav-aps-menu-head.header-nav-aps-menu-head-link:hover,
+        button.header-nav-aps-menu-head.header-nav-aps-menu-head-link:focus-visible {
+            color: #f59e0b;
+        }
         button.header-nav-aps-menu-head {
             width: 100%;
             display: block;
@@ -5916,6 +5953,20 @@
         const { useState, useEffect, useLayoutEffect, useRef, useMemo, useCallback } = React;
         const OperartisLogoMark = window.OperartisLogoMark;
 
+        // Which landing page this file is serving: 'home' (index.html), 'why-aps' or 'platform'.
+        // why-aps.html and platform.html are generated copies of index.html — edit index.html, then run
+        // `node build-landing-pages.mjs`.
+        const PAGE = document.documentElement.getAttribute('data-page') || 'home';
+        const PAGE_HREF = { home: './', 'why-aps': './why-aps', platform: './platform' };
+        const WHY_APS_NAV_IDS = ['proof-foundation', 'industry-40', 'analytics', 'why-aps-top'];
+        // Nav ids that mean "the top of that page": linked without a hash from the other pages
+        const PAGE_TOP_NAV_IDS = ['matrix-fit', 'why-aps-top'];
+        const HOME_NAV_IDS = ['supply-chain', 'or-process', 'platform-overview'];
+        // Everything else in the menu (the planning horizons, the matrix itself) lives on the platform page
+        const navPageOf = (navId) => (
+            WHY_APS_NAV_IDS.includes(navId) ? 'why-aps' : HOME_NAV_IDS.includes(navId) ? 'home' : 'platform'
+        );
+
         const getMainScrollRoot = () => document.querySelector('main.flex-1.overflow-y-auto');
 
         const needsWebKitSectionScrollFix = () => {
@@ -5995,23 +6046,18 @@
                 .filter(h => !APS_HORIZON_IDS.includes(h.id))
                 .map(h => ({ id: h.id, label: h.title }));
 
+            // The menu mirrors the pages: Platform (platform.html), Why APS (why-aps.html), About Us, Contact.
+            // A group's navId is where its label leads; its children are sections of that page.
             return [
+                { id: 'platform-group', label: ui.nav_platform, navId: 'matrix-fit', children: apsChildren },
                 {
-                    id: 'platform-group',
-                    label: ui.nav_platform,
+                    id: 'why-aps-group',
+                    label: ui.nav_why_aps,
+                    navId: 'why-aps-top',
                     children: [
-                        { id: 'supply-chain', label: ui.nav_supply_chain },
-                        { id: 'proof-foundation', label: ui.nav_mathematical_foundation },
                         { id: 'industry-40', label: ui.nav_industry_40 },
                         { id: 'analytics', label: ui.nav_analytics },
-                    ],
-                },
-                {
-                    id: 'solutions-group',
-                    label: ui.nav_solutions,
-                    children: [
-                        { id: 'aps-group', label: ui.nav_aps_system, children: apsChildren },
-                        { id: 'or-process', label: ui.nav_implementation_process },
+                        { id: 'proof-foundation', label: ui.nav_mathematical_foundation },
                     ],
                 },
                 ...otherHorizons,
@@ -6022,12 +6068,12 @@
 
         const navItemContainsId = (item, targetId) => {
             if (!item || !targetId) return false;
-            if (item.id === targetId) return true;
+            if (item.id === targetId || item.navId === targetId) return true;
             return (item.children || []).some(child => navItemContainsId(child, targetId));
         };
 
         const getNavTargetId = (navId) => {
-            if (['proof-foundation', 'supply-chain', 'industry-40', 'analytics', 'or-process', 'about', 'about-why', 'matrix-fit'].includes(navId)) return navId;
+            if (['proof-foundation', 'supply-chain', 'industry-40', 'analytics', 'or-process', 'matrix-fit', 'platform-overview', 'why-aps-top'].includes(navId)) return navId;
             return `horizon-${navId}`;
         };
 
@@ -6170,35 +6216,6 @@
                     click_to_open: "Click to Open",
                     no_modules: "No modules enabled.",
                     check_later: "Check back later for updates.",
-                    about_title: "About Operartis",
-                    about_who: "Who We Are",
-                    about_what: "What We Do",
-                    about_vision: "Vision & Philosophy",
-                    about_why: "Why Choose Operartis",
-                    about_who_text: [
-                        "Operartis is a specialized consulting and technology firm dedicated to helping enterprises streamline, optimize, and transform their operations.",
-                        "We combine deep expertise in supply chain, logistics, production, warehousing and manufacturing processes with advanced quantitative-optimization and simulation methods to deliver meaningful, measurable improvements.",
-                        "At Operartis, we understand that having data in an Enterprise Resource Planning (ERP) system is only the first step. True operational excellence requires turning that data into actionable planning, forecasting and scheduling insights. That’s why we focus on building, developing, and continuously improving a tailored Advanced Planning and Scheduling System (APS) — helping our clients leverage their data not just for record-keeping, but for real operational advantage."
-                    ],
-                    about_what_text: [
-                        "We consult with businesses to thoroughly analyze their supply chain, warehousing, logistics and production workflows — identifying inefficiencies, bottlenecks, and opportunities for optimization.",
-                        "We design and implement APS systems that integrate with existing ERPs (or, where needed, stand-alone), enabling advanced planning, simulation, demand forecasting, capacity planning and production scheduling.",
-                        "We support companies through all stages: from initial assessment and system design, to deployment, staff training, and continuous improvement — ensuring sustainable value over time.",
-                        "Our quantitative-driven approach allows clients to make data-backed decisions, reduce operational costs, minimize waste, shorten lead times and improve overall efficiency."
-                    ],
-                    about_vision_text: [
-                        "We aim to democratize operational and supply-chain optimization. We believe that every enterprise — whether small, medium or large — deserves access to powerful tools and expert guidance at reasonable price levels.",
-                        "We envision a world in which companies can guarantee that their entire supply chain works efficiently and in an optimized manner — saving time, effort, and costs, while ensuring smooth operations and high customer satisfaction.",
-                        "By embedding advanced optimization methods into an all-in-one APS system, Operartis helps unlock hidden potential in operational data — transforming raw information into strategic advantage, sustainable growth, and robust competitiveness."
-                    ],
-                    about_why_items: [
-                        { title: "Specialization & Expertise", text: "We are not a generalist IT or consulting firm. Our core competence lies in operations, supply-chain optimization, and APS/ERP integration." },
-                        { title: "Quantitative & Data-Driven", text: "Our approaches rely on simulation, modeling and data analytics — not guesswork. This ensures improvements are measurable and repeatable." },
-                        { title: "Tailored & Pragmatic Solutions", text: "We design APS systems that reflect your real-world constraints. What we build fits your operations — not the other way around." },
-                        { title: "Affordability & Value", text: "We strive to provide our services at reasonable price levels, making high-quality optimization accessible to a broad range of enterprises." },
-                        { title: "Commitment to Results", text: "Our mission is not just to deliver a system, but to help you achieve real improvements in efficiency, cost savings, and operational resilience." },
-                        { title: "Privacy Policy", text: "Your operational data stays protected. Operartis applies strict confidentiality, least-privilege access, and transparent handling — so responsible privacy becomes a trust advantage in every partnership." }
-                    ],
                     invite_text: "Ready to build competitive advantages with a comprehensive optimization system?",
                     contact_operartis: "Contact Operartis",
                     nav_contact: "Contact",
@@ -6378,6 +6395,7 @@
                     nav_mathematical_foundation: "Mathematical Foundation",
                     nav_aps: "APS",
                     nav_solutions: "Solutions",
+                    nav_why_aps: "Why APS",
                     nav_aps_system: "APS-System",
                     nav_analytics: "Analytics Levels",
                     nav_or_process: "Process",
@@ -6421,6 +6439,18 @@
                     sc_stage: "Stage",
                     sc_modules_title: "Operartis at this stage",
                     sc_catalogue_link: "See the full module catalogue",
+                    whyaps_page_title: "Operartis | Why APS",
+                    platform_page_title: "Operartis | The APS Platform",
+                    whyaps_eyebrow: "Background",
+                    whyaps_title: "Why an APS system?",
+                    whyaps_desc: "Where ERP and MES stop, how analytics grows from describing to deciding, and why the results of optimization can be proven.",
+                    whyaps_teaser_body: "ERP and MES record and execute. They do not decide. Read where they stop, how analytics grows from describing to deciding, and why the results of optimization can be proven.",
+                    whyaps_teaser_cta: "Read the background",
+                    whyaps_teaser_items: [
+                        { id: 'industry-40', text: "Where ERP and MES stop" },
+                        { id: 'analytics', text: "From describing to deciding" },
+                        { id: 'proof-foundation', text: "Results you can verify" }
+                    ],
                     sc_steps: [
                         { id: 'procurement', label: 'Procurement', tag: 'Source', desc: 'Strategic sourcing, supplier selection, purchase orders, inbound quality checks, and raw-material staging before production.' },
                         { id: 'production', label: 'Production', tag: 'Make', desc: 'Factory planning, MRP/MPS, MES scheduling, assembly lines, quality control, and finished-goods output.' },
@@ -6575,35 +6605,6 @@
                     click_to_open: "Nhấn để Mở",
                     no_modules: "Chưa có mô-đun kích hoạt.",
                     check_later: "Vui lòng quay lại sau.",
-                    about_title: "Về Operartis",
-                    about_who: "Chúng Tôi Là Ai",
-                    about_what: "Chúng Tôi Làm Gì",
-                    about_vision: "Tầm Nhìn & Triết Lý",
-                    about_why: "Tại Sao Chọn Operartis",
-                    about_who_text: [
-                        "Operartis là đơn vị tư vấn và công nghệ, hỗ trợ doanh nghiệp xây dựng một hệ thống vận hành trơn tru và tối ưu hóa quy trình.",
-                        "Chúng tôi kết hợp chuyên môn về chuỗi cung ứng, từ logistics, sản xuất đến kho bãi với các phương pháp định lượng và mô phỏng tiên tiến để mang lại cải tiến rõ rệt, có thể đo lường.",
-                        "Tại Operartis, chúng tôi hiểu rằng dữ liệu trong hệ thống ERP chỉ là bước đầu. Sự tối ưu trong vận hành đòi hỏi phải biến dữ liệu đó thành thông tin chi tiết cho dự báo, hoạch định ngắn trung và ngắn hạn, tới lập kế hoạch dài hạn. Đó là lý do chúng tôi tập trung phát triển Hệ thống Lập kế hoạch và Tối ưu hoá vận hành (APS) riêng biệt — giúp khách hàng tận dụng dữ liệu không chỉ để lưu trữ mà còn tạo lợi thế cạnh tranh nhờ vào quy trình vận hành được tối ưu."
-                    ],
-                    about_what_text: [
-                        "Chúng tôi tư vấn doanh nghiệp phân tích kỹ lưỡng quy trình vận hành toàn chuỗi cung ứng từ kho bãi, logistics và sản xuất, tới dự báo và tồn kho — nhận diện các điểm nghẽn, kém hiệu quả và cơ hội tối ưu hóa.",
-                        "Chúng tôi thiết kế và triển khai hệ thống APS được đóng gói sẵn hoặc tuỳ chỉnh theo yêu cầu có thể tích hợp với hệ thống ERP và MES hiện có của doanh nghiệp, cho phép lập kế hoạch chuyên sâu, mô phỏng, dự báo nhu cầu, hoạch định năng lực và lịch trình sản xuất, tối ưu hoá quản lý tồn kho, và vận tải.",
-                        "Chúng tôi đồng hành cùng khách hàng qua mọi giai đoạn: từ đánh giá ban đầu, tư vấn, thiết kế hệ thống, đến triển khai, đào tạo nhân sự và cải tiến liên tục — đảm bảo giá trị bền vững.",
-                        "Cách tiếp cận dựa trên định lượng của chúng tôi giúp khách hàng ra quyết định dựa trên dữ liệu và chứng minh, không phải cảm tính, giúp cắt giảm lãng phí, rút ngắn thời gian vận hành, và nâng cao hiệu quả tổng thể."
-                    ],
-                    about_vision_text: [
-                        "Chúng tôi hướng đến việc phổ cập tối ưu hóa vận hành và chuỗi cung ứng. Chúng tôi tin rằng mọi doanh nghiệp — dù nhỏ, vừa hay lớn — đều xứng đáng tiếp cận các công cụ mạnh mẽ và chuyên nghiệp với chi phí hợp lý.",
-                        "Chúng tôi hình dung một thế giới nơi các công ty có thể an tâm rằng toàn chuỗi cung ứng hoạt động hiệu quả và tối ưu — tiết kiệm thời gian, công sức và chi phí, đồng thời đảm bảo vận hành trơn tru và sự hài lòng cao của khách hàng.",
-                        "Bằng cách tích hợp các phương pháp tối ưu hóa tiên tiến vào hệ thống APS tất cả trong một, Operartis giúp khai phá tiềm năng ẩn trong dữ liệu vận hành — biến thông tin thô thành lợi thế chiến lược, tăng trưởng bền vững và năng lực cạnh tranh mạnh mẽ."
-                    ],
-                    about_why_items: [
-                        { title: "Chuyên Môn & Kinh Nghiệm", text: "Năng lực cốt lõi của chúng tôi nằm ở tư vấn vận hành, tối ưu hóa chuỗi cung ứng, xây dựng và tích hợp các hệ thống APS/ERP." },
-                        { title: "Định Lượng & Dựa Trên Dữ liệu", text: "Phương pháp của chúng tôi dựa trên mô phỏng, mô hình hóa và phân tích dữ liệu, xây dựng thuật toán tối ưu hoá — không phỏng đoán. Điều này đảm bảo cải tiến có thể đo lường và bền vững." },
-                        { title: "Giải Pháp Thực Tế & Chuyên Biệt", text: "Chúng tôi thiết kế hệ thống APS đáp ứng đúng với điều kiện thực tế của doanh nghiệp. Những gì chúng tôi xây dựng phù hợp với thực tế vận hành của doanh nghiệp." },
-                        { title: "Chi Phí Hợp Lý & Giá Trị", text: "Chúng tôi nỗ lực cung cấp dịch vụ với mức giá hợp lý, giúp việc triển khai các phương pháp tối ưu hóa chất lượng cao tiếp cận được với nhiều doanh nghiệp nhất có thể." },
-                        { title: "Cam Kết Kết Quả", text: "Sứ mệnh của chúng tôi không chỉ là bàn giao hệ thống, mà là giúp doanh nghiệp đạt được cải thiện thực sự về hiệu quả, và sự bền bỉ trong vận hành, cũng như tiết kiệm chi phí." },
-                        { title: "Chính sách Bảo mật", text: "Dữ liệu vận hành của bạn được bảo vệ nghiêm ngặt. Operartis áp dụng bảo mật thông tin, quyền truy cập tối thiểu và xử lý minh bạch — quyền riêng tư được tôn trọn chính là chìa khoá tin cậy trong mọi quan hệ đối tác." }
-                    ],
                     invite_text: "Sẵn sàng xây dựng lợi thế cạnh tranh với một hệ thống tối ưu hóa toàn diện?",
                     contact_operartis: "Liên hệ Operartis",
                     nav_contact: "Liên hệ",
@@ -6783,6 +6784,7 @@
                     nav_mathematical_foundation: "Nền tảng toán học",
                     nav_aps: "APS",
                     nav_solutions: "Giải pháp",
+                    nav_why_aps: "Vì sao cần APS",
                     nav_aps_system: "Hệ thống APS",
                     nav_analytics: "Cấp độ phân tích",
                     nav_or_process: "Quy trình",
@@ -6826,6 +6828,18 @@
                     sc_stage: "Công đoạn",
                     sc_modules_title: "Operartis tại công đoạn này",
                     sc_catalogue_link: "Xem toàn bộ danh mục module",
+                    whyaps_page_title: "Operartis | Vì sao cần APS",
+                    platform_page_title: "Operartis | Nền tảng APS",
+                    whyaps_eyebrow: "Kiến thức nền tảng",
+                    whyaps_title: "Vì sao cần hệ thống APS?",
+                    whyaps_desc: "ERP và MES dừng lại ở đâu, phân tích dữ liệu phát triển từ mô tả đến ra quyết định như thế nào, và vì sao kết quả tối ưu hoá có thể chứng minh được.",
+                    whyaps_teaser_body: "ERP và MES ghi nhận và thực thi, nhưng không ra quyết định. Tìm hiểu chúng dừng lại ở đâu, phân tích dữ liệu phát triển từ mô tả đến ra quyết định như thế nào, và vì sao kết quả tối ưu hoá có thể chứng minh được.",
+                    whyaps_teaser_cta: "Đọc kiến thức nền tảng",
+                    whyaps_teaser_items: [
+                        { id: 'industry-40', text: "ERP và MES dừng lại ở đâu" },
+                        { id: 'analytics', text: "Từ mô tả đến ra quyết định" },
+                        { id: 'proof-foundation', text: "Kết quả có thể kiểm chứng" }
+                    ],
                     sc_steps: [
                         { id: 'procurement', label: 'Mua hàng', tag: 'Nguồn', desc: 'Tìm nguồn cung, lựa chọn nhà cung cấp, đặt hàng, kiểm tra chất lượng đầu vào và chuẩn bị nguyên liệu trước sản xuất.' },
                         { id: 'production', label: 'Sản xuất', tag: 'Sản xuất', desc: 'Hoạch định nhà máy, MRP/MPS, lịch xưởng, dây chuyền lắp ráp, kiểm soát chất lượng và thành phẩm.' },
@@ -6980,35 +6994,6 @@
                     click_to_open: "Zum Öffnen klicken",
                     no_modules: "Keine Module aktiviert.",
                     check_later: "Bitte später erneut prüfen.",
-                    about_title: "Über Operartis",
-                    about_who: "Wer wir sind",
-                    about_what: "Was wir tun",
-                    about_vision: "Vision & Philosophie",
-                    about_why: "Warum Operartis",
-                    about_who_text: [
-                        "Operartis ist ein spezialisiertes Beratungs- und Technologieunternehmen, das Unternehmen dabei unterstützt, ihre Abläufe zu straffen, zu optimieren und zu transformieren.",
-                        "Wir verbinden tiefes Fachwissen in Supply Chain, Logistik, Produktion, Lagerhaltung und Fertigung mit fortgeschrittenen quantitativen Optimierungs- und Simulationsmethoden, um messbare Verbesserungen zu erzielen.",
-                        "Bei Operartis wissen wir, dass Daten im ERP-System nur der erste Schritt sind. Echte operative Exzellenz erfordert, diese Daten in umsetzbare Planungs-, Prognose- und Terminierungserkenntnisse zu verwandeln. Deshalb entwickeln wir ein maßgeschneidertes Advanced Planning and Scheduling System (APS) — damit unsere Kunden ihre Daten nicht nur zur Dokumentation, sondern für echten operativen Vorteil nutzen."
-                    ],
-                    about_what_text: [
-                        "Wir beraten Unternehmen bei der gründlichen Analyse ihrer Supply-Chain-, Lager-, Logistik- und Produktionsabläufe — und identifizieren Ineffizienzen, Engpässe und Optimierungspotenziale.",
-                        "Wir entwerfen und implementieren APS-Systeme, die in bestehende ERPs integriert werden (oder bei Bedarf eigenständig arbeiten), und ermöglichen erweiterte Planung, Simulation, Nachfrageprognose, Kapazitätsplanung und Produktionsterminierung.",
-                        "Wir begleiten Unternehmen in allen Phasen: von der Erstbewertung und Systemgestaltung über die Einführung und Schulung bis zur kontinuierlichen Verbesserung — für nachhaltigen Mehrwert.",
-                        "Unser quantitativer Ansatz ermöglicht datenbasierte Entscheidungen, senkt Betriebskosten, reduziert Verschwendung, verkürzt Durchlaufzeiten und steigert die Gesamteffizienz."
-                    ],
-                    about_vision_text: [
-                        "Wir wollen operative und Supply-Chain-Optimierung demokratisieren. Jedes Unternehmen — ob klein, mittel oder groß — verdient Zugang zu leistungsstarken Tools und fachkundiger Beratung zu angemessenen Preisen.",
-                        "Wir stellen uns eine Welt vor, in der Unternehmen sicher sein können, dass ihre gesamte Supply Chain effizient und optimiert arbeitet — Zeit, Aufwand und Kosten spart und gleichzeitig reibungslose Abläufe und hohe Kundenzufriedenheit sicherstellt.",
-                        "Durch die Einbettung fortgeschrittener Optimierungsmethoden in ein All-in-One-APS-System hilft Operartis, verborgenes Potenzial in Betriebsdaten freizusetzen — und Rohinformationen in strategischen Vorteil, nachhaltiges Wachstum und starke Wettbewerbsfähigkeit zu verwandeln."
-                    ],
-                    about_why_items: [
-                        { title: "Spezialisierung & Expertise", text: "Wir sind keine allgemeine IT- oder Beratungsfirma. Unsere Kernkompetenz liegt in Operations, Supply-Chain-Optimierung und APS/ERP-Integration." },
-                        { title: "Quantitativ & datengetrieben", text: "Unsere Ansätze basieren auf Simulation, Modellierung und Datenanalyse — nicht auf Vermutungen. So sind Verbesserungen messbar und wiederholbar." },
-                        { title: "Maßgeschneiderte & pragmatische Lösungen", text: "Wir entwickeln APS-Systeme, die Ihre realen Rahmenbedingungen widerspiegeln. Was wir bauen, passt zu Ihren Abläufen — nicht umgekehrt." },
-                        { title: "Erschwinglichkeit & Mehrwert", text: "Wir streben angemessene Preise an und machen hochwertige Optimierung für ein breites Spektrum von Unternehmen zugänglich." },
-                        { title: "Ergebnisorientierung", text: "Unsere Mission ist nicht nur die Lieferung eines Systems, sondern echte Verbesserungen in Effizienz, Kosteneinsparung und operativer Resilienz." },
-                        { title: "Datenschutz", text: "Ihre Betriebsdaten bleiben geschützt. Operartis setzt auf strikte Vertraulichkeit, minimalen Zugriff und transparente Handhabung — verantwortungsvoller Datenschutz als Vertrauensvorteil in jeder Partnerschaft." }
-                    ],
                     invite_text: "Bereit, Wettbewerbsvorteile mit einem umfassenden Optimierungssystem aufzubauen?",
                     contact_operartis: "Operartis kontaktieren",
                     nav_contact: "Kontakt",
@@ -7188,6 +7173,7 @@
                     nav_mathematical_foundation: "Mathematische Grundlage",
                     nav_aps: "APS",
                     nav_solutions: "Lösungen",
+                    nav_why_aps: "Warum APS",
                     nav_aps_system: "APS-System",
                     nav_analytics: "Analytics-Stufen",
                     nav_or_process: "OR-Prozess",
@@ -7231,6 +7217,18 @@
                     sc_stage: "Stufe",
                     sc_modules_title: "Operartis in dieser Stufe",
                     sc_catalogue_link: "Zum gesamten Modulkatalog",
+                    whyaps_page_title: "Operartis | Warum APS",
+                    platform_page_title: "Operartis | Die APS-Plattform",
+                    whyaps_eyebrow: "Hintergrund",
+                    whyaps_title: "Warum ein APS-System?",
+                    whyaps_desc: "Wo ERP und MES aufhören, wie Analytics vom Beschreiben zum Entscheiden reift und warum sich die Ergebnisse der Optimierung beweisen lassen.",
+                    whyaps_teaser_body: "ERP und MES erfassen und führen aus. Sie entscheiden nicht. Lesen Sie, wo sie aufhören, wie Analytics vom Beschreiben zum Entscheiden reift und warum sich die Ergebnisse der Optimierung beweisen lassen.",
+                    whyaps_teaser_cta: "Hintergrund lesen",
+                    whyaps_teaser_items: [
+                        { id: 'industry-40', text: "Wo ERP und MES aufhören" },
+                        { id: 'analytics', text: "Vom Beschreiben zum Entscheiden" },
+                        { id: 'proof-foundation', text: "Ergebnisse, die sich prüfen lassen" }
+                    ],
                     sc_steps: [
                         { id: 'procurement', label: 'Beschaffung', tag: 'Bezug', desc: 'Strategischer Einkauf, Lieferantenauswahl, Bestellungen, Wareneingangsprüfung und Materialbereitstellung vor der Produktion.' },
                         { id: 'production', label: 'Produktion', tag: 'Fertigung', desc: 'Werkplanung, MRP/MPS, Feinplanung, Montagelinien, Qualitätskontrolle und Fertigwarenausgang.' },
@@ -9395,13 +9393,13 @@
         };
 
         // Shared section heading — eyebrow + large title + optional lead (Landing V3 type scale)
-        const SectionHeading = ({ eyebrow, title, muted, desc, align = 'left', tone = 'auto', className = '' }) => (
+        const SectionHeading = ({ eyebrow, title, muted, desc, align = 'left', tone = 'auto', className = '', as: HeadingTag = 'h2' }) => (
             <div className={`max-w-4xl mb-8 md:mb-12 ${align === 'center' ? 'mx-auto text-center' : ''} ${className}`}>
                 {eyebrow && <p className="text-[10px] md:text-[11px] font-bold uppercase opus-eyebrow text-brand-gold mb-3 md:mb-4">{eyebrow}</p>}
-                <h2 className={`text-[1.75rem] sm:text-4xl md:text-[2.75rem] font-bold tracking-tight leading-[1.15] md:leading-[1.12] ${tone === 'dark' ? 'text-white' : 'text-slate-900 dark:text-white'}`}>
+                <HeadingTag className={`text-[1.75rem] sm:text-4xl md:text-[2.75rem] font-bold tracking-tight leading-[1.15] md:leading-[1.12] ${tone === 'dark' ? 'text-white' : 'text-slate-900 dark:text-white'}`}>
                     {title}
                     {muted && <span className="text-slate-400 dark:text-slate-500">{' '}{muted}</span>}
-                </h2>
+                </HeadingTag>
                 {desc && (
                     <p className={`mt-4 md:mt-5 text-base md:text-lg leading-relaxed max-w-2xl ${tone === 'dark' ? 'text-slate-300' : 'text-slate-500 dark:text-slate-400'} ${align === 'center' ? 'mx-auto' : ''}`}>{desc}</p>
                 )}
@@ -10566,7 +10564,19 @@
                         onMouseEnter={onDropdownMenuEnter}
                         onMouseLeave={onDropdownMenuLeave}
                     >
-                        <div className="header-nav-aps-menu-head">{openMenuItem.label}</div>
+                        {openMenuItem.navId ? (
+                            <button
+                                type="button"
+                                role="menuitem"
+                                className="header-nav-aps-menu-head header-nav-aps-menu-head-link"
+                                onClick={() => closeMenuAndNav(openMenuItem.navId)}
+                            >
+                                <span>{openMenuItem.label}</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+                            </button>
+                        ) : (
+                            <div className="header-nav-aps-menu-head">{openMenuItem.label}</div>
+                        )}
                         {renderMenuEntries(openMenuItem.children || [])}
                     </div>
                 </>,
@@ -10619,7 +10629,7 @@
                                                     type="button"
                                                     aria-expanded={isOpen}
                                                     aria-haspopup="menu"
-                                                    onClick={() => toggleMenu(item.id)}
+                                                    onClick={() => (item.navId && prefersHoverMenus() ? closeMenuAndNav(item.navId) : toggleMenu(item.id))}
                                                     className={`${tabClass(highlighted)} flex items-center`}
                                                 >
                                                     <span className="header-nav-tab-label">{item.label}</span>
@@ -10705,9 +10715,20 @@
                             key={item.id}
                             className={`rounded-2xl border p-2 ${activeGroup ? 'border-brand-gold/35 bg-brand-gold/5' : 'border-slate-200/80 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-950/20'}`}
                         >
-                            <div className={`px-2 pb-2 text-[10px] font-black uppercase tracking-widest ${activeGroup ? 'text-brand-gold' : 'text-slate-500 dark:text-slate-400'}`}>
-                                {item.label}
-                            </div>
+                            {item.navId ? (
+                                <button
+                                    type="button"
+                                    onClick={() => activate(item.navId)}
+                                    className={`flex w-full items-center justify-between gap-3 px-2 pb-2 text-left text-[10px] font-black uppercase tracking-widest ${activeGroup ? 'text-brand-gold' : 'text-slate-500 dark:text-slate-400'}`}
+                                >
+                                    <span>{item.label}</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+                                </button>
+                            ) : (
+                                <div className={`px-2 pb-2 text-[10px] font-black uppercase tracking-widest ${activeGroup ? 'text-brand-gold' : 'text-slate-500 dark:text-slate-400'}`}>
+                                    {item.label}
+                                </div>
+                            )}
                             <div className="grid gap-2">
                                 {item.children.map(child => {
                                     if (child.children?.length) {
@@ -11393,99 +11414,114 @@
             );
         };
 
-        // About — INFORM editorial: sticky title rail + flowing narrative, Odoo-style "why" grid
-        const AboutSection = ({ content, onNav }) => (
-            <div id="about" className="opus-scroll-target mt-8 pt-16 border-t border-slate-200/70 dark:border-white/5 pb-8">
-                <div className="grid lg:grid-cols-12 gap-8 lg:gap-12">
-                    {/* Sticky brand rail */}
-                    <div className="lg:col-span-4">
-                        <div className="opus-sticky-info">
-                            <Reveal>
-                                <p className="text-[10px] font-bold uppercase opus-eyebrow text-brand-gold mb-3">{content.ui.about_title}</p>
-                                <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white tracking-tight mb-6 leading-tight">{content.ui.about_vision}</h2>
-                                {/* Brand motto — kept in English per DESIGN_SYSTEM.md */}
-                                <div className="rounded-2xl border border-brand-gold/20 bg-brand-gold/5 p-6 mb-6 w-full max-lg:max-w-[320px] max-lg:mx-auto lg:mx-0">
-                                    <p className="text-brand-gold font-bold italic text-lg leading-snug text-center">
-                                        <span className="block">“Optimizing today,</span>
-                                        <span className="block">Growing tomorrow.”</span>
-                                    </p>
-                                </div>
-                                <a href="./" className="block hover:opacity-80 transition-opacity">
-                                    <img src="./fulllogo_transparent_nobuffer.png" alt="Operartis" className="w-full max-w-[320px] object-contain mx-auto lg:mx-0" onError={(e) => e.target.style.display = 'none'} />
+        // Teaser for the background page (why-aps.html), where the three teaching sections now live
+        const WhyApsTeaser = ({ content }) => {
+            const ui = content.ui;
+            const labels = {
+                'industry-40': ui.nav_industry_40,
+                'analytics': ui.nav_analytics,
+                'proof-foundation': ui.nav_mathematical_foundation,
+            };
+            return (
+                <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-center rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-white/45 dark:bg-slate-900/35 backdrop-blur-sm px-6 py-10 sm:px-10 md:px-12 md:py-14">
+                    <div className="lg:col-span-7">
+                        <SectionHeading className="!mb-0" eyebrow={ui.whyaps_eyebrow} title={ui.i4l_title} desc={ui.whyaps_teaser_body} />
+                        <a
+                            href="./why-aps"
+                            className="inline-flex items-center gap-2 mt-7 md:mt-8 px-7 py-3.5 rounded-xl bg-brand-gold text-white text-sm md:text-base font-bold shadow-lg shadow-brand-gold/20 hover:bg-amber-600 hover:shadow-brand-gold/40 hover:scale-[1.02] active:scale-95 transition-all"
+                        >
+                            {ui.whyaps_teaser_cta} <ArrowRightIcon />
+                        </a>
+                    </div>
+                    <ul className="lg:col-span-5 space-y-3">
+                        {ui.whyaps_teaser_items.map((item, i) => (
+                            <li key={item.id}>
+                                <a
+                                    href={`./why-aps#${item.id}`}
+                                    className="group flex items-center gap-4 rounded-2xl border border-slate-200 dark:border-white/10 bg-white/80 dark:bg-slate-900/50 px-5 py-4 hover:border-brand-gold/50 transition-colors"
+                                >
+                                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-gold/10 text-brand-gold font-mono text-xs font-bold">{String(i + 1).padStart(2, '0')}</span>
+                                    <span className="min-w-0 flex-1">
+                                        <span className="block text-[10px] font-bold uppercase tracking-widest text-brand-gold">{labels[item.id]}</span>
+                                        <span className="block mt-0.5 text-base font-bold text-slate-900 dark:text-white">{item.text}</span>
+                                    </span>
+                                    <span className="shrink-0 text-slate-400 group-hover:text-brand-gold group-hover:translate-x-0.5 transition-all" aria-hidden="true"><ArrowRightIcon /></span>
                                 </a>
-                            </Reveal>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            );
+        };
+
+        // Compact APS matrix for the home page: one card per planning horizon.
+        // The full matrix (module tiles, quick views) lives on platform.html.
+        const PlatformOverview = ({ content }) => {
+            const ui = content.ui;
+            return (
+                <div className="lp3-matrix-stage">
+                    <Reveal>
+                        <div className="lp3-photo-band lp3-photo-band--factory lp3-matrix-head flex items-end min-h-[13rem] md:min-h-[17rem] px-6 py-8 sm:px-10 md:px-14 md:py-12">
+                            <SectionHeading tone="dark" className="!mb-0" eyebrow={ui.platform_eyebrow} title={ui.platform_title} desc={ui.platform_desc} />
+                        </div>
+                    </Reveal>
+                    <div className="px-5 py-8 sm:px-8 md:px-10 md:py-10">
+                        <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-5">
+                            {content.matrix.map((horizon, index) => (
+                                <Reveal key={horizon.id} delay={index * 80} className="h-full">
+                                    <a
+                                        href={`./platform#horizon-${horizon.id}`}
+                                        className="group flex h-full flex-col rounded-2xl border border-slate-200 dark:border-white/10 bg-white/80 dark:bg-slate-900/50 p-5 md:p-6 hover:border-brand-gold/50 hover:-translate-y-0.5 transition-all"
+                                    >
+                                        <div className="flex items-center gap-3 mb-3">
+                                            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-gold/10 text-brand-gold font-mono font-black">{index + 1}</span>
+                                            <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 dark:text-slate-400">{horizon.subtitle}</span>
+                                        </div>
+                                        <h3 className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white tracking-tight mb-4">{horizon.title}</h3>
+                                        <ul className="space-y-3 flex-1">
+                                            {horizon.blocks.map((block, idx) => (
+                                                <li key={idx} className="flex items-start gap-2.5 text-sm leading-snug text-slate-600 dark:text-slate-300">
+                                                    <span className={`mt-0.5 shrink-0 [&>svg]:h-4 [&>svg]:w-4 ${blockHasLive(block) ? 'text-brand-gold' : 'text-slate-400 dark:text-slate-500'}`} aria-hidden="true">{block.icon}</span>
+                                                    <span className="min-w-0">
+                                                        {block.name}
+                                                        {blockHasLive(block) && <span className="ml-2 inline-flex items-center rounded-full bg-brand-gold/15 px-1.5 py-0.5 align-middle text-[9px] font-bold uppercase tracking-wider text-brand-gold">{ui.badge_live}</span>}
+                                                    </span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                        <span className="mt-5 inline-flex text-brand-gold opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all [&>svg]:h-4 [&>svg]:w-4" aria-hidden="true"><ArrowRightIcon /></span>
+                                    </a>
+                                </Reveal>
+                            ))}
+                        </div>
+                        <div className="mt-8 md:mt-10 text-center">
+                            <a
+                                href="./platform"
+                                className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-brand-gold text-white text-sm md:text-base font-bold shadow-lg shadow-brand-gold/20 hover:bg-amber-600 hover:shadow-brand-gold/40 hover:scale-[1.02] active:scale-95 transition-all"
+                            >
+                                {ui.sc_catalogue_link} <ArrowRightIcon />
+                            </a>
                         </div>
                     </div>
-
-                    {/* Narrative */}
-                    <div className="lg:col-span-8 space-y-12">
-                        <Reveal delay={100}>
-                            <div>
-                                <h3 className="text-xs font-bold uppercase opus-eyebrow text-brand-gold mb-4">{content.ui.about_who}</h3>
-                                <div className="space-y-4 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
-                                    {content.ui.about_who_text.map((text, i) => (
-                                        <p key={i} className={i === 0 ? 'text-base text-slate-800 dark:text-slate-200 font-medium' : ''}>{text}</p>
-                                    ))}
-                                </div>
-                            </div>
-                        </Reveal>
-
-                        <Reveal delay={150}>
-                            <div>
-                                <h3 className="text-xs font-bold uppercase opus-eyebrow text-brand-gold mb-4">{content.ui.about_what}</h3>
-                                <div className="space-y-4 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
-                                    {content.ui.about_what_text.map((text, i) => (
-                                        <p key={i}>{text}</p>
-                                    ))}
-                                </div>
-                            </div>
-                        </Reveal>
-
-                        <Reveal delay={200}>
-                            <div>
-                                <h3 className="text-xs font-bold uppercase opus-eyebrow text-brand-gold mb-4">{content.ui.about_vision}</h3>
-                                <div className="space-y-4 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
-                                    {content.ui.about_vision_text.map((text, i) => (
-                                        <p key={i}>{text}</p>
-                                    ))}
-                                </div>
-                            </div>
-                        </Reveal>
-
-                        {/* Why grid — Odoo "enterprise software done right" cells */}
-                        <Reveal delay={250}>
-                            <div id="about-why" className="opus-scroll-target">
-                                <h3 className="text-xs font-bold uppercase opus-eyebrow text-brand-gold mb-5">{content.ui.about_why}</h3>
-                                <div className="grid sm:grid-cols-2 gap-4">
-                                    {content.ui.about_why_items.map((item, i) => (
-                                        <div key={i} className="h-full rounded-xl border border-slate-200 dark:border-white/5 bg-white/80 dark:bg-slate-900/50 p-5 hover:border-brand-gold/40 transition-colors">
-                                            <div className="flex items-center gap-2 mb-2">
-                                                <span className="flex h-6 w-6 items-center justify-center rounded-md bg-brand-gold/10 text-brand-gold font-mono text-xs font-bold">{String(i + 1).padStart(2, '0')}</span>
-                                                <strong className="text-sm font-bold text-slate-900 dark:text-white">{item.title}</strong>
-                                            </div>
-                                            <p className="text-xs leading-relaxed text-slate-500 dark:text-slate-400">{item.text}</p>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        </Reveal>
-                    </div>
                 </div>
+            );
+        };
 
-                <Reveal delay={300}>
-                    <div className="lp3-cta mt-20 md:mt-28 rounded-3xl border border-white/10 px-6 py-16 sm:px-10 md:py-24 lg:py-28 text-center">
-                        <p className="text-brand-gold font-bold uppercase tracking-widest text-[10px] md:text-xs mb-5 md:mb-6">Let’s optimize today — so you can grow stronger tomorrow.</p>
-                        <h2 className="text-[1.75rem] sm:text-4xl md:text-5xl font-bold text-white tracking-tight leading-[1.15] max-w-4xl mx-auto">{content.ui.invite_text}</h2>
-                        <button
-                            type="button"
-                            onClick={() => onNav?.('contact')}
-                            className="inline-flex items-center justify-center gap-2 mt-8 md:mt-10 px-7 py-3.5 rounded-xl bg-brand-gold text-white text-sm md:text-base font-bold shadow-lg shadow-brand-gold/30 hover:bg-amber-600 hover:shadow-brand-gold/50 hover:scale-[1.02] active:scale-95 transition-all"
-                        >
-                            {content.ui.contact_operartis} <ArrowRightIcon />
-                        </button>
-                    </div>
-                </Reveal>
-            </div>
+        // Closing CTA. The About content lives on its own page (about.html).
+        const ClosingCta = ({ content, onNav }) => (
+            <Reveal delay={100}>
+                <div className="lp3-cta mt-20 md:mt-28 rounded-3xl border border-white/10 px-6 py-16 sm:px-10 md:py-24 lg:py-28 text-center">
+                    <p className="text-brand-gold font-bold uppercase tracking-widest text-[10px] md:text-xs mb-5 md:mb-6">Let’s optimize today — so you can grow stronger tomorrow.</p>
+                    <h2 className="text-[1.75rem] sm:text-4xl md:text-5xl font-bold text-white tracking-tight leading-[1.15] max-w-4xl mx-auto">{content.ui.invite_text}</h2>
+                    <button
+                        type="button"
+                        onClick={() => onNav?.('contact')}
+                        className="inline-flex items-center justify-center gap-2 mt-8 md:mt-10 px-7 py-3.5 rounded-xl bg-brand-gold text-white text-sm md:text-base font-bold shadow-lg shadow-brand-gold/30 hover:bg-amber-600 hover:shadow-brand-gold/50 hover:scale-[1.02] active:scale-95 transition-all"
+                    >
+                        {content.ui.contact_operartis} <ArrowRightIcon />
+                    </button>
+                </div>
+            </Reveal>
         );
 
         const FooterAccordion = ({ title, children, defaultOpen = false }) => {
@@ -11516,20 +11552,20 @@
             const footerMobileLinkClass = `${footerLinkClass} flex min-h-11 w-full items-center`;
 
             const platformLinks = [
-                { id: 'supply-chain', label: ui.nav_supply_chain },
-                { id: 'proof-foundation', label: ui.nav_mathematical_foundation },
-                { id: 'industry-40', label: ui.nav_industry_40 },
-                { id: 'analytics', label: ui.nav_analytics },
-            ];
-
-            const solutionsLinks = [
                 { id: 'matrix-fit', label: ui.nav_aps_system },
+                { id: 'supply-chain', label: ui.nav_supply_chain },
                 { id: 'or-process', label: ui.nav_implementation_process },
             ];
 
+            const whyApsLinks = [
+                { id: 'industry-40', label: ui.nav_industry_40 },
+                { id: 'analytics', label: ui.nav_analytics },
+                { id: 'proof-foundation', label: ui.nav_mathematical_foundation },
+            ];
+
             const companyLinks = [
-                { id: 'about', label: ui.nav_about },
-                { id: 'about-why', label: ui.cta_why },
+                { id: 'about', label: ui.nav_about, href: './about' },
+                { id: 'about-why', label: ui.cta_why, href: './about#about-why' },
                 { id: 'contact', label: ui.nav_contact, href: './contact' },
             ];
 
@@ -11569,9 +11605,9 @@
                                     </ul>
                                 </FooterAccordion>
 
-                                <FooterAccordion title={ui.footer_solutions}>
+                                <FooterAccordion title={ui.nav_why_aps}>
                                     <ul className="space-y-0.5 pb-3">
-                                        {solutionsLinks.map((link) => (
+                                        {whyApsLinks.map((link) => (
                                             <li key={`${link.id}-${link.label}`}>
                                                 <button type="button" onClick={() => onNav(link.id)} className={footerMobileLinkClass}>
                                                     {link.label}
@@ -11644,9 +11680,9 @@
                             </div>
 
                             <div>
-                                <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-4">{ui.footer_solutions}</h3>
+                                <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-4">{ui.nav_why_aps}</h3>
                                 <ul className="space-y-2.5">
-                                    {solutionsLinks.map((link) => (
+                                    {whyApsLinks.map((link) => (
                                         <li key={`${link.id}-${link.label}`}>
                                             <button type="button" onClick={() => onNav(link.id)} className={footerLinkClass}>
                                                 {link.label}
@@ -11746,6 +11782,9 @@
             // Derived Content
             const content = TRANSLATIONS[lang] || TRANSLATIONS.en;
 
+            // On the Why APS and Platform pages the page's own menu tab stays lit, even above the first section
+            const menuActiveId = activeNavId || (PAGE === 'why-aps' ? 'why-aps-top' : PAGE === 'platform' ? 'matrix-fit' : null);
+
             const pageNavItems = useMemo(
                 () => buildPageNavItems(content.ui, content.matrix),
                 [content]
@@ -11782,7 +11821,6 @@
                     { id: 'analytics', el: document.getElementById('analytics') },
                     ...content.matrix.map(h => ({ id: h.id, el: document.getElementById(`horizon-${h.id}`) })),
                     { id: 'or-process', el: document.getElementById('or-process') },
-                    { id: 'about', el: document.getElementById('about') },
                 ].filter(s => s.el);
                 return sections;
             }, [content]);
@@ -11807,11 +11845,32 @@
             }, [getSectionList, getAnchorOffset]);
 
             const scrollToNavItem = useCallback((id) => {
+                if (id === 'about' || id === 'about-why') {
+                    const href = id === 'about-why' ? './about#about-why' : './about';
+                    if (typeof window.OperartisNavIndicator?.go === 'function') {
+                        window.OperartisNavIndicator.go(href);
+                    } else {
+                        window.location.href = href;
+                    }
+                    return;
+                }
                 if (id === 'contact') {
                     if (typeof window.OperartisNavIndicator?.go === 'function') {
                         window.OperartisNavIndicator.go('./contact');
                     } else {
                         window.location.href = './contact';
+                    }
+                    return;
+                }
+
+                // The section lives on another landing page: go there, its hash scrolls to the section
+                const targetPage = navPageOf(id);
+                if (targetPage !== PAGE) {
+                    const href = PAGE_TOP_NAV_IDS.includes(id) ? PAGE_HREF[targetPage] : `${PAGE_HREF[targetPage]}#${getNavTargetId(id)}`;
+                    if (typeof window.OperartisNavIndicator?.go === 'function') {
+                        window.OperartisNavIndicator.go(href);
+                    } else {
+                        window.location.href = href;
                     }
                     return;
                 }
@@ -11874,8 +11933,6 @@
                 scrollToNavItem(id);
             }, [scrollToNavItem]);
 
-            const scrollToAbout = useCallback(() => scrollToNavItem('about'), [scrollToNavItem]);
-
             const didHashScrollRef = useRef(false);
             useLayoutEffect(() => {
                 if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
@@ -11899,7 +11956,10 @@
             useEffect(() => {
                 window.persistOperartisLang(lang);
                 document.documentElement.lang = lang;
-                document.title = content.ui.page_title || TRANSLATIONS.en.ui.page_title;
+                const pageTitle = PAGE === 'why-aps' ? content.ui.whyaps_page_title
+                    : PAGE === 'platform' ? content.ui.platform_page_title
+                    : content.ui.page_title;
+                document.title = pageTitle || TRANSLATIONS.en.ui.page_title;
             }, [lang, content]);
 
             useEffect(() => {
@@ -12065,7 +12125,7 @@
                         <HeaderNav
                             navRef={headerNavRef}
                             items={pageNavItems}
-                            activeId={activeNavId}
+                            activeId={menuActiveId}
                             onNav={scrollToNavItem}
                             onCollapseChange={handleNavCollapse}
                         />
@@ -12193,7 +12253,7 @@
 
                     <MobileNavDrawer
                         items={pageNavItems}
-                        activeId={activeNavId}
+                        activeId={menuActiveId}
                         onNav={scrollToNavItem}
                         open={mobileNavOpen}
                         onClose={closeMobileNav}
@@ -12202,75 +12262,122 @@
 
                     <main className="flex-1 overflow-y-auto overflow-x-hidden z-10 w-full min-h-0 [scroll-padding-top:5.25rem]">
                         <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 md:px-10 py-8 md:py-12 flex flex-col">
-                            <Reveal>
-                                <HeroSection content={content} onExplore={() => scrollToId('matrix-fit')} onWhy={() => scrollToId('about-why')} />
-                            </Reveal>
+                            {/* One source, three pages: index.html (home), why-aps.html and platform.html. See PAGE at the top of this script. */}
+                            {PAGE === 'home' && (
+                                <>
+                                    <Reveal>
+                                        <HeroSection content={content} onExplore={() => scrollToId('platform-overview')} onWhy={() => scrollToId('about-why')} />
+                                    </Reveal>
 
-                            <div className="mt-8 md:mt-10">
-                                <CapabilityRibbon content={content} />
-                            </div>
+                                    <div className="mt-8 md:mt-10">
+                                        <CapabilityRibbon content={content} />
+                                    </div>
 
-                            <div className="mt-20 md:mt-28">
-                                <Reveal><MetricsBand content={content} stats={stats} /></Reveal>
-                            </div>
+                                    <div className="mt-20 md:mt-28">
+                                        <Reveal><MetricsBand content={content} stats={stats} /></Reveal>
+                                    </div>
 
-                            <div className="mt-24 md:mt-32">
-                                <Reveal><DecisionsSection content={content} /></Reveal>
-                            </div>
+                                    <div className="mt-24 md:mt-32">
+                                        <Reveal><DecisionsSection content={content} /></Reveal>
+                                    </div>
 
-                            <div id="supply-chain" className="opus-scroll-target mt-24 md:mt-32">
-                                <Reveal><SectionHeading eyebrow={content.ui.sc_eyebrow} title={content.ui.sc_title} /></Reveal>
-                                <Reveal delay={100}><SupplyChainFlow content={content} onOpenCatalogue={() => scrollToId('matrix-fit')} /></Reveal>
-                            </div>
+                                    <div id="supply-chain" className="opus-scroll-target mt-24 md:mt-32">
+                                        <Reveal><SectionHeading eyebrow={content.ui.sc_eyebrow} title={content.ui.sc_title} /></Reveal>
+                                        <Reveal delay={100}><SupplyChainFlow content={content} onOpenCatalogue={() => scrollToId('matrix-fit')} /></Reveal>
+                                    </div>
 
-                            <div className="mt-24 md:mt-32">
-                                <Reveal delay={125}><ProofFoundationSection content={content} /></Reveal>
-                            </div>
+                                    {/* The teaching sections (ERP/MES, analytics levels, proof) live on why-aps.html */}
+                                    <div className="mt-24 md:mt-32">
+                                        <Reveal><WhyApsTeaser content={content} /></Reveal>
+                                    </div>
 
-                            <div id="industry-40" className="opus-scroll-target mt-24 md:mt-32">
-                                <Reveal><SectionHeading eyebrow={content.ui.i4l_eyebrow} title={content.ui.i4l_title} /></Reveal>
-                                <SystemIntegrationLoop content={content} />
-                            </div>
+                                    {/* Target of the hero's Explore button. The full matrix lives on platform.html */}
+                                    <div id="platform-overview" className="opus-scroll-target mt-24 md:mt-32">
+                                        <PlatformOverview content={content} />
+                                    </div>
 
-                            <div id="analytics" className="opus-scroll-target mt-24 md:mt-32">
-                                <Reveal><SectionHeading eyebrow={content.ui.analytics_eyebrow} title={content.ui.analytics_title} desc={content.ui.analytics_subtitle} /></Reveal>
-                                <Reveal delay={100}><AnalyticsMaturitySection content={content} /></Reveal>
-                            </div>
+                                    <div id="or-process" className="opus-scroll-target mt-24 md:mt-32">
+                                        <Reveal><SectionHeading eyebrow={content.ui.or_process_eyebrow} title={content.ui.or_process_title} desc={content.ui.or_process_subtitle} /></Reveal>
+                                        <Reveal delay={100}><OrProcessSection content={content} /></Reveal>
+                                    </div>
+                                </>
+                            )}
 
-                            {/* "matrix-fit" is the target of the hero's Explore button and the footer's APS-System link; it now is the stage itself */}
-                            {/* The spacing sits on an outer wrapper so a scroll to the target lands on the stage, not on the gap above it */}
-                            <div className="mt-24 md:mt-32">
-                            <div id="matrix-fit" className="opus-scroll-target">
-                            <div id="platform" className="opus-scroll-target">
-                                <MatrixStage
-                                    head={(
-                                        <div className="lp3-photo-band lp3-photo-band--factory lp3-matrix-head flex items-end min-h-[15rem] md:min-h-[22rem] px-6 py-8 sm:px-10 md:px-14 md:py-12">
-                                            <SectionHeading tone="dark" className="!mb-0" eyebrow={content.ui.platform_eyebrow} title={content.ui.platform_title} desc={content.ui.platform_desc} />
+                            {PAGE === 'why-aps' && (
+                                <>
+                                    {/* Page header: larger and centred, so it reads as the page title above the left-aligned section titles */}
+                                    <Reveal>
+                                        <div id="why-aps-top" className="pt-4 sm:pt-8 md:pt-12 text-center max-w-4xl mx-auto">
+                                            <p className="text-[10px] md:text-[11px] font-bold uppercase opus-eyebrow text-brand-gold mb-4 md:mb-5">{content.ui.whyaps_eyebrow}</p>
+                                            <h1 className="text-[2.25rem] sm:text-5xl lg:text-6xl font-black text-slate-900 dark:text-white tracking-tight leading-[1.1]">{content.ui.whyaps_title}</h1>
+                                            <p className="mt-5 md:mt-6 text-base sm:text-lg md:text-xl text-slate-600 dark:text-slate-300 leading-relaxed max-w-2xl mx-auto">{content.ui.whyaps_desc}</p>
+                                            <div className="mt-7 md:mt-8 flex flex-wrap items-center justify-center gap-2.5">
+                                                {[
+                                                    { id: 'industry-40', label: content.ui.nav_industry_40 },
+                                                    { id: 'analytics', label: content.ui.nav_analytics },
+                                                    { id: 'proof-foundation', label: content.ui.nav_mathematical_foundation },
+                                                ].map((item) => (
+                                                    <button
+                                                        key={item.id}
+                                                        type="button"
+                                                        onClick={() => scrollToId(item.id)}
+                                                        className="rounded-full border border-slate-300 dark:border-white/15 bg-white/60 dark:bg-white/5 px-4 py-2 text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 hover:border-brand-gold hover:text-brand-gold transition-colors"
+                                                    >
+                                                        {item.label}
+                                                    </button>
+                                                ))}
+                                            </div>
                                         </div>
-                                    )}
-                                >
-                                    {content.matrix.map((horizon, index) => (
-                                        <HorizonSection
-                                            key={horizon.id}
-                                            horizon={horizon}
-                                            content={content}
-                                            onBlockClick={handleBlockClick}
-                                            index={index}
-                                            activeQuickViewBlockId={activeQuickViewBlockId}
-                                            onQuickViewActive={setActiveQuickViewBlockId}
-                                        />
-                                    ))}
-                                </MatrixStage>
-                            </div>
-                            </div>
-                            </div>
+                                    </Reveal>
 
-                            <div id="or-process" className="opus-scroll-target mt-16 md:mt-24">
-                                <Reveal><SectionHeading eyebrow={content.ui.or_process_eyebrow} title={content.ui.or_process_title} desc={content.ui.or_process_subtitle} /></Reveal>
-                                <Reveal delay={100}><OrProcessSection content={content} /></Reveal>
-                            </div>
+                                    <div id="industry-40" className="opus-scroll-target mt-16 md:mt-24">
+                                        <Reveal><SectionHeading eyebrow={content.ui.i4l_eyebrow} title={content.ui.i4l_title} /></Reveal>
+                                        <SystemIntegrationLoop content={content} />
+                                    </div>
 
-                            <AboutSection content={content} onNav={scrollToNavItem} />
+                                    <div id="analytics" className="opus-scroll-target mt-24 md:mt-32">
+                                        <Reveal><SectionHeading eyebrow={content.ui.analytics_eyebrow} title={content.ui.analytics_title} desc={content.ui.analytics_subtitle} /></Reveal>
+                                        <Reveal delay={100}><AnalyticsMaturitySection content={content} /></Reveal>
+                                    </div>
+
+                                    <div className="mt-24 md:mt-32">
+                                        <Reveal delay={125}><ProofFoundationSection content={content} /></Reveal>
+                                    </div>
+                                </>
+                            )}
+
+                            {PAGE === 'platform' && (
+                                <>
+                                    {/* The spacing sits on an outer wrapper so a scroll to the target lands on the stage, not on the gap above it */}
+                                    <div className="pt-2 md:pt-4">
+                                    <div id="matrix-fit" className="opus-scroll-target">
+                                    <div id="platform" className="opus-scroll-target">
+                                        <MatrixStage
+                                            head={(
+                                                <div className="lp3-photo-band lp3-photo-band--factory lp3-matrix-head flex items-end min-h-[15rem] md:min-h-[22rem] px-6 py-8 sm:px-10 md:px-14 md:py-12">
+                                                    <SectionHeading as="h1" tone="dark" className="!mb-0" eyebrow={content.ui.platform_eyebrow} title={content.ui.platform_title} desc={content.ui.platform_desc} />
+                                                </div>
+                                            )}
+                                        >
+                                            {content.matrix.map((horizon, index) => (
+                                                <HorizonSection
+                                                    key={horizon.id}
+                                                    horizon={horizon}
+                                                    content={content}
+                                                    onBlockClick={handleBlockClick}
+                                                    index={index}
+                                                    activeQuickViewBlockId={activeQuickViewBlockId}
+                                                    onQuickViewActive={setActiveQuickViewBlockId}
+                                                />
+                                            ))}
+                                        </MatrixStage>
+                                    </div>
+                                    </div>
+                                    </div>
+                                </>
+                            )}
+
+                            <ClosingCta content={content} onNav={scrollToNavItem} />
                         </div>
 
                         <SiteFooter content={content} onNav={scrollToId} />
