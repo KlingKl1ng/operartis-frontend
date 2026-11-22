@@ -6066,7 +6066,20 @@
 
         .dark .lp3-origin-km { fill: #fcd34d; stroke: rgba(2, 6, 23, 0.92); }
 
-        .lp3-origin.is-visible .lp3-origin-km { animation: lp3-origin-km-in 0.45s ease forwards; }
+        /* Names of the hubs on the shortest path (desktop only): quieter than the two country names */
+        .lp3-origin-hub-name {
+            fill: #475569;
+            opacity: 0;
+            paint-order: stroke;
+            stroke: rgba(255, 253, 247, 0.94);
+            stroke-width: 6px;
+            stroke-linejoin: round;
+        }
+
+        .dark .lp3-origin-hub-name { fill: #cbd5e1; stroke: rgba(2, 6, 23, 0.92); }
+
+        .lp3-origin.is-visible .lp3-origin-km,
+        .lp3-origin.is-visible .lp3-origin-hub-name { animation: lp3-origin-km-in 0.45s ease forwards; }
 
         @keyframes lp3-origin-km-in { to { opacity: 1; } }
 
@@ -6100,7 +6113,8 @@
             .lp3-origin .lp3-origin-marker { animation: none; opacity: 0; }
             .lp3-origin .lp3-origin-pulse { animation: none; opacity: 0; }
             .lp3-origin .lp3-origin-network { animation: none; opacity: 0; }
-            .lp3-origin .lp3-origin-km { animation: none; opacity: 1; }
+            .lp3-origin .lp3-origin-km,
+            .lp3-origin .lp3-origin-hub-name { animation: none; opacity: 1; }
         }
 
         /* Closing CTA — always-dark band over the night earth */
@@ -11784,6 +11798,23 @@
 
         const ORIGIN_SOLUTION = solveOriginNetwork(ORIGIN_NETWORK);
 
+        // Names of the hubs on the shortest path, and the side of the hub each name stands on (chosen by hand so
+        // that it stays clear of the path and of the kilometre figures). A hub without an entry gets no name:
+        // if the network changes and the path with it, add the new hubs here.
+        const ORIGIN_HUB_NAMES = {
+            waw: { en: 'Warsaw', vi: 'Warsaw', de: 'Warschau', side: 'top' },
+            mow: { en: 'Moscow', vi: 'Moskva', de: 'Moskau', side: 'top' },
+            ast: { en: 'Astana', vi: 'Astana', de: 'Astana', side: 'top' },
+            urc: { en: 'Ürümqi', vi: 'Urumqi', de: 'Ürümqi', side: 'right' },
+            kmg: { en: 'Kunming', vi: 'Côn Minh', de: 'Kunming', side: 'left' },
+        };
+        const ORIGIN_HUB_NAME_SIDES = {
+            top: { dx: 0, dy: -15, anchor: 'middle' },
+            bottom: { dx: 0, dy: 27, anchor: 'middle' },
+            right: { dx: 14, dy: -2, anchor: 'start' },
+            left: { dx: -14, dy: 10, anchor: 'end' },
+        };
+
         const OriginFlagGermany = () => (
             <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true" className="shrink-0 rounded-full ring-1 ring-slate-900/10 dark:ring-white/20">
                 <rect width="22" height="7.4" fill="#111827" /><rect y="7.3" width="22" height="7.4" fill="#dc2626" /><rect y="14.6" width="22" height="7.4" fill="#fbbf24" />
@@ -11970,12 +12001,34 @@
                             {/* Place names. The map scales with the screen, so phones get their own, larger type:
                                 50 map units is about 11px on a phone-width map, 21 units about 16px on desktop */}
                             <g className="hidden md:block font-mono lp3-origin-place" fontSize="21" fontWeight="700" letterSpacing="3.5">
-                                <text x={from.x} y={from.y - 36} textAnchor="middle">{String(ui.origin_de_place).toUpperCase()}</text>
+                                {/* Centred over Germany. A long name ("DEUTSCHLAND") is right-aligned instead, so that
+                                    it stays clear of the first hub's name */}
+                                {String(ui.origin_de_place).length > 7
+                                    ? <text x={from.x + 40} y={from.y - 36} textAnchor="end">{String(ui.origin_de_place).toUpperCase()}</text>
+                                    : <text x={from.x} y={from.y - 36} textAnchor="middle">{String(ui.origin_de_place).toUpperCase()}</text>}
                                 <text x={to.x + 36} y={to.y + 8}>{String(ui.origin_vn_place).toUpperCase()}</text>
                             </g>
                             <g className="md:hidden font-mono lp3-origin-place" fontSize="50" fontWeight="700" letterSpacing="5">
                                 <text x={from.x} y={from.y - 44} textAnchor="middle">{String(ui.origin_de_place).toUpperCase()}</text>
                                 <text x={to.x + 40} y={to.y + 18}>{String(ui.origin_vn_place).toUpperCase()}</text>
+                            </g>
+
+                            {/* Hub names on the shortest path: desktop only, each appears when the path reaches its hub */}
+                            <g className="hidden md:block font-mono" fontSize="15" fontWeight="700" letterSpacing="2">
+                                {solution.path.filter((id) => ORIGIN_HUB_NAMES[id]).map((id) => {
+                                    const hub = ORIGIN_HUB_NAMES[id];
+                                    const side = ORIGIN_HUB_NAME_SIDES[hub.side];
+                                    return (
+                                        <text
+                                            key={id}
+                                            className="lp3-origin-hub-name"
+                                            x={nodes[id][0] + side.dx}
+                                            y={nodes[id][1] + side.dy}
+                                            textAnchor={side.anchor}
+                                            style={{ animationDelay: `${pathArrival[id].toFixed(2)}s` }}
+                                        >{String(hub[lang] || hub.en).toUpperCase()}</text>
+                                    );
+                                })}
                             </g>
 
                             {/* Connection lengths: desktop only, the lines are too short for figures on a phone */}
