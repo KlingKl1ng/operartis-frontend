@@ -1,0 +1,239 @@
+{
+ "headers": [
+  "SKU",
+  "P50_29.01.2026",
+  "P90_29.01.2026",
+  "P50_30.01.2026",
+  "P90_30.01.2026",
+  "P50_31.01.2026",
+  "P90_31.01.2026",
+  "P50_01.02.2026",
+  "P90_01.02.2026",
+  "P50_02.02.2026",
+  "P90_02.02.2026",
+  "P50_03.02.2026",
+  "P90_03.02.2026",
+  "P50_04.02.2026",
+  "P90_04.02.2026",
+  "P50_05.02.2026",
+  "P90_05.02.2026",
+  "Initial_Stock",
+  "Lead_Time"
+ ],
+ "metadata": {},
+ "mapping": {
+  "format": "forecaster_prefixed",
+  "sku_id": "SKU",
+  "p50_columns": [
+   "P50_01.02.2026",
+   "P50_02.02.2026",
+   "P50_03.02.2026",
+   "P50_04.02.2026",
+   "P50_05.02.2026",
+   "P50_29.01.2026",
+   "P50_30.01.2026",
+   "P50_31.01.2026"
+  ],
+  "p90_columns": [
+   "P90_01.02.2026",
+   "P90_02.02.2026",
+   "P90_03.02.2026",
+   "P90_04.02.2026",
+   "P90_05.02.2026",
+   "P90_29.01.2026",
+   "P90_30.01.2026",
+   "P90_31.01.2026"
+  ],
+  "initial_stock": "Initial_Stock",
+  "lead_time_mean": "Lead_Time",
+  "lead_time_std": "",
+  "review_period": "",
+  "min_order_qty": "",
+  "target_service_level": ""
+ },
+ "locks": {
+  "initial_stock": true,
+  "lead_time_mean": true,
+  "lead_time_std": false,
+  "review_period": false,
+  "min_order_qty": false,
+  "target_service_level": false
+ },
+ "skus": [
+  "FAST-0001",
+  "SLOW-0010"
+ ],
+ "request": {
+  "input_filename": "prefixed.xlsx",
+  "sku_params": [
+   {
+    "sku_id": "FAST-0001",
+    "input_filename": "prefixed.xlsx",
+    "initial_stock": 600,
+    "lead_time_config": {
+     "type": "deterministic",
+     "deterministic_value": 10,
+     "values": null,
+     "poisson_lambda": 14,
+     "binomial_n": 20,
+     "binomial_p": 0.7,
+     "uniform_min": 7,
+     "uniform_max": 21
+    },
+    "lead_time_days": 10,
+    "lead_time_std": 0,
+    "review_period": 7,
+    "target_service_level": 0.95,
+    "forecast_data": [
+     {
+      "date": "2026-01-29",
+      "p50": 140,
+      "p90": 175,
+      "resid_std": null,
+      "horizon_index": null
+     },
+     {
+      "date": "2026-01-30",
+      "p50": 143.1,
+      "p90": 179.2,
+      "resid_std": null,
+      "horizon_index": null
+     },
+     {
+      "date": "2026-01-31",
+      "p50": 146.2,
+      "p90": 183.4,
+      "resid_std": null,
+      "horizon_index": null
+     },
+     {
+      "date": "2026-02-01",
+      "p50": 149.3,
+      "p90": 187.6,
+      "resid_std": null,
+      "horizon_index": null
+     },
+     {
+      "date": "2026-02-02",
+      "p50": 152.4,
+      "p90": 191.8,
+      "resid_std": null,
+      "horizon_index": null
+     },
+     {
+      "date": "2026-02-03",
+      "p50": 155.5,
+      "p90": 196,
+      "resid_std": null,
+      "horizon_index": null
+     },
+     {
+      "date": "2026-02-04",
+      "p50": 158.6,
+      "p90": 200.2,
+      "resid_std": null,
+      "horizon_index": null
+     },
+     {
+      "date": "2026-02-05",
+      "p50": 161.7,
+      "p90": 204.4,
+      "resid_std": null,
+      "horizon_index": null
+     }
+    ],
+    "order_interval_reviews": 1,
+    "error_persistence": 0,
+    "min_order_qty": null,
+    "service_measure": "cycle",
+    "tolerance": 0.01,
+    "max_iterations": 15,
+    "num_simulation_runs": 500
+   },
+   {
+    "sku_id": "SLOW-0010",
+    "input_filename": "prefixed.xlsx",
+    "initial_stock": 80,
+    "lead_time_config": {
+     "type": "deterministic",
+     "deterministic_value": 30,
+     "values": null,
+     "poisson_lambda": 14,
+     "binomial_n": 20,
+     "binomial_p": 0.7,
+     "uniform_min": 7,
+     "uniform_max": 21
+    },
+    "lead_time_days": 30,
+    "lead_time_std": 0,
+    "review_period": 7,
+    "target_service_level": 0.95,
+    "forecast_data": [
+     {
+      "date": "2026-01-29",
+      "p50": 21,
+      "p90": 26.25,
+      "resid_std": null,
+      "horizon_index": null
+     },
+     {
+      "date": "2026-01-30",
+      "p50": 24.1,
+      "p90": 30.45,
+      "resid_std": null,
+      "horizon_index": null
+     },
+     {
+      "date": "2026-01-31",
+      "p50": 27.2,
+      "p90": 34.65,
+      "resid_std": null,
+      "horizon_index": null
+     },
+     {
+      "date": "2026-02-01",
+      "p50": 30.3,
+      "p90": 38.85,
+      "resid_std": null,
+      "horizon_index": null
+     },
+     {
+      "date": "2026-02-02",
+      "p50": 33.4,
+      "p90": 43.05,
+      "resid_std": null,
+      "horizon_index": null
+     },
+     {
+      "date": "2026-02-03",
+      "p50": 36.5,
+      "p90": 47.25,
+      "resid_std": null,
+      "horizon_index": null
+     },
+     {
+      "date": "2026-02-04",
+      "p50": 39.6,
+      "p90": 51.45,
+      "resid_std": null,
+      "horizon_index": null
+     },
+     {
+      "date": "2026-02-05",
+      "p50": 42.7,
+      "p90": 55.65,
+      "resid_std": null,
+      "horizon_index": null
+     }
+    ],
+    "order_interval_reviews": 1,
+    "error_persistence": 0,
+    "min_order_qty": null,
+    "service_measure": "cycle",
+    "tolerance": 0.01,
+    "max_iterations": 15,
+    "num_simulation_runs": 500
+   }
+  ]
+ }
+}

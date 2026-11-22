@@ -1,0 +1,298 @@
+{
+ "headers": [
+  "SKU_ID",
+  "Date",
+  "P50",
+  "P90",
+  "Initial_Stock",
+  "Lead_Time_Mean",
+  "Lead_Time_Std",
+  "Review_Period",
+  "Min_Order_Qty",
+  "Target_Service_Level"
+ ],
+ "metadata": {},
+ "mapping": {
+  "format": "vertical",
+  "date": "Date",
+  "p50": "P50",
+  "p90": "P90",
+  "sku_id": "SKU_ID",
+  "initial_stock": "Initial_Stock",
+  "lead_time_mean": "Lead_Time_Mean",
+  "lead_time_std": "Lead_Time_Std",
+  "review_period": "Review_Period",
+  "min_order_qty": "Min_Order_Qty",
+  "target_service_level": "Target_Service_Level"
+ },
+ "locks": {
+  "initial_stock": true,
+  "lead_time_mean": true,
+  "lead_time_std": true,
+  "review_period": true,
+  "min_order_qty": true,
+  "target_service_level": true
+ },
+ "skus": [
+  "FAST-A",
+  "SLOW-B",
+  "NEW-C"
+ ],
+ "request": {
+  "input_filename": "vertical.xlsx",
+  "sku_params": [
+   {
+    "sku_id": "FAST-A",
+    "input_filename": "vertical.xlsx",
+    "initial_stock": 500,
+    "lead_time_config": {
+     "type": "deterministic",
+     "deterministic_value": 14,
+     "values": null,
+     "poisson_lambda": 14,
+     "binomial_n": 20,
+     "binomial_p": 0.7,
+     "uniform_min": 7,
+     "uniform_max": 21
+    },
+    "lead_time_days": 14,
+    "lead_time_std": 0,
+    "review_period": 7,
+    "target_service_level": 0.95,
+    "forecast_data": [
+     {
+      "date": "2026-01-16",
+      "p50": 92.5,
+      "p90": 123.25,
+      "resid_std": null,
+      "horizon_index": null
+     },
+     {
+      "date": "2026-01-17",
+      "p50": 95,
+      "p90": 126.5,
+      "resid_std": null,
+      "horizon_index": null
+     },
+     {
+      "date": "2026-01-18",
+      "p50": 1234.5,
+      "p90": 129.75,
+      "resid_std": null,
+      "horizon_index": null
+     },
+     {
+      "date": "2026-01-19",
+      "p50": 100,
+      "p90": 133,
+      "resid_std": null,
+      "horizon_index": null
+     },
+     {
+      "date": "2026-01-20",
+      "p50": 102.5,
+      "p90": 133.25,
+      "resid_std": null,
+      "horizon_index": null
+     },
+     {
+      "date": "2026-01-21",
+      "p50": 105,
+      "p90": 139.5,
+      "resid_std": null,
+      "horizon_index": null
+     },
+     {
+      "date": "2026-01-22",
+      "p50": 107.5,
+      "p90": 142.75,
+      "resid_std": null,
+      "horizon_index": null
+     },
+     {
+      "date": "2026-01-23",
+      "p50": 110,
+      "p90": 146,
+      "resid_std": null,
+      "horizon_index": null
+     }
+    ],
+    "order_interval_reviews": 1,
+    "error_persistence": 0,
+    "min_order_qty": null,
+    "service_measure": "cycle",
+    "tolerance": 0.01,
+    "max_iterations": 15,
+    "num_simulation_runs": 500
+   },
+   {
+    "sku_id": "SLOW-B",
+    "input_filename": "vertical.xlsx",
+    "initial_stock": 120,
+    "lead_time_config": {
+     "type": "deterministic",
+     "deterministic_value": 21,
+     "values": null,
+     "poisson_lambda": 14,
+     "binomial_n": 20,
+     "binomial_p": 0.7,
+     "uniform_min": 7,
+     "uniform_max": 21
+    },
+    "lead_time_days": 21,
+    "lead_time_std": 0,
+    "review_period": 14,
+    "target_service_level": 0.9,
+    "forecast_data": [
+     {
+      "date": "2026-01-16",
+      "p50": 18.4,
+      "p90": 26.6,
+      "resid_std": null,
+      "horizon_index": null
+     },
+     {
+      "date": "2026-01-17",
+      "p50": 18.8,
+      "p90": 27.2,
+      "resid_std": null,
+      "horizon_index": null
+     },
+     {
+      "date": "2026-01-18",
+      "p50": 19.2,
+      "p90": 27.8,
+      "resid_std": null,
+      "horizon_index": null
+     },
+     {
+      "date": "2026-01-19",
+      "p50": 0,
+      "p90": 0,
+      "resid_std": null,
+      "horizon_index": null
+     },
+     {
+      "date": "2026-01-20",
+      "p50": 20,
+      "p90": 29,
+      "resid_std": null,
+      "horizon_index": null
+     },
+     {
+      "date": "2026-01-21",
+      "p50": 20.4,
+      "p90": 29.6,
+      "resid_std": null,
+      "horizon_index": null
+     },
+     {
+      "date": "2026-01-22",
+      "p50": 20.8,
+      "p90": 30.2,
+      "resid_std": null,
+      "horizon_index": null
+     },
+     {
+      "date": "2026-01-23",
+      "p50": 21.2,
+      "p90": 30.8,
+      "resid_std": null,
+      "horizon_index": null
+     }
+    ],
+    "order_interval_reviews": 1,
+    "error_persistence": 0,
+    "min_order_qty": 25,
+    "service_measure": "cycle",
+    "tolerance": 0.01,
+    "max_iterations": 15,
+    "num_simulation_runs": 500
+   },
+   {
+    "sku_id": "NEW-C",
+    "input_filename": "vertical.xlsx",
+    "initial_stock": 150,
+    "lead_time_config": {
+     "type": "deterministic",
+     "deterministic_value": 7,
+     "values": null,
+     "poisson_lambda": 14,
+     "binomial_n": 20,
+     "binomial_p": 0.7,
+     "uniform_min": 7,
+     "uniform_max": 21
+    },
+    "lead_time_days": 7,
+    "lead_time_std": 0,
+    "review_period": 1,
+    "target_service_level": 0.99,
+    "forecast_data": [
+     {
+      "date": "2026-01-16",
+      "p50": 41,
+      "p90": 67.5,
+      "resid_std": null,
+      "horizon_index": null
+     },
+     {
+      "date": "2026-01-17",
+      "p50": 42,
+      "p90": 69,
+      "resid_std": null,
+      "horizon_index": null
+     },
+     {
+      "date": "2026-01-18",
+      "p50": 43,
+      "p90": 70.5,
+      "resid_std": null,
+      "horizon_index": null
+     },
+     {
+      "date": "2026-01-19",
+      "p50": 44,
+      "p90": 72,
+      "resid_std": null,
+      "horizon_index": null
+     },
+     {
+      "date": "2026-01-20",
+      "p50": 45,
+      "p90": 73.5,
+      "resid_std": null,
+      "horizon_index": null
+     },
+     {
+      "date": "2026-01-21",
+      "p50": 46,
+      "p90": 75,
+      "resid_std": null,
+      "horizon_index": null
+     },
+     {
+      "date": "2026-01-22",
+      "p50": 47,
+      "p90": 76.5,
+      "resid_std": null,
+      "horizon_index": null
+     },
+     {
+      "date": "2026-01-23",
+      "p50": 48,
+      "p90": 78,
+      "resid_std": null,
+      "horizon_index": null
+     }
+    ],
+    "order_interval_reviews": 1,
+    "error_persistence": 0,
+    "min_order_qty": 10,
+    "service_measure": "cycle",
+    "tolerance": 0.01,
+    "max_iterations": 15,
+    "num_simulation_runs": 500
+   }
+  ]
+ }
+}

@@ -1,0 +1,33 @@
+{
+  "name": "operartis-frontend",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev:vrp": "vite --config vrp-app/vite.config.ts",
+    "build:vrp": "vite build --config vrp-app/vite.config.ts",
+    "preview:vrp": "vite preview --config vrp-app/vite.config.ts",
+    "dev:inventory": "vite --config inventory-app/vite.config.ts",
+    "build:inventory": "vite build --config inventory-app/vite.config.ts",
+    "preview:inventory": "vite preview --config inventory-app/vite.config.ts",
+    "typecheck:inventory": "tsc -p inventory-app/tsconfig.json",
+    "test:inventory": "vitest run --config inventory-app/vite.config.ts"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.85.3",
+    "lucide-react": "^0.539.0",
+    "maplibre-gl": "^5.7.1",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "recharts": "^3.10.1",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.1.10",
+    "@types/react-dom": "^19.1.7",
+    "@vitejs/plugin-react": "^5.0.1",
+    "typescript": "^5.9.2",
+    "vite": "^7.1.3",
+    "vitest": "^5.1.0"
+  }
+}

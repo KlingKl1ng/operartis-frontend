@@ -76,6 +76,10 @@ function redirectLocation(slug, search) {
   return `/${slug}${search}`;
 }
 
+function backendProxyPath(url) {
+  return url.startsWith('/api/vrp') ? url.slice('/api'.length) : url;
+}
+
 function proxyApi(req, res) {
   const headers = { ...req.headers, host: `${apiHost}:${apiPort}` };
   delete headers.connection;
@@ -83,7 +87,7 @@ function proxyApi(req, res) {
     {
       hostname: apiHost,
       port: apiPort,
-      path: req.url,
+      path: backendProxyPath(req.url || '/'),
       method: req.method,
       headers,
     },

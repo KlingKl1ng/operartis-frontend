@@ -1,8 +1,15 @@
 .git
 .DS_Store
+node_modules/
+.vite/
 ~$*.xlsx
 vercel.json
 COOLIFY_DEPLOYMENT.md
 DESIGN_SYSTEM.md
 ABC-XYZ-Generator.py
 .coolify/
+inventory-app/
+app-shared/
+package.json
+pnpm-lock.yaml
+pnpm-workspace.yaml
