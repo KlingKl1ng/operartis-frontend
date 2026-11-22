@@ -6041,13 +6041,14 @@
         }
         .dark .lp3-ptn-tile:hover { border-color: rgba(245, 158, 11, 0.4); }
         .dark .lp3-ptn-sector { color: #94a3b8; }
+        .dark .lgo-rwth { fill: #6AA8E8; }
         .dark .lp3-ptn-unit { color: #fde68a; border-color: rgba(255, 204, 0, 0.3); background: rgba(255, 204, 0, 0.08); }
         @media (min-width: 640px) {
-            .lp3-ptn-list { --gap: 0.75rem; --unit: calc((100% - 3 * var(--gap)) / 4); }
+            .lp3-ptn-list { --gap: 0.75rem; --unit: calc((100% - 2 * var(--gap)) / 3); }
             .lp3-ptn-tile--wide { flex-basis: calc(2 * var(--unit) + var(--gap)); }
         }
         @media (min-width: 1024px) {
-            .lp3-ptn-list { --gap: 0.875rem; --unit: calc((100% - 6 * var(--gap)) / 7); }
+            .lp3-ptn-list { --gap: 0.875rem; --unit: calc((100% - 4 * var(--gap)) / 5); }
             .lp3-ptn-tile { min-height: 8.25rem; }
             .lp3-ptn:not(.is-visible) .lp3-ptn-tile { opacity: 0; }
             .lp3-ptn.is-visible .lp3-ptn-tile { animation: lp3IntIn 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) var(--d, 0ms) backwards; }
@@ -6785,6 +6786,7 @@
                     ptn_parcel: "Parcel & logistics",
                     ptn_beauty: "Beauty",
                     ptn_haircare: "Hair care",
+                    ptn_research: "University research",
                     int_eyebrow: "Integrations",
                     int_title_a: "Works with the systems",
                     int_title_b: "you already run.",
@@ -7206,6 +7208,7 @@
                     ptn_parcel: "Bưu kiện & logistics",
                     ptn_beauty: "Làm đẹp",
                     ptn_haircare: "Chăm sóc tóc",
+                    ptn_research: "Nghiên cứu đại học",
                     int_eyebrow: "Tích hợp",
                     int_title_a: "Hoạt động cùng các hệ thống",
                     int_title_b: "bạn đang sử dụng.",
@@ -7627,6 +7630,7 @@
                     ptn_parcel: "Paket & Logistik",
                     ptn_beauty: "Kosmetik",
                     ptn_haircare: "Haarpflege",
+                    ptn_research: "Universitäre Forschung",
                     int_eyebrow: "Integrationen",
                     int_title_a: "Arbeitet mit den Systemen,",
                     int_title_b: "die Sie bereits nutzen.",
@@ -12550,7 +12554,8 @@
 
         // Compact APS matrix for the home page: one card per planning horizon.
         // The full matrix (module tiles, quick views) lives on platform.html.
-        // Partner row under the hero. DHL's four units share one wide tile, so the row is not four near-identical logos.
+        // Partner tiles under the hero. DHL's four units share one wide tile, so the row is not four near-identical logos.
+        // Desktop: DHL and the logistics partners on the first row, industry and research partners on the second.
         const PARTNERS = [
             { id: 'dhl', name: 'DHL Group', wide: true, h: '2.5rem', units: ['Freight', 'Express', 'Data Analytics', 'Transportation'], mark: (
                 <svg viewBox="0 0 120 40">
@@ -12582,6 +12587,22 @@
             ) },
             { id: 'schwarzkopf', name: 'Schwarzkopf', sector: 'ptn_haircare', h: '1.55rem', mark: (
                 <svg viewBox="0 0 150 32"><text x="75" y="25" textAnchor="middle" fontSize="25" fontWeight="700" letterSpacing="-0.3" fill="currentColor">Schwarzkopf</text></svg>
+            ) },
+            { id: 'uzk', name: 'Universität zu Köln (University of Cologne)', sector: 'ptn_research', h: '2.1rem', mark: (
+                <svg viewBox="0 0 150 40">
+                    {/* Official seal: assets/partners/uni-koeln-seal.svg (Wikimedia Commons, public domain) */}
+                    <image href="./assets/partners/uni-koeln-seal.svg" x="0" y="1" width="38" height="38" />
+                    <text x="42" y="18" fontSize="13" fontWeight="700" letterSpacing="1" fill="currentColor">UNIVERSITÄT</text>
+                    <text x="42" y="33" fontSize="13" fontWeight="700" letterSpacing="1" fill="currentColor">ZU KÖLN</text>
+                </svg>
+            ) },
+            { id: 'rwth', name: 'RWTH Aachen University', sector: 'ptn_research', h: '2.2rem', mark: (
+                <svg viewBox="0 0 120 40">
+                    <g className="lgo-rwth" fill="#00549F" textAnchor="middle">
+                        <text x="60" y="24" fontSize="28" fontWeight="800" letterSpacing="0.5">RWTH</text>
+                        <text x="60" y="37" fontSize="8.6" fontWeight="600" letterSpacing="1.3">AACHEN UNIVERSITY</text>
+                    </g>
+                </svg>
             ) },
         ];
 
@@ -12691,8 +12712,7 @@
             { id: 'proalpha', name: 'Proalpha', h: '34%', col: 1, row: 2, mark: (
                 <svg viewBox="0 0 140 32">
                     <rect className="lgo-proalpha" x="0" y="6" width="21" height="21" rx="2.5" fill="#0A4C8C" />
-                    <rect x="4.5" y="10.5" width="12" height="12" rx="3" fill="none" stroke="#fff" strokeWidth="1.6" />
-                    <text x="10.5" y="20.5" textAnchor="middle" fontSize="10" fontWeight="700" fill="#fff">a</text>
+                    <text x="10.5" y="22.5" textAnchor="middle" fontSize="17" fontWeight="600" fill="#fff">α</text>
                     <text x="28" y="25" fontSize="24" fontWeight="600" fill="currentColor">Proalpha</text>
                 </svg>
             ) },
