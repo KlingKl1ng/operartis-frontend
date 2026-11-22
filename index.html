@@ -12480,6 +12480,13 @@
                                 <text x={to.x + 40} y={to.y + 18}>{String(ui.origin_vn_place).toUpperCase()}</text>
                             </g>
 
+                            {/* The route is the answer on a simplified network, not a real freight route: say so (desktop; phones get it under the map).
+                                Outside the looping layers, so it stays put while the animation restarts */}
+                            <g className="hidden md:block font-mono lp3-origin-note" fontSize="19" fontWeight="700" letterSpacing="1.4">
+                                <text x="96" y="440">{String(ui.origin_map_note).toUpperCase()}</text>
+                                <text x="96" y="470" fontSize="16.5" fontWeight="500" letterSpacing="0.6" className="lp3-origin-note-detail">{ui.origin_map_note_detail}</text>
+                            </g>
+
                             {/* Animated layer above the place names: marker, hub names and distances; remounted on every loop */}
                             <g key={`run-b-${cycle}`} className="lp3-origin-run">
                             <circle
@@ -12504,12 +12511,6 @@
                                         >{String(hub[lang] || hub.en).toUpperCase()}</text>
                                     );
                                 })}
-                            </g>
-
-                            {/* The route is the answer on a simplified network, not a real freight route: say so (desktop; phones get it under the map) */}
-                            <g className="hidden md:block font-mono lp3-origin-note" fontSize="19" fontWeight="700" letterSpacing="1.4">
-                                <text x="96" y="440">{String(ui.origin_map_note).toUpperCase()}</text>
-                                <text x="96" y="470" fontSize="16.5" fontWeight="500" letterSpacing="0.6" className="lp3-origin-note-detail">{ui.origin_map_note_detail}</text>
                             </g>
 
                             {/* Connection lengths: desktop only, the lines are too short for figures on a phone */}
