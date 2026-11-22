@@ -17,7 +17,7 @@ pnpm build:vrp
 ## Integration
 
 - Existing Operartis theme, language, API, authentication UI, and access-gate scripts are loaded from the frontend root.
-- The visual access gate is bypassed on `localhost`, `127.0.0.1`, and `::1`, while backend operations still use the existing Operartis session and CSRF protection; use the header's **Sign In** control before importing or optimizing locally.
+- The access gate covers the module until the user signs in, on every host including `localhost`, the same as the other Operartis modules. Backend operations use the existing Operartis session and CSRF protection.
 - Production and staging continue to require the current Operartis session and CSRF flow.
 - The default local basemap uses OSM Standard tiles for interactive development only.
 - Non-local builds expect a same-origin tile endpoint at `/map-tiles/{z}/{x}/{y}.png` unless `VITE_VRP_TILE_URL` is provided during the build.
