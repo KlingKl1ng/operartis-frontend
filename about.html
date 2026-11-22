@@ -2607,8 +2607,8 @@
             };
 
             const cycleLang = () => {
-                // German kept in ABOUT_COPY; UI toggle is EN ↔ VI only.
-                const order = ['en', 'vi'];
+                // The language button steps through English, Vietnamese and German
+                const order = ['en', 'vi', 'de'];
                 const idx = order.indexOf(lang);
                 const next = order[idx === -1 ? 0 : (idx + 1) % order.length];
                 window.setOperartisLang(next);

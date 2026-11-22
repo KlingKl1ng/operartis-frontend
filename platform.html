@@ -6053,6 +6053,23 @@
         .lp3-origin-place { fill: #b45309; }
         .dark .lp3-origin-place { fill: #fcd34d; }
 
+        /* Length of each connection on the shortest path (desktop only), shown once the connection is drawn.
+           The outline in the surface colour keeps the figures readable over the map dots. */
+        .lp3-origin-km {
+            fill: #92400e;
+            opacity: 0;
+            paint-order: stroke;
+            stroke: rgba(255, 253, 247, 0.94);
+            stroke-width: 6px;
+            stroke-linejoin: round;
+        }
+
+        .dark .lp3-origin-km { fill: #fcd34d; stroke: rgba(2, 6, 23, 0.92); }
+
+        .lp3-origin.is-visible .lp3-origin-km { animation: lp3-origin-km-in 0.45s ease forwards; }
+
+        @keyframes lp3-origin-km-in { to { opacity: 1; } }
+
         .lp3-origin-card {
             border: 1px solid rgba(148, 163, 184, 0.32);
             background: rgba(255, 255, 255, 0.84);
@@ -6083,6 +6100,7 @@
             .lp3-origin .lp3-origin-marker { animation: none; opacity: 0; }
             .lp3-origin .lp3-origin-pulse { animation: none; opacity: 0; }
             .lp3-origin .lp3-origin-network { animation: none; opacity: 0; }
+            .lp3-origin .lp3-origin-km { animation: none; opacity: 1; }
         }
 
         /* Closing CTA — always-dark band over the night earth */
@@ -11708,11 +11726,22 @@
             ],
         };
 
-        // Dijkstra's shortest-path algorithm on ORIGIN_NETWORK (edge weight = straight-line length), stopped when
+        // Distance in kilometres between two map points, along the great circle. The map has 10 units per degree
+        // and its top-left corner is 14°W 62°N.
+        const originKm = ([x1, y1], [x2, y2]) => {
+            const rad = Math.PI / 180;
+            const lat1 = (62 - y1 / 10) * rad;
+            const lat2 = (62 - y2 / 10) * rad;
+            const dLon = ((x2 - x1) / 10) * rad;
+            const h = Math.sin((lat2 - lat1) / 2) ** 2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon / 2) ** 2;
+            return 2 * 6371 * Math.asin(Math.sqrt(h));
+        };
+
+        // Dijkstra's shortest-path algorithm on ORIGIN_NETWORK (edge weight = real distance in km), stopped when
         // the target is settled. Returns what the animation shows: when the search wave reaches each hub, which
         // connections it runs along and in which direction, and the shortest path itself.
         const solveOriginNetwork = ({ nodes, edges, source, target }) => {
-            const length = (a, b) => Math.hypot(nodes[a][0] - nodes[b][0], nodes[a][1] - nodes[b][1]);
+            const length = (a, b) => originKm(nodes[a], nodes[b]);
             const neighbours = {};
             Object.keys(nodes).forEach((id) => { neighbours[id] = []; });
             edges.forEach(([a, b]) => { neighbours[a].push(b); neighbours[b].push(a); });
@@ -11769,7 +11798,7 @@
         );
 
         // Origin band: "Made in Germany. Now available in Vietnam." — a route across the map, one card per country
-        const OriginSection = ({ content }) => {
+        const OriginSection = ({ content, lang }) => {
             const ui = content.ui;
             const sectionRef = useRef(null);
             const [visible, setVisible] = useState(false);
@@ -11813,6 +11842,33 @@
             });
             const pathArrival = { [ORIGIN_NETWORK.source]: PATH_START_S };
             pathSegments.forEach((segment) => { pathArrival[segment.to] = segment.delay + segment.duration; });
+
+            // Length of each connection on the shortest path, rounded to 100 km because the hub positions are
+            // approximate. The figure sits level beside the middle of the visible line, pushed off it just far
+            // enough that the text box clears the line whatever its slope.
+            const KM_FONT = 17;
+            const kmLocale = { en: 'en-US', vi: 'vi-VN', de: 'de-DE' }[lang] || 'en-US';
+            const endRadius = (id) => (id === ORIGIN_NETWORK.source || id === ORIGIN_NETWORK.target ? 19 : 6.5);
+            const kmLabels = pathSegments.map((segment) => {
+                const [x1, y1] = nodes[segment.from];
+                const [x2, y2] = nodes[segment.to];
+                const span = Math.hypot(x2 - x1, y2 - y1);
+                const ux = (x2 - x1) / span;
+                const uy = (y2 - y1) / span;
+                const middle = (endRadius(segment.from) + span - endRadius(segment.to)) / 2;
+                const text = `${(Math.round(segment.length / 100) * 100).toLocaleString(kmLocale)} km`;
+                const halfWidth = (text.length * KM_FONT * 0.62) / 2;
+                const offset = 9 + halfWidth * Math.abs(uy) + KM_FONT * 0.36 * Math.abs(ux);
+                // Above the line, except on the first connection: the country name already stands above Germany
+                const up = (ux >= 0 ? 1 : -1) * (segment.from === ORIGIN_NETWORK.source ? -1 : 1);
+                return {
+                    key: `${segment.from}-${segment.to}`,
+                    text,
+                    x: x1 + ux * middle + uy * up * offset,
+                    y: y1 + uy * middle - ux * up * offset,
+                    delay: segment.delay + segment.duration,
+                };
+            });
 
             return (
                 <section ref={sectionRef} aria-labelledby="origin-title" className={`lp3-origin rounded-3xl border ${visible ? 'is-visible' : ''}`}>
@@ -11920,6 +11976,13 @@
                             <g className="md:hidden font-mono lp3-origin-place" fontSize="50" fontWeight="700" letterSpacing="5">
                                 <text x={from.x} y={from.y - 44} textAnchor="middle">{String(ui.origin_de_place).toUpperCase()}</text>
                                 <text x={to.x + 40} y={to.y + 18}>{String(ui.origin_vn_place).toUpperCase()}</text>
+                            </g>
+
+                            {/* Connection lengths: desktop only, the lines are too short for figures on a phone */}
+                            <g className="hidden md:block font-mono" fontSize={KM_FONT} fontWeight="700" textAnchor="middle" dominantBaseline="central">
+                                {kmLabels.map((label) => (
+                                    <text key={label.key} className="lp3-origin-km" x={label.x.toFixed(1)} y={label.y.toFixed(1)} style={{ animationDelay: `${label.delay.toFixed(2)}s` }}>{label.text}</text>
+                                ))}
                             </g>
                         </svg>
                     </div>
@@ -12557,8 +12620,10 @@
                 else setTheme('system');
             };
 
+            // The language button steps through English, Vietnamese and German
             const toggleLang = () => {
-                setLang(prev => prev === 'vi' ? 'en' : 'vi');
+                const order = ['en', 'vi', 'de'];
+                setLang(prev => order[(order.indexOf(prev) + 1) % order.length]);
             };
 
             const handleBlockClick = (block) => {
@@ -12815,7 +12880,7 @@
 
                                     {/* Where the product comes from and where it is now available */}
                                     <div className="mt-24 md:mt-32">
-                                        <Reveal><OriginSection content={content} /></Reveal>
+                                        <Reveal><OriginSection content={content} lang={lang} /></Reveal>
                                     </div>
 
                                     <div className="mt-24 md:mt-32">
