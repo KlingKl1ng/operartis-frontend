@@ -6367,6 +6367,18 @@
 
         .dark .lp3-origin-km { fill: #fcd34d; stroke: rgba(2, 6, 23, 0.92); }
 
+        /* "Illustration" note in the lower left of the map, with the same halo as the labels */
+        .lp3-origin-note {
+            fill: #64748b;
+            paint-order: stroke;
+            stroke: rgba(255, 253, 247, 0.94);
+            stroke-width: 6px;
+            stroke-linejoin: round;
+        }
+        .lp3-origin-note-detail { fill: #94a3b8; }
+        .dark .lp3-origin-note { fill: #94a3b8; stroke: rgba(2, 6, 23, 0.92); }
+        .dark .lp3-origin-note-detail { fill: #64748b; }
+
         /* Names of the hubs on the shortest path (desktop only): quieter than the two country names */
         .lp3-origin-hub-name {
             fill: #475569;
@@ -6975,6 +6987,8 @@
                     whyaps_teaser_body: "ERP and MES record and execute. They do not decide. Read where they stop, how analytics grows from describing to deciding, and why the results of optimization can be proven.",
                     whyaps_teaser_cta: "Read the background",
                     origin_eyebrow: "Operartis APS - German engineering",
+                    origin_map_note: "Illustration of a shortest-path algorithm",
+                    origin_map_note_detail: "Simplified network, straight-line distances",
                     origin_title_b: "Now available in Vietnam.",
                     origin_map_alt: "Map of Europe and Asia: a network of hubs with the shortest path from Germany to Vietnam highlighted",
                     origin_de_place: "Germany",
@@ -7397,6 +7411,8 @@
                     whyaps_teaser_body: "ERP và MES ghi nhận và thực thi, nhưng không ra quyết định. Tìm hiểu chúng dừng lại ở đâu, phân tích dữ liệu phát triển từ mô tả đến ra quyết định như thế nào, và vì sao kết quả tối ưu hoá có thể chứng minh được.",
                     whyaps_teaser_cta: "Đọc kiến thức nền tảng",
                     origin_eyebrow: "Operartis APS - Công nghệ Đức",
+                    origin_map_note: "Minh họa thuật toán tìm đường đi ngắn nhất",
+                    origin_map_note_detail: "Mạng lưới giản lược, khoảng cách đường chim bay",
                     origin_title_b: "Nay đã có mặt tại Việt Nam.",
                     origin_map_alt: "Bản đồ châu Âu và châu Á: mạng lưới các điểm trung chuyển với đường đi ngắn nhất từ Đức đến Việt Nam được làm nổi bật",
                     origin_de_place: "Đức",
@@ -7819,6 +7835,8 @@
                     whyaps_teaser_body: "ERP und MES erfassen und führen aus. Sie entscheiden nicht. Lesen Sie, wo sie aufhören, wie Analytics vom Beschreiben zum Entscheiden reift und warum sich die Ergebnisse der Optimierung beweisen lassen.",
                     whyaps_teaser_cta: "Hintergrund lesen",
                     origin_eyebrow: "Operartis APS - Deutsche Ingenieurskunst",
+                    origin_map_note: "Illustration eines Kürzeste-Wege-Algorithmus",
+                    origin_map_note_detail: "Vereinfachtes Netz, Luftlinienentfernungen",
                     origin_title_b: "Jetzt in Vietnam verfügbar.",
                     origin_map_alt: "Karte von Europa und Asien: ein Netz von Knoten, der kürzeste Weg von Deutschland nach Vietnam ist hervorgehoben",
                     origin_de_place: "Deutschland",
@@ -12476,6 +12494,12 @@
                                 })}
                             </g>
 
+                            {/* The route is the answer on a simplified network, not a real freight route: say so (desktop; phones get it under the map) */}
+                            <g className="hidden md:block font-mono lp3-origin-note" fontSize="19" fontWeight="700" letterSpacing="1.4">
+                                <text x="96" y="440">{String(ui.origin_map_note).toUpperCase()}</text>
+                                <text x="96" y="470" fontSize="16.5" fontWeight="500" letterSpacing="0.6" className="lp3-origin-note-detail">{ui.origin_map_note_detail}</text>
+                            </g>
+
                             {/* Connection lengths: desktop only, the lines are too short for figures on a phone */}
                             <g className="hidden md:block font-mono" fontSize={KM_FONT} fontWeight="700" textAnchor="middle" dominantBaseline="central">
                                 {kmLabels.map((label) => (
@@ -12484,6 +12508,10 @@
                             </g>
                             </g>
                         </svg>
+                        <p className="md:hidden px-6 -mt-1 mb-3 text-center font-mono text-[10px] leading-relaxed text-slate-500 dark:text-slate-400">
+                            <span className="font-bold uppercase tracking-wider">{ui.origin_map_note}</span>
+                            <br />{ui.origin_map_note_detail}
+                        </p>
                     </div>
 
                     <div className="relative z-10 grid md:grid-cols-2 gap-4 md:gap-6 px-5 pb-6 pt-4 sm:px-8 md:px-12 md:pb-12 md:pt-0">
