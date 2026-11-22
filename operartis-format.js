@@ -34,7 +34,7 @@
             const options = {
                 year: 'numeric', month: '2-digit', day: '2-digit',
                 hour: '2-digit', minute: '2-digit', second: '2-digit',
-                hourCycle: locale === 'en-US' ? 'h12' : 'h23',
+                hourCycle: 'h23',
             };
             // An empty/invalid saved timezone falls back to the browser timezone.
             if (timeZone) {

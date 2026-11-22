@@ -66,3 +66,24 @@ test('CSV text dates and numeric annual headers are not coerced to Excel serial 
     const ambiguous = read(XLSX.read('SKU,01/02/2025,02/02/2025,03/02/2025\nA,1,2,3', {type: 'string', raw: true}));
     assert.equal(infer(ambiguous.headers.slice(1)), 'unsupported');
 });
+
+
+const resultHelper=source.slice(source.indexOf('const forecastResultFrequency ='),source.indexOf('const ForecastRunSummary ='));
+const resultFrequency=new Function('XLSX',helpers+resultHelper+';return forecastResultFrequency;')(XLSX);
+test('run summary retains missing historical dates when detecting frequency',()=>{
+ const data={forecast_data:daily.map((date,i)=>({date,actual_history:i===5||i===20?null:100}))};
+ data.forecast_data.push({date:'2025-03-01',future_forecast:120});
+ const before=JSON.stringify(data);
+ assert.equal(resultFrequency(data),'daily');
+ assert.equal(JSON.stringify(data),before);
+ const monthly={forecast_data:['2026-01-01','2026-02-01','2026-03-01'].map((date,i)=>({date,actual_history:i===1?null:100}))};
+ assert.equal(resultFrequency(monthly),'monthly');
+});
+test('run summary uses the saved preparation frequency for the selected result',()=>{
+ const data={preparation:{frequency:'daily'},forecast_data:[{date:'2026-01-01',actual_history:null}]};
+ assert.equal(resultFrequency(data),'daily');
+ assert.equal(resultFrequency({...data,preparation:{frequency:'business_daily'}}),'business_daily');
+ assert.equal(resultFrequency({...data,preparation:{frequency:null}}),'unsupported');
+ assert.equal(resultFrequency({...data,preparation:{frequency:'invalid'}}),'unsupported');
+ assert.equal(resultFrequency({forecast_data:[{date:'2026-01-01',future_forecast:100}]}),'unsupported');
+});

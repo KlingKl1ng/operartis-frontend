@@ -34,6 +34,27 @@ test('forecast and capability limits bound the recommendation', () => {
     assert.equal(result.test, 60);
     assert.equal(result.evaluations, 1);
 });
+test('daily sixty-period forecasts retain four extra validation origins', () => {
+    assert.equal(profiles.daily.max_test_horizon, 184);
+    assert.equal(profiles.business_daily.max_test_horizon, 184);
+    assert.equal(profiles.daily.max_forecast_horizon, 180);
+    assert.equal(profiles.business_daily.max_forecast_horizon, 180);
+    assert.deepEqual(recommend(730, {horizon:60, profile:profiles.daily}), {
+        train:666, test:64, minimumTrain:16, evaluations:5,
+    });
+    assert.deepEqual(recommend(730, {horizon:60, profile:profiles.business_daily}), {
+        train:666, test:64, minimumTrain:16, evaluations:5,
+    });
+});
+test('daily 180-period forecasts use the full 184-period validation cap', () => {
+    assert.deepEqual(recommend(730, {horizon:180, profile:profiles.daily}), {
+        train:546, test:184, minimumTrain:16, evaluations:5,
+    });
+    assert.deepEqual(recommend(730, {horizon:180, profile:profiles.business_daily}), {
+        train:546, test:184, minimumTrain:16, evaluations:5,
+    });
+    assert.equal(recommend(730, {horizon:181, profile:profiles.daily}), null);
+});
 test('incomplete input or impossible full-horizon validation has no recommendation', () => {
     for (const options of [{horizon:0}, {horizon:6.5}, {horizon:61}, {profile:undefined}]) assert.equal(recommend(36, options), null);
     assert.equal(recommend(9), null);

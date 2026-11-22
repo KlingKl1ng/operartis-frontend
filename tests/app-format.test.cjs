@@ -44,7 +44,7 @@ test('account timestamps use localized clocks, without raw fractions or Z suffix
     const options = { timeZone: 'Europe/Berlin' };
     assert.equal(format('vi').dateTime(timestamp, options), '10/09/2026 13:42:07');
     assert.equal(format('de').dateTime(timestamp, options), '10.09.2026 13:42:07');
-    assert.equal(format('en').dateTime(timestamp, options), '2026-09-10 01:42:07 PM');
+    assert.equal(format('en').dateTime(timestamp, options), '2026-09-10 13:42:07');
     assert.equal(format('vi').dateTime(timestamp.replace('Z', ''), options), '10/09/2026 13:42:07');
 });
 
@@ -52,7 +52,7 @@ test('timezones handle day boundaries and DST without shifting date-only labels'
     assert.equal(format('vi').dateTime('2026-09-10T23:42:07Z', { timeZone: 'Asia/Ho_Chi_Minh' }), '11/09/2026 06:42:07');
     assert.equal(format('de').dateTime('2026-01-10T11:42:07Z', { timeZone: 'Europe/Berlin' }), '10.01.2026 12:42:07');
     assert.equal(format('de').dateTime('2026-09-10T00:00:00Z', { timeZone: 'UTC' }), '10.09.2026 00:00:00');
-    assert.equal(format('en').dateTime('2026-09-10T00:00:00Z', { timeZone: 'UTC' }), '2026-09-10 12:00:00 AM');
+    assert.equal(format('en').dateTime('2026-09-10T00:00:00Z', { timeZone: 'UTC' }), '2026-09-10 00:00:00');
     assert.equal(format('vi').dateTime('2026-09-10', { timeZone: 'America/Los_Angeles' }), '10/09/2026');
     assert.equal(format('vi').dateTime('unknown'), 'unknown');
     assert.equal(format('vi').dateTime(null), '');

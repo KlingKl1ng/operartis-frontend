@@ -5,6 +5,14 @@ const path = require('node:path');
 const source = fs.readFileSync(path.join(__dirname, '../forecaster.html'), 'utf8');
 const build = new Function(source.slice(source.indexOf('const buildValidationReplay ='), source.indexOf('const ReplayWindowLabel =')) + '; return buildValidationReplay;')();
 const dates = Array.from({length:8}, (_,i)=>`2024-01-0${i+1}`);
+test('calendar closures remain visible but are excluded from replay accuracy',()=>{
+    const data=result();data.preparation={operating_calendar:{enabled:true}};
+    data.validation_forecasts[0]={...data.validation_forecasts[0],actual:0,forecast:0,closed:true};
+    const replay=build(data);
+    assert.equal(replay.folds[0].points.length,2);
+    assert.equal(replay.folds[0].scoredCount,1);
+    assert.equal(replay.folds[0].metrics.mae,4);
+});
 function result(method='walk_forward') {
     return {validation_method:method, validation_summary:{training_window:3,validation_period:5,forecast_horizon:2,evaluations:2},
         forecast_data:dates.map(date=>({date,actual_history:10})),
@@ -60,4 +68,34 @@ test('expanding validation on a suffix excludes older history from training',()=
     data.forecast_data.unshift({date:'2023-12-31',actual_history:50});
     const replay=build(data);
     assert.deepEqual(replay.folds.map(f=>[f.start,f.end]),[[1,3],[1,4]]);
+});
+
+
+test('prepared replay preserves missing dates and excludes them from fold metrics',()=>{
+    const data=result(); data.preparation={method:'forward'};
+    data.forecast_data[1].actual_history=null;
+    data.forecast_data[4].actual_history=null;
+    data.validation_summary.all_forecasts=data.validation_forecasts.map(p=>({...p,actual:p.date.startsWith(dates[4])?null:p.actual}));
+    data.validation_forecasts=data.validation_summary.all_forecasts.filter(p=>p.actual!==null);
+    const replay=build(data);
+    assert.equal(replay.history.length,8);
+    assert.equal(replay.history[1].value,null);
+    assert.equal(replay.folds[0].points.length,2);
+    assert.equal(replay.folds[0].scoredCount,1);
+    assert.equal(replay.folds[0].metrics.mae,2);
+    assert.equal(replay.folds[1].metrics.mae,0);
+});
+
+test('prepared display metadata cannot become simulation scoring targets',()=>{
+ const data=result();data.preparation={method:'interpolation'};
+ Object.assign(data.forecast_data[4],{actual_history:null,prepared_actual:100,preparation_method:'interpolation'});
+ data.validation_summary.all_forecasts=data.validation_forecasts.map(p=>({...p,actual:p.date.startsWith(dates[4])?null:p.actual}));
+ const replay=build(data);
+ assert.equal(replay.history[4].value,null);
+ assert.equal(replay.history[4].prepared_actual,100);
+ assert.equal(replay.history[4].preparation_method,'interpolation');
+ assert.ok(replay.domain[1]>100);
+ assert.equal(replay.folds[0].scoredCount,1);
+ assert.equal(replay.folds[0].metrics.mae,2);
+ assert.equal(replay.folds[1].metrics.mae,0);
 });
