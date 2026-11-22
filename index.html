@@ -5964,6 +5964,240 @@
             }
         }
 
+        /* ---- Partner row: same tiles as the integrations wall, DHL units grouped in one wide tile ---- */
+        .lp3-ptn-label {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.25rem;
+        }
+        .lp3-ptn-label::before,
+        .lp3-ptn-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(148, 163, 184, 0.5));
+        }
+        .lp3-ptn-label::after { background: linear-gradient(90deg, rgba(148, 163, 184, 0.5), transparent); }
+        .lp3-ptn-list {
+            --gap: 0.625rem;
+            --unit: calc((100% - var(--gap)) / 2);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: var(--gap);
+        }
+        .lp3-ptn-tile {
+            flex: 0 0 var(--unit);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            min-height: 7.25rem;
+            padding: 1rem 0.75rem;
+            border-radius: 1rem;
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            background: linear-gradient(180deg, #ffffff, #f8fafc);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 18px 34px -22px rgba(15, 23, 42, 0.32);
+            color: #0f172a;
+            transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+        }
+        .lp3-ptn-tile--wide { flex-basis: 100%; }
+        .lp3-ptn-tile:hover {
+            transform: translateY(-3px);
+            border-color: rgba(245, 158, 11, 0.45);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 24px 40px -22px rgba(180, 83, 9, 0.35);
+        }
+        .lp3-ptn-logo {
+            display: flex;
+            width: 82%;
+            height: var(--h, 1.75rem);
+        }
+        .lp3-ptn-logo svg {
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+            font-family: Inter, system-ui, -apple-system, sans-serif;
+        }
+        .lp3-ptn-sector {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            text-align: center;
+            color: #64748b;
+        }
+        .lp3-ptn-units {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.375rem;
+        }
+        .lp3-ptn-unit {
+            border-radius: 999px;
+            border: 1px solid rgba(212, 5, 17, 0.22);
+            background: rgba(255, 204, 0, 0.14);
+            padding: 0.2rem 0.55rem;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            color: #b4040f;
+            white-space: nowrap;
+        }
+        .dark .lp3-ptn-tile {
+            border-color: rgba(255, 255, 255, 0.08);
+            background: linear-gradient(180deg, rgba(30, 41, 59, 0.72), rgba(15, 23, 42, 0.72));
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 18px 34px -22px rgba(0, 0, 0, 0.8);
+            color: #e2e8f0;
+        }
+        .dark .lp3-ptn-tile:hover { border-color: rgba(245, 158, 11, 0.4); }
+        .dark .lp3-ptn-sector { color: #94a3b8; }
+        .dark .lp3-ptn-unit { color: #fde68a; border-color: rgba(255, 204, 0, 0.3); background: rgba(255, 204, 0, 0.08); }
+        @media (min-width: 640px) {
+            .lp3-ptn-list { --gap: 0.75rem; --unit: calc((100% - 3 * var(--gap)) / 4); }
+            .lp3-ptn-tile--wide { flex-basis: calc(2 * var(--unit) + var(--gap)); }
+        }
+        @media (min-width: 1024px) {
+            .lp3-ptn-list { --gap: 0.875rem; --unit: calc((100% - 6 * var(--gap)) / 7); }
+            .lp3-ptn-tile { min-height: 8.25rem; }
+            .lp3-ptn:not(.is-visible) .lp3-ptn-tile { opacity: 0; }
+            .lp3-ptn.is-visible .lp3-ptn-tile { animation: lp3IntIn 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) var(--d, 0ms) backwards; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .lp3-ptn.is-visible .lp3-ptn-tile { animation: none; }
+            .lp3-ptn:not(.is-visible) .lp3-ptn-tile { opacity: 1; }
+        }
+
+        /* ---- Integrations wall: logo tiles framing the heading (9 x 5 on desktop, a wrapped list below) ---- */
+        .lp3-int-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.625rem;
+        }
+        .lp3-int-center {
+            flex: 0 0 100%;
+            text-align: center;
+            padding: 0 0.5rem 1.75rem;
+        }
+        .lp3-int-tile {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 calc((100% - 1.25rem) / 3);
+            height: 5rem;
+            border-radius: 1rem;
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            background: linear-gradient(180deg, #ffffff, #f8fafc);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 18px 34px -22px rgba(15, 23, 42, 0.32);
+            color: #0f172a;
+            transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+        }
+        .lp3-int-tile:not(.lp3-int-ghost):hover {
+            transform: translateY(-3px);
+            border-color: rgba(245, 158, 11, 0.45);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 24px 40px -22px rgba(180, 83, 9, 0.35);
+        }
+        .lp3-int-logo {
+            display: flex;
+            width: 74%;
+            height: var(--h, 38%);
+        }
+        .lp3-int-logo svg {
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+            font-family: Inter, system-ui, -apple-system, sans-serif;
+        }
+        .lp3-int-ghost {
+            display: none;
+        }
+        .lp3-int-link {
+            padding-bottom: 0.3rem;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.6);
+            transition: color 0.2s ease, border-color 0.2s ease;
+        }
+        .lp3-int-link:hover {
+            color: #d97706;
+            border-color: #d97706;
+        }
+        .lp3-int-link svg {
+            transition: transform 0.2s ease;
+        }
+        .lp3-int-link:hover svg {
+            transform: translateX(3px);
+        }
+        .dark .lp3-int-tile {
+            border-color: rgba(255, 255, 255, 0.08);
+            background: linear-gradient(180deg, rgba(30, 41, 59, 0.72), rgba(15, 23, 42, 0.72));
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 18px 34px -22px rgba(0, 0, 0, 0.8);
+            color: #e2e8f0;
+        }
+        .dark .lp3-int-tile:not(.lp3-int-ghost):hover {
+            border-color: rgba(245, 158, 11, 0.4);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 24px 40px -22px rgba(0, 0, 0, 0.9);
+        }
+        .dark .lp3-int-link:hover { color: #fbbf24; border-color: #fbbf24; }
+        /* Dark vendor colours lifted so they stay readable on the dark tiles */
+        .dark .lgo-odoo { stroke: #B98AAE; }
+        .dark .lgo-epicor { fill: #4FB8CB; }
+        .dark .lgo-proalpha { fill: #2B7BC9; }
+
+        @media (min-width: 640px) {
+            .lp3-int-grid { gap: 0.75rem; }
+            .lp3-int-tile { flex-basis: calc((100% - 2.25rem) / 4); height: 5.75rem; }
+        }
+        @media (min-width: 1024px) {
+            .lp3-int-grid {
+                display: grid;
+                grid-template-columns: repeat(9, minmax(0, 1fr));
+                grid-template-rows: repeat(5, 6.5rem);
+                gap: 0.875rem;
+            }
+            .lp3-int-tile {
+                grid-column: var(--c);
+                grid-row: var(--r);
+                height: auto;
+            }
+            .lp3-int-center {
+                grid-column: 3 / 8;
+                grid-row: 2 / 5;
+                align-self: center;
+                padding: 0 1rem;
+            }
+            .lp3-int-ghost {
+                display: block;
+                background: rgba(255, 255, 255, 0.4);
+                border-color: rgba(226, 232, 240, 0.55);
+                box-shadow: none;
+                opacity: 0.8;
+            }
+            .lp3-int-ghost--corner { opacity: 0.4; }
+            .dark .lp3-int-ghost {
+                background: rgba(30, 41, 59, 0.28);
+                border-color: rgba(255, 255, 255, 0.04);
+                box-shadow: none;
+            }
+            /* Entrance: tiles rise in from the heading outwards once the section is on screen.
+               Fill mode "backwards" only, so the hover lift works as soon as a tile has landed. */
+            .lp3-int:not(.is-visible) .lp3-int-tile { opacity: 0; }
+            .lp3-int.is-visible .lp3-int-tile { animation: lp3IntIn 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) var(--d, 0ms) backwards; }
+        }
+        @keyframes lp3IntIn {
+            from { opacity: 0; transform: translateY(14px) scale(0.96); }
+        }
+        @media (min-width: 1280px) {
+            .lp3-int-grid { grid-template-rows: repeat(5, 7.25rem); gap: 1rem; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .lp3-int.is-visible .lp3-int-tile { animation: none; }
+            .lp3-int:not(.is-visible) .lp3-int-tile { opacity: 1; }
+            .lp3-int:not(.is-visible) .lp3-int-ghost { opacity: 0.8; }
+            .lp3-int:not(.is-visible) .lp3-int-ghost--corner { opacity: 0.4; }
+        }
+
         /* ---- Origin band: made in Germany, now available in Vietnam. Follows the page theme ---- */
         .lp3-origin {
             position: relative;
@@ -6048,6 +6282,13 @@
 
         @keyframes lp3-origin-leave { to { opacity: 0; } }
 
+        /* Loop: each run fades in, and fades out before the next run restarts the search */
+        .lp3-origin-run { transition: opacity 0.7s ease; }
+        .lp3-origin.is-visible .lp3-origin-run { animation: lp3-origin-run-in 0.5s ease backwards; }
+        .lp3-origin.is-resetting .lp3-origin-run { opacity: 0; }
+
+        @keyframes lp3-origin-run-in { from { opacity: 0; } }
+
         .lp3-origin-stop-edge { stop-color: #d97706; }
         .lp3-origin-stop-mid { stop-color: #f59e0b; }
         .dark .lp3-origin-stop-edge { stop-color: #f59e0b; }
@@ -6086,7 +6327,7 @@
         }
 
         .lp3-origin.is-visible .lp3-origin-marker {
-            animation: lp3-origin-travel 4.2s linear infinite;
+            animation: lp3-origin-travel 4.2s linear infinite;   /* MARKER_TRIP_S in OriginSection */
         }
 
         @keyframes lp3-origin-travel {
@@ -6184,6 +6425,7 @@
             .lp3-origin .lp3-origin-marker { animation: none; opacity: 0; }
             .lp3-origin .lp3-origin-pulse { animation: none; opacity: 0; }
             .lp3-origin .lp3-origin-network { animation: none; opacity: 0; }
+            .lp3-origin .lp3-origin-run { animation: none; }
             .lp3-origin .lp3-origin-km,
             .lp3-origin .lp3-origin-hub-name { animation: none; opacity: 1; }
         }
@@ -6550,6 +6792,18 @@
                     analytics_operartis_title: "Where Operartis Creates Value",
                     analytics_operartis_desc: "Operartis bridges diagnostic visibility with predictive and prescriptive APS — turning ERP and MES data into optimized plans, simulations and decision support.",
                     analytics_tap_hint: "Select a level to explore",
+                    ptn_eyebrow: "In cooperation with",
+                    ptn_rail: "Rail & logistics",
+                    ptn_parcel: "Parcel & logistics",
+                    ptn_beauty: "Beauty",
+                    ptn_haircare: "Hair care",
+                    int_eyebrow: "Integrations",
+                    int_title_a: "Works with the systems",
+                    int_title_b: "you already run.",
+                    int_desc: "Operartis connects to your ERP, MES, machine data, spreadsheets and documents, and plans on top of them without replacing any of them.",
+                    int_cta: "Talk to us about your systems",
+                    int_note: "Not on the list? We confirm the connection to your system during the evaluation.",
+                    int_list_label: "Supported systems",
                     or_process_eyebrow: "Deployment Process for an APS System",
                     or_process_title: "Build Your Own APS",
                     or_process_subtitle: "Want to build your own APS system or optimized scenario-based solution with Operartis? Here is how we work together to reach your purpose.",
@@ -6959,6 +7213,18 @@
                     analytics_operartis_title: "Operartis Tạo Giá trị Ở Đâu",
                     analytics_operartis_desc: "Operartis tập trung vào dự báo và đề xuất quyết định với APS  — biến dữ liệu ERP và MES thành kế hoạch tối ưu, mô phỏng và hỗ trợ việc đưa quyết định cuối cùng.",
                     analytics_tap_hint: "Chọn cấp độ để xem chi tiết",
+                    ptn_eyebrow: "Hợp tác cùng",
+                    ptn_rail: "Đường sắt & logistics",
+                    ptn_parcel: "Bưu kiện & logistics",
+                    ptn_beauty: "Làm đẹp",
+                    ptn_haircare: "Chăm sóc tóc",
+                    int_eyebrow: "Tích hợp",
+                    int_title_a: "Hoạt động cùng các hệ thống",
+                    int_title_b: "bạn đang sử dụng.",
+                    int_desc: "Operartis kết nối với ERP, MES, dữ liệu máy móc, bảng tính và tài liệu của bạn, rồi lập kế hoạch trên nền dữ liệu đó mà không thay thế bất kỳ hệ thống nào.",
+                    int_cta: "Trao đổi về hệ thống của bạn",
+                    int_note: "Hệ thống của bạn chưa có trong danh sách? Chúng tôi xác nhận khả năng kết nối trong giai đoạn đánh giá.",
+                    int_list_label: "Các hệ thống được hỗ trợ",
                     or_process_eyebrow: "Quy trình triển khai hệ thống APS",
                     or_process_title: "Xây dựng APS của riêng bạn",
                     or_process_subtitle: "Xây dựng hệ thống APS riêng biệt hoặc giải pháp tối ưu theo kịch bản cùng Operartis? Đây là quy trình chúng tôi thực hiện để đạt mục tiêu của bạn.",
@@ -7368,6 +7634,18 @@
                     analytics_operartis_title: "Wo Operartis Mehrwert schafft",
                     analytics_operartis_desc: "Operartis verbindet diagnostische Transparenz mit prädiktiver und präskriptiver APS — und verwandelt ERP- und Shopfloor-Daten in optimierte Pläne, Simulationen und Entscheidungsunterstützung.",
                     analytics_tap_hint: "Stufe auswählen",
+                    ptn_eyebrow: "In Kooperation mit",
+                    ptn_rail: "Schiene & Logistik",
+                    ptn_parcel: "Paket & Logistik",
+                    ptn_beauty: "Kosmetik",
+                    ptn_haircare: "Haarpflege",
+                    int_eyebrow: "Integrationen",
+                    int_title_a: "Arbeitet mit den Systemen,",
+                    int_title_b: "die Sie bereits nutzen.",
+                    int_desc: "Operartis bindet Ihr ERP, MES, Maschinendaten, Tabellen und Dokumente an und plant darauf auf, ohne eines davon zu ersetzen.",
+                    int_cta: "Sprechen Sie mit uns über Ihre Systeme",
+                    int_note: "Ihr System ist nicht aufgeführt? Wir bestätigen die Anbindung an Ihr System während der Evaluierung.",
+                    int_list_label: "Unterstützte Systeme",
                     or_process_eyebrow: "Deployment-Prozess für ein APS-System",
                     or_process_title: "Bauen Sie Ihr eigenes APS",
                     or_process_subtitle: "Sie möchten Ihr eigenes APS-System oder eine optimierte szenariobasierte Lösung mit Operartis entwickeln? So arbeiten wir zusammen, um Ihr Ziel zu erreichen.",
@@ -11991,6 +12269,29 @@
                 return () => observer.disconnect();
             }, []);
 
+            // Loop: once the marker has made RUN_TRIPS trips, the animated layers fade out (RESET_MS) and are
+            // remounted under a new key, which restarts every CSS animation from the search wave
+            const [cycle, setCycle] = useState(0);
+            const [resetting, setResetting] = useState(false);
+            useEffect(() => {
+                if (!visible) return undefined;
+                if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined;
+                const RUN_TRIPS = 2;
+                const RESET_MS = 800;
+                let restart;
+                const fade = window.setTimeout(() => {
+                    setResetting(true);
+                    restart = window.setTimeout(() => {
+                        setResetting(false);
+                        setCycle((c) => c + 1);
+                    }, RESET_MS);
+                }, (NETWORK_FADE_S + 0.9 + RUN_TRIPS * MARKER_TRIP_S) * 1000);
+                return () => {
+                    window.clearTimeout(fade);
+                    window.clearTimeout(restart);
+                };
+            }, [visible, cycle]);
+
             const cards = [
                 { id: 'de', flag: <OriginFlagGermany />, label: ui.origin_de_label, title: 'Made in Germany', facts: ui.origin_de_facts },
                 { id: 'vn', flag: <OriginFlagVietnam />, label: ui.origin_vn_label, title: ui.origin_vn_title, facts: ui.origin_vn_facts, badge: ui.origin_vn_badge },
@@ -12001,6 +12302,7 @@
             const PATH_START_S = SEARCH_S + 0.3;
             const PATH_S = 1.5;
             const NETWORK_FADE_S = PATH_START_S + PATH_S + 0.7;   // the rest of the network leaves once the path stands
+            const MARKER_TRIP_S = 4.2;                              // one marker trip, as in .lp3-origin-marker
             const { nodes } = ORIGIN_NETWORK;
             const solution = ORIGIN_SOLUTION;
             const perUnit = SEARCH_S / solution.total;
@@ -12047,7 +12349,7 @@
             });
 
             return (
-                <section ref={sectionRef} aria-labelledby="origin-title" className={`lp3-origin rounded-3xl border ${visible ? 'is-visible' : ''}`}>
+                <section ref={sectionRef} aria-labelledby="origin-title" className={`lp3-origin rounded-3xl border ${visible ? 'is-visible' : ''} ${resetting ? 'is-resetting' : ''}`}>
                     <div className="relative z-10 text-center px-6 pt-10 sm:px-10 md:pt-14">
                         <p className="text-[10px] md:text-[11px] font-bold uppercase opus-eyebrow text-brand-gold mb-3 md:mb-4">{ui.origin_eyebrow}</p>
                         {/* "Made in Germany" stays English in every language: it is a recognised label */}
@@ -12075,6 +12377,8 @@
                             <path className="lp3-origin-dots" d={ORIGIN_MAP.germany} />
                             <path className="lp3-origin-dots" d={ORIGIN_MAP.vietnam} />
 
+                            {/* Animated layer under the country markers; remounted on every loop */}
+                            <g key={`run-a-${cycle}`} className="lp3-origin-run">
                             {/* Everything that is not the answer: all connections, the search wave and the hubs off the path.
                                 Once the shortest path is drawn, this group fades away and only the path remains. */}
                             <g className="lp3-origin-network" style={{ animationDelay: `${NETWORK_FADE_S.toFixed(2)}s` }}>
@@ -12129,6 +12433,7 @@
                                     style={{ animationDelay: `${(solution.dist[id] * perUnit).toFixed(2)}s, ${pathArrival[id].toFixed(2)}s` }}
                                 />
                             ))}
+                            </g>
 
                             {[from, to].map((point, i) => (
                                 <g key={i}>
@@ -12137,11 +12442,6 @@
                                     <circle className="lp3-origin-point" cx={point.x} cy={point.y} r="9" />
                                 </g>
                             ))}
-                            <circle
-                                className="lp3-origin-marker"
-                                r="6.5"
-                                style={{ offsetPath: `path('${pathD}')`, animationDelay: `${(NETWORK_FADE_S + 0.9).toFixed(2)}s` }}
-                            />
 
                             {/* Place names. The map scales with the screen, so phones get their own, larger type:
                                 50 map units is about 11px on a phone-width map, 21 units about 16px on desktop */}
@@ -12157,6 +12457,14 @@
                                 <text x={from.x} y={from.y - 44} textAnchor="middle">{String(ui.origin_de_place).toUpperCase()}</text>
                                 <text x={to.x + 40} y={to.y + 18}>{String(ui.origin_vn_place).toUpperCase()}</text>
                             </g>
+
+                            {/* Animated layer above the place names: marker, hub names and distances; remounted on every loop */}
+                            <g key={`run-b-${cycle}`} className="lp3-origin-run">
+                            <circle
+                                className="lp3-origin-marker"
+                                r="6.5"
+                                style={{ offsetPath: `path('${pathD}')`, animationDelay: `${(NETWORK_FADE_S + 0.9).toFixed(2)}s` }}
+                            />
 
                             {/* Hub names on the shortest path: desktop only, each appears when the path reaches its hub */}
                             <g className="hidden md:block font-mono" fontSize="15" fontWeight="700" letterSpacing="2">
@@ -12181,6 +12489,7 @@
                                 {kmLabels.map((label) => (
                                     <text key={label.key} className="lp3-origin-km" x={label.x.toFixed(1)} y={label.y.toFixed(1)} style={{ animationDelay: `${label.delay.toFixed(2)}s` }}>{label.text}</text>
                                 ))}
+                            </g>
                             </g>
                         </svg>
                     </div>
@@ -12253,6 +12562,290 @@
 
         // Compact APS matrix for the home page: one card per planning horizon.
         // The full matrix (module tiles, quick views) lives on platform.html.
+        // Partner row under the hero. DHL's four units share one wide tile, so the row is not four near-identical logos.
+        const PARTNERS = [
+            { id: 'dhl', name: 'DHL Group', wide: true, h: '2.5rem', units: ['Freight', 'Express', 'Data Analytics', 'Transportation'], mark: (
+                <svg viewBox="0 0 120 40">
+                    <rect width="120" height="40" rx="3" fill="#FFCC00" />
+                    <g stroke="#D40511" strokeWidth="2.4" strokeLinecap="round">
+                        <path d="M10 15h20M7 20h21M10 25h16M90 15h20M92 20h21M94 25h16" />
+                    </g>
+                    <text x="60" y="29" textAnchor="middle" fontSize="26" fontWeight="900" fontStyle="italic" letterSpacing="-0.5" fill="#D40511">DHL</text>
+                </svg>
+            ) },
+            { id: 'db', name: 'Deutsche Bahn', sector: 'ptn_rail', h: '2.25rem', mark: (
+                <svg viewBox="0 0 56 40">
+                    <rect x="2" y="2" width="52" height="36" rx="5" fill="#fff" stroke="#EC0016" strokeWidth="3.5" />
+                    <text x="28" y="29" textAnchor="middle" fontSize="22" fontWeight="800" letterSpacing="-0.5" fill="#EC0016">DB</text>
+                </svg>
+            ) },
+            { id: 'ups', name: 'UPS', sector: 'ptn_parcel', h: '2.6rem', mark: (
+                <svg viewBox="0 0 40 48">
+                    <path d="M20 2C12 2 5 3.5 2 5v22c0 10 9 15.5 18 19 9-3.5 18-9 18-19V5c-3-1.5-10-3-18-3z" fill="#351C15" stroke="#FFB500" strokeOpacity="0.35" strokeWidth="0.8" />
+                    <path d="M4 13c9-5.5 23-6.5 32-2.5V7.5C27 3.5 13 4.5 4 9z" fill="#FFB500" />
+                    <text x="20" y="33" textAnchor="middle" fontSize="15" fontWeight="700" fill="#FFB500">ups</text>
+                </svg>
+            ) },
+            { id: 'hermes', name: 'Hermes', sector: 'ptn_parcel', h: '1.7rem', mark: (
+                <svg viewBox="0 0 120 32"><text x="60" y="25" textAnchor="middle" fontSize="27" fontWeight="700" letterSpacing="-0.3" fill="#0091CD">Hermes</text></svg>
+            ) },
+            { id: 'loreal', name: 'L’Oréal', sector: 'ptn_beauty', h: '1.5rem', mark: (
+                <svg viewBox="0 0 132 30"><text x="66" y="24" textAnchor="middle" fontSize="24" fontWeight="600" letterSpacing="3" fill="currentColor">L’ORÉAL</text></svg>
+            ) },
+            { id: 'schwarzkopf', name: 'Schwarzkopf', sector: 'ptn_haircare', h: '1.55rem', mark: (
+                <svg viewBox="0 0 150 32"><text x="75" y="25" textAnchor="middle" fontSize="25" fontWeight="700" letterSpacing="-0.3" fill="currentColor">Schwarzkopf</text></svg>
+            ) },
+        ];
+
+        const PartnersSection = ({ content }) => {
+            const ui = content.ui;
+            const sectionRef = useRef(null);
+            const [visible, setVisible] = useState(false);
+            useEffect(() => {
+                const el = sectionRef.current;
+                if (!el) return undefined;
+                const observer = new IntersectionObserver(([entry]) => {
+                    if (entry.isIntersecting) {
+                        setVisible(true);
+                        observer.disconnect();
+                    }
+                }, { threshold: 0.25 });
+                observer.observe(el);
+                return () => observer.disconnect();
+            }, []);
+
+            return (
+                <section ref={sectionRef} aria-labelledby="partners-title" className={`lp3-ptn ${visible ? 'is-visible' : ''}`}>
+                    <h2 id="partners-title" className="lp3-ptn-label text-[10px] md:text-[11px] font-bold uppercase opus-eyebrow text-brand-gold">{ui.ptn_eyebrow}</h2>
+                    <ul className="lp3-ptn-list">
+                        {PARTNERS.map((p, i) => (
+                            <li key={p.id} className={`lp3-ptn-tile ${p.wide ? 'lp3-ptn-tile--wide' : ''}`} style={{ '--h': p.h, '--d': `${i * 70}ms` }}>
+                                <span className="lp3-ptn-logo" aria-hidden="true">{p.mark}</span>
+                                <span className="sr-only">{p.wide ? p.units.map((u) => `DHL ${u}`).join(', ') : p.name}</span>
+                                {p.wide ? (
+                                    <span className="lp3-ptn-units" aria-hidden="true">
+                                        {p.units.map((u) => <span key={u} className="lp3-ptn-unit">{u}</span>)}
+                                    </span>
+                                ) : (
+                                    <span className="lp3-ptn-sector" aria-hidden="true">{ui[p.sector]}</span>
+                                )}
+                            </li>
+                        ))}
+                    </ul>
+                </section>
+            );
+        };
+
+        // Integrations wall: the systems Operartis connects to, framed around the heading. The marks are
+        // simplified inline drawings in each vendor's colours, so the page needs no third-party image files.
+        const IFS_RAYS = Array.from({ length: 18 }, (_, i) => {
+            const a = (i / 18) * Math.PI * 2;
+            const b = a + 0.55;
+            const p = (r, t) => [(19 + r * Math.cos(t)).toFixed(2), (20 + r * Math.sin(t)).toFixed(2)];
+            const [x1, y1] = p(5, a);
+            const [x2, y2] = p(16, b);
+            return { x1, y1, x2, y2, color: ['#4B2A8C', '#6D3FD0', '#9B6BF0', '#3F7FE8'][i % 4] };
+        });
+        const DocMark = ({ label, color }) => (
+            <svg viewBox="0 0 40 48">
+                <path d="M6 2h20l10 10v32a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" fill="#fff" stroke="#CBD5E1" strokeWidth="1.5" />
+                <path d="M26 2v10h10" fill="none" stroke="#CBD5E1" strokeWidth="1.5" />
+                <rect x="0" y="24" width="29" height="13" rx="2" fill={color} />
+                <text x="14.5" y="33.6" textAnchor="middle" fontSize="9" fontWeight="800" fill="#fff">{label}</text>
+            </svg>
+        );
+        const INTEGRATIONS = [
+            { id: 'sap', name: 'SAP', h: '40%', col: 2, row: 1, mark: (
+                <svg viewBox="0 0 104 48">
+                    <defs><linearGradient id="lgo-sap" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#00B8F1" /><stop offset="1" stopColor="#0057D2" /></linearGradient></defs>
+                    <path d="M0 0h104L56 48H0z" fill="url(#lgo-sap)" />
+                    <text x="6" y="35" fill="#fff" fontSize="29" fontWeight="800" fontStyle="italic" letterSpacing="-1">SAP</text>
+                </svg>
+            ) },
+            { id: 'sage', name: 'Sage', h: '36%', col: 3, row: 1, mark: (
+                <svg viewBox="0 0 84 40"><text x="42" y="30" textAnchor="middle" fontSize="34" fontWeight="600" letterSpacing="-0.5" fill="#00D639">Sage</text></svg>
+            ) },
+            { id: 'dynamics', name: 'Microsoft Dynamics 365', h: '40%', col: 4, row: 1, mark: (
+                <svg viewBox="0 0 124 40">
+                    <defs>
+                        <linearGradient id="lgo-d365a" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#1A6CE6" /><stop offset="1" stopColor="#0B3FB0" /></linearGradient>
+                        <linearGradient id="lgo-d365b" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#B15BEA" /><stop offset="1" stopColor="#5B2FD6" /></linearGradient>
+                    </defs>
+                    <path d="M3 2l15 6v16L3 31z" fill="url(#lgo-d365a)" />
+                    <path d="M18 16l10 5L3 38v-7z" fill="url(#lgo-d365b)" />
+                    <text x="36" y="17" fontSize="12.5" fontWeight="500" fill="currentColor">Microsoft</text>
+                    <text x="36" y="33" fontSize="12.5" fontWeight="500" fill="currentColor">Dynamics 365</text>
+                </svg>
+            ) },
+            { id: 'oracle', name: 'Oracle', h: '26%', col: 5, row: 1, mark: (
+                <svg viewBox="0 0 124 30"><text x="62" y="25" textAnchor="middle" fontSize="27" fontWeight="600" letterSpacing="1.5" fill="#C74634">ORACLE</text></svg>
+            ) },
+            { id: 'odoo', name: 'Odoo', h: '36%', col: 6, row: 1, mark: (
+                <svg viewBox="0 0 104 40">
+                    <g className="lgo-odoo" fill="none" stroke="#714B67" strokeWidth="6.5" strokeLinecap="round">
+                        <circle cx="13" cy="27" r="9.5" />
+                        <circle cx="39" cy="27" r="9.5" />
+                        <path d="M48.5 4v23" />
+                        <circle cx="65" cy="27" r="9.5" />
+                        <circle cx="91" cy="27" r="9.5" />
+                    </g>
+                </svg>
+            ) },
+            { id: 'qad', name: 'QAD', h: '30%', col: 7, row: 1, mark: (
+                <svg viewBox="0 0 76 36"><text x="38" y="29" textAnchor="middle" fontSize="29" fontWeight="600" letterSpacing="3" fill="#E31E24">QAD</text></svg>
+            ) },
+            { id: 'infor', name: 'Infor', h: '44%', col: 8, row: 1, mark: (
+                <svg viewBox="0 0 60 48">
+                    <rect width="60" height="48" rx="1.5" fill="#D71920" />
+                    <text x="30" y="30" textAnchor="middle" fontSize="17" fontWeight="700" fill="#fff">infor</text>
+                </svg>
+            ) },
+            { id: 'proalpha', name: 'Proalpha', h: '34%', col: 1, row: 2, mark: (
+                <svg viewBox="0 0 140 32">
+                    <rect className="lgo-proalpha" x="0" y="6" width="21" height="21" rx="2.5" fill="#0A4C8C" />
+                    <rect x="4.5" y="10.5" width="12" height="12" rx="3" fill="none" stroke="#fff" strokeWidth="1.6" />
+                    <text x="10.5" y="20.5" textAnchor="middle" fontSize="10" fontWeight="700" fill="#fff">a</text>
+                    <text x="28" y="25" fontSize="24" fontWeight="600" fill="currentColor">Proalpha</text>
+                </svg>
+            ) },
+            { id: 'psi', name: 'PSI', h: '28%', col: 9, row: 2, mark: (
+                <svg viewBox="0 0 112 32">
+                    <text x="0" y="28" fontSize="31" fontWeight="900" letterSpacing="5" fill="currentColor">PSI</text>
+                    <g fill="none" stroke="currentColor" strokeWidth="4"><circle cx="96" cy="16" r="11" /><path d="M83 16h26M96 5v22" /></g>
+                </svg>
+            ) },
+            { id: 'abas', name: 'ABAS by Forterro', h: '40%', col: 2, row: 3, mark: (
+                <svg viewBox="0 0 124 40">
+                    <circle cx="5" cy="22" r="4" fill="#F5B700" />
+                    <path d="M13 4h8l10 16h-8z" fill="currentColor" />
+                    <path d="M23 20h8L21 36h-8z" fill="#1FB5A9" />
+                    <text x="38" y="19" fontSize="18" fontWeight="600" letterSpacing="1.5" fill="currentColor">ABAS</text>
+                    <text x="38" y="35" fontSize="12.5" fontWeight="500" letterSpacing="1" fill="currentColor">FORTERRO</text>
+                </svg>
+            ) },
+            { id: 'applus', name: 'ap+', h: '38%', col: 8, row: 3, mark: (
+                <svg viewBox="0 0 64 40">
+                    <text x="0" y="28" fontSize="34" fontWeight="400" fill="#F0A500">ap</text>
+                    <text x="41" y="17" fontSize="22" fontWeight="500" fill="#F0A500">+</text>
+                </svg>
+            ) },
+            { id: 'ifs', name: 'IFS', h: '40%', col: 1, row: 4, mark: (
+                <svg viewBox="0 0 96 40">
+                    {IFS_RAYS.map((r, i) => <line key={i} x1={r.x1} y1={r.y1} x2={r.x2} y2={r.y2} stroke={r.color} strokeWidth="1.8" strokeLinecap="round" />)}
+                    <text x="40" y="30" fontSize="28" fontWeight="800" fill="currentColor">IFS</text>
+                </svg>
+            ) },
+            { id: 'epicor', name: 'Epicor', h: '26%', col: 9, row: 4, mark: (
+                <svg viewBox="0 0 132 30"><text className="lgo-epicor" x="66" y="25" textAnchor="middle" fontSize="26" fontWeight="800" letterSpacing="2" fill="#00566A">EPICOR</text></svg>
+            ) },
+            { id: 'opc', name: 'OPC Foundation (OPC UA)', h: '40%', col: 2, row: 5, mark: (
+                <svg viewBox="0 0 100 40">
+                    <g stroke="currentColor" strokeWidth="1.3" opacity="0.55">{[7, 11, 15, 19, 23].map((y, i) => <path key={y} d={`M${2 + i * 2} ${y}h${26 - i * 2}`} />)}</g>
+                    <text x="33" y="26" fontSize="28" fontWeight="900" fontStyle="italic" letterSpacing="-0.5" fill="currentColor">OPC</text>
+                    <text x="50" y="38" textAnchor="middle" fontSize="7" fontWeight="500" letterSpacing="3.3" fill="currentColor">FOUNDATION</text>
+                </svg>
+            ) },
+            { id: 'excel', name: 'Microsoft Excel', h: '46%', col: 3, row: 5, mark: (
+                <svg viewBox="0 0 48 48">
+                    <path d="M18 6h20a4 4 0 0 1 4 4v8H14v-8a4 4 0 0 1 4-4z" fill="#33C481" />
+                    <rect x="14" y="18" width="28" height="12" fill="#21A366" />
+                    <path d="M14 30h28v8a4 4 0 0 1-4 4H18a4 4 0 0 1-4-4z" fill="#185C37" />
+                    <rect x="4" y="13" width="22" height="22" rx="3" fill="#107C41" />
+                    <path d="M10.5 18.5l9 11M19.5 18.5l-9 11" stroke="#fff" strokeWidth="3" strokeLinecap="round" />
+                </svg>
+            ) },
+            { id: 'powerpoint', name: 'Microsoft PowerPoint', h: '46%', col: 4, row: 5, mark: (
+                <svg viewBox="0 0 48 48">
+                    <circle cx="27" cy="24" r="18" fill="#ED6C47" />
+                    <path d="M27 6a18 18 0 0 1 18 18H27z" fill="#FF8F6B" />
+                    <path d="M27 24h18a18 18 0 0 1-18 18z" fill="#D35230" />
+                    <rect x="4" y="13" width="22" height="22" rx="3" fill="#C43E1C" />
+                    <path d="M11.5 30V18h4.5a4 4 0 0 1 0 8h-4.5" fill="none" stroke="#fff" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+            ) },
+            { id: 'outlook', name: 'Microsoft Outlook', h: '46%', col: 5, row: 5, mark: (
+                <svg viewBox="0 0 48 48">
+                    <rect x="16" y="9" width="28" height="30" rx="4" fill="#0364B8" />
+                    <path d="M16 20l14 9 14-9v15a4 4 0 0 1-4 4H20a4 4 0 0 1-4-4z" fill="#28A8EA" />
+                    <rect x="4" y="13" width="22" height="22" rx="3" fill="#0078D4" />
+                    <ellipse cx="15" cy="24" rx="5" ry="6" fill="none" stroke="#fff" strokeWidth="2.8" />
+                </svg>
+            ) },
+            { id: 'gmail', name: 'Gmail', h: '36%', col: 6, row: 5, mark: (
+                <svg viewBox="0 0 48 36">
+                    <path d="M3.3 36H11V17.3L0 9v23.7A3.3 3.3 0 0 0 3.3 36z" fill="#4285F4" />
+                    <path d="M37 36h7.7a3.3 3.3 0 0 0 3.3-3.3V9L37 17.3z" fill="#34A853" />
+                    <path d="M37 3v14.3L48 9V4.6c0-4-4.6-6.3-7.8-3.9z" fill="#FBBC04" />
+                    <path d="M11 17.3V3l13 9.8L37 3v14.3L24 27z" fill="#EA4335" />
+                    <path d="M0 4.6V9l11 8.3V3L7.8.7C4.6-1.7 0 .6 0 4.6z" fill="#C5221F" />
+                </svg>
+            ) },
+            { id: 'pdf', name: 'PDF', h: '48%', col: 7, row: 5, mark: <DocMark label="PDF" color="#E5252A" /> },
+            { id: 'xml', name: 'XML', h: '48%', col: 8, row: 5, mark: <DocMark label="XML" color="#334155" /> },
+        ];
+        // Empty frame tiles fill the rest of the 9 x 5 desktop grid; the corners fade the most
+        const INTEGRATION_GHOSTS = [[1, 1], [9, 1], [1, 5], [9, 5], [2, 2], [8, 2], [1, 3], [9, 3], [2, 4], [8, 4]];
+
+        const IntegrationsSection = ({ content }) => {
+            const ui = content.ui;
+            const sectionRef = useRef(null);
+            const [visible, setVisible] = useState(false);
+            useEffect(() => {
+                const el = sectionRef.current;
+                if (!el) return undefined;
+                const observer = new IntersectionObserver(([entry]) => {
+                    if (entry.isIntersecting) {
+                        setVisible(true);
+                        observer.disconnect();
+                    }
+                }, { threshold: 0.2 });
+                observer.observe(el);
+                return () => observer.disconnect();
+            }, []);
+            // Tiles appear from the heading outwards
+            const delayFor = (col, row) => Math.round((Math.abs(col - 5) + Math.abs(row - 3) * 1.4) * 55);
+
+            return (
+                <section ref={sectionRef} aria-labelledby="integrations-title" className={`lp3-int ${visible ? 'is-visible' : ''}`}>
+                    <div className="lp3-int-grid">
+                        <div className="lp3-int-center">
+                            <p className="text-[10px] md:text-[11px] font-bold uppercase opus-eyebrow text-brand-gold mb-3 md:mb-4">{ui.int_eyebrow}</p>
+                            <h2 id="integrations-title" className="text-[1.75rem] sm:text-4xl lg:text-[2.125rem] xl:text-[2.75rem] font-bold tracking-tight leading-[1.15] md:leading-[1.12] text-slate-900 dark:text-white [text-wrap:balance]">
+                                <span className="block">{ui.int_title_a}</span>
+                                <span className="block">{ui.int_title_b}</span>
+                            </h2>
+                            <p className="mt-4 md:mt-5 text-base md:text-lg leading-relaxed text-slate-500 dark:text-slate-400 max-w-xl mx-auto">{ui.int_desc}</p>
+                            <a href="./contact" className="lp3-int-link mt-6 md:mt-7 inline-flex items-center gap-2 text-sm md:text-base font-semibold text-slate-900 dark:text-white [&>svg]:h-4 [&>svg]:w-4">
+                                {ui.int_cta} <ArrowRightIcon />
+                            </a>
+                        </div>
+                        <ul className="contents" aria-label={ui.int_list_label}>
+                            {INTEGRATIONS.map((item) => (
+                                <li
+                                    key={item.id}
+                                    className="lp3-int-tile"
+                                    title={item.name}
+                                    style={{ '--c': item.col, '--r': item.row, '--h': item.h, '--d': `${delayFor(item.col, item.row)}ms` }}
+                                >
+                                    <span className="lp3-int-logo" aria-hidden="true">{item.mark}</span>
+                                    <span className="sr-only">{item.name}</span>
+                                </li>
+                            ))}
+                        </ul>
+                        {INTEGRATION_GHOSTS.map(([col, row]) => (
+                            <div
+                                key={`${col}-${row}`}
+                                aria-hidden="true"
+                                className={`lp3-int-tile lp3-int-ghost ${(col === 1 || col === 9) && (row === 1 || row === 5) ? 'lp3-int-ghost--corner' : ''}`}
+                                style={{ '--c': col, '--r': row, '--d': `${delayFor(col, row)}ms` }}
+                            />
+                        ))}
+                    </div>
+                    <p className="mt-8 md:mt-10 text-center text-sm text-slate-500 dark:text-slate-400">{ui.int_note}</p>
+                </section>
+            );
+        };
+
         const PlatformOverview = ({ content }) => {
             const ui = content.ui;
             return (
@@ -13072,6 +13665,11 @@
                                         <CapabilityRibbon content={content} />
                                     </div>
 
+                                    {/* Companies Operartis works with, right under the hero */}
+                                    <div id="partners" className="opus-scroll-target mt-14 md:mt-20">
+                                        <PartnersSection content={content} />
+                                    </div>
+
                                     <div className="mt-20 md:mt-28">
                                         <Reveal><MetricsBand content={content} stats={stats} /></Reveal>
                                     </div>
@@ -13098,6 +13696,11 @@
                                     {/* Target of the hero's Explore button. The full matrix lives on platform.html */}
                                     <div id="platform-overview" className="opus-scroll-target mt-24 md:mt-32">
                                         <PlatformOverview content={content} />
+                                    </div>
+
+                                    {/* The systems Operartis plugs into, before the deployment process */}
+                                    <div id="integrations" className="opus-scroll-target mt-24 md:mt-32">
+                                        <IntegrationsSection content={content} />
                                     </div>
 
                                     <div id="or-process" className="opus-scroll-target mt-24 md:mt-32">
