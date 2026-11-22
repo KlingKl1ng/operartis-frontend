@@ -6443,8 +6443,6 @@
         const WarehouseIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 20h12a2 2 0 0 0 2-2V8l-8-6-8 6v10a2 2 0 0 0 2 2Z"></path><path d="M10 14h4"></path><path d="M12 12v4"></path></svg>;
         const HubIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="m3 3 7 7"></path><path d="m21 3-7 7"></path><path d="m3 21 7-7"></path><path d="m21 21-7-7"></path></svg>;
         const ShortestPathIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="5" cy="19" r="2.5"></circle><circle cx="19" cy="5" r="2.5"></circle><path d="M7.5 16.5 16.5 7.5"></path><path d="M5 19c4-1 6-4 7-7" strokeOpacity="0.35"></path><path d="M7 12h10" strokeOpacity="0.35"></path><path d="M12 5c1 3 3 6 7 7" strokeOpacity="0.35"></path></svg>;
-        const LongHaulIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M2 12h20"></path><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path><path d="M3 14h13"></path><polyline points="14 11 17 14 14 17"></polyline></svg>;
-        const LastMileIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 6-9 12-9 12S3 16 3 10a9 9 0 1 1 18 0z"></path><circle cx="12" cy="10" r="2.5"></circle><path d="M12 12.5V16"></path><rect x="8.5" y="16" width="7" height="4" rx="1"></rect><path d="M10 18h4"></path></svg>;
         const LogisticsControlIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2 2 7l10 5 10-5-10-5z"></path><path d="m2 17 10 5 10-5"></path><path d="m2 12 10 5 10-5"></path></svg>;
         const VrpIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="5" cy="19" r="2"></circle><circle cx="12" cy="5" r="2"></circle><circle cx="19" cy="12" r="2"></circle><circle cx="16" cy="19" r="2"></circle><path d="M5 19 12 5 19 12 16 19 5 19"></path></svg>;
         const StoreIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9 12 2l9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>;
@@ -6797,8 +6795,6 @@
                     'warehouse_loc': { name: 'Warehouse Location Problem', desc: 'Determining optimal warehouse sites to balance costs and service.' },
                     'hub_loc': { name: 'Hub Location Problem', desc: 'Locating hubs to consolidate flow and minimize network costs.' },
                     'shortest_path': { name: 'Shortest Path Problem', desc: 'Optimizing routes to find the quickest or shortest path between points.' },
-                    'long_haul': { name: 'Long Haul Transport Planning', desc: 'Planning long-distance freight movements and carrier selection.' },
-                    'short_haul': { name: 'Short Haul Transport Planning', desc: 'Managing local delivery runs, milk runs, and last-mile logistics.' }
                 },
                 matrix: [
                     {
@@ -6857,7 +6853,7 @@
                                 desc: 'Optimizing Logistics',
                                 fullDesc: 'Planning movement of goods, load consolidation, and route optimization.',
                                 icon: <TruckIcon />,
-                                subModules: ['logistics', 'vrp', 'shortest_path', 'long_haul', 'short_haul']
+                                subModules: ['logistics', 'vrp', 'shortest_path']
                             }
                         ]
                     },
@@ -7208,8 +7204,6 @@
                     'warehouse_loc': { name: 'Định Vị Kho Bãi', desc: 'Xác định vị trí kho tối ưu để cân bằng chi phí và dịch vụ.' },
                     'hub_loc': { name: 'Định Vị Trung Chuyển', desc: 'Đặt trạm trung chuyển để gom dòng hàng và giảm chi phí mạng lưới.' },
                     'shortest_path': { name: 'Đường Đi Ngắn Nhất', desc: 'Tối ưu hóa lộ trình để có thời gian hoặc khoảng cách ngắn nhất.' },
-                    'long_haul': { name: 'Vận Tải Đường Dài', desc: 'Lập kế hoạch vận chuyển hàng hóa đường dài và chọn nhà vận tải.' },
-                    'short_haul': { name: 'Vận Tải Chặng Ngắn', desc: 'Quản lý giao hàng địa phương, milk-run và logistics chặng cuối.' }
                 },
                 matrix: [
                     {
@@ -7268,7 +7262,7 @@
                                 desc: 'Tối Ưu Hóa Logistics',
                                 fullDesc: 'Lập kế hoạch di chuyển hàng hóa, gom hàng và tối ưu hóa lộ trình.',
                                 icon: <TruckIcon />,
-                                subModules: ['logistics', 'vrp', 'shortest_path', 'long_haul', 'short_haul']
+                                subModules: ['logistics', 'vrp', 'shortest_path']
                             }
                         ]
                     },
@@ -7619,8 +7613,6 @@
                     'warehouse_loc': { name: 'Lagerstandortplanung', desc: 'Bestimmung optimaler Lagerstandorte zum Ausgleich von Kosten und Service.' },
                     'hub_loc': { name: 'Hub-Standortplanung', desc: 'Platzierung von Hubs zur Bündelung von Flüssen und Minimierung der Netzwerkkosten.' },
                     'shortest_path': { name: 'Kürzester-Weg-Problem', desc: 'Optimierung von Routen für den schnellsten oder kürzesten Weg zwischen Punkten.' },
-                    'long_haul': { name: 'Fernverkehrsplanung', desc: 'Planung von Fernfrachttransporten und Spediteursauswahl.' },
-                    'short_haul': { name: 'Nahverkehrsplanung', desc: 'Verwaltung lokaler Lieferungen, Milk Runs und Last-Mile-Logistik.' }
                 },
                 matrix: [
                     {
@@ -7679,7 +7671,7 @@
                                 desc: 'Logistik optimieren',
                                 fullDesc: 'Planung von Warenströmen, Ladungskonsolidierung und Routenoptimierung.',
                                 icon: <TruckIcon />,
-                                subModules: ['logistics', 'vrp', 'shortest_path', 'long_haul', 'short_haul']
+                                subModules: ['logistics', 'vrp', 'shortest_path']
                             }
                         ]
                     },
@@ -7727,14 +7719,12 @@
             'warehouse_loc': { id: 'warehouse_loc', icon: <WarehouseIcon />, status: 'planned', href: '#', version: 'CONCEPT' },
             'hub_loc': { id: 'hub_loc', icon: <HubIcon />, status: 'planned', href: '#', version: 'CONCEPT' },
             'shortest_path': { id: 'shortest_path', icon: <ShortestPathIcon />, status: 'planned', href: '#', version: 'CONCEPT' },
-            'long_haul': { id: 'long_haul', icon: <LongHaulIcon />, status: 'planned', href: '#', version: 'CONCEPT' },
-            'short_haul': { id: 'short_haul', icon: <LastMileIcon />, status: 'planned', href: '#', version: 'CONCEPT' }
         };
 
         const MATRIX_STRUCTURE = [
             { id: 'strategic', color: 'bg-gradient-to-r from-[#b45309] via-[#f59e0b] to-[#fde68a] text-transparent bg-clip-text', subModules: [['median_prob', 'cover_prob', 'facility_loc', 'center_prob', 'warehouse_loc', 'hub_loc']] },
             { id: 'tactical', color: 'bg-gradient-to-r from-[#b45309] via-[#f59e0b] to-[#fde68a] text-transparent bg-clip-text', subModules: [['forecaster', 'advanced_forecaster'], ['aggregated_planning'], ['abc', 'inventory']] },
-            { id: 'operational', color: 'bg-gradient-to-r from-[#b45309] via-[#f59e0b] to-[#fde68a] text-transparent bg-clip-text', subModules: [['clsp', 'cap_main_planning', 'scheduling_prob'], ['logistics', 'vrp', 'shortest_path', 'long_haul', 'short_haul']] },
+            { id: 'operational', color: 'bg-gradient-to-r from-[#b45309] via-[#f59e0b] to-[#fde68a] text-transparent bg-clip-text', subModules: [['clsp', 'cap_main_planning', 'scheduling_prob'], ['logistics', 'vrp', 'shortest_path']] },
             { id: 'cross', color: 'bg-gradient-to-r from-[#b45309] via-[#f59e0b] to-[#fde68a] text-transparent bg-clip-text', subModules: [['queuing_sim'], ['atp']] }
         ];
 
@@ -8618,10 +8608,10 @@
         const SC_STAGE_MODULES = {
             procurement: ['inventory', 'abc', 'forecaster'],
             production: ['aggregated_planning', 'cap_main_planning', 'clsp', 'scheduling_prob'],
-            transport: ['vrp', 'long_haul', 'short_haul', 'shortest_path'],
+            transport: ['vrp', 'shortest_path'],
             distribution: ['inventory', 'warehouse_loc', 'hub_loc'],
             stores: ['forecaster', 'inventory', 'atp'],
-            customers: ['advanced_forecaster', 'short_haul', 'queuing_sim'],
+            customers: ['advanced_forecaster', 'queuing_sim'],
         };
         const SC_STAGE_MS = 6000;
 
