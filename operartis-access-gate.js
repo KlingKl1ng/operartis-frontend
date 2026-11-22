@@ -86,6 +86,11 @@
             vi: 'Tối Ưu Hoá Tồn Kho',
             de: 'Bestandsoptimierung',
         },
+        vrp: {
+            en: 'Vehicle Routing',
+            vi: 'Định Tuyến Phương Tiện',
+            de: 'Fahrzeugroutenplanung',
+        },
     };
 
     function resolveModuleKey() {
