@@ -124,7 +124,11 @@ const server = createServer((req, res) => {
     }
 
     const target = routeTarget(pathname);
-    const fullPath = safeFilePath(target);
+    let fullPath = safeFilePath(target);
+    // Serve a built module's index.html for its folder (/vrp/), like nginx's try_files $uri/index.html
+    if (fullPath && existsSync(fullPath) && statSync(fullPath).isDirectory()) {
+      fullPath = join(fullPath, 'index.html');
+    }
     if (!fullPath || !existsSync(fullPath) || !statSync(fullPath).isFile()) {
       proxyApi(req, res);
       return;
