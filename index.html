@@ -5708,6 +5708,89 @@
         .fcp[data-phase="forecast"] .ivp-arrive,
         .fcp[data-phase="out"] .ivp-arrive { transform: scaleY(1); }
 
+        /* Routing preview: stops around a depot, then each stop assigned to a vehicle, then the routes */
+        .vrp-k0 { --vrp-c: #d97706; }
+        .vrp-k1 { --vrp-c: #6366f1; }
+        .vrp-k2 { --vrp-c: #10b981; }
+        .dark .vrp-k0 { --vrp-c: #f59e0b; }
+        .dark .vrp-k1 { --vrp-c: #818cf8; }
+        .dark .vrp-k2 { --vrp-c: #34d399; }
+
+        .vrp-road {
+            fill: none;
+            stroke: rgba(148, 163, 184, 0.2);
+            stroke-width: 3;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .dark .vrp-road { stroke: rgba(148, 163, 184, 0.1); }
+
+        .vrp-pop {
+            transform-box: fill-box;
+            transform-origin: center;
+            transform: scale(0);
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) var(--vrp-pop, 0ms);
+        }
+
+        .fcp:not([data-phase="reset"]) .vrp-pop { transform: scale(1); }
+
+        .vrp-stop {
+            fill: #94a3b8;
+            stroke: #ffffff;
+            stroke-width: 1.5;
+            transition: fill 0.45s ease var(--vrp-fill, 0ms);
+        }
+
+        .dark .vrp-stop { fill: #64748b; stroke: #0f172a; }
+
+        .vrp-halo {
+            fill: var(--vrp-c);
+            opacity: 0;
+            transition: opacity 0.45s ease var(--vrp-fill, 0ms);
+        }
+
+        .fcp[data-phase="model"] .vrp-stop,
+        .fcp[data-phase="forecast"] .vrp-stop,
+        .fcp[data-phase="out"] .vrp-stop { fill: var(--vrp-c); }
+
+        .fcp[data-phase="model"] .vrp-halo,
+        .fcp[data-phase="forecast"] .vrp-halo,
+        .fcp[data-phase="out"] .vrp-halo { opacity: 0.18; }
+
+        .vrp-route {
+            fill: none;
+            stroke: var(--vrp-c);
+            stroke-width: 2.2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-dasharray: 1 1;
+            stroke-dashoffset: 1;
+            /* hidden until drawn, like the forecast line */
+            opacity: 0;
+            transition: stroke-dashoffset 1.5s cubic-bezier(0.65, 0, 0.35, 1) var(--vrp-route, 0ms), opacity 0.15s linear var(--vrp-route, 0ms);
+        }
+
+        .fcp[data-phase="forecast"] .vrp-route,
+        .fcp[data-phase="out"] .vrp-route { stroke-dashoffset: 0; opacity: 1; }
+
+        .vrp-depot {
+            fill: #1e293b;
+            stroke: #ffffff;
+            stroke-width: 1.5;
+        }
+
+        .dark .vrp-depot { fill: #e2e8f0; stroke: #0f172a; }
+
+        .vrp-ring {
+            fill: none;
+            stroke: #f59e0b;
+            stroke-width: 1.5;
+            opacity: 0;
+            transform-box: fill-box;
+            transform-origin: center;
+        }
+
         @keyframes fcp-ring {
             0% { transform: scale(0.6); opacity: 0.9; }
             100% { transform: scale(2.4); opacity: 0; }
@@ -6613,6 +6696,9 @@
                     ivp_data: "Demand",
                     ivp_model: "Policy",
                     ivp_forecast: "Simulate",
+                    vrp_data: "Stops",
+                    vrp_model: "Assign",
+                    vrp_forecast: "Routes",
                     nav_supply_chain: "Supply Chain",
                     nav_industry_40: "Industry 4.0",
                     nav_platform: "Platform",
@@ -7021,6 +7107,9 @@
                     ivp_data: "Nhu cầu",
                     ivp_model: "Chính sách",
                     ivp_forecast: "Mô phỏng",
+                    vrp_data: "Điểm giao",
+                    vrp_model: "Phân xe",
+                    vrp_forecast: "Lộ trình",
                     nav_supply_chain: "Chuỗi cung ứng",
                     nav_industry_40: "Công nghiệp 4.0",
                     nav_platform: "Nền tảng",
@@ -7429,6 +7518,9 @@
                     ivp_data: "Nachfrage",
                     ivp_model: "Regel",
                     ivp_forecast: "Simulation",
+                    vrp_data: "Stopps",
+                    vrp_model: "Zuordnung",
+                    vrp_forecast: "Touren",
                     nav_supply_chain: "Lieferkette",
                     nav_industry_40: "Industry 4.0",
                     nav_platform: "Plattform",
@@ -7695,6 +7787,7 @@
         const BLOCK_SHOTS = {
             forecaster: { animated: 'forecast' },
             inventory: { animated: 'inventory' },
+            vrp: { animated: 'vrp' },
         };
         const blockHasLive = (block) => (Array.isArray(block && block.subModules) ? block.subModules : [])
             .some(id => (MODULE_STATIC_DATA[id] || {}).status === 'live');
@@ -7982,6 +8075,80 @@
             );
         };
 
+        // Animated preview for the transport block: customer stops around a depot -> each stop is assigned
+        // to a vehicle -> the vehicles' routes are drawn out from the depot and back.
+        // Positions are fractions of the chart box; each route lists its stops in visiting order.
+        const VRP_MS = { reset: 120, data: 1900, model: 1700, forecast: 4200, out: 450 };
+        const VRP_DATA = {
+            depot: [0.5, 0.52],
+            routes: [
+                [[0.4, 0.38], [0.24, 0.42], [0.12, 0.26], [0.22, 0.1], [0.4, 0.16]],
+                [[0.6, 0.14], [0.78, 0.1], [0.9, 0.28], [0.86, 0.46], [0.68, 0.4]],
+                [[0.8, 0.66], [0.7, 0.88], [0.48, 0.9], [0.28, 0.82], [0.16, 0.62]],
+            ],
+            // Faint street lines so the scene reads as a map
+            roads: [
+                [[0, 0.3], [0.35, 0.28], [0.62, 0.32], [1, 0.22]],
+                [[0, 0.74], [0.3, 0.7], [0.55, 0.62], [1, 0.58]],
+                [[0.32, 0], [0.36, 0.45], [0.3, 1]],
+                [[0.74, 0], [0.66, 0.5], [0.72, 1]],
+            ],
+        };
+
+        const VrpPreview = ({ ui }) => {
+            const { rootRef, chartRef, size, phase } = usePreviewLoop(VRP_MS);
+
+            let scene = null;
+            if (size) {
+                const { w, h } = size;
+                const { depot, routes, roads } = VRP_DATA;
+                const padX = 16, padT = 12, padB = 12;
+                const px = ([fx, fy]) => [padX + fx * (w - 2 * padX), padT + fy * (h - padT - padB)];
+                const line = (pts) => pts.map((p, i) => `${i ? 'L' : 'M'}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ');
+                const roadLine = (pts) => line(pts.map(([fx, fy]) => [fx * w, fy * h]));
+                const d0 = px(depot);
+                let popIndex = 0;
+
+                scene = (
+                    <svg viewBox={`0 0 ${w} ${h}`} width={w} height={h} aria-hidden="true">
+                        <g className="fcp-scene">
+                            {roads.map((r, i) => <path key={`r${i}`} className="vrp-road" d={roadLine(r)} />)}
+                            {routes.map((stops, k) => (
+                                <path
+                                    key={`p${k}`}
+                                    className={`vrp-route vrp-k${k}`}
+                                    d={line([d0, ...stops.map(px), d0])}
+                                    pathLength="1"
+                                    style={{ '--vrp-route': `${k * 520}ms` }}
+                                />
+                            ))}
+                            {routes.map((stops, k) => stops.map((s, j) => {
+                                const [cx, cy] = px(s);
+                                const pop = 260 + (popIndex++) * 70;
+                                return (
+                                    <g key={`s${k}-${j}`} className={`vrp-pop vrp-k${k}`} style={{ '--vrp-pop': `${pop}ms`, '--vrp-fill': `${k * 260 + j * 70}ms` }}>
+                                        <circle className="vrp-halo" cx={cx} cy={cy} r="8.5" />
+                                        <circle className="vrp-stop" cx={cx} cy={cy} r="3.6" />
+                                    </g>
+                                );
+                            }))}
+                            <circle className="vrp-ring fcp-ring" cx={d0[0]} cy={d0[1]} r="6" />
+                            <g className="vrp-pop">
+                                <rect className="vrp-depot" x={d0[0] - 6} y={d0[1] - 6} width="12" height="12" rx="2.5" />
+                            </g>
+                        </g>
+                    </svg>
+                );
+            }
+
+            return (
+                <div className="fcp" data-phase={phase} ref={rootRef}>
+                    <PreviewSteps labels={[ui.vrp_data, ui.vrp_model, ui.vrp_forecast]} phase={phase} ms={VRP_MS} />
+                    <div className="fcp-chart" ref={chartRef}>{scene}</div>
+                </div>
+            );
+        };
+
         const ModulaBlock = ({ block, blockId, content, onClick, activeQuickViewBlockId, onQuickViewActive }) => {
             const quickViewScrollRef = useRef(null);
             const touchRef = useRef({
@@ -8238,6 +8405,7 @@
                             <div className={`card-visible-content lp3-block-shot${shot.animated ? ' lp3-block-shot--anim' : ''} mt-4 sm:mt-0 sm:w-[46%] shrink-0`} aria-hidden="true">
                                 {shot.animated === 'forecast' && <ForecastPreview ui={content.ui} />}
                                 {shot.animated === 'inventory' && <InventoryPreview ui={content.ui} />}
+                                {shot.animated === 'vrp' && <VrpPreview ui={content.ui} />}
                                 {!shot.animated && <span style={{ backgroundImage: `url('./assets/${shot.file}')`, backgroundPosition: shot.pos }}></span>}
                             </div>
                         )}
