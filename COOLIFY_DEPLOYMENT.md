@@ -60,6 +60,14 @@ The current CSP is intentionally temporary/relaxed because the static frontend s
 
 `index.html` is the single source for the Operartis terminal / landing experience at `/`.
 
+`why-aps.html` (`/why-aps`) and `platform.html` (`/platform`) are generated copies of `index.html`: the same file renders the home page, the background page or the full APS matrix depending on the `data-page` attribute on `<html>`. Do not edit the two generated files. After every change to `index.html`, run:
+
+```bash
+node build-landing-pages.mjs
+```
+
+`node --test tests/` fails if the generated pages are out of date. `about.html` (`/about`) is a normal standalone page like `contact.html`.
+
 `terminal.html` is a lightweight redirect to `/` so old bookmarks to `/terminal.html` keep working without maintaining a second copy of the app.
 
 Optional server redirect (preferred over the HTML stub if your reverse proxy supports it):
