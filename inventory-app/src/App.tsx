@@ -14,6 +14,7 @@ import { KpiBar, Overview, type OverviewProduct, type ProductStatus } from './co
 import { Sidebar } from './components/Sidebar';
 import { DEFAULT_PARAMS, fileGivenFields, hasOwnValues, leadTimeValuesValid, lockedFields, resolveSkuParams } from './domain/params';
 import { batchRequest, exportRequest, simulationRequest } from './domain/requests';
+import { forecastSpanDays } from './domain/forecastSpan';
 import { summaryRow, type SummaryRow } from './domain/summary';
 import type {
   FileMetadata, FileSkuParams, FileValidation, ForecastPoint, LockState, Mapping, OptimizationResult, Params, SimResult,
@@ -328,7 +329,7 @@ export default function App() {
       const row = running.has(sku) ? null : summaryRow(sku, simResults[sku], optimizationResults[sku]);
       const tuned = optimizationResults[sku]?.status === 'tuned';
       const status: ProductStatus = running.has(sku) ? 'running' : failures[sku] ? 'failed' : !row ? 'notRun' : tuned ? 'optimized' : 'untuned';
-      return { sku, forecastDays: forecasts[sku]?.length || 0, status, row, failure: running.has(sku) ? undefined : failures[sku], edited: hasOwnValues(sku, sources) };
+      return { sku, forecastDays: forecastSpanDays(forecasts[sku] || []), status, row, failure: running.has(sku) ? undefined : failures[sku], edited: hasOwnValues(sku, sources) };
     });
   }, [skus, forecasts, simResults, optimizationResults, failures, runningSkus, sources]);
   const summaryRows = products.map((product) => product.row).filter((row): row is SummaryRow => row !== null);
@@ -338,7 +339,8 @@ export default function App() {
   const runLabel = productTab ? t('optimizeProduct') : hasFile ? t('optimizeSelected', t.format.number(runTargets.length, 0, 0)) : t('optimize');
   const runDisabled = busy || runTargets.length === 0;
   const runHint = hasFile && !productTab && runTargets.length === 0 ? t('selectRequired') : runLabel;
-  const forecastDays = productTab ? forecasts[productTab]?.length || 0 : skus.reduce((most, sku) => Math.max(most, forecasts[sku]?.length || 0), 0);
+  // Calendar days, not rows: a weekly or monthly forecast covers more days than it has rows.
+  const forecastDays = productTab ? forecastSpanDays(forecasts[productTab] || []) : skus.reduce((most, sku) => Math.max(most, forecastSpanDays(forecasts[sku] || [])), 0);
 
   const statusText = batch
     ? batch.status === 'queued'

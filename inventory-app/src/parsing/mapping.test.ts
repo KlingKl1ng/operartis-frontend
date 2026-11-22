@@ -51,15 +51,16 @@ describe('reading forecasts', () => {
     expect(parsed.grouped.A[0]).toEqual({ date: '2026-10-24', p50: 10, p90: 20 });
   });
 
-  it('derives a missing P90 as 1.3 times P50 and drops periods without demand', () => {
-    const data = sheetBytes([['SKU', 'Date', 'P50', 'P90'], ['A', '2026-01-01', 10, null], ['A', '2026-01-02', 0, 0], ['A', '2026-01-03', 5, 9]]);
+  it('derives a missing P90 as 1.3 times P50 and keeps a day without demand', () => {
+    const data = sheetBytes([['SKU', 'Date', 'P50', 'P90'], ['A', '2026-01-01', 10, null], ['A', '2026-01-02', 0, 0], ['A', '2026-01-03', 5, 9], ['A', '2026-01-04', null, 9]]);
     const { headers } = inspectFile(data);
     const parsed = parseFile(data, autoMapping(headers).mapping);
-    expect(parsed.grouped.A).toEqual([{ date: '2026-01-01', p50: 10, p90: 13 }, { date: '2026-01-03', p50: 5, p90: 9 }]);
+    // A forecast of 0 is a day without demand and stays; a row without a forecast is no day at all.
+    expect(parsed.grouped.A).toEqual([{ date: '2026-01-01', p50: 10, p90: 13 }, { date: '2026-01-02', p50: 0, p90: 0 }, { date: '2026-01-03', p50: 5, p90: 9 }]);
   });
 
   it('reports no products when nothing usable is mapped', () => {
-    const data = sheetBytes([['SKU', 'Date', 'P50', 'P90'], ['A', '2026-01-01', 0, 0]]);
+    const data = sheetBytes([['SKU', 'Date', 'P50', 'P90'], ['A', '2026-01-01', null, 4], ['A', '2026-01-02', 'n/a', 4]]);
     expect(parseFile(data, autoMapping(inspectFile(data).headers).mapping).skus).toEqual([]);
   });
 });

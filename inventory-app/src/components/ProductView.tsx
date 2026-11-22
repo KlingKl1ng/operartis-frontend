@@ -3,7 +3,7 @@ import { Area, Bar, CartesianGrid, ComposedChart, Line, ReferenceArea, Reference
 import { CircleCheck, Pause, Play, RefreshCw, SkipBack, StepForward, TriangleAlert } from 'lucide-react';
 import { Segmented } from '../../../app-shared/ui';
 import { bandLabelFit, chartScale } from '../domain/chartScale';
-import { MONTE_CARLO_RUNS } from '../domain/params';
+import { FEW_CYCLES, MONTE_CARLO_RUNS } from '../domain/params';
 import { targetReached } from '../domain/summary';
 import type { OptimizationResult, SimResult, TimelineDay } from '../domain/types';
 import type { TextKey, Translator } from '../i18n';
@@ -284,10 +284,14 @@ export interface ProductViewProps {
 /** The policy the optimizer found, with its service levels averaged over all runs. */
 function PolicyCard({ policy, t }: { policy: OptimizationResult; t: Translator }) {
   // Two rows of four: what the policy achieves, then the policy itself and the stock it holds.
+  // The figure the target was set for is the one that is marked as reached or not.
+  const fill = policy.serviceMeasure === 'fill';
+  const reached = policy.status === 'tuned' && targetReached(policy) ? 'good' : 'warn';
+  const fewCycles = policy.status === 'tuned' && policy.judgedCyclesPerRun != null && policy.judgedCyclesPerRun < FEW_CYCLES;
   const figures: Array<{ label: TextKey; value: string; level?: 'good' | 'warn' }> = [
-    { label: 'targetAlpha', value: `${t.format.number(policy.targetAlpha * 100, 0, 2)}%` },
-    { label: 'achievedAlpha', value: `${t.format.fixed(policy.achievedAlpha * 100, 1)}%`, level: policy.status === 'tuned' && targetReached(policy) ? 'good' : 'warn' },
-    { label: 'achievedBeta', value: `${t.format.fixed(policy.achievedBeta * 100, 1)}%` },
+    { label: fill ? 'targetBeta' : 'targetAlpha', value: `${t.format.number(policy.targetAlpha * 100, 0, 2)}%` },
+    { label: 'achievedAlpha', value: `${t.format.fixed(policy.achievedAlpha * 100, 1)}%`, level: fill ? undefined : reached },
+    { label: 'achievedBeta', value: `${t.format.fixed(policy.achievedBeta * 100, 1)}%`, level: fill ? reached : undefined },
     { label: 'avgStockoutDays', value: policy.mcAvgStockoutDays != null ? t.format.fixed(policy.mcAvgStockoutDays, 1) : '—' },
     { label: 'safetyFactor', value: `${t.format.fixed(policy.optimalSafetyFactor, 2)}×` },
     { label: 'avgReorderPoint', value: t.format.fixed(policy.avgSt, 1) },
@@ -300,6 +304,7 @@ function PolicyCard({ policy, t }: { policy: OptimizationResult; t: Translator }
         {policy.status === 'tuned'
           ? <strong><CircleCheck size={14} aria-hidden="true" />{t('optimalPolicyFound')}</strong>
           : <strong className="is-warn" title={t(policy.status === 'forecast_too_short' ? 'forecastTooShortHint' : 'targetNotReachableHint')}><TriangleAlert size={14} aria-hidden="true" />{t(policy.status === 'forecast_too_short' ? 'forecastTooShort' : 'targetNotReachable')}</strong>}
+        {fewCycles && <span className="inv-policy-note" title={t('fewCyclesHint')}>{t('fewCycles', t.format.number(policy.judgedCyclesPerRun, 0, 1))}</span>}
       </div>
       {/* Labels keep their case: (s) and (S) are different things. */}
       <dl>

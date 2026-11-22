@@ -13,6 +13,8 @@ function cellNumber(value: unknown): number {
 }
 
 const numberOrZero = (value: unknown) => cellNumber(value) || 0;
+/** Whether a cell holds a number. A day with a forecast of 0 is a day without demand, not a missing day. */
+const isNumber = (value: unknown) => value !== null && value !== undefined && value !== '' && Number.isFinite(cellNumber(value));
 
 /** Footer and notice rows that are not products (copyright lines, totals, page numbers). */
 const NOT_A_SKU = [
@@ -197,9 +199,10 @@ export function parseFile(data: ArrayBuffer, mapping: Mapping, options: { today?
       p50Columns.forEach((p50Column, dayIndex) => {
         const p90Column = p90Columns[dayIndex];
         const p90Cell = p90Column ? row[p90Column] : null;
+        if (!isNumber(row[p50Column])) return;
         const p50 = numberOrZero(row[p50Column]);
         const p90 = p90Cell ? numberOrZero(p90Cell) : p50 * 1.3;
-        if (p50 > 0 || p90 > 0) grouped[skuId].push({ date: addDays(start, dayIndex), p50, p90 });
+        grouped[skuId].push({ date: addDays(start, dayIndex), p50, p90 });
       });
     });
   } else if (mapping.format === 'forecaster_prefixed') {
@@ -211,9 +214,10 @@ export function parseFile(data: ArrayBuffer, mapping: Mapping, options: { today?
         if (!date) return;
         const p90Column = p90Columns[index];
         const p90Cell = p90Column ? row[p90Column] : null;
+        if (!isNumber(row[p50Column])) return;
         const p50 = numberOrZero(row[p50Column]);
         const p90 = p90Cell ? numberOrZero(p90Cell) : p50 * 1.3;
-        if (p50 > 0 || p90 > 0) grouped[skuId].push({ date, p50, p90 });
+        grouped[skuId].push({ date, p50, p90 });
       });
       grouped[skuId].sort(byDate);
     });
@@ -231,11 +235,11 @@ export function parseFile(data: ArrayBuffer, mapping: Mapping, options: { today?
         const date = parseHeaderDate(column);
         if (!date) return;
         const p50 = numberOrZero(row[column]);
+        if (!isNumber(row[column])) return;
         const horizonIndex = index + 1;
-        // Uncertainty grows with the square root of the horizon; P90 assumes a normal spread.
-        const sigma = residStd * Math.sqrt(horizonIndex);
-        const p90 = p50 + 1.28 * sigma;
-        if (p50 >= 0) grouped[skuId].push({ date, p50, p90: Math.max(p50, p90), resid_std: residStd, horizon_index: horizonIndex });
+        // P90 as the simulation sees it: the same spread on every day, taken as normal.
+        const p90 = p50 + 1.28 * residStd;
+        grouped[skuId].push({ date, p50, p90: Math.max(p50, p90), resid_std: residStd, horizon_index: horizonIndex });
       });
       grouped[skuId].sort(byDate);
     });
@@ -245,8 +249,9 @@ export function parseFile(data: ArrayBuffer, mapping: Mapping, options: { today?
       (mapping.date_columns || []).forEach((column) => {
         const date = parseHeaderDate(column);
         if (!date) return;
+        if (!isNumber(row[column])) return;
         const p50 = numberOrZero(row[column]);
-        if (p50 > 0) grouped[skuId].push({ date, p50, p90: p50 * factor });
+        grouped[skuId].push({ date, p50, p90: p50 * factor });
       });
       grouped[skuId].sort(byDate);
     });
@@ -264,7 +269,7 @@ export function parseFile(data: ArrayBuffer, mapping: Mapping, options: { today?
       if (dateCell instanceof Date) date = localIsoDate(dateCell);
       else if (typeof dateCell === 'number') date = new Date((dateCell - 25569) * 86400 * 1000).toISOString().split('T')[0];
       else date = dateCell as string;
-      if (p50 > 0 || p90 > 0) grouped[skuId].push({ date, p50, p90: p90 || p50 * 1.3 });
+      if (isNumber(row[mapping.p50 || ''])) grouped[skuId].push({ date, p50, p90: p90 || p50 * 1.3 });
     });
     Object.values(grouped).forEach((points) => points.sort(byDate));
     // Parameters come from the first row of each product.

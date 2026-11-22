@@ -151,6 +151,7 @@
     "order_interval_reviews": 1,
     "error_persistence": 0,
     "min_order_qty": null,
+    "service_measure": "cycle",
     "tolerance": 0.01,
     "max_iterations": 15,
     "num_simulation_runs": 500
@@ -234,6 +235,7 @@
     "order_interval_reviews": 1,
     "error_persistence": 0,
     "min_order_qty": 25,
+    "service_measure": "cycle",
     "tolerance": 0.01,
     "max_iterations": 15,
     "num_simulation_runs": 500
@@ -317,6 +319,7 @@
     "order_interval_reviews": 1,
     "error_persistence": 0,
     "min_order_qty": 10,
+    "service_measure": "cycle",
     "tolerance": 0.01,
     "max_iterations": 15,
     "num_simulation_runs": 500

@@ -96,35 +96,35 @@
      {
       "date": "2024-02-02",
       "p50": 43,
-      "p90": 100.09983424603614,
+      "p90": 83.37568,
       "resid_std": 31.5435,
       "horizon_index": 2
      },
      {
       "date": "2024-02-03",
       "p50": 44,
-      "p90": 113.93272915014256,
+      "p90": 84.37568,
       "resid_std": 31.5435,
       "horizon_index": 3
      },
      {
       "date": "2024-02-04",
       "p50": 45,
-      "p90": 125.75136,
+      "p90": 85.37568,
       "resid_std": 31.5435,
       "horizon_index": 4
      },
      {
       "date": "2024-02-05",
       "p50": 46,
-      "p90": 136.28276511777872,
+      "p90": 86.37568,
       "resid_std": 31.5435,
       "horizon_index": 5
      },
      {
       "date": "2024-02-06",
       "p50": 47,
-      "p90": 145.8998140178959,
+      "p90": 87.37568,
       "resid_std": 31.5435,
       "horizon_index": 6
      }
@@ -132,6 +132,7 @@
     "order_interval_reviews": 1,
     "error_persistence": 0,
     "min_order_qty": null,
+    "service_measure": "cycle",
     "tolerance": 0.01,
     "max_iterations": 15,
     "num_simulation_runs": 500
@@ -165,35 +166,35 @@
      {
       "date": "2024-02-02",
       "p50": 10,
-      "p90": 24.656954615268752,
+      "p90": 20.364032,
       "resid_std": 8.0969,
       "horizon_index": 2
      },
      {
       "date": "2024-02-03",
       "p50": 10,
-      "p90": 27.951029995269685,
+      "p90": 20.364032,
       "resid_std": 8.0969,
       "horizon_index": 3
      },
      {
       "date": "2024-02-04",
       "p50": 10,
-      "p90": 30.728064,
+      "p90": 20.364032,
       "resid_std": 8.0969,
       "horizon_index": 4
      },
      {
       "date": "2024-02-05",
       "p50": 0,
-      "p90": 23.1746800729831,
+      "p90": 10.364032,
       "resid_std": 8.0969,
       "horizon_index": 5
      },
      {
       "date": "2024-02-06",
       "p50": 11,
-      "p90": 36.38659007787662,
+      "p90": 21.364032,
       "resid_std": 8.0969,
       "horizon_index": 6
      }
@@ -201,6 +202,7 @@
     "order_interval_reviews": 1,
     "error_persistence": 0,
     "min_order_qty": null,
+    "service_measure": "cycle",
     "tolerance": 0.01,
     "max_iterations": 15,
     "num_simulation_runs": 500

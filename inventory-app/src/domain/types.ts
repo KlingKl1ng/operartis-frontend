@@ -18,6 +18,12 @@ export interface LeadTimeConfig {
   uniformMax: number;
 }
 
+/**
+ * What a service target counts: 'cycle' is the share of replenishment cycles
+ * without a stockout (α), 'fill' the share of demand delivered from stock (β).
+ */
+export type ServiceMeasure = 'cycle' | 'fill';
+
 /** The parameters shown in the sidebar. */
 export interface Params {
   initialStock: number;
@@ -31,6 +37,8 @@ export interface Params {
   orderInterval: number;
   /** Share of one day's forecast error that carries over into the next day; 0 means independent days. */
   errorPersistence: number;
+  /** What the target is a target for. */
+  serviceMeasure: ServiceMeasure;
 }
 
 /** One forecast period of one product, as sent to the engine. */
@@ -197,6 +205,10 @@ export interface OptimizationResult {
   convergenceAchieved: boolean;
   /** Whether the safety factor could be tuned to the target, and if not, why. */
   status: OptimizationStatus;
+  /** The measure the target was set for. */
+  serviceMeasure: ServiceMeasure;
+  /** Replenishment cycles judged per simulated run: how much the result rests on. */
+  judgedCyclesPerRun: number | null;
   mcAvgInventory: number | null;
   mcAvgStockoutDays: number | null;
   timeline?: TimelineDay[];

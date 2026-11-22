@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowDown, ArrowUp, ArrowUpDown, ChevronRight, PencilLine } from 'lucide-react';
 import { MONTE_CARLO_RUNS } from '../domain/params';
-import { serviceLevelBand, stockoutsAreRare, summaryTotals, type SummaryRow } from '../domain/summary';
+import { stockoutsAreRare, summaryTotals, type SummaryRow } from '../domain/summary';
 import type { TextKey, Translator } from '../i18n';
 import { label as upper } from './Label';
 
@@ -34,10 +34,10 @@ export function KpiBar({ rows, t }: { rows: SummaryRow[]; t: Translator }) {
   const totals = summaryTotals(rows);
   if (!totals.count) return null;
   const tiles: Array<{ label: TextKey; value: string; level?: string }> = [
-    { label: 'avgServiceLevel', value: `${t.format.fixed(totals.avgAlpha * 100, 1)}%`, level: serviceLevelBand(totals.avgAlpha) },
+    { label: 'avgServiceLevel', value: `${t.format.fixed(totals.avgAlpha * 100, 1)}%` },
     { label: 'avgFillRate', value: `${t.format.fixed(totals.avgBeta * 100, 1)}%` },
     { label: 'avgStockoutDays', value: t.format.fixed(totals.avgStockouts, 1), level: totals.avgStockouts < 1 ? 'good' : 'bad' },
-    { label: 'skusBelow90', value: `${t.format.number(totals.below90, 0, 0)} / ${t.format.number(totals.count, 0, 0)}`, level: totals.below90 === 0 ? 'good' : 'warn' },
+    { label: 'skusBelowTarget', value: `${t.format.number(totals.belowTarget, 0, 0)} / ${t.format.number(totals.count, 0, 0)}`, level: totals.belowTarget === 0 ? 'good' : 'warn' },
   ];
   return (
     <div className="inv-kpi-bar" title={t('avgOfRuns', t.format.number(MONTE_CARLO_RUNS, 0, 0))}>
@@ -159,10 +159,15 @@ export function Overview({ products, selected, onToggle, onToggleAll, onOpen, t 
                 <td><span className={`ops-pill ${STATUS[status].pill}`} title={failure}>{t(STATUS[status].label)}</span></td>
                 {row ? (
                   <>
-                    <td className="is-number">
-                      <span className={`ops-pill is-${serviceLevelBand(row.alpha)}`}>{t.format.fixed(row.alpha * 100, 1)}%</span>
-                    </td>
-                    <td className="is-number">{t.format.fixed(row.beta * 100, 1)}%</td>
+                    {/* The figure the target was set for is marked: green when the policy reaches it. */}
+                    {(['cycle', 'fill'] as const).map((measure) => {
+                      const value = `${t.format.fixed((measure === 'cycle' ? row.alpha : row.beta) * 100, 1)}%`;
+                      return (
+                        <td className="is-number" key={measure}>
+                          {row.measure === measure ? <span className={`ops-pill is-${row.reached ? 'good' : 'warn'}`}>{value}</span> : value}
+                        </td>
+                      );
+                    })}
                     <td className="is-number">{row.safetyFactor ? `${t.format.fixed(row.safetyFactor, 2)}×` : '—'}</td>
                     <td className="is-number">{t.format.number(row.avgInventory, 0, 0)}</td>
                     <td className="is-number">

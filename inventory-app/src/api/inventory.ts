@@ -57,6 +57,8 @@ interface ApiOptimization {
   iterations_used: number;
   convergence_achieved: boolean;
   status?: string | null;
+  service_measure?: string | null;
+  judged_cycles_per_run?: number | null;
   mc_avg_inventory?: number | null;
   mc_avg_stockout_days?: number | null;
   timeline?: ApiTimelineEntry[] | null;
@@ -127,6 +129,8 @@ export function mapOptimization(result: ApiOptimization): OptimizationResult {
     iterationsUsed: result.iterations_used,
     convergenceAchieved: result.convergence_achieved,
     status: toStatus(result),
+    serviceMeasure: result.service_measure === 'fill' ? 'fill' : 'cycle',
+    judgedCyclesPerRun: result.judged_cycles_per_run ?? null,
     mcAvgInventory: result.mc_avg_inventory ?? null,
     mcAvgStockoutDays: result.mc_avg_stockout_days ?? null,
     timeline: result.timeline ? mapTimeline(result.timeline) : undefined,

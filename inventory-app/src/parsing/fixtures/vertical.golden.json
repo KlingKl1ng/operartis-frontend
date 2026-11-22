@@ -120,6 +120,7 @@
     "order_interval_reviews": 1,
     "error_persistence": 0,
     "min_order_qty": null,
+    "service_measure": "cycle",
     "tolerance": 0.01,
     "max_iterations": 15,
     "num_simulation_runs": 500
@@ -165,6 +166,13 @@
       "horizon_index": null
      },
      {
+      "date": "2026-01-19",
+      "p50": 0,
+      "p90": 0,
+      "resid_std": null,
+      "horizon_index": null
+     },
+     {
       "date": "2026-01-20",
       "p50": 20,
       "p90": 29,
@@ -196,6 +204,7 @@
     "order_interval_reviews": 1,
     "error_persistence": 0,
     "min_order_qty": 25,
+    "service_measure": "cycle",
     "tolerance": 0.01,
     "max_iterations": 15,
     "num_simulation_runs": 500
@@ -279,6 +288,7 @@
     "order_interval_reviews": 1,
     "error_persistence": 0,
     "min_order_qty": 10,
+    "service_measure": "cycle",
     "tolerance": 0.01,
     "max_iterations": 15,
     "num_simulation_runs": 500

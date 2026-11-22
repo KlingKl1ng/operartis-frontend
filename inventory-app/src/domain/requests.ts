@@ -44,6 +44,7 @@ export interface SimulationRequest extends SkuRequestBase {
 }
 
 export interface OptimizationRequest extends SkuRequestBase {
+  service_measure: Params['serviceMeasure'];
   tolerance: number;
   max_iterations: number;
   num_simulation_runs: number;
@@ -113,6 +114,7 @@ export function batchRequest(
     sku_params: products.map(({ sku, forecast, params }) => ({
       ...baseRequest(sku, forecast, params, filename),
       min_order_qty: params.moqValue > 0 ? params.moqValue : null,
+      service_measure: params.serviceMeasure === 'fill' ? 'fill' : 'cycle',
       ...OPTIMIZER,
     })),
   };
@@ -156,6 +158,7 @@ export function exportRequest(input: {
       min_order_qty: params.moqValue,
       order_interval_reviews: Math.max(1, Math.round(params.orderInterval) || 1),
       error_persistence: errorPersistence(params),
+      service_measure: optimum?.serviceMeasure ?? params.serviceMeasure,
       // The optimizer's 500-run result takes precedence over the single run on screen.
       achieved_alpha: optimum?.achievedAlpha ?? sim?.metrics?.alpha ?? 0,
       achieved_beta: optimum?.achievedBeta ?? sim?.metrics?.beta ?? 0,

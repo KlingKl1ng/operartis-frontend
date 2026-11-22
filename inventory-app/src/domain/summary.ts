@@ -1,14 +1,15 @@
 // What the overview shows per product, and the colour bands used across the module.
-import type { OptimizationResult, SimResult } from './types';
+import type { OptimizationResult, ServiceMeasure, SimResult } from './types';
 
 export type Level = 'good' | 'warn' | 'bad';
 
-/** Service level in the overview: 95 % and above is good, 90 % and above acceptable. */
-export const serviceLevelBand = (alpha: number): Level => (alpha >= 0.95 ? 'good' : alpha >= 0.9 ? 'warn' : 'bad');
 /** Fewer than half a stockout day on average counts as rare. */
 export const stockoutsAreRare = (days: number) => days < 0.5;
+type Judged = Pick<OptimizationResult, 'achievedAlpha' | 'achievedBeta' | 'targetAlpha' | 'serviceMeasure'>;
+/** The achieved figure of the measure the target was set for. */
+export const targetedService = (result: Judged) => (result.serviceMeasure === 'fill' ? result.achievedBeta : result.achievedAlpha);
 /** The target is a floor: reached means at or above it. */
-export const targetReached = (result: { achievedAlpha: number; targetAlpha: number }) => result.achievedAlpha >= result.targetAlpha - 1e-9;
+export const targetReached = (result: Judged) => targetedService(result) >= result.targetAlpha - 1e-9;
 
 export interface SummaryRow {
   sku: string;
@@ -17,6 +18,9 @@ export interface SummaryRow {
   avgInventory: number;
   stockouts: number;
   safetyFactor: number;
+  /** The measure the target was set for, and whether the tuned policy reaches it. */
+  measure: ServiceMeasure;
+  reached: boolean;
 }
 
 /** A product's overview figures: the optimizer's averages over its simulation runs. */
@@ -29,6 +33,8 @@ export function summaryRow(sku: string, sim: SimResult | undefined, optimum: Opt
     avgInventory: optimum.mcAvgInventory || sim?.metrics?.avgInventory || 0,
     stockouts: optimum.mcAvgStockoutDays || sim?.metrics?.totalStockouts || 0,
     safetyFactor: optimum.optimalSafetyFactor,
+    measure: optimum.serviceMeasure === 'fill' ? 'fill' : 'cycle',
+    reached: optimum.status === 'tuned' && targetReached(optimum),
   };
 }
 
@@ -37,7 +43,8 @@ export interface SummaryTotals {
   avgAlpha: number;
   avgBeta: number;
   avgStockouts: number;
-  below90: number;
+  /** Products whose policy does not reach its target. */
+  belowTarget: number;
 }
 
 export function summaryTotals(rows: SummaryRow[]): SummaryTotals {
@@ -48,6 +55,6 @@ export function summaryTotals(rows: SummaryRow[]): SummaryTotals {
     avgAlpha: mean((row) => row.alpha),
     avgBeta: mean((row) => row.beta),
     avgStockouts: mean((row) => row.stockouts),
-    below90: rows.filter((row) => row.alpha < 0.9).length,
+    belowTarget: rows.filter((row) => !row.reached).length,
   };
 }

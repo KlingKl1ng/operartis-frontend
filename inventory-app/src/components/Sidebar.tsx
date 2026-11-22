@@ -423,7 +423,15 @@ export function Sidebar(props: SidebarProps) {
 
         <div className="ops-field">
           <span>
-            {upper(t('targetServiceLevel'))}
+            {upper(t('targetServiceLevelPlain'))}
+            {/* What the target counts: cycles without a stockout (α) or demand delivered from stock (β). */}
+            <span className="inv-measure" role="group" aria-label={t('targetMeasure')}>
+              {(['cycle', 'fill'] as const).map((measure) => (
+                <button key={measure} type="button" className={params.serviceMeasure === measure ? 'is-active' : ''} aria-pressed={params.serviceMeasure === measure} title={t(measure === 'cycle' ? 'measureCycleHint' : 'measureFillHint')} onClick={() => props.onParamsChange({ serviceMeasure: measure })}>
+                  {measure === 'cycle' ? 'α' : 'β'}
+                </button>
+              ))}
+            </span>
             <LockMark lock={lock('serviceLevel')} t={t} />
             {!perProduct('serviceLevel') && <b className="inv-field-value">{t.format.fixed(params.serviceLevel * 100, 1)}%</b>}
           </span>
