@@ -10122,11 +10122,12 @@
                         <p className="mt-6 md:mt-7 text-base sm:text-lg md:text-xl text-slate-600 dark:text-slate-300 leading-relaxed max-w-2xl mx-auto">
                             {content.ui.header_desc}
                         </p>
-                        <div className="mt-8 md:mt-10 flex flex-wrap items-center justify-center gap-3">
-                            <button type="button" onClick={onExplore} className="op-btn-primary inline-flex items-center gap-2 px-7 py-3.5 rounded-xl text-sm md:text-base font-bold hover:scale-[1.02] active:scale-95 transition-all">
+                        {/* Mobile: the two buttons stack at one shared width; from sm they sit side by side */}
+                        <div className="mt-8 md:mt-10 flex flex-col sm:flex-row sm:flex-wrap items-center justify-center gap-3">
+                            <button type="button" onClick={onExplore} className="op-btn-primary w-full max-w-xs sm:w-auto sm:max-w-none inline-flex items-center justify-center gap-2 border border-transparent px-7 py-3.5 rounded-xl text-sm md:text-base font-bold hover:scale-[1.02] active:scale-95 transition-all">
                                 {content.ui.cta_explore} <ArrowRightIcon />
                             </button>
-                            <button type="button" onClick={onWhy} className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl border border-slate-300 dark:border-white/15 bg-white/50 dark:bg-white/[0.04] backdrop-blur-md text-slate-700 dark:text-slate-200 text-sm md:text-base font-bold transition-all duration-200 hover:border-brand-gold hover:text-brand-gold hover:bg-brand-gold/5 dark:hover:border-brand-gold dark:hover:text-brand-gold dark:hover:bg-brand-gold/10">
+                            <button type="button" onClick={onWhy} className="w-full max-w-xs sm:w-auto sm:max-w-none inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl border border-slate-300 dark:border-white/15 bg-white/50 dark:bg-white/[0.04] backdrop-blur-md text-slate-700 dark:text-slate-200 text-sm md:text-base font-bold transition-all duration-200 hover:border-brand-gold hover:text-brand-gold hover:bg-brand-gold/5 dark:hover:border-brand-gold dark:hover:text-brand-gold dark:hover:bg-brand-gold/10">
                                 {content.ui.cta_why}
                             </button>
                         </div>
