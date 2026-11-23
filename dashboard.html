@@ -1935,36 +1935,42 @@
             text-align: center;
             line-height: 1.5;
         }
+        /* Toast: same design as the VRP module (round status icon, title and message, small close button) */
         .message {
             position: fixed;
             top: calc(88px + env(safe-area-inset-top, 0px));
             right: max(20px, env(safe-area-inset-right, 0px));
             z-index: 10000;
             display: none;
-            align-items: center;
-            gap: 12px;
-            width: min(400px, calc(100vw - 32px));
+            grid-template-columns: auto 1fr auto;
+            gap: 10px;
+            width: min(340px, calc(100vw - 32px));
             box-sizing: border-box;
-            padding: 14px 12px 14px 16px;
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            background: var(--surface-elevated);
-            color: var(--text);
-            box-shadow: 0 12px 36px rgba(0, 0, 0, .22);
-            font-size: 13px;
-            font-weight: 500;
-            line-height: 1.5;
+            padding: 13px;
+            border: 1px solid #a7f3d0;
+            border-radius: 12px;
+            background: #ffffff;
+            color: #064e3b;
+            box-shadow: 0 18px 50px rgba(15, 23, 42, .14);
         }
-        .message.error, .message.success { display: flex; animation: toast-enter .18s ease-out; }
-        .message.error { border-left: 3px solid #ef4444; }
-        .message.success { border-left: 3px solid #10b981; }
-        .toast-icon { font-size: 18px; flex: none; }
-        .message.error .toast-icon { color: var(--text-danger); }
-        .message.success .toast-icon { color: var(--text-success); }
-        .toast-text { flex: 1; min-width: 0; overflow-wrap: anywhere; }
-        .toast-close { flex: none; border: 0; background: transparent; color: var(--muted); cursor: pointer; width: 32px; height: 32px; border-radius: 8px; font-size: 20px; }
-        .toast-close:hover, .toast-close:focus-visible { color: var(--text); background: var(--panel-soft); }
-        @keyframes toast-enter { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+        .message.error, .message.success { display: grid; animation: toast-enter .25s ease; }
+        .toast-icon { display: grid; width: 34px; height: 34px; place-items: center; border-radius: 50%; background: #10b981; color: #fff; }
+        .toast-icon svg { width: 20px; height: 20px; }
+        .toast-body { display: flex; flex-direction: column; align-self: center; gap: 2px; min-width: 0; }
+        .toast-title { font-size: 12px; font-weight: 700; line-height: 16px; }
+        .toast-text { margin: 0; color: #475569; font-size: 11px; line-height: 1.45; overflow-wrap: anywhere; }
+        .toast-close { width: 25px; height: 25px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 7px; background: transparent; color: #64748b; box-shadow: none; cursor: pointer; }
+        .toast-close svg { width: 15px; height: 15px; }
+        .toast-close:hover:not(:disabled), .toast-close:focus-visible { background: #f1f5f9; color: #0f172a; filter: none; }
+        .message.error { border-color: #fecdd3; color: #881337; }
+        .message.error .toast-icon { background: #e11d48; }
+        html.dark .message { border-color: rgba(16, 185, 129, .25); background: #071a19; color: #ecfdf5; box-shadow: 0 18px 50px rgba(2, 6, 23, .35); }
+        html.dark .toast-text { color: #a7f3d0; }
+        html.dark .toast-close { color: #a7f3d0; }
+        html.dark .toast-close:hover:not(:disabled), html.dark .toast-close:focus-visible { background: rgba(167, 243, 208, .1); color: #ecfdf5; }
+        html.dark .message.error { border-color: rgba(225, 29, 72, .35); background: #1f0a12; color: #ffe4e6; }
+        html.dark .message.error .toast-text { color: #fecdd3; }
+        @keyframes toast-enter { from { opacity: 0; transform: translateX(16px); } }
         @media (prefers-reduced-motion: reduce) { .message.error, .message.success { animation: none; } }
         .kv-list { display: grid; gap: 0; }
         .kv-row {
@@ -2140,15 +2146,6 @@
             font-weight: 500;
             margin-top: 2px;
         }
-        .settings-option-check {
-            margin-left: auto;
-            width: 10px;
-            height: 10px;
-            border-radius: 999px;
-            background: transparent;
-            flex-shrink: 0;
-        }
-        .settings-option.active .settings-option-check { background: var(--gold); }
         .row-actions {
             display: flex;
             align-items: center;
@@ -3271,24 +3268,21 @@
                             <div class="section-head">
                                 <div>
                                     <h2 data-i18n="sections.settings.theme_mode">Theme Mode</h2>
-                                    <p class="section-sub" data-i18n="sections.settings.theme_mode_sub">Shared with index, forecaster, ML forecaster, inventory, and ABC-XYZ.</p>
+                                    <p class="section-sub" data-i18n="sections.settings.theme_mode_sub">Shared throughout the whole system.</p>
                                 </div>
                             </div>
                             <div id="theme-options" class="settings-options" role="group" aria-label="Theme mode">
                                 <button type="button" class="settings-option" data-theme="light" aria-pressed="false">
                                     <span class="settings-option-icon theme-light" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg></span>
                                     <span data-i18n-theme>Light</span>
-                                    <span class="settings-option-check" aria-hidden="true"></span>
                                 </button>
                                 <button type="button" class="settings-option" data-theme="dark" aria-pressed="false">
                                     <span class="settings-option-icon theme-dark" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></span>
                                     <span data-i18n-theme>Dark</span>
-                                    <span class="settings-option-check" aria-hidden="true"></span>
                                 </button>
                                 <button type="button" class="settings-option" data-theme="system" aria-pressed="false">
                                     <span class="settings-option-icon theme-system" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg></span>
                                     <span data-i18n-theme>System</span>
-                                    <span class="settings-option-check" aria-hidden="true"></span>
                                 </button>
                             </div>
                         </div>
@@ -3296,7 +3290,7 @@
                             <div class="section-head">
                                 <div>
                                     <h2 data-i18n="sections.settings.language">Language</h2>
-                                    <p class="section-sub" data-i18n="sections.settings.language_sub">Applies to translated Operartis pages and modules.</p>
+                                    <p class="section-sub" data-i18n="sections.settings.language_sub">Shared throughout the whole system.</p>
                                 </div>
                             </div>
                             <div id="lang-options" class="settings-options" role="group" aria-label="Language">
@@ -3886,6 +3880,12 @@
             await window.OperartisAuth.logout();
         }
 
+        // Toast icons, the same as the VRP module (Lucide circle-check, triangle-alert and x)
+        const TOAST_SVG = (paths) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${paths}</svg>`;
+        const TOAST_ICON_SUCCESS = TOAST_SVG('<circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>');
+        const TOAST_ICON_ERROR = TOAST_SVG('<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>');
+        const TOAST_ICON_CLOSE = TOAST_SVG('<path d="M18 6 6 18"/><path d="m6 6 12 12"/>');
+
         function showMessage(text, type = 'success') {
             clearTimeout(messageHideTimer);
             messageHideTimer = null;
@@ -3899,17 +3899,23 @@
             const icon = document.createElement('span');
             icon.className = 'toast-icon';
             icon.setAttribute('aria-hidden', 'true');
-            icon.textContent = isError ? '!' : '✓';
-            const content = document.createElement('span');
+            icon.innerHTML = isError ? TOAST_ICON_ERROR : TOAST_ICON_SUCCESS;
+            const body = document.createElement('div');
+            body.className = 'toast-body';
+            const title = document.createElement('strong');
+            title.className = 'toast-title';
+            title.textContent = dt(isError ? 'messages.toast_error_title' : 'messages.toast_success_title');
+            const content = document.createElement('p');
             content.className = 'toast-text';
             content.textContent = text;
+            body.append(title, content);
             const close = document.createElement('button');
             close.type = 'button';
             close.className = 'toast-close';
             close.setAttribute('aria-label', 'Dismiss notification');
-            close.textContent = '×';
+            close.innerHTML = TOAST_ICON_CLOSE;
             close.onclick = () => showMessage('');
-            message.append(icon, content, close);
+            message.append(icon, body, close);
             message.className = `message ${isError ? 'error' : 'success'}`;
             const pause = () => clearTimeout(messageHideTimer);
             const resume = () => {
