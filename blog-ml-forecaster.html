@@ -1017,6 +1017,20 @@
                 linear-gradient(135deg, rgba(255, 255, 255, 0.14), rgba(148, 163, 184, 0.18) 45%, rgba(255, 255, 255, 0.08));
         }
 
+        /* Photo hero: no see-through border, so the photo stops at the gold rim (::after) */
+        html .contact-hero.contact-hero--photo,
+        html.dark .contact-hero.contact-hero--photo {
+            border-width: 0;
+            box-shadow:
+                0 30px 80px -40px rgba(2, 6, 23, 0.9),
+                inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        }
+
+        html .contact-hero.contact-hero--photo::after,
+        html.dark .contact-hero.contact-hero--photo::after {
+            background: rgba(245, 158, 11, 0.5);
+        }
+
         /* Hero photo — always-dark panel: night port under a navy scrim (see assets/PHOTO_CREDITS.md) */
         .contact-hero.contact-hero--photo,
         .dark .contact-hero.contact-hero--photo {
