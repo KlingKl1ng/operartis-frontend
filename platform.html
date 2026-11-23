@@ -40,6 +40,7 @@
             function targetFor(hash) {
                 var id = String(hash || '').replace(/^#/, '');
                 if (id === 'about') return './about';
+                if (id === 'blog') return './blog';
                 if (id === 'about-why') return './about#about-why';
                 var dest = null;
                 if (id === 'proof-foundation' || id === 'industry-40' || id === 'analytics') dest = 'why-aps';
@@ -6691,6 +6692,7 @@
                 },
                 ...otherHorizons,
                 { id: 'about', label: ui.nav_about },
+                { id: 'blog', label: ui.nav_blog },
                 { id: 'contact', label: ui.nav_contact },
             ];
         };
@@ -7058,6 +7060,7 @@
                     nav_or_process: "Process",
                     nav_implementation_process: "Custom Deployment",
                     nav_about: "About Us",
+                    nav_blog: "Blog",
                     capabilities_label: "Optimization coverage",
                     i4l_eyebrow: "Industry 4.0",
                     i4l_title: "Are Enterprise Resource Planning ERP and Manufacturing Execution System MES Enough?",
@@ -7496,6 +7499,7 @@
                     nav_or_process: "Quy trình",
                     nav_implementation_process: "Triển khai tùy chỉnh",
                     nav_about: "Về chúng tôi",
+                    nav_blog: "Blog",
                     capabilities_label: "Phạm vi tối ưu hóa",
                     i4l_eyebrow: "Công nghiệp 4.0",
                     i4l_title: "Hệ thống quản trị nguồn lực ERP và sản xuất MES liệu có đủ?",
@@ -7934,6 +7938,7 @@
                     nav_or_process: "OR-Prozess",
                     nav_implementation_process: "Individuelles Deployment",
                     nav_about: "Über uns",
+                    nav_blog: "Blog",
                     capabilities_label: "Optimierungsabdeckung",
                     i4l_eyebrow: "Industry-4.0-Integration",
                     i4l_title: "ERP + MES reichen nicht aus",
@@ -13197,6 +13202,7 @@
             const companyLinks = [
                 { id: 'about', label: ui.nav_about, href: './about' },
                 { id: 'about-why', label: ui.cta_why, href: './about#about-why' },
+                { id: 'blog', label: ui.nav_blog, href: './blog' },
                 { id: 'contact', label: ui.nav_contact, href: './contact' },
             ];
 
@@ -13476,8 +13482,8 @@
             }, [getSectionList, getAnchorOffset]);
 
             const scrollToNavItem = useCallback((id) => {
-                if (id === 'about' || id === 'about-why') {
-                    const href = id === 'about-why' ? './about#about-why' : './about';
+                if (id === 'about' || id === 'about-why' || id === 'blog') {
+                    const href = id === 'about-why' ? './about#about-why' : id === 'blog' ? './blog' : './about';
                     if (typeof window.OperartisNavIndicator?.go === 'function') {
                         window.OperartisNavIndicator.go(href);
                     } else {

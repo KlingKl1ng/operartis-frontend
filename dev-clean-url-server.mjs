@@ -12,6 +12,7 @@ const apiPort = Number(process.env.API_PORT || 8000);
 const cleanRoutes = new Set([
   'abcxyz',
   'about',
+  'blog',
   'accept-invite',
   'admin',
   'blog-abc-xyz-analysis',

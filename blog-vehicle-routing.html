@@ -1353,6 +1353,7 @@
                 nav_aps_system: 'APS-System',
                 nav_implementation_process: 'Custom Deployment',
                 nav_about: 'About Us',
+                nav_blog: 'Blog',
                 nav_contact: 'Contact',
                 nav_login: 'Login',
                 nav_dashboard: 'Dashboard',
@@ -1405,6 +1406,7 @@
                 nav_aps_system: 'Hệ thống APS',
                 nav_implementation_process: 'Triển khai tùy chỉnh',
                 nav_about: 'Về chúng tôi',
+                nav_blog: 'Blog',
                 nav_contact: 'Liên hệ',
                 nav_login: 'Đăng nhập',
                 nav_dashboard: 'Bảng điều khiển',
@@ -1457,6 +1459,7 @@
                 nav_aps_system: 'APS-System',
                 nav_implementation_process: 'Individuelles Deployment',
                 nav_about: 'Über uns',
+                nav_blog: 'Blog',
                 nav_contact: 'Kontakt',
                 nav_login: 'Anmelden',
                 nav_dashboard: 'Ihr Dashboard',
@@ -1804,6 +1807,7 @@
             'or-process': './#or-process',
             'about': './about',
             'about-why': './about#about-why',
+            'blog': './blog',
             'contact': './contact',
         };
 
@@ -1848,6 +1852,7 @@
                 ],
             },
             { id: 'about', label: ui.nav_about },
+            { id: 'blog', label: ui.nav_blog },
             { id: 'contact', label: ui.nav_contact },
         ]);
 
@@ -2830,6 +2835,7 @@
             const companyLinks = [
                 { href: './about', label: ui.nav_about },
                 { href: './about#about-why', label: ui.cta_why },
+                { href: './blog', label: ui.nav_blog },
                 { href: './contact', label: ui.nav_contact },
             ];
 
@@ -3031,7 +3037,7 @@
             const copy = CONTACT_COPY[lang] || CONTACT_COPY.en;
             const pageNavItems = useMemo(() => buildPageNavItems(copy, lang), [copy, lang]);
             const policy = POST_COPY[lang] || POST_COPY.en;
-            const activeNavId = null;
+            const activeNavId = 'blog';
             // Scroll spy: which section is being read, and how far through it
             const mainRef = useRef(null);
             const tocRef = useRef(null);
