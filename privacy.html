@@ -56,6 +56,19 @@
     <script src="./operartis-api.js?v=20260910-stable-csrf"></script>
     <script src="./operartis-auth-ui.js?v=20261123-dark-text-btn"></script>
     <style>
+        /* Primary button, shared look with the dashboard and the sign-in buttons: gold gradient, dark text
+           (white on this gold reads at about 2:1, dark navy at about 8:1). Layout, size and motion stay in utilities. */
+        .op-btn-primary {
+            background-color: #f59e0b;
+            background-image: linear-gradient(180deg, #fbbf24, #f59e0b);
+            color: #0f172a;
+            box-shadow: 0 10px 24px -10px rgba(245, 158, 11, .55), inset 0 1px 0 rgba(255, 255, 255, .3);
+        }
+        .op-btn-primary:hover {
+            filter: brightness(1.05);
+            box-shadow: 0 14px 30px -10px rgba(245, 158, 11, .7), inset 0 1px 0 rgba(255, 255, 255, .3);
+        }
+
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=Roboto+Mono:wght@400;500&display=swap');
 
         html, body, #root { height: 100%; }
@@ -2920,7 +2933,7 @@
 
                             <a
                                 href="./contact"
-                                className="mt-6 flex h-11 w-full items-center justify-center rounded-xl bg-gradient-to-tr from-brand-gold to-brand-dark text-sm font-bold text-white shadow-lg shadow-brand-gold/20 hover:scale-[1.01] active:scale-[0.98] transition-transform"
+                                className="op-btn-primary mt-6 flex h-11 w-full items-center justify-center rounded-xl text-sm font-bold hover:scale-[1.01] active:scale-[0.98] transition-transform"
                             >
                                 {ui.nav_contact}
                             </a>

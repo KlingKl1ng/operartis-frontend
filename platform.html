@@ -94,6 +94,19 @@
     <script src="./operartis-api.js?v=20260910-stable-csrf"></script>
     <script src="./operartis-auth-ui.js?v=20261123-dark-text-btn"></script>
     <style>
+        /* Primary button, shared look with the dashboard and the sign-in buttons: gold gradient, dark text
+           (white on this gold reads at about 2:1, dark navy at about 8:1). Layout, size and motion stay in utilities. */
+        .op-btn-primary {
+            background-color: #f59e0b;
+            background-image: linear-gradient(180deg, #fbbf24, #f59e0b);
+            color: #0f172a;
+            box-shadow: 0 10px 24px -10px rgba(245, 158, 11, .55), inset 0 1px 0 rgba(255, 255, 255, .3);
+        }
+        .op-btn-primary:hover {
+            filter: brightness(1.05);
+            box-shadow: 0 14px 30px -10px rgba(245, 158, 11, .7), inset 0 1px 0 rgba(255, 255, 255, .3);
+        }
+
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Roboto+Mono:wght@400;500&display=swap');
 
         body {
@@ -10090,7 +10103,7 @@
                             {content.ui.header_desc}
                         </p>
                         <div className="mt-8 md:mt-10 flex flex-wrap items-center justify-center gap-3">
-                            <button type="button" onClick={onExplore} className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-brand-gold text-white text-sm md:text-base font-bold shadow-lg shadow-brand-gold/20 hover:bg-amber-600 hover:shadow-brand-gold/40 hover:scale-[1.02] active:scale-95 transition-all">
+                            <button type="button" onClick={onExplore} className="op-btn-primary inline-flex items-center gap-2 px-7 py-3.5 rounded-xl text-sm md:text-base font-bold hover:scale-[1.02] active:scale-95 transition-all">
                                 {content.ui.cta_explore} <ArrowRightIcon />
                             </button>
                             <button type="button" onClick={onWhy} className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl border border-slate-300 dark:border-white/15 bg-white/50 dark:bg-white/[0.04] backdrop-blur-md text-slate-700 dark:text-slate-200 text-sm md:text-base font-bold transition-all duration-200 hover:border-brand-gold hover:text-brand-gold hover:bg-brand-gold/5 dark:hover:border-brand-gold dark:hover:text-brand-gold dark:hover:bg-brand-gold/10">
@@ -12687,7 +12700,7 @@
                         <SectionHeading className="!mb-0" eyebrow={ui.whyaps_eyebrow} title={ui.i4l_title} desc={ui.whyaps_teaser_body} />
                         <a
                             href="./why-aps"
-                            className="inline-flex items-center gap-2 mt-7 md:mt-8 px-7 py-3.5 rounded-xl bg-brand-gold text-white text-sm md:text-base font-bold shadow-lg shadow-brand-gold/20 hover:bg-amber-600 hover:shadow-brand-gold/40 hover:scale-[1.02] active:scale-95 transition-all"
+                            className="op-btn-primary inline-flex items-center gap-2 mt-7 md:mt-8 px-7 py-3.5 rounded-xl text-sm md:text-base font-bold hover:scale-[1.02] active:scale-95 transition-all"
                         >
                             {ui.whyaps_teaser_cta} <ArrowRightIcon />
                         </a>
@@ -13115,7 +13128,7 @@
                         <div className="mt-8 md:mt-10 text-center">
                             <a
                                 href="./platform"
-                                className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-brand-gold text-white text-sm md:text-base font-bold shadow-lg shadow-brand-gold/20 hover:bg-amber-600 hover:shadow-brand-gold/40 hover:scale-[1.02] active:scale-95 transition-all"
+                                className="op-btn-primary inline-flex items-center gap-2 px-7 py-3.5 rounded-xl text-sm md:text-base font-bold hover:scale-[1.02] active:scale-95 transition-all"
                             >
                                 {ui.sc_catalogue_link} <ArrowRightIcon />
                             </a>
@@ -13134,7 +13147,7 @@
                     <button
                         type="button"
                         onClick={() => onNav?.('contact')}
-                        className="inline-flex items-center justify-center gap-2 mt-8 md:mt-10 px-7 py-3.5 rounded-xl bg-brand-gold text-white text-sm md:text-base font-bold shadow-lg shadow-brand-gold/30 hover:bg-amber-600 hover:shadow-brand-gold/50 hover:scale-[1.02] active:scale-95 transition-all"
+                        className="op-btn-primary inline-flex items-center justify-center gap-2 mt-8 md:mt-10 px-7 py-3.5 rounded-xl text-sm md:text-base font-bold hover:scale-[1.02] active:scale-95 transition-all"
                     >
                         {content.ui.contact_operartis} <ArrowRightIcon />
                     </button>
@@ -13264,7 +13277,7 @@
 
                             <a
                                 href="./contact"
-                                className="mt-6 flex h-11 w-full items-center justify-center rounded-xl bg-gradient-to-tr from-brand-gold to-brand-dark text-sm font-bold text-white shadow-lg shadow-brand-gold/20 hover:scale-[1.01] active:scale-[0.98] transition-transform"
+                                className="op-btn-primary mt-6 flex h-11 w-full items-center justify-center rounded-xl text-sm font-bold hover:scale-[1.01] active:scale-[0.98] transition-transform"
                             >
                                 {ui.nav_contact}
                             </a>
