@@ -150,7 +150,7 @@
         var link = document.createElement('link');
         link.id = styleId;
         link.rel = 'stylesheet';
-        link.href = './operartis-access-shell.css?v=20261113-access-bg';
+        link.href = './operartis-access-shell.css?v=20261123-dark-text-btn';
         document.head.appendChild(link);
     }
 
