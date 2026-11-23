@@ -390,6 +390,12 @@
             display: block;
             line-height: 1;
             transform: none;
+            /* letter-spacing also adds a gap after the last letter; take it back so the word sits centred */
+            margin-right: -0.06em;
+        }
+        /* The chevron icon has ~2px of empty space inside its right edge; pull it in so word + chevron sit centred */
+        .header-nav-glass-slab .header-nav-tab > .header-nav-chevron {
+            margin-right: -1.5px;
         }
         .header-nav-tabs-track {
             position: relative;
