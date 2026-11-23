@@ -3783,14 +3783,16 @@
             --aa-accent-bg: #fbbf24;
             --aa-accent-border: #f59e0b;
             --aa-accent-fg: #78350f;
+            --aa-accent-ink: #b45309;
         }
 
         .dark .aa-bar-flat-0,
         .dark .aa-flow-accent-0,
         .dark .aa-chevron-active-0 {
-            --aa-accent-bg: #b45309;
+            --aa-accent-bg: #ca6a0a;
             --aa-accent-border: #d97706;
             --aa-accent-fg: #fffbeb;
+            --aa-accent-ink: #ca6a0a;
         }
 
         .aa-bar-flat-1,
@@ -3799,6 +3801,7 @@
             --aa-accent-bg: #f59e0b;
             --aa-accent-border: #d97706;
             --aa-accent-fg: #78350f;
+            --aa-accent-ink: #b45309;
         }
 
         .dark .aa-bar-flat-1,
@@ -3807,6 +3810,7 @@
             --aa-accent-bg: #d97706;
             --aa-accent-border: #f59e0b;
             --aa-accent-fg: #fffbeb;
+            --aa-accent-ink: #d97706;
         }
 
         .aa-band-label-info {
@@ -3823,6 +3827,7 @@
             --aa-accent-bg: #ea580c;
             --aa-accent-border: #c2410c;
             --aa-accent-fg: #fff7ed;
+            --aa-accent-ink: #c2410c;
         }
 
         .dark .aa-bar-flat-2,
@@ -3831,6 +3836,7 @@
             --aa-accent-bg: #f59e0b;
             --aa-accent-border: #d97706;
             --aa-accent-fg: #fffbeb;
+            --aa-accent-ink: #f59e0b;
         }
 
         .aa-bar-flat-3,
@@ -3839,6 +3845,7 @@
             --aa-accent-bg: #c2410c;
             --aa-accent-border: #9a3412;
             --aa-accent-fg: #fff7ed;
+            --aa-accent-ink: #c2410c;
         }
 
         .dark .aa-bar-flat-3,
@@ -3847,6 +3854,7 @@
             --aa-accent-bg: #eab308;
             --aa-accent-border: #facc15;
             --aa-accent-fg: #1c1917;
+            --aa-accent-ink: #eab308;
         }
 
         .aa-bar-flat-0,
@@ -3945,14 +3953,8 @@
             outline-offset: 2px;
         }
 
-        .aa-level-title-0 { color: #b45309; }
-        .dark .aa-level-title-0 { color: #fcd34d; }
-        .aa-level-title-1 { color: #c2410c; }
-        .dark .aa-level-title-1 { color: #fbbf24; }
-        .aa-level-title-2 { color: #9a3412; }
-        .dark .aa-level-title-2 { color: #fbbf24; }
-        .aa-level-title-3 { color: #7c2d12; }
-        .dark .aa-level-title-3 { color: #facc15; }
+        /* Title and model-share label take the level's own accent (--aa-accent-ink: the bar colour, darkened where needed to stay readable) */
+        .aa-level-title-0, .aa-level-title-1, .aa-level-title-2, .aa-level-title-3 { color: var(--aa-accent-ink); }
 
         .aa-human-bar {
             transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
@@ -5108,7 +5110,8 @@
         }
 
         .aa2-detail {
-            border-color: var(--aa-accent-border);
+            /* Same colour as the selected bar, badge, title and meter */
+            border-color: var(--aa-accent-bg);
             background: linear-gradient(160deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.28));
             -webkit-backdrop-filter: blur(4px);
             backdrop-filter: blur(4px);
