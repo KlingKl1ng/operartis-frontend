@@ -1140,23 +1140,72 @@
             }
         }
 
+        /* Reading tracker, as on the privacy and terms pages: a gold line fills down the rail while you read,
+           the section in view is highlighted and the ones already read keep a gold number */
+        .about-toc {
+            position: relative;
+            border-left: 0 !important;
+        }
+
+        .about-toc::before,
+        .about-toc-fill {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 2px;
+            border-radius: 2px;
+        }
+
+        .about-toc::before {
+            bottom: 0;
+            background: rgba(148, 163, 184, 0.3);
+        }
+
+        .dark .about-toc::before { background: rgba(255, 255, 255, 0.1); }
+
+        .about-toc-fill {
+            height: var(--toc-fill, 0px);
+            max-height: 100%;
+            background: linear-gradient(180deg, #f59e0b, #d97706);
+            box-shadow: 0 0 8px rgba(245, 158, 11, 0.45);
+            transition: height 0.12s linear;
+        }
+
         .about-toc a {
-            display: block;
-            margin-left: -1px;
+            display: flex;
+            align-items: baseline;
+            gap: 0.75rem;
             padding: 0.5rem 0 0.5rem 1rem;
-            border-left: 2px solid transparent;
             font-size: 0.875rem;
             font-weight: 600;
             color: #64748b;
-            transition: color 0.2s ease, border-color 0.2s ease;
+            transition: color 0.3s ease;
         }
 
         .dark .about-toc a { color: #94a3b8; }
 
+        .about-toc-num {
+            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+            font-size: 11px;
+            font-weight: 700;
+            color: #94a3b8;
+            transition: color 0.3s ease;
+        }
+
+        .dark .about-toc-num { color: #64748b; }
+
+        .about-toc a.is-read .about-toc-num,
+        .about-toc a.is-active .about-toc-num { color: #f59e0b; }
+
+        .about-toc a.is-active { color: #0f172a; }
+        .dark .about-toc a.is-active { color: #ffffff; }
+
         .about-toc a:hover,
-        .about-toc a:focus-visible {
-            color: #f59e0b;
-            border-left-color: #f59e0b;
+        .about-toc a:focus-visible { color: #f59e0b; }
+
+        @media (prefers-reduced-motion: reduce) {
+            .about-toc-fill, .about-toc a, .about-toc-num { transition: none; }
         }
 
         /* Closing CTA — always-dark band over the night earth (same as the landing page) */
@@ -2666,6 +2715,56 @@
                 { id: 'about-why', label: copy.about_why },
             ];
 
+            // Scroll spy: which section is being read, and how far through it (same rules as the privacy page)
+            const mainRef = useRef(null);
+            const tocRef = useRef(null);
+            const [activeSection, setActiveSection] = useState(0);
+
+            useEffect(() => {
+                const main = mainRef.current;
+                const toc = tocRef.current;
+                if (!main || !toc) return undefined;
+                let frame = 0;
+                const measure = () => {
+                    frame = 0;
+                    const sections = aboutSections.map(({ id }) => document.getElementById(id)).filter(Boolean);
+                    const items = toc.querySelectorAll('a');
+                    if (!sections.length) return;
+                    const mainTop = main.getBoundingClientRect().top;
+                    // A section counts as "being read" once its title passes 30% of the viewport
+                    const probe = main.clientHeight * 0.3;
+                    const tops = sections.map(el => el.getBoundingClientRect().top - mainTop);
+                    let idx = 0;
+                    tops.forEach((top, i) => { if (top <= probe) idx = i; });
+                    const start = tops[idx];
+                    const end = idx + 1 < tops.length ? tops[idx + 1] : start + sections[idx].offsetHeight;
+                    let frac = Math.min(1, Math.max(0, (probe - start) / Math.max(1, end - start)));
+                    // At the very bottom of the page the last section is the one being read, fully
+                    if (main.scrollTop + main.clientHeight >= main.scrollHeight - 4) { idx = sections.length - 1; frac = 1; }
+                    const item = items[idx];
+                    if (item) toc.style.setProperty('--toc-fill', `${(item.offsetTop + frac * item.offsetHeight).toFixed(1)}px`);
+                    setActiveSection(prev => (prev === idx ? prev : idx));
+                };
+                const onScroll = () => { if (!frame) frame = requestAnimationFrame(measure); };
+                measure();
+                main.addEventListener('scroll', onScroll, { passive: true });
+                window.addEventListener('resize', onScroll);
+                return () => {
+                    main.removeEventListener('scroll', onScroll);
+                    window.removeEventListener('resize', onScroll);
+                    if (frame) cancelAnimationFrame(frame);
+                };
+            }, [lang]);
+
+            const scrollToAboutSection = (event, id) => {
+                event.preventDefault();
+                const el = document.getElementById(id);
+                if (!el) return;
+                const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+                el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+                history.replaceState(null, '', `#${id}`);
+            };
+
             // Links such as ./about#about-why arrive before React has rendered the section
             useEffect(() => {
                 const id = String(window.location.hash || '').replace(/^#/, '');
@@ -2803,7 +2902,7 @@
                         onClose={closeMobileNav}
                     />
 
-                    <main className="relative z-10 flex-1 overflow-y-auto min-h-0">
+                    <main ref={mainRef} className="relative z-10 flex-1 overflow-y-auto min-h-0">
                         <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 py-8 md:py-12 pb-16">
                             <section className="contact-hero contact-hero--photo about-hero--photo rounded-3xl border border-amber-700/40 dark:border-white/[0.06] ring-0 dark:ring-1 dark:ring-white/[0.04] px-6 py-14 md:px-12 md:py-20 lg:py-24 mb-12 md:mb-16">
                                 <div className="relative z-10 max-w-3xl">
@@ -2824,10 +2923,24 @@
                                             <a href="./" className="block hover:opacity-80 transition-opacity">
                                                 <img src="./fulllogo_transparent_nobuffer.png" alt="Operartis" className="w-full max-w-[260px] object-contain mx-auto lg:mx-0" onError={(e) => e.target.style.display = 'none'} />
                                             </a>
-                                            <nav aria-label={copy.about_title} className="about-toc hidden lg:block mt-8 border-l border-slate-200 dark:border-white/10">
-                                                {aboutSections.map((section) => (
-                                                    <a key={section.id} href={`#${section.id}`}>{section.label}</a>
-                                                ))}
+                                            <nav ref={tocRef} aria-label={copy.about_title} className="about-toc hidden lg:block mt-8">
+                                                <span className="about-toc-fill" aria-hidden="true"></span>
+                                                {aboutSections.map((section, i) => {
+                                                    const isActive = i === activeSection;
+                                                    const isRead = i < activeSection;
+                                                    return (
+                                                        <a
+                                                            key={section.id}
+                                                            href={`#${section.id}`}
+                                                            onClick={(event) => scrollToAboutSection(event, section.id)}
+                                                            aria-current={isActive ? 'location' : undefined}
+                                                            className={isActive ? 'is-active' : isRead ? 'is-read' : undefined}
+                                                        >
+                                                            <span className="about-toc-num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+                                                            <span>{section.label}</span>
+                                                        </a>
+                                                    );
+                                                })}
                                             </nav>
                                         </Reveal>
                                     </div>
