@@ -3445,6 +3445,13 @@
             animation: i4l-gap-pulse 1.6s ease-in-out infinite;
         }
 
+        .i4l-gap-break-lg { display: none; }
+
+        @media (min-width: 640px) {
+            .i4l-gap-break-sm { display: none; }
+            .i4l-gap-break-lg { display: inline; }
+        }
+
         .i4l-flow-arrow {
             stroke-dasharray: 6 4;
             animation: i4l-flow-dash 0.95s linear infinite;
@@ -9740,21 +9747,18 @@
             const mesErpTrimLg = 6;
             const mesErpStartTrimmedLg = i4lTrimEnd(mesErpCtrlLg.x, mesErpCtrlLg.y, mesErpStart.x, mesErpStart.y, mesErpTrimLg);
             const mesErpEndTrimmedLg = i4lTrimEnd(mesErpCtrlLg.x, mesErpCtrlLg.y, mesErpEnd.x, mesErpEnd.y, mesErpTrimLg);
-            // Without APS the red lines run along the gold ones, so switching states recolours them in place. They break
-            // before halfway: closer to the box they run into its label, which keeps its font size while the diagram
-            // shrinks, and which is two lines long in Vietnamese
-            const breakAt = (from, to) => ({ x: from.x + (to.x - from.x) * 0.44, y: from.y + (to.y - from.y) * 0.44 });
-            const breakL = breakAt(erpApsStart, erpApsEnd);
-            const breakR = breakAt(apsMesEnd, apsMesStart);
+            // Without APS the red lines run along the gold ones, so switching states recolours them in place. How far they
+            // reach is set by the label under the box, which keeps its font size while the diagram shrinks (and is two
+            // lines long in Vietnamese): further from 640px up, shorter on phones
+            const gapBreaks = [{ size: 'sm', reach: 0.44 }, { size: 'lg', reach: 0.62 }].map(({ size, reach }) => {
+                const along = (from, to) => ({ x: from.x + (to.x - from.x) * reach, y: from.y + (to.y - from.y) * reach });
+                return { size, lines: [[erpApsStart, along(erpApsStart, erpApsEnd)], [apsMesEnd, along(apsMesEnd, apsMesStart)]] };
+            });
             const mesToErpPath = `M ${mesErpStartTrimmed.x} ${mesErpStartTrimmed.y} Q ${mesErpCtrl.x} ${mesErpCtrl.y} ${mesErpEndTrimmed.x} ${mesErpEndTrimmed.y}`;
             const mesToErpLgPath = `M ${mesErpStartTrimmedLg.x} ${mesErpStartTrimmedLg.y} Q ${mesErpCtrlLg.x} ${mesErpCtrlLg.y} ${mesErpEndTrimmedLg.x} ${mesErpEndTrimmedLg.y}`;
             return {
                 gap: {
-                    erpToBreak: `M ${erpApsStart.x} ${erpApsStart.y} L ${breakL.x} ${breakL.y}`,
-                    mesToBreak: `M ${apsMesEnd.x} ${apsMesEnd.y} L ${breakR.x} ${breakR.y}`,
-                    // The crosses are drawn 10 units tall from y, centred on the end of the line
-                    breakLeft: { x: breakL.x, y: breakL.y - 5 },
-                    breakRight: { x: breakR.x, y: breakR.y - 5 },
+                    breaks: gapBreaks,
                     baseline: mesToErpPath,
                     baselineLg: mesToErpLgPath,
                 },
@@ -9929,12 +9933,16 @@
                                             </defs>
 
                                             <g className={`i4l-phase-layer${apsVisible ? ' i4l-phase-hidden' : ''}`}>
-                                                <path d={I4L_PATHS.gap.erpToBreak} fill="none" stroke="#f43f5e" strokeOpacity="0.7" strokeWidth="2.3" className="i4l-gap-line" />
-                                                <path d={I4L_PATHS.gap.mesToBreak} fill="none" stroke="#f43f5e" strokeOpacity="0.7" strokeWidth="2.3" className="i4l-gap-line" />
-                                                <g stroke="#f43f5e" strokeOpacity="0.85" strokeWidth="1.8" strokeLinecap="round">
-                                                    <path d={`M ${I4L_PATHS.gap.breakLeft.x - 5} ${I4L_PATHS.gap.breakLeft.y} l 10 10 M ${I4L_PATHS.gap.breakLeft.x + 5} ${I4L_PATHS.gap.breakLeft.y} l -10 10`} />
-                                                    <path d={`M ${I4L_PATHS.gap.breakRight.x - 5} ${I4L_PATHS.gap.breakRight.y} l 10 10 M ${I4L_PATHS.gap.breakRight.x + 5} ${I4L_PATHS.gap.breakRight.y} l -10 10`} />
-                                                </g>
+                                                {I4L_PATHS.gap.breaks.map(({ size, lines }) => (
+                                                    <g key={size} className={`i4l-gap-break-${size}`} fill="none" stroke="#f43f5e">
+                                                        {lines.map(([from, to], i) => (
+                                                            <React.Fragment key={i}>
+                                                                <path d={`M ${from.x} ${from.y} L ${to.x} ${to.y}`} strokeOpacity="0.7" strokeWidth="2.3" className="i4l-gap-line" />
+                                                                <path d={`M ${to.x - 5} ${to.y - 5} l 10 10 M ${to.x + 5} ${to.y - 5} l -10 10`} strokeOpacity="0.85" strokeWidth="1.8" strokeLinecap="round" className="i4l-gap-cross" />
+                                                            </React.Fragment>
+                                                        ))}
+                                                    </g>
+                                                ))}
                                                 <path d={I4L_PATHS.gap.baseline} fill="none" stroke="#94a3b8" strokeOpacity="0.35" strokeWidth="1.4" strokeDasharray="5 6" markerStart="url(#i4l-arrow-slate-start)" markerEnd="url(#i4l-arrow-slate-end)" className="i4l-baseline-path-sm" />
                                                 <path d={I4L_PATHS.gap.baselineLg} fill="none" stroke="#94a3b8" strokeOpacity="0.35" strokeWidth="1.4" strokeDasharray="5 6" markerStart="url(#i4l-arrow-slate-start)" markerEnd="url(#i4l-arrow-slate-end)" className="i4l-baseline-path-lg" />
                                             </g>
