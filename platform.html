@@ -3428,7 +3428,8 @@
         }
 
         .i4l-gap-line {
-            stroke-dasharray: 10 7;
+            /* Same dash as the gold flow lines they share a path with */
+            stroke-dasharray: 6 4;
             animation: i4l-gap-pulse 1.6s ease-in-out infinite;
         }
 
@@ -3630,7 +3631,7 @@
                 width: 100%;
                 max-width: 100%;
                 aspect-ratio: 480 / 360;
-                overflow: hidden;
+                /* No clipping here: the "?" badge reaches above the stage, and the panel around it already clips */
             }
 
             .i4l-node {
@@ -5116,6 +5117,29 @@
             background: linear-gradient(160deg, rgba(30, 41, 59, 0.38), rgba(15, 23, 42, 0.28));
         }
 
+        /* The live detail and the hidden ghosts that reserve its height share one cell */
+        .aa2-detail {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr);
+            align-content: start;
+        }
+
+        .aa2-detail-live,
+        .aa2-detail-ghost { grid-area: 1 / 1; }
+
+        .aa2-detail-ghost {
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        /* Shares its row with the mode toggle; the toggle drops below only when the level name no longer fits */
+        .aa2-detail-title {
+            flex: 1 1 min-content;
+            min-width: min-content;
+        }
+
+        .aa2-detail-title h3 { white-space: nowrap; }
+
         /* Selected prescriptive mode: the level's own accent, like the badge */
         .aa2-mode-active {
             background: var(--aa-accent-bg);
@@ -6087,6 +6111,196 @@
             .lp3-ptn:not(.is-visible) .lp3-ptn-tile { opacity: 1; }
         }
 
+        /* ---- Why APS: three phases of data. The cards rise like steps to the APS phase ---- */
+        .lp3-phase-list {
+            --gap: 0.875rem;
+            display: grid;
+            gap: var(--gap);
+        }
+        .lp3-phase {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+        .lp3-phase-card {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            border-radius: 1rem;
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            background: linear-gradient(180deg, #ffffff, #f8fafc);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 18px 34px -22px rgba(15, 23, 42, 0.32);
+            padding: 1.25rem;
+        }
+        .lp3-phase--aps .lp3-phase-card {
+            border-color: rgba(217, 119, 6, 0.7);
+            background: linear-gradient(180deg, #fffbeb, #ffffff);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 24px 44px -22px rgba(180, 83, 9, 0.45);
+        }
+        .lp3-phase-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.375rem 0.5rem;
+            min-height: 1.5rem;
+            margin-bottom: 0.625rem;
+        }
+        .lp3-phase-num { white-space: nowrap; }
+        .lp3-phase-num,
+        .lp3-phase-key,
+        .lp3-phase-scale,
+        .lp3-phase-stop {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #64748b;
+        }
+        .lp3-phase--aps .lp3-phase-num { color: #b45309; }
+        .lp3-phase-badge {
+            border-radius: 999px;
+            border: 1px solid rgba(217, 119, 6, 0.45);
+            background: rgba(245, 158, 11, 0.14);
+            padding: 0.2rem 0.6rem;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            color: #b45309;
+            white-space: nowrap;
+        }
+        .lp3-phase-facts {
+            display: grid;
+            gap: 0.75rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(148, 163, 184, 0.3);
+        }
+        .lp3-phase--aps .lp3-phase-facts { border-top-color: rgba(217, 119, 6, 0.3); }
+        .lp3-phase-val {
+            margin-top: 0.15rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            line-height: 1.45;
+            color: #0f172a;
+        }
+        .lp3-phase--aps .lp3-phase-val--result { color: #b45309; }
+        .lp3-phase-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+            align-self: flex-start;
+            margin-top: auto;
+            padding-top: 1.125rem;
+            font-size: 0.8125rem;
+            font-weight: 700;
+            text-align: left;
+            color: #b45309;
+        }
+        .lp3-phase-link svg { flex: none; transition: transform 0.3s ease; }
+        .lp3-phase-link:hover svg,
+        .lp3-phase-link:focus-visible svg { transform: translateX(3px); }
+        .lp3-phase-link:focus-visible { outline: 2px solid #f59e0b; outline-offset: 3px; border-radius: 0.25rem; }
+        /* Between phase 2 and 3: the line most companies do not cross. Stacked layout only */
+        .lp3-phase-stop {
+            display: flex;
+            align-items: center;
+            gap: 0.625rem;
+            margin: 0.375rem 0 calc(var(--gap) + 0.375rem);
+        }
+        .lp3-phase-stop::before,
+        .lp3-phase-stop::after {
+            content: '';
+            flex: 1;
+            border-top: 1px dashed rgba(148, 163, 184, 0.8);
+        }
+        .lp3-phase-stop-label,
+        .lp3-phase-scale-stop {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+        }
+        .lp3-phase-arrow,
+        .lp3-phase-scale { display: none; }
+        .dark .lp3-phase-card {
+            border-color: rgba(255, 255, 255, 0.08);
+            background: linear-gradient(180deg, rgba(30, 41, 59, 0.72), rgba(15, 23, 42, 0.72));
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 18px 34px -22px rgba(0, 0, 0, 0.8);
+        }
+        .dark .lp3-phase--aps .lp3-phase-card {
+            border-color: rgba(245, 158, 11, 0.65);
+            background: linear-gradient(180deg, rgba(120, 53, 15, 0.42), rgba(15, 23, 42, 0.72));
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 24px 44px -22px rgba(245, 158, 11, 0.35);
+        }
+        .dark .lp3-phase-num,
+        .dark .lp3-phase-key,
+        .dark .lp3-phase-scale,
+        .dark .lp3-phase-stop { color: #94a3b8; }
+        .dark .lp3-phase-val { color: #e2e8f0; }
+        .dark .lp3-phase--aps .lp3-phase-num,
+        .dark .lp3-phase--aps .lp3-phase-val--result,
+        .dark .lp3-phase-link,
+        .dark .lp3-phase-badge { color: #fbbf24; }
+        .dark .lp3-phase-badge { border-color: rgba(245, 158, 11, 0.45); background: rgba(245, 158, 11, 0.12); }
+        .dark .lp3-phase-facts { border-top-color: rgba(255, 255, 255, 0.1); }
+        .dark .lp3-phase--aps .lp3-phase-facts { border-top-color: rgba(245, 158, 11, 0.3); }
+        @media (min-width: 768px) {
+            .lp3-phase-list,
+            .lp3-phase-scale { --gap: 1.5rem; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+            .lp3-phase:nth-child(1) { margin-top: 3.5rem; }
+            .lp3-phase:nth-child(2) { margin-top: 1.75rem; }
+            .lp3-phase-stop { display: none; }
+            /* Arrow chip sitting on the gap between two cards */
+            .lp3-phase-arrow {
+                position: absolute;
+                z-index: 1;
+                top: 1.375rem;
+                left: calc(var(--gap) / -2 - 0.875rem);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 1.75rem;
+                height: 1.75rem;
+                border-radius: 999px;
+                border: 1px solid rgba(203, 213, 225, 0.9);
+                background: #ffffff;
+                color: #64748b;
+            }
+            .lp3-phase--aps .lp3-phase-arrow { border-color: rgba(217, 119, 6, 0.6); color: #b45309; }
+            .dark .lp3-phase-arrow { border-color: rgba(255, 255, 255, 0.14); background: #1e293b; color: #94a3b8; }
+            .dark .lp3-phase--aps .lp3-phase-arrow { border-color: rgba(245, 158, 11, 0.6); color: #fbbf24; }
+            /* Under the cards: phases 1 and 2 record and execute, phase 3 decides */
+            .lp3-phase-scale {
+                display: grid;
+                gap: var(--gap);
+                margin-top: 1rem;
+            }
+            .lp3-phase-scale-rec {
+                grid-column: span 2;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 1rem;
+                padding-top: 0.625rem;
+                border-top: 1px solid rgba(148, 163, 184, 0.6);
+            }
+            .lp3-phase-scale-dec {
+                padding-top: calc(0.625rem - 1px);
+                border-top: 2px solid #d97706;
+                color: #b45309;
+            }
+            .dark .lp3-phase-scale-rec { border-top-color: rgba(148, 163, 184, 0.35); }
+            .dark .lp3-phase-scale-dec { border-top-color: #f59e0b; color: #fbbf24; }
+        }
+        @media (min-width: 1024px) {
+            .lp3-phase-card { padding: 1.5rem; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .lp3-phase-link svg { transition: none; }
+            .lp3-phase-link:hover svg,
+            .lp3-phase-link:focus-visible svg { transform: none; }
+        }
+
         /* ---- Q&A accordion: same card surface as the integration and partner tiles ---- */
         .lp3-faq-item {
             border-radius: 1rem;
@@ -6884,7 +7098,6 @@
                     ],
                     analytics_pipeline_title: "From Data to Outcomes",
                     analytics_pipeline_desc: "As Analytics Evolvement rises, required human input tapers while models drive decisions closer to execution.",
-                    analytics_sources: ["ERP", "MES", "External Data"],
                     analytics_raw_data: "Raw Data",
                     analytics_human_input: "Human Input",
                     analytics_human_input_short: "Human",
@@ -6896,10 +7109,8 @@
                     analytics_prescriptive_support: "Decision Support",
                     analytics_prescriptive_support_short: "Support",
                     analytics_prescriptive_auto: "Decision Automation",
-                    analytics_prescriptive_auto_short: "Auto",
+                    analytics_prescriptive_auto_short: "Automation",
                     analytics_feedback: "Continuous Feedback & Learning",
-                    analytics_data_foundation: "Data Foundation",
-                    analytics_data_foundation_desc: "Every analytics journey starts with consolidated data from core systems, shopfloor signals and external context.",
                     analytics_active_flow: "Analytics to Outcomes",
                     analytics_active_flow_desc: "Follow one analytic level at a time — see how insight moves through human judgment into business results.",
                     analytics_stage_analytics: "Analytics",
@@ -7121,6 +7332,21 @@
                     whyaps_desc: "Where ERP and MES stop, how analytics grows from describing to deciding, and why the results of optimization can be proven.",
                     whyaps_teaser_body: "ERP and MES record and execute. They do not decide. Read where they stop, how analytics grows from describing to deciding, and why the results of optimization can be proven.",
                     whyaps_teaser_cta: "Read the background",
+                    ph_eyebrow: "From data to decisions",
+                    ph_title: "Three phases of working with data",
+                    ph_desc: "Every company moves through the same three phases. An APS system is the third: it builds on the data that the first two phases provide.",
+                    ph_phase: "Phase",
+                    ph_tools: "Tools",
+                    ph_result: "Result",
+                    ph_badge: "APS · Operartis",
+                    ph_records: "Records and executes",
+                    ph_decides: "Decides",
+                    ph_stop: "Most companies stop here",
+                    ph_items: [
+                        { title: "Collect and digitize", line: "Operations are captured as data.", tools: "Paper, Excel, scanners, sensors", result: "Data exists" },
+                        { title: "Manage and synchronize", line: "One shared record across all departments.", tools: "ERP, MES, WMS", result: "Data is consistent", link: 'industry-40' },
+                        { title: "Analyze and optimize", line: "Forecasts, plans and routes are computed from that record.", tools: "APS", result: "Data decides", link: 'analytics' },
+                    ],
                     origin_eyebrow: "Operartis APS - German engineering",
                     origin_map_note: "Illustration of a shortest-path algorithm",
                     origin_map_note_detail: "Simplified network, straight-line distances",
@@ -7323,7 +7549,6 @@
                     ],
                     analytics_pipeline_title: "Từ Dữ liệu đến Kết quả",
                     analytics_pipeline_desc: "Khi Sự phát triển của Phân tích dữ liệu tăng, sự can thiệp bởi con người giảm dần trong khi mô hình hỗ trợ quyết định tăng lên.",
-                    analytics_sources: ["ERP", "MES", "Dữ liệu Bên ngoài"],
                     analytics_raw_data: "Dữ liệu Thô",
                     analytics_human_input: "Đầu vào Con người",
                     analytics_human_input_short: "Người",
@@ -7333,12 +7558,10 @@
                     analytics_results: "Kết quả",
                     analytics_decision_types: ["Xem xét báo cáo", "Phân tích nguyên nhân", "Thực hiện dự báo", "Đề xuất tối ưu"],
                     analytics_prescriptive_support: "Hỗ trợ Quyết định",
-                    analytics_prescriptive_support_short: "Hỗ trợ",
+                    analytics_prescriptive_support_short: "Hỗ trợ Quyết định",
                     analytics_prescriptive_auto: "Tự động Quyết định",
-                    analytics_prescriptive_auto_short: "Tự động",
+                    analytics_prescriptive_auto_short: "Tự động Quyết định",
                     analytics_feedback: "Phản hồi & Học liên tục",
-                    analytics_data_foundation: "Nền tảng Dữ liệu",
-                    analytics_data_foundation_desc: "Mọi hành trình phân tích bắt đầu từ dữ liệu hợp nhất từ hệ thống quản trị nguồn lực (ERP), quản lý sản xuất (MES) và bối cảnh bên ngoài.",
                     analytics_active_flow: "Phân tích đến Kết quả",
                     analytics_active_flow_desc: "Theo dõi từng cấp độ phân tích — quan sát chi tiết thay đổi của sự can thiệp của con người tới kết quả kinh doanh.",
                     analytics_stage_analytics: "Phân tích",
@@ -7560,6 +7783,21 @@
                     whyaps_desc: "ERP và MES dừng lại ở đâu, phân tích dữ liệu phát triển từ mô tả đến ra quyết định như thế nào, và vì sao kết quả tối ưu hoá có thể chứng minh được.",
                     whyaps_teaser_body: "ERP và MES ghi nhận và thực thi, nhưng không ra quyết định. Tìm hiểu chúng dừng lại ở đâu, phân tích dữ liệu phát triển từ mô tả đến ra quyết định như thế nào, và vì sao kết quả tối ưu hoá có thể chứng minh được.",
                     whyaps_teaser_cta: "Đọc kiến thức nền tảng",
+                    ph_eyebrow: "Từ dữ liệu đến quyết định",
+                    ph_title: "Ba giai đoạn làm việc với dữ liệu",
+                    ph_desc: "Doanh nghiệp nào cũng đi qua ba giai đoạn giống nhau. Hệ thống APS là giai đoạn thứ ba: nó được xây trên dữ liệu mà hai giai đoạn đầu cung cấp.",
+                    ph_phase: "Giai đoạn",
+                    ph_tools: "Công cụ",
+                    ph_result: "Kết quả",
+                    ph_badge: "APS · Operartis",
+                    ph_records: "Ghi nhận và thực thi",
+                    ph_decides: "Ra quyết định",
+                    ph_stop: "Phần lớn doanh nghiệp dừng ở đây",
+                    ph_items: [
+                        { title: "Thu thập và số hoá", line: "Hoạt động vận hành được ghi lại thành dữ liệu.", tools: "Giấy tờ, Excel, máy quét, cảm biến", result: "Có dữ liệu" },
+                        { title: "Quản lý và đồng bộ", line: "Một nguồn dữ liệu chung cho mọi phòng ban.", tools: "ERP, MES, WMS", result: "Dữ liệu nhất quán", link: 'industry-40' },
+                        { title: "Phân tích và tối ưu hoá", line: "Dự báo, kế hoạch và tuyến đường được tính toán từ nguồn dữ liệu đó.", tools: "APS", result: "Dữ liệu ra quyết định", link: 'analytics' },
+                    ],
                     origin_eyebrow: "Operartis APS - Công nghệ Đức",
                     origin_map_note: "Minh họa thuật toán tìm đường đi ngắn nhất",
                     origin_map_note_detail: "Mạng lưới giản lược, khoảng cách đường chim bay",
@@ -7762,7 +8000,6 @@
                     ],
                     analytics_pipeline_title: "Von Daten zu Ergebnissen",
                     analytics_pipeline_desc: "Mit steigender Analytics-Reife nimmt der menschliche Aufwand ab, während Modelle Entscheidungen näher an die Ausführung bringen.",
-                    analytics_sources: ["Enterprise-Systeme", "IoT & Shopfloor", "Externe Daten"],
                     analytics_raw_data: "Rohdaten",
                     analytics_human_input: "Menschlicher Input",
                     analytics_human_input_short: "Mensch",
@@ -7772,12 +8009,10 @@
                     analytics_results: "Ergebnisse",
                     analytics_decision_types: ["Berichtsprüfung", "Ursachenprüfung", "Prognosegestützt", "Optimierte Empfehlung"],
                     analytics_prescriptive_support: "Entscheidungsunterstützung",
-                    analytics_prescriptive_support_short: "Assistenz",
+                    analytics_prescriptive_support_short: "Unterstützung",
                     analytics_prescriptive_auto: "Entscheidungsautomatisierung",
-                    analytics_prescriptive_auto_short: "Auto",
+                    analytics_prescriptive_auto_short: "Automatisierung",
                     analytics_feedback: "Kontinuierliches Feedback & Lernen",
-                    analytics_data_foundation: "Datenfundament",
-                    analytics_data_foundation_desc: "Jede Analytics-Reise beginnt mit konsolidierten Daten aus Kernsystemen, Shopfloor-Signalen und externem Kontext.",
                     analytics_active_flow: "Analytics zu Ergebnissen",
                     analytics_active_flow_desc: "Verfolgen Sie eine Reifestufe — und sehen Sie, wie Erkenntnisse über menschliches Urteil zu Geschäftsergebnissen führen.",
                     analytics_stage_analytics: "Analytics",
@@ -7999,6 +8234,21 @@
                     whyaps_desc: "Wo ERP und MES aufhören, wie Analytics vom Beschreiben zum Entscheiden reift und warum sich die Ergebnisse der Optimierung beweisen lassen.",
                     whyaps_teaser_body: "ERP und MES erfassen und führen aus. Sie entscheiden nicht. Lesen Sie, wo sie aufhören, wie Analytics vom Beschreiben zum Entscheiden reift und warum sich die Ergebnisse der Optimierung beweisen lassen.",
                     whyaps_teaser_cta: "Hintergrund lesen",
+                    ph_eyebrow: "Von Daten zu Entscheidungen",
+                    ph_title: "Drei Phasen der Arbeit mit Daten",
+                    ph_desc: "Jedes Unternehmen durchläuft dieselben drei Phasen. Ein APS-System ist die dritte: Es baut auf den Daten auf, die die ersten beiden Phasen liefern.",
+                    ph_phase: "Phase",
+                    ph_tools: "Werkzeuge",
+                    ph_result: "Ergebnis",
+                    ph_badge: "APS · Operartis",
+                    ph_records: "Erfasst und führt aus",
+                    ph_decides: "Entscheidet",
+                    ph_stop: "Hier hören die meisten Unternehmen auf",
+                    ph_items: [
+                        { title: "Erfassen und digitalisieren", line: "Abläufe werden als Daten erfasst.", tools: "Papier, Excel, Scanner, Sensoren", result: "Daten sind vorhanden" },
+                        { title: "Verwalten und synchronisieren", line: "Ein gemeinsamer Datenbestand für alle Abteilungen.", tools: "ERP, MES, WMS", result: "Daten sind konsistent", link: 'industry-40' },
+                        { title: "Analysieren und optimieren", line: "Prognosen, Pläne und Routen werden aus diesem Datenbestand berechnet.", tools: "APS", result: "Daten entscheiden", link: 'analytics' },
+                    ],
                     origin_eyebrow: "Operartis APS - Deutsche Ingenieurskunst",
                     origin_map_note: "Illustration eines Kürzeste-Wege-Algorithmus",
                     origin_map_note_detail: "Vereinfachtes Netz, Luftlinienentfernungen",
@@ -9478,14 +9728,21 @@
             const mesErpTrimLg = 6;
             const mesErpStartTrimmedLg = i4lTrimEnd(mesErpCtrlLg.x, mesErpCtrlLg.y, mesErpStart.x, mesErpStart.y, mesErpTrimLg);
             const mesErpEndTrimmedLg = i4lTrimEnd(mesErpCtrlLg.x, mesErpCtrlLg.y, mesErpEnd.x, mesErpEnd.y, mesErpTrimLg);
+            // Without APS the red lines run along the gold ones, so switching states recolours them in place. They break
+            // before halfway: closer to the box they run into its label, which keeps its font size while the diagram
+            // shrinks, and which is two lines long in Vietnamese
+            const breakAt = (from, to) => ({ x: from.x + (to.x - from.x) * 0.44, y: from.y + (to.y - from.y) * 0.44 });
+            const breakL = breakAt(erpApsStart, erpApsEnd);
+            const breakR = breakAt(apsMesEnd, apsMesStart);
             const mesToErpPath = `M ${mesErpStartTrimmed.x} ${mesErpStartTrimmed.y} Q ${mesErpCtrl.x} ${mesErpCtrl.y} ${mesErpEndTrimmed.x} ${mesErpEndTrimmed.y}`;
             const mesToErpLgPath = `M ${mesErpStartTrimmedLg.x} ${mesErpStartTrimmedLg.y} Q ${mesErpCtrlLg.x} ${mesErpCtrlLg.y} ${mesErpEndTrimmedLg.x} ${mesErpEndTrimmedLg.y}`;
             return {
                 gap: {
-                    erpToBreak: `M ${erp.right - pad} ${erp.top + pad + 4} L ${aps.left + 8} ${aps.bottom + 14}`,
-                    mesToBreak: `M ${mes.left + pad} ${mes.top + pad + 4} L ${aps.right - 8} ${aps.bottom + 14}`,
-                    breakLeft: { x: aps.left + 5, y: aps.bottom + 12 },
-                    breakRight: { x: aps.right - 5, y: aps.bottom + 12 },
+                    erpToBreak: `M ${erpApsStart.x} ${erpApsStart.y} L ${breakL.x} ${breakL.y}`,
+                    mesToBreak: `M ${apsMesEnd.x} ${apsMesEnd.y} L ${breakR.x} ${breakR.y}`,
+                    // The crosses are drawn 10 units tall from y, centred on the end of the line
+                    breakLeft: { x: breakL.x, y: breakL.y - 5 },
+                    breakRight: { x: breakR.x, y: breakR.y - 5 },
                     baseline: mesToErpPath,
                     baselineLg: mesToErpLgPath,
                 },
@@ -9660,8 +9917,8 @@
                                             </defs>
 
                                             <g className={`i4l-phase-layer${apsVisible ? ' i4l-phase-hidden' : ''}`}>
-                                                <path d={I4L_PATHS.gap.erpToBreak} fill="none" stroke="#f43f5e" strokeOpacity="0.7" strokeWidth="1.8" className="i4l-gap-line" />
-                                                <path d={I4L_PATHS.gap.mesToBreak} fill="none" stroke="#f43f5e" strokeOpacity="0.7" strokeWidth="1.8" className="i4l-gap-line" />
+                                                <path d={I4L_PATHS.gap.erpToBreak} fill="none" stroke="#f43f5e" strokeOpacity="0.7" strokeWidth="2.3" className="i4l-gap-line" />
+                                                <path d={I4L_PATHS.gap.mesToBreak} fill="none" stroke="#f43f5e" strokeOpacity="0.7" strokeWidth="2.3" className="i4l-gap-line" />
                                                 <g stroke="#f43f5e" strokeOpacity="0.85" strokeWidth="1.8" strokeLinecap="round">
                                                     <path d={`M ${I4L_PATHS.gap.breakLeft.x - 5} ${I4L_PATHS.gap.breakLeft.y} l 10 10 M ${I4L_PATHS.gap.breakLeft.x + 5} ${I4L_PATHS.gap.breakLeft.y} l -10 10`} />
                                                     <path d={`M ${I4L_PATHS.gap.breakRight.x - 5} ${I4L_PATHS.gap.breakRight.y} l 10 10 M ${I4L_PATHS.gap.breakRight.x + 5} ${I4L_PATHS.gap.breakRight.y} l -10 10`} />
@@ -9690,7 +9947,8 @@
 
                                         <I4LNodeCard nodeKey="erp" ui={ui} apsVisible={apsVisible} highlighted={apsVisible} />
                                         <I4LNodeCard nodeKey="mes" ui={ui} apsVisible={apsVisible} highlighted={apsVisible} />
-                                        <I4LNodeCard nodeKey="aps" ui={ui} apsVisible={apsVisible} highlighted={apsVisible} />
+                                        {/* Keyed by state: the placeholder and the APS node are separate elements, so the placeholder is drawn at once instead of fading over from the APS box */}
+                                        <I4LNodeCard key={apsVisible ? 'aps' : 'aps-missing'} nodeKey="aps" ui={ui} apsVisible={apsVisible} highlighted={apsVisible} />
                                     </div>
                                 </div>
 
@@ -10273,6 +10531,66 @@
                 )}
             </div>
         );
+
+        // Why APS opener: the three phases of working with data. Phase 3 is the APS phase;
+        // phases 2 and 3 link to the sections below that explain them.
+        const PhaseFlagIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 22V4" /><path d="M4 4h13l-2.5 4.5L17 13H4" /></svg>;
+        const PhaseArrowIcon = ({ size = 14 }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>;
+        const DataPhasesSection = ({ content, onScrollTo }) => {
+            const ui = content.ui;
+            const linkLabel = (id) => (ui.whyaps_teaser_items.find((item) => item.id === id) || {}).text;
+            const last = ui.ph_items.length - 1;
+            return (
+                <section aria-label={ui.ph_title}>
+                    <Reveal><SectionHeading eyebrow={ui.ph_eyebrow} title={ui.ph_title} desc={ui.ph_desc} /></Reveal>
+                    <ol className="lp3-phase-list">
+                        {ui.ph_items.map((item, i) => (
+                            <li key={item.title} className={`lp3-phase${i === last ? ' lp3-phase--aps' : ''}`}>
+                                {i === last && (
+                                    <Reveal delay={80}><p className="lp3-phase-stop"><span className="lp3-phase-stop-label"><PhaseFlagIcon />{ui.ph_stop}</span></p></Reveal>
+                                )}
+                                <Reveal className="relative flex flex-col flex-1" delay={80 + i * 90}>
+                                    {i > 0 && <span className="lp3-phase-arrow" aria-hidden="true"><PhaseArrowIcon size={13} /></span>}
+                                    <div className="lp3-phase-card">
+                                        <div className="lp3-phase-head">
+                                            <span className="lp3-phase-num">{ui.ph_phase} {i + 1}</span>
+                                            {i === last && <span className="lp3-phase-badge">{ui.ph_badge}</span>}
+                                        </div>
+                                        <h3 className="text-lg md:text-xl font-bold tracking-tight leading-snug text-slate-900 dark:text-white">{item.title}</h3>
+                                        <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-300">{item.line}</p>
+                                        <dl className="lp3-phase-facts">
+                                            <div>
+                                                <dt className="lp3-phase-key">{ui.ph_tools}</dt>
+                                                <dd className="lp3-phase-val">{item.tools}</dd>
+                                            </div>
+                                            <div>
+                                                <dt className="lp3-phase-key">{ui.ph_result}</dt>
+                                                <dd className="lp3-phase-val lp3-phase-val--result">{item.result}</dd>
+                                            </div>
+                                        </dl>
+                                        {item.link && (
+                                            <button type="button" onClick={() => onScrollTo(item.link)} className="lp3-phase-link">
+                                                <span>{linkLabel(item.link)}</span>
+                                                <PhaseArrowIcon />
+                                            </button>
+                                        )}
+                                    </div>
+                                </Reveal>
+                            </li>
+                        ))}
+                    </ol>
+                    <Reveal delay={380}>
+                        <div className="lp3-phase-scale" aria-hidden="true">
+                            <div className="lp3-phase-scale-rec">
+                                <span>{ui.ph_records}</span>
+                                <span className="lp3-phase-scale-stop"><PhaseFlagIcon />{ui.ph_stop}</span>
+                            </div>
+                            <div className="lp3-phase-scale-dec">{ui.ph_decides}</div>
+                        </div>
+                    </Reveal>
+                </section>
+            );
+        };
 
         // Metrics — open stats row with hairline dividers
         const MetricsBand = ({ content, stats }) => (
@@ -11790,7 +12108,6 @@
 
         const ANALYTICS_HUMAN_W = [92, 76, 50, 38];
         const ANALYTICS_HUMAN_W_AUTO = 6;
-        const ANALYTICS_SOURCE_ICONS = [BoxIcon, FactoryIcon, GlobeIcon];
 
         // Who leads each step: Operartis builds the model and solution, the customer frames, validates and deploys
         const OR_PROCESS_MODEL_IDS = new Set(['model', 'algorithm', 'prototype', 'solution']);
@@ -12116,15 +12433,75 @@
                 };
             }, [updateMaturityArrow, levels.length]);
 
-            const activeLevel = levels[activeIdx];
-            const isPrescriptive = activeIdx === 3;
-            const isAutoMode = isPrescriptive && prescriptiveMode === 'auto';
-            const humanW = isAutoMode ? ANALYTICS_HUMAN_W_AUTO : ANALYTICS_HUMAN_W[activeIdx];
-            const modelW = 100 - humanW;
-            const levelTitleClass = ANALYTICS_LEVEL_META[activeIdx].titleClass;
-            const decisionTypeDetail = isAutoMode
-                ? (ui.analytics_prescriptive_auto || ui.analytics_prescriptive_auto_short)
-                : ((ui.analytics_decision_types || [])[activeIdx] || activeLevel.focus);
+            // One level's detail. The panel also renders every level as a hidden ghost in the same grid cell, so its
+            // height is that of the tallest level and the block does not resize when another column is picked.
+            const renderDetail = (idx, mode, live) => {
+                const level = levels[idx];
+                const isPrescriptive = idx === 3;
+                const isAutoMode = isPrescriptive && mode === 'auto';
+                const humanW = isAutoMode ? ANALYTICS_HUMAN_W_AUTO : ANALYTICS_HUMAN_W[idx];
+                const levelTitleClass = ANALYTICS_LEVEL_META[idx].titleClass;
+                const decisionTypeDetail = isAutoMode
+                    ? ui.analytics_prescriptive_auto
+                    : ((ui.analytics_decision_types || [])[idx] || level.focus);
+                const fade = live ? 'aa2-fade' : '';
+                return (
+                    <div key={live ? 'live' : `ghost-${idx}-${mode}`} className={live ? 'aa2-detail-live' : 'aa2-detail-ghost'} aria-hidden={live ? undefined : true}>
+                        <div key={`head-${idx}`} className={fade}>
+                            <div className="flex items-center gap-3">
+                                <span className="aa2-detail-num">{String(idx + 1).padStart(2, '0')} / {String(levels.length).padStart(2, '0')}</span>
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">{idx < 2 ? ui.analytics_band_information : ui.analytics_band_models}</span>
+                            </div>
+                            <div className="mt-4 flex flex-wrap items-center gap-3">
+                                <div className="aa2-detail-title">
+                                    <h3 className={`text-2xl md:text-3xl font-black tracking-tight ${levelTitleClass}`}>{level.name}</h3>
+                                    <p className="mt-1 text-lg md:text-xl font-semibold leading-snug text-slate-800 dark:text-slate-100">{level.question}</p>
+                                </div>
+                                {/* Beside the title, so level 4 is no taller than the others */}
+                                {isPrescriptive && (
+                                    <div className="inline-flex shrink-0 flex-col rounded-2xl border border-slate-300 p-0.5 dark:border-white/15">
+                                        {[
+                                            ['support', ui.analytics_prescriptive_support, ui.analytics_prescriptive_support_short],
+                                            ['auto', ui.analytics_prescriptive_auto, ui.analytics_prescriptive_auto_short],
+                                        ].map(([value, label, short]) => (
+                                            <button
+                                                key={value}
+                                                type="button"
+                                                onClick={() => setPrescriptiveMode(value)}
+                                                aria-pressed={mode === value}
+                                                aria-label={label}
+                                                title={label}
+                                                tabIndex={live ? undefined : -1}
+                                                className={`rounded-[0.85rem] px-3 py-1.5 text-[11px] font-bold transition-colors ${mode === value ? 'aa2-mode-active' : 'text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white'}`}
+                                            >
+                                                {short}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Human vs model: the gold share grows with each level */}
+                        <div className="mt-6">
+                            <div className="flex justify-between gap-3 text-[10px] font-bold uppercase tracking-wider">
+                                <span className="text-slate-500 dark:text-slate-400">{ui.analytics_human_input} {humanW}%</span>
+                                <span className={levelTitleClass}>{ui.analytics_model_driven} {100 - humanW}%</span>
+                            </div>
+                            <div className="aa2-meter mt-2" aria-hidden="true"><span style={{ width: `${humanW}%` }}></span></div>
+                        </div>
+
+                        <dl key={`rows-${idx}-${mode}`} className={`${fade} mt-6 divide-y divide-slate-200/80 border-t border-slate-200/80 dark:divide-white/10 dark:border-white/10`}>
+                            {[[ui.analytics_decision_type, decisionTypeDetail], [ui.analytics_action, level.focus], [ui.analytics_results, level.desc]].map(([term, detail], i) => (
+                                <div key={i} className="grid grid-cols-[6.5rem_1fr] gap-3 py-3">
+                                    <dt className="pt-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">{term}</dt>
+                                    <dd className="text-sm leading-relaxed text-slate-700 dark:text-slate-300">{detail}</dd>
+                                </div>
+                            ))}
+                        </dl>
+                    </div>
+                );
+            };
 
             return (
                 <section
@@ -12207,65 +12584,13 @@
                                         <p className="mt-3 text-center text-[9px] md:text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">{ui.analytics_axis_complexity} →</p>
                                     </div>
                                 </div>
-
-                                {/* Data foundation, as one line under the chart */}
-                                <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-dashed border-slate-200 pt-4 dark:border-slate-700">
-                                    <span className="mr-1 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">{ui.analytics_data_foundation}</span>
-                                    {ui.analytics_sources.map((src, i) => {
-                                        const Icon = ANALYTICS_SOURCE_ICONS[i];
-                                        return (
-                                            <span key={i} className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-bold text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 [&_svg]:h-3.5 [&_svg]:w-3.5">
-                                                <Icon />{src}
-                                            </span>
-                                        );
-                                    })}
-                                </div>
                             </div>
 
                             {/* Detail of the selected level */}
-                            <div className={`lg:col-span-5 aa2-detail aa-flow-accent-${activeIdx} flex flex-col rounded-2xl border p-5 md:p-7`} role="tabpanel" aria-live="polite">
-                                <div key={`head-${activeIdx}`} className="aa2-fade">
-                                    <div className="flex items-center gap-3">
-                                        <span className="aa2-detail-num">{String(activeIdx + 1).padStart(2, '0')} / {String(levels.length).padStart(2, '0')}</span>
-                                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">{activeIdx < 2 ? ui.analytics_band_information : ui.analytics_band_models}</span>
-                                    </div>
-                                    <h3 className={`mt-4 text-2xl md:text-3xl font-black tracking-tight ${levelTitleClass}`}>{activeLevel.name}</h3>
-                                    <p className="mt-1 text-lg md:text-xl font-semibold leading-snug text-slate-800 dark:text-slate-100">{activeLevel.question}</p>
-                                </div>
-
-                                {isPrescriptive && (
-                                    <div className="mt-4 inline-flex self-start rounded-full border border-slate-300 p-0.5 dark:border-white/15">
-                                        {[['support', ui.analytics_prescriptive_support], ['auto', ui.analytics_prescriptive_auto]].map(([mode, label]) => (
-                                            <button
-                                                key={mode}
-                                                type="button"
-                                                onClick={() => setPrescriptiveMode(mode)}
-                                                aria-pressed={prescriptiveMode === mode}
-                                                className={`rounded-full px-3 py-2 text-[11px] font-bold transition-colors ${prescriptiveMode === mode ? 'aa2-mode-active' : 'text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white'}`}
-                                            >
-                                                {label}
-                                            </button>
-                                        ))}
-                                    </div>
-                                )}
-
-                                {/* Human vs model: the gold share grows with each level */}
-                                <div className="mt-6">
-                                    <div className="flex justify-between gap-3 text-[10px] font-bold uppercase tracking-wider">
-                                        <span className="text-slate-500 dark:text-slate-400">{ui.analytics_human_input} {humanW}%</span>
-                                        <span className={levelTitleClass}>{ui.analytics_model_driven} {modelW}%</span>
-                                    </div>
-                                    <div className="aa2-meter mt-2" aria-hidden="true"><span style={{ width: `${humanW}%` }}></span></div>
-                                </div>
-
-                                <dl key={`rows-${activeIdx}-${prescriptiveMode}`} className="aa2-fade mt-6 divide-y divide-slate-200/80 border-t border-slate-200/80 dark:divide-white/10 dark:border-white/10">
-                                    {[[ui.analytics_decision_type, decisionTypeDetail], [ui.analytics_action, activeLevel.focus], [ui.analytics_results, activeLevel.desc]].map(([term, detail], i) => (
-                                        <div key={i} className="grid grid-cols-[6.5rem_1fr] gap-3 py-3">
-                                            <dt className="pt-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">{term}</dt>
-                                            <dd className="text-sm leading-relaxed text-slate-700 dark:text-slate-300">{detail}</dd>
-                                        </div>
-                                    ))}
-                                </dl>
+                            <div className={`lg:col-span-5 aa2-detail aa-flow-accent-${activeIdx} rounded-2xl border p-5 md:p-7`} role="tabpanel" aria-live="polite">
+                                {levels.map((_, idx) => renderDetail(idx, 'support', false))}
+                                {renderDetail(levels.length - 1, 'auto', false)}
+                                {renderDetail(activeIdx, prescriptiveMode, true)}
                             </div>
                         </div>
 
@@ -14005,7 +14330,12 @@
                                         </div>
                                     </Reveal>
 
-                                    <div id="industry-40" className="opus-scroll-target mt-16 md:mt-24">
+                                    {/* Opener: the three phases of data, so the sections below have a map */}
+                                    <div id="data-phases" className="opus-scroll-target mt-16 md:mt-24">
+                                        <DataPhasesSection content={content} onScrollTo={scrollToId} />
+                                    </div>
+
+                                    <div id="industry-40" className="opus-scroll-target mt-24 md:mt-32">
                                         <Reveal><SectionHeading eyebrow={content.ui.i4l_eyebrow} title={content.ui.i4l_title} /></Reveal>
                                         <SystemIntegrationLoop content={content} />
                                     </div>
