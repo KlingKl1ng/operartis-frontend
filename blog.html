@@ -1402,6 +1402,7 @@
                 nav_why_aps: 'Why APS',
                 nav_mathematical_foundation: 'Mathematical Foundation',
                 nav_supply_chain: 'Supply Chain',
+                nav_data_phases: 'Data Phases',
                 nav_industry_40: 'Industry 4.0',
                 nav_analytics: 'Analytics Levels',
                 nav_aps_system: 'APS-System',
@@ -1455,6 +1456,7 @@
                 nav_why_aps: 'Vì sao cần APS',
                 nav_mathematical_foundation: 'Nền tảng toán học',
                 nav_supply_chain: 'Chuỗi cung ứng',
+                nav_data_phases: 'Giai đoạn dữ liệu',
                 nav_industry_40: 'Công nghiệp 4.0',
                 nav_analytics: 'Cấp độ phân tích',
                 nav_aps_system: 'Hệ thống APS',
@@ -1508,6 +1510,7 @@
                 nav_why_aps: 'Warum APS',
                 nav_mathematical_foundation: 'Mathematische Grundlage',
                 nav_supply_chain: 'Lieferkette',
+                nav_data_phases: 'Datenphasen',
                 nav_industry_40: 'Industry 4.0',
                 nav_analytics: 'Analytics-Stufen',
                 nav_aps_system: 'APS-System',
@@ -1663,6 +1666,7 @@
         const NAV_HREF = {
             'proof-foundation': './why-aps#proof-foundation',
             'supply-chain': './#supply-chain',
+            'data-phases': './why-aps#data-phases',
             'industry-40': './why-aps#industry-40',
             'analytics': './why-aps#analytics',
             'platform': './platform',
@@ -1714,6 +1718,7 @@
                 label: ui.nav_why_aps,
                 navId: 'why-aps-top',
                 children: [
+                    { id: 'data-phases', label: ui.nav_data_phases },
                     { id: 'industry-40', label: ui.nav_industry_40 },
                     { id: 'analytics', label: ui.nav_analytics },
                     { id: 'proof-foundation', label: ui.nav_mathematical_foundation },
@@ -2695,6 +2700,7 @@
             ];
 
             const whyApsLinks = [
+                { href: './why-aps#data-phases', label: ui.nav_data_phases },
                 { href: './why-aps#industry-40', label: ui.nav_industry_40 },
                 { href: './why-aps#analytics', label: ui.nav_analytics },
                 { href: './why-aps#proof-foundation', label: ui.nav_mathematical_foundation },

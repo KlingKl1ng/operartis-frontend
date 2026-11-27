@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Operartis | Why APS</title>
-    <meta name="description" content="Why ERP and MES alone are not enough: where they stop, the four levels of analytics, and the mathematical foundation behind provable optimization.">
+    <meta name="description" content="Why ERP and MES alone are not enough: their limits, the four levels of analytics, and the mathematical foundation behind provable optimization.">
     <link rel="canonical" href="https://operartis.io/why-aps">
     <meta name="theme-color" content="#020617">
 
@@ -14,7 +14,7 @@
     <meta property="og:site_name" content="Operartis">
     <meta property="og:url" content="https://operartis.io/why-aps">
     <meta property="og:title" content="Operartis | Why APS">
-    <meta property="og:description" content="Why ERP and MES alone are not enough: where they stop, the four levels of analytics, and the mathematical foundation behind provable optimization.">
+    <meta property="og:description" content="Why ERP and MES alone are not enough: their limits, the four levels of analytics, and the mathematical foundation behind provable optimization.">
     <meta property="og:image" content="https://operartis.io/assets/og-image.jpg">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
@@ -23,7 +23,7 @@
     <meta property="og:locale:alternate" content="de_DE">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Operartis | Why APS">
-    <meta name="twitter:description" content="Why ERP and MES alone are not enough: where they stop, the four levels of analytics, and the mathematical foundation behind provable optimization.">
+    <meta name="twitter:description" content="Why ERP and MES alone are not enough: their limits, the four levels of analytics, and the mathematical foundation behind provable optimization.">
     <meta name="twitter:image" content="https://operartis.io/assets/og-image.jpg">
 
     <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png">
@@ -43,7 +43,7 @@
                 if (id === 'blog') return './blog';
                 if (id === 'about-why') return './about#about-why';
                 var dest = null;
-                if (id === 'proof-foundation' || id === 'industry-40' || id === 'analytics') dest = 'why-aps';
+                if (id === 'data-phases' || id === 'proof-foundation' || id === 'industry-40' || id === 'analytics') dest = 'why-aps';
                 else if (id === 'platform' || id === 'matrix-fit' || id.indexOf('horizon-') === 0) dest = 'platform';
                 else if (id === 'supply-chain' || id === 'or-process' || id === 'platform-overview') dest = 'home';
                 if (!dest || dest === page) return null;
@@ -6823,7 +6823,7 @@
         // `node build-landing-pages.mjs`.
         const PAGE = document.documentElement.getAttribute('data-page') || 'home';
         const PAGE_HREF = { home: './', 'why-aps': './why-aps', platform: './platform' };
-        const WHY_APS_NAV_IDS = ['proof-foundation', 'industry-40', 'analytics', 'why-aps-top'];
+        const WHY_APS_NAV_IDS = ['data-phases', 'proof-foundation', 'industry-40', 'analytics', 'why-aps-top'];
         // Nav ids that mean "the top of that page": linked without a hash from the other pages
         const PAGE_TOP_NAV_IDS = ['matrix-fit', 'why-aps-top'];
         // Home sections that scroll in place (partners, integrations and Q&A included, or they would fall through to the platform page)
@@ -6921,6 +6921,7 @@
                     label: ui.nav_why_aps,
                     navId: 'why-aps-top',
                     children: [
+                        { id: 'data-phases', label: ui.nav_data_phases },
                         { id: 'industry-40', label: ui.nav_industry_40 },
                         { id: 'analytics', label: ui.nav_analytics },
                         { id: 'proof-foundation', label: ui.nav_mathematical_foundation },
@@ -7282,6 +7283,7 @@
                     vrp_model: "Assign",
                     vrp_forecast: "Routes",
                     nav_supply_chain: "Supply Chain",
+                    nav_data_phases: "Data Phases",
                     nav_industry_40: "Industry 4.0",
                     nav_platform: "Platform",
                     nav_mathematical_foundation: "Mathematical Foundation",
@@ -7336,8 +7338,8 @@
                     platform_page_title: "Operartis | The APS Platform",
                     whyaps_eyebrow: "Background",
                     whyaps_title: "Why an APS system?",
-                    whyaps_desc: "Where ERP and MES stop, how analytics grows from describing to deciding, and why the results of optimization can be proven.",
-                    whyaps_teaser_body: "ERP and MES record and execute. They do not decide. Read where they stop, how analytics grows from describing to deciding, and why the results of optimization can be proven.",
+                    whyaps_desc: "Which phases data goes through, what the limits of ERP and MES are, how analytics grows from describing to deciding, and why the results of optimization can be proven.",
+                    whyaps_teaser_body: "ERP and MES record and execute. They do not decide. Read what their limits are, how analytics grows from describing to deciding, and why the results of optimization can be proven.",
                     whyaps_teaser_cta: "Read the background",
                     ph_eyebrow: "From data to decisions",
                     ph_title: "Three phases of working with data",
@@ -7376,7 +7378,8 @@
                         "Request a demo or book a consulting appointment, fully in Vietnamese"
                     ],
                     whyaps_teaser_items: [
-                        { id: 'industry-40', text: "Where ERP and MES stop" },
+                        { id: 'data-phases', text: "Three phases of working with data" },
+                        { id: 'industry-40', text: "The limits of ERP and MES" },
                         { id: 'analytics', text: "From describing to deciding" },
                         { id: 'proof-foundation', text: "Results you can verify" }
                     ],
@@ -7733,6 +7736,7 @@
                     vrp_model: "Phân xe",
                     vrp_forecast: "Lộ trình",
                     nav_supply_chain: "Chuỗi cung ứng",
+                    nav_data_phases: "Giai đoạn dữ liệu",
                     nav_industry_40: "Công nghiệp 4.0",
                     nav_platform: "Nền tảng",
                     nav_mathematical_foundation: "Nền tảng toán học",
@@ -7787,8 +7791,8 @@
                     platform_page_title: "Operartis | Nền tảng APS",
                     whyaps_eyebrow: "Kiến thức nền tảng",
                     whyaps_title: "Vì sao cần hệ thống APS?",
-                    whyaps_desc: "ERP và MES dừng lại ở đâu, phân tích dữ liệu phát triển từ mô tả đến ra quyết định như thế nào, và vì sao kết quả tối ưu hoá có thể chứng minh được.",
-                    whyaps_teaser_body: "ERP và MES ghi nhận và thực thi, nhưng không ra quyết định. Tìm hiểu chúng dừng lại ở đâu, phân tích dữ liệu phát triển từ mô tả đến ra quyết định như thế nào, và vì sao kết quả tối ưu hoá có thể chứng minh được.",
+                    whyaps_desc: "Dữ liệu đi qua những giai đoạn nào, ERP và MES có những giới hạn nào, phân tích dữ liệu phát triển từ mô tả đến ra quyết định như thế nào, và vì sao kết quả tối ưu hoá có thể chứng minh được.",
+                    whyaps_teaser_body: "ERP và MES ghi nhận và thực thi, nhưng không ra quyết định. Tìm hiểu chúng có những giới hạn nào, phân tích dữ liệu phát triển từ mô tả đến ra quyết định như thế nào, và vì sao kết quả tối ưu hoá có thể chứng minh được.",
                     whyaps_teaser_cta: "Đọc kiến thức nền tảng",
                     ph_eyebrow: "Từ dữ liệu đến quyết định",
                     ph_title: "Ba giai đoạn làm việc với dữ liệu",
@@ -7827,7 +7831,8 @@
                         "Đăng ký demo hoặc đặt lịch tư vấn, hoàn toàn bằng tiếng Việt"
                     ],
                     whyaps_teaser_items: [
-                        { id: 'industry-40', text: "ERP và MES dừng lại ở đâu" },
+                        { id: 'data-phases', text: "Ba giai đoạn làm việc với dữ liệu" },
+                        { id: 'industry-40', text: "Giới hạn của ERP và MES" },
                         { id: 'analytics', text: "Từ mô tả đến ra quyết định" },
                         { id: 'proof-foundation', text: "Kết quả có thể kiểm chứng" }
                     ],
@@ -8184,6 +8189,7 @@
                     vrp_model: "Zuordnung",
                     vrp_forecast: "Touren",
                     nav_supply_chain: "Lieferkette",
+                    nav_data_phases: "Datenphasen",
                     nav_industry_40: "Industry 4.0",
                     nav_platform: "Plattform",
                     nav_mathematical_foundation: "Mathematische Grundlage",
@@ -8238,8 +8244,8 @@
                     platform_page_title: "Operartis | Die APS-Plattform",
                     whyaps_eyebrow: "Hintergrund",
                     whyaps_title: "Warum ein APS-System?",
-                    whyaps_desc: "Wo ERP und MES aufhören, wie Analytics vom Beschreiben zum Entscheiden reift und warum sich die Ergebnisse der Optimierung beweisen lassen.",
-                    whyaps_teaser_body: "ERP und MES erfassen und führen aus. Sie entscheiden nicht. Lesen Sie, wo sie aufhören, wie Analytics vom Beschreiben zum Entscheiden reift und warum sich die Ergebnisse der Optimierung beweisen lassen.",
+                    whyaps_desc: "Welche Phasen Daten durchlaufen, wo die Grenzen von ERP und MES liegen, wie Analytics vom Beschreiben zum Entscheiden reift und warum sich die Ergebnisse der Optimierung beweisen lassen.",
+                    whyaps_teaser_body: "ERP und MES erfassen und führen aus. Sie entscheiden nicht. Lesen Sie, wo ihre Grenzen liegen, wie Analytics vom Beschreiben zum Entscheiden reift und warum sich die Ergebnisse der Optimierung beweisen lassen.",
                     whyaps_teaser_cta: "Hintergrund lesen",
                     ph_eyebrow: "Von Daten zu Entscheidungen",
                     ph_title: "Drei Phasen der Arbeit mit Daten",
@@ -8278,7 +8284,8 @@
                         "Demo anfragen oder Beratungstermin buchen, vollständig auf Vietnamesisch"
                     ],
                     whyaps_teaser_items: [
-                        { id: 'industry-40', text: "Wo ERP und MES aufhören" },
+                        { id: 'data-phases', text: "Drei Phasen der Arbeit mit Daten" },
+                        { id: 'industry-40', text: "Die Grenzen von ERP und MES" },
                         { id: 'analytics', text: "Vom Beschreiben zum Entscheiden" },
                         { id: 'proof-foundation', text: "Ergebnisse, die sich prüfen lassen" }
                     ],
@@ -13040,10 +13047,11 @@
             );
         };
 
-        // Teaser for the background page (why-aps.html), where the three teaching sections now live
+        // Teaser for the background page (why-aps.html), where the teaching sections now live
         const WhyApsTeaser = ({ content }) => {
             const ui = content.ui;
             const labels = {
+                'data-phases': ui.nav_data_phases,
                 'industry-40': ui.nav_industry_40,
                 'analytics': ui.nav_analytics,
                 'proof-foundation': ui.nav_mathematical_foundation,
@@ -13543,6 +13551,7 @@
             ];
 
             const whyApsLinks = [
+                { id: 'data-phases', label: ui.nav_data_phases },
                 { id: 'industry-40', label: ui.nav_industry_40 },
                 { id: 'analytics', label: ui.nav_analytics },
                 { id: 'proof-foundation', label: ui.nav_mathematical_foundation },
@@ -13802,6 +13811,7 @@
             const getSectionList = useCallback(() => {
                 const sections = [
                     { id: 'supply-chain', el: document.getElementById('supply-chain') },
+                    { id: 'data-phases', el: document.getElementById('data-phases') },
                     { id: 'proof-foundation', el: document.getElementById('proof-foundation') },
                     { id: 'industry-40', el: document.getElementById('industry-40') },
                     { id: 'analytics', el: document.getElementById('analytics') },
@@ -13912,7 +13922,7 @@
                     scrollToNavItem('contact');
                     return;
                 }
-                if (['proof-foundation', 'supply-chain', 'industry-40', 'analytics', 'about', 'about-why', 'platform'].includes(id)) {
+                if (['data-phases', 'proof-foundation', 'supply-chain', 'industry-40', 'analytics', 'about', 'about-why', 'platform'].includes(id)) {
                     scrollToNavItem(id === 'platform' ? 'strategic' : id);
                     return;
                 }
@@ -14318,9 +14328,10 @@
                                         <div id="why-aps-top" className="pt-4 sm:pt-8 md:pt-12 text-center max-w-4xl mx-auto">
                                             <p className="text-[10px] md:text-[11px] font-bold uppercase opus-eyebrow text-brand-gold mb-4 md:mb-5">{content.ui.whyaps_eyebrow}</p>
                                             <h1 className="text-[2.25rem] sm:text-5xl lg:text-6xl font-black text-slate-900 dark:text-white tracking-tight leading-[1.1]">{content.ui.whyaps_title}</h1>
-                                            <p className="mt-5 md:mt-6 text-base sm:text-lg md:text-xl text-slate-600 dark:text-slate-300 leading-relaxed max-w-2xl mx-auto">{content.ui.whyaps_desc}</p>
+                                            <p className="mt-5 md:mt-6 text-base sm:text-lg md:text-xl text-slate-600 dark:text-slate-300 leading-relaxed max-w-2xl mx-auto text-balance">{content.ui.whyaps_desc}</p>
                                             <div className="mt-7 md:mt-8 flex flex-wrap items-center justify-center gap-2.5">
                                                 {[
+                                                    { id: 'data-phases', label: content.ui.nav_data_phases },
                                                     { id: 'industry-40', label: content.ui.nav_industry_40 },
                                                     { id: 'analytics', label: content.ui.nav_analytics },
                                                     { id: 'proof-foundation', label: content.ui.nav_mathematical_foundation },

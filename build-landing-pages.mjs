@@ -24,7 +24,7 @@ const HOME = {
 const PAGES = {
   'why-aps': {
     title: 'Operartis | Why APS',
-    description: 'Why ERP and MES alone are not enough: where they stop, the four levels of analytics, and the mathematical foundation behind provable optimization.',
+    description: 'Why ERP and MES alone are not enough: their limits, the four levels of analytics, and the mathematical foundation behind provable optimization.',
     url: 'https://operartis.io/why-aps',
   },
   platform: {
