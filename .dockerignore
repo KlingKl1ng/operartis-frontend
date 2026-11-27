@@ -13,3 +13,5 @@ app-shared/
 package.json
 pnpm-lock.yaml
 pnpm-workspace.yaml
+vrp-app/
+tests/
